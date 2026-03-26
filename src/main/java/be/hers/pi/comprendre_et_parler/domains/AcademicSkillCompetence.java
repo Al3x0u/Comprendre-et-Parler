@@ -1,20 +1,18 @@
-package be.hers.pi.comprendre_et_parler.DAOs;
+package be.hers.pi.comprendre_et_parler.domains;
 
-public class BusinessSkillCompetence {
+public class AcademicSkillCompetence {
     private String id;
     private String designation;
 
-
     /*
-        Constructor of a BusinessSkillCompetence Object
-        @param id : represent the id
-        @param designation : represent the designation
-     */
-    public BusinessSkillCompetence(String id, String designation) {
+        Constructor of a AcademicSkillCompetence Object
+        @param id : represent id
+        @param designation : represent designation
+    */
+    public AcademicSkillCompetence(String id, String designation) {
         this.id = id;
         this.designation = designation;
     }
-
 
     /*
         @return this.id
@@ -22,6 +20,7 @@ public class BusinessSkillCompetence {
     public String getId() {
         return id;
     }
+
     /*
         @return this.designation
      */

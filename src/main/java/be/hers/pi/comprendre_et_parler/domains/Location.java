@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.DAOs;
+package be.hers.pi.comprendre_et_parler.domains;
 
 public class Location {
     private String id;
@@ -10,7 +10,7 @@ public class Location {
     /*
     Constructor of a Location Object
     @param id : represent id
-    @param d : represent designation 
+    @param d : represent designation
     @param c : represent the city name
     @param s : represent the street name
     @param sN : represent the street number
