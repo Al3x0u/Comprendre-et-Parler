@@ -10,7 +10,7 @@ public class PonctualTimeSlot extends TimeSlot{
         Constructor of a PonctualTimeSlot which extends TimeSlot
         @param id represent the id
         @param startHourTime represent the hour at which start
-        @param startHourTime represent the hour at which finish
+        @param endHourTime represent the hour at which finish
         @param date represent the date of the ponctual time slot
      */
     public PonctualTimeSlot(String id, LocalTime startHourTime, LocalTime endHourTime,LocalDateTime date) {

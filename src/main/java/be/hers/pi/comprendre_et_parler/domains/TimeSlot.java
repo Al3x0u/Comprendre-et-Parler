@@ -12,7 +12,7 @@ public class TimeSlot {
         Constructor of a TimeSlot object
         @param id represent the id
         @param startHourTime represent the hour at which start
-        @param startHourTime represent the hour at which finish
+        @param endHourTime represent the hour at which finish
      */
     public TimeSlot(String id, LocalTime startHourTime, LocalTime endHourTime) {
         this.id = id;
