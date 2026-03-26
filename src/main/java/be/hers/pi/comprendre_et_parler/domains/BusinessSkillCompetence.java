@@ -5,7 +5,7 @@ public class BusinessSkillCompetence {
     private String designation;
 
 
-    /*
+    /**
         Constructor of a BusinessSkillCompetence Object
         @param id : represent the id
         @param designation : represent the designation
@@ -16,13 +16,14 @@ public class BusinessSkillCompetence {
     }
 
 
-    /*
+    /**
         @return this.id
      */
     public String getId() {
         return id;
     }
-    /*
+
+    /**
         @return this.designation
      */
     public String getDesignation() {

@@ -5,7 +5,7 @@ public class City {
     private String designation;
     private String postalCode;
 
-    /*
+    /**
         Constructor of a City Object
         @param id : represent the id
         @param d : represent the designation
@@ -17,20 +17,21 @@ public class City {
         this.postalCode = pC;
     }
 
-    /*
+    /**
         @return this.postalCode
      */
     public String getPostalCode() {
         return postalCode;
     }
-    /*
+
+    /**
         @return this.designation
      */
     public String getDesignation() {
         return designation;
     }
 
-    /*
+    /**
         @return this.id
      */
     public String getId() {

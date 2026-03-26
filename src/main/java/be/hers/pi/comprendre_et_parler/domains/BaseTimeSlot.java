@@ -5,7 +5,7 @@ import java.time.LocalTime;
 public class BaseTimeSlot extends TimeSlot{
     private int day;
 
-    /*
+    /**
         Constructor of a BaseTimeSlot which extends TimeSlot
         @param id represent the id
         @param startHourTime represent the hour at which start
@@ -17,7 +17,7 @@ public class BaseTimeSlot extends TimeSlot{
         this.day = day;
     }
 
-    /*
+    /**
         @return this.day
      */
     public int getDay() {
