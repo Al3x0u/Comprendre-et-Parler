@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.domains.Location;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 
 
@@ -24,6 +25,8 @@ public class DAOLocation implements DAO<Location> {
     @param objectToInsert : Object that we gonna insert
     @return TRUE if the insertion is completed else FALSE
     @throws AlreadyExistException if there are already a line with there information
+    @throws DuplicatePrimaryException if the given id already used in the database
+    @throws ConnectionException if we couldn't connect to the database
      */
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
@@ -34,6 +37,8 @@ public class DAOLocation implements DAO<Location> {
     @param objectToUpdate : object with the news information
     @return TRUE if the modification wa a success else FALSE
     @throws AlreadyExistException if there are already a line with there information
+    @throws NoSuchElementException if there are not the element to update in the database
+    @throws ConnectionException if there are an error during the connection to the database
      */
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException,ConnectionException {
@@ -43,9 +48,11 @@ public class DAOLocation implements DAO<Location> {
     Delete a line in the Location table in the database
     @param objectToDelete : object with the information of the line who need to be deleted
     @return TRUE if the removal was a success else FALSE
+    @throws NoSuchElementException if we couldn't find the Location object in the database
+    @throws ConnectionException if we couldn't connect to the database
      */
     @Override
-    public void delete(Location objectToDelete) {
+    public void delete(Location objectToDelete) throws NoSuchElementException, ConnectionException{
 
     }
 
