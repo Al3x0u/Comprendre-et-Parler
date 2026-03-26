@@ -6,7 +6,7 @@ public class BusinessSkillCompetence {
 
 
     /*
-        Constructor of a BusinnessSkillCompetence Object
+        Constructor of a BusinessSkillCompetence Object
         @param id : represent the id
         @param designation : represent the designation
      */
