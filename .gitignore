@@ -3,9 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-*.bak*
-lib/
-src/out/
+/datebase/*.bak*
 
 ### STS ###
 .apt_generated
