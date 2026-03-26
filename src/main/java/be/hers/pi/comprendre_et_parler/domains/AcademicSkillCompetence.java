@@ -4,7 +4,7 @@ public class AcademicSkillCompetence {
     private String id;
     private String designation;
 
-    /*
+    /**
         Constructor of a AcademicSkillCompetence Object
         @param id : represent id
         @param designation : represent designation
@@ -14,14 +14,14 @@ public class AcademicSkillCompetence {
         this.designation = designation;
     }
 
-    /*
+    /**
         @return this.id
      */
     public String getId() {
         return id;
     }
 
-    /*
+    /**
         @return this.designation
      */
     public String getDesignation() {

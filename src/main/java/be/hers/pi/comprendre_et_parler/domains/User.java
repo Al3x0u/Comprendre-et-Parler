@@ -12,13 +12,13 @@ public abstract class User {
     private String email;
     private String phoneNumber;
 
-    /*
+    /**
        Constructor of a User
        @param id represent the id
        @param login represent the login
        @param firstName represent the firstname
        @param lastName represent he lastname
-       @param birthdate represent the birthdate
+       @param birthDate represent the birthdate
        @param hashedPassword represent the hashed password
        @param email represent the email
        @param phoneNumber represent the phone number
@@ -34,35 +34,58 @@ public abstract class User {
         this.phoneNumber = phoneNumber;
     }
 
-
+    /**
+     * @return this.login
+     */
     public String getLogin() {
         return login;
     }
 
+    /**
+     * @return this.firstName
+     */
     public String getFirstName() {
         return firstName;
     }
 
+    /**
+     * @return this.lastName
+     */
     public String getLastName() {
         return lastName;
     }
 
+    /**
+     * @return this.birthDate
+     */
     public LocalDate getBirthDate() {
         return birthDate;
     }
 
+    /**
+     * @return this.hashedPassword
+     */
     public String getHashedPassword() {
         return hashedPassword;
     }
 
+    /**
+     * @return this.email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * @return this.phoneNumber
+     */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    /**
+     * @return this.id
+     */
     public String getId() {
         return id;
     }

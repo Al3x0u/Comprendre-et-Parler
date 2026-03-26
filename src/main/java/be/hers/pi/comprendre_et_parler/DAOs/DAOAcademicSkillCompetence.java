@@ -12,36 +12,34 @@ public class DAOAcademicSkillCompetence implements DAO<AcademicSkillCompetence> 
 
 
 
-    /*
-    Search for a AcademicSkillCompetence in the database with the String parameter
-    @param id : identification of the AcademicSkillCompetence
-    @return AcademicSkillCompetence object who correspond to the given id else null
+    /**
+        Search for a AcademicSkillCompetence in the database with the String parameter
+        @param id : identification of the AcademicSkillCompetence
+        @return AcademicSkillCompetence object who correspond to the given id else null
      */
     @Override
     public AcademicSkillCompetence find(String id) throws ConnectionException {
         return null;
     }
 
-    /*
-    Insert a BusinessSkillCompetence Object in the database
-    @param objectToInsert : Object that we gonna insert
-    @return TRUE if the insertion is completed else FALSE
-    @throws AlreadyExistException if there are already a line with there information
-    @throws DuplicatePrimaryException if the given id already used in the database
-    @throws ConnectionException if we couldn't connect to the database
+    /**
+        Insert a BusinessSkillCompetence Object in the database
+        @param objectToInsert : Object that we gonna insert
+        @throws AlreadyExistsException if there are already a line with there information
+        @throws DuplicatePrimaryKeyException if the given id already used in the database
+        @throws ConnectionException if we couldn't connect to the database
      */
     @Override
     public void create(AcademicSkillCompetence objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
 
     }
 
-    /*
-    Update a AcademicSkillCompetence line who already exist in the database
-    @param objectToUpdate : object with the news information
-    @return TRUE if the modification was a success else FALSE
-    @throws AlreadyExistException if there are already a line with there information
-    @throws NoSuchElementException if there are not the element to update in the database
-    @throws ConnectionException if there are an error during the connection to the database
+    /**
+        Update a AcademicSkillCompetence line who already exist in the database
+        @param objectToUpdate : object with the news information
+        @throws AlreadyExistsException if there are already a line with there information
+        @throws NoSuchElementException if there are not the element to update in the database
+        @throws ConnectionException if there are an error during the connection to the database
      */
     @Override
     public void update(AcademicSkillCompetence objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
@@ -49,12 +47,11 @@ public class DAOAcademicSkillCompetence implements DAO<AcademicSkillCompetence> 
     }
 
 
-    /*
-    Delete a AcademicSkillCompetence line in the  table in the database
-    @param objectToDelete : object with the information of the line who need to be deleted
-    @return TRUE if the removal was a success else FALSE
-    @throws NoSuchElementException if we couldn't find the Location object in the database
-    @throws ConnectionException if we couldn't connect to the database
+    /**
+        Delete a AcademicSkillCompetence line in the  table in the database
+        @param objectToDelete : object with the information of the line who need to be deleted
+        @throws NoSuchElementException if we couldn't find the Location object in the database
+        @throws ConnectionException if we couldn't connect to the database
      */
     @Override
     public void delete(AcademicSkillCompetence objectToDelete) throws NoSuchElementException, ConnectionException {

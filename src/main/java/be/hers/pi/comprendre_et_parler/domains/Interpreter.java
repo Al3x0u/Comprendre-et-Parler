@@ -7,7 +7,7 @@ public class Interpreter extends User{
     private int hourQuotaWeek;
     private int hourQuotaYear;
 
-    /*
+    /**
         Constructor of an Interpreter object
         @param id represent the id
         @param isManager is True if manager else false
@@ -16,7 +16,7 @@ public class Interpreter extends User{
         @param login represent the login
         @param firstName represent the firstname of the interpreter
         @param lastName represent he lastname of the interpreter
-        @param birthdate represent the birthdate of the interpreter
+        @param birthDate represent the birthdate of the interpreter
         @param hashedPassword represent the hashed password of the interpreter
         @param email represent the email of the interpreter
         @param phoneNumber represent the phone number of the interpreter
@@ -29,21 +29,21 @@ public class Interpreter extends User{
         this.hourQuotaYear = hQY;
     }
 
-    /*
+    /**
         @return this.isManager
      */
     public Boolean getManager() {
         return isManager;
     }
 
-    /*
+    /**
         @return this.hourQuotaWeek
      */
     public int getHourQuotaWeek() {
         return hourQuotaWeek;
     }
 
-    /*
+    /**
         @return this.hourQuotaYear
      */
     public int getHourQuotaYear() {

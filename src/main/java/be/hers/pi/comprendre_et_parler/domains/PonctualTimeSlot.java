@@ -6,7 +6,7 @@ import java.time.LocalTime;
 public class PonctualTimeSlot extends TimeSlot{
     private LocalDateTime date;
 
-    /*
+    /**
         Constructor of a PonctualTimeSlot which extends TimeSlot
         @param id represent the id
         @param startHourTime represent the hour at which start
@@ -18,7 +18,7 @@ public class PonctualTimeSlot extends TimeSlot{
         this.date = date;
     }
 
-    /*
+    /**
         @return this.date
      */
     public LocalDateTime getDate() {
