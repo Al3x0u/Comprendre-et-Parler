@@ -33,7 +33,7 @@ public interface DAO<T> {
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws ConnectionException if the database could not be reached
      */
-    void update(T objectToUpdate) throws NoSuchElementException, ConnectionException;
+    void update(T objectToUpdate) throws AlreadyExistsException,NoSuchElementException, ConnectionException;
 
     /**
      *
