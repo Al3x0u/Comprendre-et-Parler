@@ -1,0 +1,168 @@
+Objectif :
+Assigner un·e interprète de référence à un.e bénéficaire
+
+Acteurs :
+Responsable
+
+Pré-conditions :
+Le bénéficaire existe déjà dans le système
+Au moins un·e interprète existe déjà dans le système
+
+Post-conditions :
+L'interprète est enregistré·e comme référence du bénéficaire, et a désormais accès aux horaires de ce.tte dernière.
+
+Scénario nominal : 
+1. Le système affiche la page d'accueil pour Responsable
+2. La Responsable clique sur le bouton pour lister les suivis
+3. La liste des suivis et leurs interprètes de référence s'affiche
+4. La Responsable clique sur le bouton pour assigner un interprète à un bénéficaire 
+5. La liste des interprètes s'affiche, détaillant les suivis dont chaque interprète est déjà référent·e
+6. La Responsable choisit un·e interprète à assigner au suivi
+7. Un pop-up de confirmation s'affiche
+8. La Responsable confirme l'action
+9. Le statut de l'interprète en question est mis à jour
+10. Les interprètes et bénéficiaires en question sont notifié·es
+
+------------------------------------------------------------------------------------------------------
+
+Objectif : Consulter son horaire
+Acteur : Bénéficiaire, Interprète
+Pré conditions : /
+Post conditions : L’horaire personnel du bénéficiaire/interprète est affiché avec les différentes missions s’il y en a.
+
+Scénario nominal :
+	1. Le bénéficiaire/interprète est connecté.
+	2. Il clique sur « Mon horaire ».
+	3. Son horaire s’affiche.
+	4. Il choisit une mission et clique dessus.
+	5. Les détails de la mission s’affichent.
+	6. Il clique sur le bouton « Retour ».
+	7. Il revient sur le menu principal.
+
+Scénario alternatif :
+	1. Le bénéficiaire/interprète est connecté.
+	2. Il clique sur « Mon horaire ».
+	3. Son horaire s’affiche.
+	4b. Aucune mission ne s’affiche.
+	5b. Retour au point 6 du scénario nominal.
+
+----------------------------------------------------------------------------------
+
+Objectif : Annuler une mission
+Acteur : Bénéficiaire
+Pré conditions : Le bénéficiaire possède au moins une mission.
+Post conditions : La mission est annulée, elle ne s’affiche plus dans aucun horaire et tous les concernés sont notifiés.
+
+Scénario nominal :
+	1. Le bénéficiaire est connecté.
+	2. Il clique sur « Mon horaire ».
+	3. Son horaire s’affiche.
+	4. Il choisit une mission et clique dessus.
+	5. Il clique sur « Annuler».
+	6. Il entre une raison et confirme l’annulation en cliquant sur « Oui ».
+	7. La mission est annulée et n’est plus visible pour les concernées.
+	8. Les personnes concernées sont notifiées de l’annulation.
+	9. Son horaire s'affiche à nouveau.
+
+Scénario alternatif :
+	1. Le bénéficiaire est connecté.
+	2. Il clique sur « Mon horaire ».
+	3. Son horaire s’affiche.
+	4. Il choisit une mission et clique dessus.
+	5. Il clique sur « Annuler».
+	6b. Il ne confirme pas l’annulation en cliquant sur « Non » .
+	7b. Retour au point 9 du scénario nominal.
+
+
+--------------------------------------------------------------------------------------
+
+Objectif : encoder une demande
+
+Acteurs : bénéficiaire
+
+Pré conditions : Les demandes n'ont pas été envoyées
+
+Post condition : Les modifications apportées sont enregistrées
+
+Scénario nominal :
+1) Déclenchement du cas d'utilisation se connecter
+2) Le bénéficiaire renseigne identifiant et mot de passe
+3) Fin du cas d'utilisation se connecter
+4) Le système affiche l'horaire du bénéficiaire pour la semaine actuel
+5) Le bénéficiaire clique sur le bouton "Gérer mes demandes"
+6) Le système affiche la page d'édition des demandes
+7) Le bénéficiaire clique sur une date pour y encoder une demande
+8) Le bénéficiaire encode les informations de la demande (heure de début, heure de fin, type de mission et une description optionelle)
+9) Le bénéficiaire clique sur le bouton "sauvegarder" pour enregistrer les modifications apportées à l'horaire des demandes
+10) Retour sur la page de l'horaire de la semaine
+
+
+Scénario alternatif :
+1) Déclenchement du cas d'utilisation se connecter
+2) Le bénéficiaire renseigne identifiant et mot de passe
+3) Fin du cas d'utilisation se connecter
+4) Le système affiche l'horaire du bénéficiaire pour la semaine actuel
+5) Le bénéficiaire clique sur le bouton "Gérer mes demandes"
+6) Le système affiche la page d'édition des demandes
+7b) Le bénéficiaire clique sur le bouton "soumettre" pour envoyer ses demandes aux responsables
+8b) Le système affiche un message demandant confirmation
+9b) Le bénéficiaire confirme l'envoi
+10b) Retour au point 10 du scénario nominal
+
+
+--------------------------------------------------------------------------------------
+
+Objectifs : Créer un compte
+Acteurs : Responsable
+Pré-conditions : le nouveau bénéficiaire ne possède pas encore de compte
+Post-condition : le nouveau bénéficiaire possède un compte lui permettant d'avoir accès à la plateforme
+Scénario nominal :
+1- Le responsable est sur la page d'accueil et clique sur le bouton créer un compte
+2- il entre les informations personnelles(nom, prénom, age, classe, établissements scolaire)
+3- il choisi le type de prestation dont le bénéficiaire a besoin
+4- le nouveau bénéficiaire reçoit un mail de confirmation pour validé son compte 
+
+
+---------------------------------------------------------------------------------------
+
+Objectifs : Consulter le nombre d'heure presté par un interprète 
+Acteurs : Responsable
+Pré-conditions : il existe au moins un compte interprète
+
+Scénario nominal :
+1- Le responsable est sur la page d'accueil  et clique sur "Consulter les quotas d'heure".
+2- La responsable sélectionne un interprète 
+3- Le programme affiche un graphique du nombre d'heures de travail de l'interprète sélectionné.
+
+---------------------------------------------------------------------------------------
+
+Objectif : Créer un horaire
+
+Acteurs : Responsable 
+
+Pré-conditions : 
+L'horaire pour la semaine prochaine n'a pas encore été créé ou l'est partiellement 
+L'horaire n'a donc pas encore été envoyé 
+
+Post-conditions : L’horaire est mis à jour dans le système. Les personnes concernées recoivent leur horaire. 
+
+Scénario nominal : 
+1. Le système affiche la page d'accueil du Responsable 
+2. La Responsable clique sur le bouton pour Créer 
+3. L'horaire vide s'affiche 
+4. Le/La Responsable remplie les différentes missions dans l'horaire 
+5. Le/La Responsable clique sur le bouton d'envoi de l'horaire 
+6. Une confirmation est demandée 
+7. L’horaire est mis à jour dans le système 
+8. L’interprète et le/la bénéficiaire concerné·e sont notifiés des changements 
+9. Retour à l'accueil 
+
+
+Scénario alternatif : 
+1. Le système affiche la page d'accueil du Responsable 
+2. La Responsable clique sur le bouton pour Créer 
+3a. Un horaire était déjà en cours de création. Il s'affiche 
+4a. Retour a l'étape 4 du scénario nominal 
+5b. Le/La Responsable quitte la modification de l'horaire. 
+6b. Les modifications sont sauvegardées 
+7b. retour à l'étape 9 du scénario nominal
