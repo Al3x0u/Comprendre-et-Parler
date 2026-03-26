@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
 public class DAOCity implements DAO<City> {
 
     /*
-    Search for a city in the database with the String parameter
+    Search for a City in the database with the String parameter
     @param id : identification of the city
     @return City object who correspond to the given id else null
     @throws ConnectionException if the database couldnot be reached
@@ -33,7 +33,7 @@ public class DAOCity implements DAO<City> {
     }
 
     /*
-    Update a AcademicSkillCompetence line who already exist in the database
+    Update a City line who already exist in the database
     @param objectToUpdate : object with the news information
     @return TRUE if the modification was a success else FALSE
     @throws AlreadyExistException if there are already a line with there information
