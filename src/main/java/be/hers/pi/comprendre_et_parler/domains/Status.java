@@ -32,9 +32,22 @@ public class Status {
     }
 
     /**
+     * @param designation represent the new designation
+     */
+    public void setDesignation(String designation){
+        this.designation = designation;
+    }
+    /**
         @return this.hourQuota
      */
     public int getHourQuota() {
         return hourQuota;
+    }
+
+    /**
+     * @param newQuota represent the new quota
+     */
+    public void setHourQuota(int newQuota){
+        this.hourQuota = newQuota;
     }
 }
