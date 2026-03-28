@@ -23,4 +23,22 @@ public class BaseTimeSlot extends TimeSlot{
     public int getDay() {
         return day;
     }
+
+    /**
+     *
+     * @param baseTimeSlot represent the BaseTimeSlot to compare
+     * @return True if he overlaps this, else False
+     */
+    public boolean overlaps(BaseTimeSlot baseTimeSlot){
+       return false;
+    }
+
+    /**
+     * Same to the overlaps but compare overlapping completely
+     * @param baseTimeSlot represent the BaseTimeSlot to compare
+     * @return True if he overlaps completely this, else False
+     */
+    public boolean overlapsCompletely(BaseTimeSlot baseTimeSlot){
+        return false;
+    }
 }
