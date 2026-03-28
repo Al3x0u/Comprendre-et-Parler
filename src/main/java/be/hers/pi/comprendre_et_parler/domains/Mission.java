@@ -25,9 +25,30 @@ public class Mission {
     }
 
     /**
+     * @param subject   represent the subject of Mission
+     */
+    public void setSubject(String subject){
+        this.subjet = subject;
+    }
+
+    /**
      * @return this.stateOfMission
      */
     public MissionState getStateOfMission() {
         return stateOfMission;
+    }
+
+    /**
+     * @param state     represent the mission state
+     */
+    public void setStateOfMission(MissionState state){
+        this.stateOfMission = state;
+    }
+
+    /**
+     * @return a String which contains all information about the mission
+     */
+    public String toString(){
+        return null;
     }
 }
