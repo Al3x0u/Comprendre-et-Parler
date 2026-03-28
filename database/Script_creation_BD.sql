@@ -137,7 +137,7 @@ CREATE TABLE InterpreterMission (
 ALTER TABLE Status ADD CONSTRAINT QuotaValue CHECK (hourQuota >= 0);
 
 ALTER TABLE AppliUser ADD CONSTRAINT IDUser CHECK (REGEXP_LIKE(login,'^[i|b|r][0-9]{7}$')); 
-ALTER TABLE AppliUser ADD CONSTRAINT PhoneUser CHECK (phone IS NULL OR REGEXP_LIKE(phone,'^[0-9]+/[0-9]+\.[0-9]+\.[0-9]+$'));
+ALTER TABLE AppliUser ADD CONSTRAINT PhoneUser CHECK (phone IS NULL OR REGEXP_LIKE(phone,'^[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+$'));
 ALTER TABLE AppliUser ADD CONSTRAINT MailUser CHECK (REGEXP_LIKE(mail, '.+@.+\..+'));
 
 ALTER TABLE Interpreter ADD CONSTRAINT QuotaWeekValue CHECK (hourQuotaWeek >= 0);
