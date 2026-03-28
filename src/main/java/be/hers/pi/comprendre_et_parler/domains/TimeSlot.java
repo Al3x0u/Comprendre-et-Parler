@@ -5,19 +5,19 @@ import java.time.LocalTime;
 
 public class TimeSlot {
     private String id;
-    private LocalTime startHourTime;
-    private LocalTime endHourTime;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     /**
         Constructor of a TimeSlot object
         @param id represent the id
-        @param startHourTime represent the hour at which start
-        @param endHourTime represent the hour at which finish
+        @param startTime represent the hour at which start
+        @param endTime represent the hour at which finish
      */
-    public TimeSlot(String id, LocalTime startHourTime, LocalTime endHourTime) {
+    public TimeSlot(String id, LocalTime startTime, LocalTime endTime) {
         this.id = id;
-        this.startHourTime = startHourTime;
-        this.endHourTime = endHourTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     /**
@@ -28,17 +28,31 @@ public class TimeSlot {
     }
 
     /**
-        @return this.startHourTime
+        @return this.startTime
      */
-    public LocalTime getStartHourTime() {
-        return startHourTime;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
     /**
-        @return this.startHourTime
+     * @param startTime represent the new startTime
      */
-    public LocalTime getEndHourTime() {
-        return endHourTime;
+    public void setStartTime(LocalTime startTime){
+        this.startTime = startTime;
+    }
+
+    /**
+     * @param endTime represent the new endTime
+     */
+    public void setEndTime(LocalTime endTime){
+        this.endTime = endTime;
+    }
+
+    /**
+        @return this.startTime
+     */
+    public LocalTime getEndTime() {
+        return endTime;
     }
 
 
