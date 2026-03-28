@@ -24,4 +24,22 @@ public class PonctualTimeSlot extends TimeSlot{
     public LocalDate getDate() {
         return date;
     }
+
+    /**
+     *
+     * @param ponctualTimeSlot represent the ponctualTimeSlot to compare
+     * @return True if he overlaps this, else False
+     */
+    public boolean overlaps(PonctualTimeSlot ponctualTimeSlot){
+        return false;
+    }
+
+    /**
+     * Same to the overlaps but compare overlapping completely
+     * @param ponctualTimeSlot represent the BaseTimeSlot to compare
+     * @return True if he overlaps completely this, else False
+     */
+    public boolean overlapsCompletely(PonctualTimeSlot ponctualTimeSlot){
+        return false;
+    }
 }
