@@ -30,6 +30,13 @@ public class ExceptionalUnavailability  {
     }
 
     /**
+     * @param reason  is new the reason
+     */
+    public void setReason(String reason){
+        this.reason = reason;
+    }
+
+    /**
      * @return this.ponctualTimeSlot
      */
     public PonctualTimeSlot getPonctualTimeSlot() {
