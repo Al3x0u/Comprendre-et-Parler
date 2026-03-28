@@ -1,14 +1,16 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.domains.Beneficiary;
+import be.hers.pi.comprendre_et_parler.domains.Interpreter;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOBeneficiary implements DAO<Beneficiary> {
+public class DAOInterpreter implements DAO<Interpreter>{
     /**
      *
      * @param id the primary key of the object to find in database
@@ -16,7 +18,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public Beneficiary find(String id) throws ConnectionException {
+    public Interpreter find(String id) throws ConnectionException {
         return null;
     }
 
@@ -29,7 +31,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(Beneficiary objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
+    public void create(Interpreter objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
 
     }
 
@@ -41,7 +43,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
-    public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
+    public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
 
     }
 
@@ -53,7 +55,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(Beneficiary objectToDelete) throws NoSuchElementException, ConnectionException {
+    public void delete(Interpreter objectToDelete) throws NoSuchElementException, ConnectionException {
 
     }
 
@@ -63,27 +65,28 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public List<Beneficiary> findAll() throws ConnectionException {
+    public List<Interpreter> findAll() throws ConnectionException {
         return List.of();
     }
 
     /**
      *
-     * @param idInterpreter represent the id of the interpreter which we want the beneficiary
-     * @return  a List of Beneficiary which are referenced by the interpreter who have the idInterpreter
-     * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
+     * @param start represent the start of the time that we want the availability
+     * @param end   represent the end of the time that we want the availability
+     * @param date  represent the date
+     * @return  a List of Interpreter who ara available in the given time and date
      */
-    public List<Beneficiary> getReferenced(String idInterpreter) throws NoSuchElementException{
+    public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date){
         return null;
     }
 
     /**
      *
-     * @param idStatus represent the id of the status
-     * @return a List of Beneficiary who have the id having the givent idStatus
-     * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
+     * @param idAcademicSkills the id of the AcademicSkill
+     * @return  a List of Interpreter who have the AcademicSkill having the idAcademicSkills
+     * @throws NoSuchElementException if idAcademicSkills doesn't correspond to the id of anu AcademicSkills
      */
-    public List<Beneficiary> getByStatus(int idStatus) throws NoSuchElementException{
+    public List<Interpreter> findByAcademicSkills(int idAcademicSkills) throws NoSuchElementException{
         return null;
     }
 }

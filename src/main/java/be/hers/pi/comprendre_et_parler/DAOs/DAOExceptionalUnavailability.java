@@ -1,6 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.domains.Beneficiary;
+import be.hers.pi.comprendre_et_parler.domains.ExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
@@ -8,7 +8,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOBeneficiary implements DAO<Beneficiary> {
+public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailability> {
     /**
      *
      * @param id the primary key of the object to find in database
@@ -16,7 +16,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public Beneficiary find(String id) throws ConnectionException {
+    public ExceptionalUnavailability find(String id) throws ConnectionException {
         return null;
     }
 
@@ -29,7 +29,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(Beneficiary objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
+    public void create(ExceptionalUnavailability objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
 
     }
 
@@ -41,7 +41,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
-    public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
+    public void update(ExceptionalUnavailability objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
 
     }
 
@@ -53,7 +53,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(Beneficiary objectToDelete) throws NoSuchElementException, ConnectionException {
+    public void delete(ExceptionalUnavailability objectToDelete) throws NoSuchElementException, ConnectionException {
 
     }
 
@@ -63,27 +63,17 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public List<Beneficiary> findAll() throws ConnectionException {
+    public List<ExceptionalUnavailability> findAll() throws ConnectionException {
         return List.of();
     }
 
     /**
      *
-     * @param idInterpreter represent the id of the interpreter which we want the beneficiary
-     * @return  a List of Beneficiary which are referenced by the interpreter who have the idInterpreter
-     * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
+     * @param idInterpreter the id of an Interpreter
+     * @return  a List of ExceptionalUnavailability which contains the ExceptionalUnavailability of an Interpreter
+     * @throws NoSuchElementException if there are not a Interpreter with the given id
      */
-    public List<Beneficiary> getReferenced(String idInterpreter) throws NoSuchElementException{
-        return null;
-    }
-
-    /**
-     *
-     * @param idStatus represent the id of the status
-     * @return a List of Beneficiary who have the id having the givent idStatus
-     * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
-     */
-    public List<Beneficiary> getByStatus(int idStatus) throws NoSuchElementException{
+    public List<ExceptionalUnavailability> findForInterpreter(String idInterpreter) throws NoSuchElementException{
         return null;
     }
 }

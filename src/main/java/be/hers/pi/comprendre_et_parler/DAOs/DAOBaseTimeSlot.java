@@ -66,4 +66,5 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     public List<BaseTimeSlot> findAll() throws ConnectionException {
         return List.of();
     }
+
 }
