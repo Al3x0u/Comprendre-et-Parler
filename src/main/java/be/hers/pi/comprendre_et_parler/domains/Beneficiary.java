@@ -1,9 +1,8 @@
 package be.hers.pi.comprendre_et_parler.domains;
 
 import java.time.LocalDate;
-import java.util.List;
 
-public class Beneficiary extends User {
+public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary extends User

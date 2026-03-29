@@ -2,7 +2,7 @@ package be.hers.pi.comprendre_et_parler.domains;
 
 import java.time.LocalDate;
 
-public class Interpreter extends User{
+public class Interpreter extends AppliUser{
     private int hourQuotaWeek;
     private int hourQuotaYear;
     private String transportMode;
@@ -59,5 +59,19 @@ public class Interpreter extends User{
         this.hourQuotaYear = newHourQuotaYear;
     }
 
+    /**
+     *
+     * @return this.transport
+     */
+    public String getTransportMode() {
+        return transportMode;
+    }
 
+    /**
+     *
+     * @param transportMode represent the new transport mode
+     */
+    public void setTransportMode(String transportMode) {
+        this.transportMode = transportMode;
+    }
 }
