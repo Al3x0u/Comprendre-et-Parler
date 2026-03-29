@@ -2,6 +2,13 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
+import be.hers.pi.comprendre_et_parler.model.Status;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
