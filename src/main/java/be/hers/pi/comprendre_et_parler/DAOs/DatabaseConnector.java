@@ -10,22 +10,22 @@ import java.util.Scanner;
 import java.io.Console;
 
 public class DatabaseConnector {
-    static final String URL = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
-    static Connection connection = null;
+    private final static String url = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
+    private static Connection connection = null;
 
     private DatabaseConnector() {}
 
     /**
-     * Initialize the connection to the database with the given login and password
+     *
      * @param login the login to the database
      * @param password the password to the database
      * @post a connection to the database has been established
-     * @throws ConnectionException if the connection failed
+     * @throws SQLException if the connection failed
      */
     public static void initialize(String login, String password) throws ConnectionException {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
-            connection = DriverManager.getConnection(URL, login, password);
+            connection = DriverManager.getConnection(url, login, password);
         }
         catch( ClassNotFoundException e) {
             throw new ConnectionException("Failed to load oracle.jdbc.driver.OracleDriver: " + e);
@@ -36,9 +36,8 @@ public class DatabaseConnector {
     }
 
     /**
-     * Initialize the connection to the database by asking the user for login and password through the console
      * @post the user has been prompted through the console to provide a login and password, and a connection to the database has been established
-     * @throws ConnectionException if the connection failed
+     * @throws SQLException if the connection failed
      */
     public static void initialize() throws ConnectionException {
         Console cons = System.console();
@@ -54,10 +53,10 @@ public class DatabaseConnector {
     }
 
     /**
-     * Return the current connection to the database, and initialize it if necessary
+     *
      * @post A connection to the database has been established. If initialized() hadn't been previously called, the user has been prompted to provide a login and password
      * @return an active Connection to the database
-     * @throws ConnectionException if the connection failed
+     * @throws SQLException if the connection failed
      */
     public static Connection getInstance() throws ConnectionException {
         if (connection == null) {
@@ -66,13 +65,8 @@ public class DatabaseConnector {
         return connection;
     }
 
-    /**
-     * Close the current connection to the database
-     * @post the connection has been closed if it wasn't already
-     * @throws SQLException if a database error occurs
-     */
     public static void closeInstance() throws SQLException {
-        if (connection != null && !connection.isClosed())
+        if (connection != null)
             connection.close();
     }
 }
