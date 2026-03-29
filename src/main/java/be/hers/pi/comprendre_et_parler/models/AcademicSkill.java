@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.domains;
+package be.hers.pi.comprendre_et_parler.models;
 
 public class AcademicSkill {
     private String id;

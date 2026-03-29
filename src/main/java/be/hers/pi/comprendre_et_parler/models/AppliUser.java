@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.domains;
+package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
 
