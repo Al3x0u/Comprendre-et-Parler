@@ -9,11 +9,11 @@ import java.sql.DriverManager;
 import java.util.Scanner;
 import java.io.Console;
 
-public class Connector {
+public class DatabaseConnector {
     private final static String url = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
     private static Connection connection = null;
 
-    private Connector() {}
+    private DatabaseConnector() {}
 
     /**
      *

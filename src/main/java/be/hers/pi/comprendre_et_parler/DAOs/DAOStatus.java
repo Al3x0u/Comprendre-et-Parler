@@ -23,7 +23,7 @@ public class DAOStatus implements DAO<Status> {
         ResultSet result = null;
         Status ret = null;
         try {
-            statement = Connector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, Integer.parseInt(id));
             result = statement.executeQuery();
             if (result.next()) {
@@ -59,7 +59,7 @@ public class DAOStatus implements DAO<Status> {
         query = String.format(query, table, field_designation, field_hourQuota);
         PreparedStatement statement = null;
         try {
-            statement = Connector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getHourQuota());
             statement.executeUpdate();
@@ -89,7 +89,7 @@ public class DAOStatus implements DAO<Status> {
         query = String.format(query, table, field_designation, field_hourQuota, field_id);
         PreparedStatement statement = null;
         try {
-            statement = Connector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getHourQuota());
             statement.setInt(3, objectToUpdate.getId());
@@ -111,7 +111,7 @@ public class DAOStatus implements DAO<Status> {
             query = String.format(query, table, field_id, field_designation, field_hourQuota);
             PreparedStatement statement = null;
             try {
-                statement = Connector.getInstance().prepareStatement(query);
+                statement = DatabaseConnector.getInstance().prepareStatement(query);
                 statement.setInt(1, objectToDelete.getId());
                 statement.setString(2, objectToDelete.getDesignation());
                 statement.setInt(3, objectToDelete.getHourQuota());
@@ -131,7 +131,7 @@ public class DAOStatus implements DAO<Status> {
         ResultSet result = null;
         List<Status> ret = null;
         try {
-            statement = Connector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
                 ret.add(new Status(
