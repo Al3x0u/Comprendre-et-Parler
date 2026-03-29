@@ -1,16 +1,16 @@
 package be.hers.pi.comprendre_et_parler.domains;
 
-public class BusinessSkillCompetence {
+public class JobSkill {
     private String id;
     private String designation;
 
 
     /**
-        Constructor of a BusinessSkillCompetence Object
+        Constructor of a JobSkill Object
         @param id : represent the id
         @param designation : represent the designation
      */
-    public BusinessSkillCompetence(String id, String designation) {
+    public JobSkill(String id, String designation) {
         this.id = id;
         this.designation = designation;
     }

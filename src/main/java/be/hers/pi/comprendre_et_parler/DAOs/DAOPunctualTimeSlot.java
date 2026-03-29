@@ -1,6 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.domains.PonctualTimeSlot;
+import be.hers.pi.comprendre_et_parler.domains.PunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
@@ -8,7 +8,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOPonctualTimeSlot implements DAO<PonctualTimeSlot> {
+public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
     /**
      *
@@ -17,20 +17,20 @@ public class DAOPonctualTimeSlot implements DAO<PonctualTimeSlot> {
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public PonctualTimeSlot find(String id) throws ConnectionException {
+    public PunctualTimeSlot find(String id) throws ConnectionException {
         return null;
     }
 
     /**
      *
-     * @param objectToInsert an object of PonctualTimeSlot to add to the database
+     * @param objectToInsert an object of PunctualTimeSlot to add to the database
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
      * @throws ConnectionException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(PonctualTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
+    public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
 
     }
 
@@ -42,11 +42,12 @@ public class DAOPonctualTimeSlot implements DAO<PonctualTimeSlot> {
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
-    public void update(PonctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
+    public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
 
     }
 
     /**
+     *
      *
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
@@ -54,7 +55,7 @@ public class DAOPonctualTimeSlot implements DAO<PonctualTimeSlot> {
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(PonctualTimeSlot objectToDelete) throws NoSuchElementException, ConnectionException {
+    public void delete(PunctualTimeSlot objectToDelete) throws NoSuchElementException, ConnectionException {
 
     }
 
@@ -64,7 +65,7 @@ public class DAOPonctualTimeSlot implements DAO<PonctualTimeSlot> {
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public List<PonctualTimeSlot> findAll() throws ConnectionException {
+    public List<PunctualTimeSlot> findAll() throws ConnectionException {
         return List.of();
     }
 }

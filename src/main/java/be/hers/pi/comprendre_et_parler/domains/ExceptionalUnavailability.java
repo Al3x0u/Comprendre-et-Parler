@@ -6,17 +6,17 @@ import java.time.LocalTime;
 public class ExceptionalUnavailability  {
     private int id;
     private String reason;
-    private PonctualTimeSlot ponctualTimeSlot;
+    private PunctualTimeSlot ponctualTimeSlot;
     private Interpreter interpreter;
 
     /**
-     * Constructor of a PonctualTimeSlot w
+     * Constructor of a PunctualTimeSlot w
      * @param id            represent the id
      * @param reason        represent the reason of the exceptional unavailability
      * @param interpreter   represent the interpreter which concern this exceptional unavailability
      * @param ponctualTimeSlot represent the ponctual time slot which concern this exceptional unavailability
      */
-    public ExceptionalUnavailability(int id, String reason, Interpreter interpreter, PonctualTimeSlot ponctualTimeSlot) {
+    public ExceptionalUnavailability(int id, String reason, Interpreter interpreter, PunctualTimeSlot ponctualTimeSlot) {
         this.id = id;
         this.reason = reason;
         this.interpreter = interpreter;
@@ -40,7 +40,7 @@ public class ExceptionalUnavailability  {
     /**
      * @return this.ponctualTimeSlot
      */
-    public PonctualTimeSlot getPonctualTimeSlot() {
+    public PunctualTimeSlot getPonctualTimeSlot() {
         return this.ponctualTimeSlot;
     }
 
