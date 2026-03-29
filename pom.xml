@@ -31,10 +31,11 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
+            <groupId>com.oracle</groupId>
             <artifactId>ojdbc11</artifactId>
-            <version>23.26.1.0.0</version>
-            <scope>compile</scope>
+            <version>21.8.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/ojdbc11.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
