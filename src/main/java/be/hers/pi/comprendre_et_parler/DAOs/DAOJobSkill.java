@@ -1,6 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.domains.City;
+import be.hers.pi.comprendre_et_parler.domains.JobSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
@@ -8,64 +8,60 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOCity implements DAO<City> {
+public class DAOJobSkill implements DAO<JobSkill> {
 
     /**
-     * Search for a City in the database with the String parameter
-     * @param id : identification of the city
-     * @return City object who correspond to the given id else null
-     * @throws SQLException if the database couldn't be reached
+     * Search for a JobSkill in the database with the String parameter
+     * @param id : identification of the JobSkill
+     * @return JobSkill object which correspond to the given id else null
+     * @throws SQLException if the database could not be reached
      */
     @Override
-    public City find(String id) throws SQLException {
+    public JobSkill find(String id) throws SQLException {
         return null;
     }
 
     /**
-     * Insert a City Object in the database
+     * Insert a JobSkill Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
-     * @throws SQLException if the database could not be reached
+     * @throws DuplicatePrimaryKeyException if the given id already used in the database
+     * @throws SQLException if we couldn't connect to the database
      */
     @Override
-    public void create(City objectToInsert)
+    public void create(JobSkill objectToInsert)
             throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
-
     }
 
     /**
-     * Update a City line who already exist in the database
+     * Update a JobSkill line who already exist in the database
      * @param objectToUpdate : object with the news information
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws NoSuchElementException if there are not the element to update in the database
      * @throws SQLException if there are an error during the connection to the database
      */
     @Override
-    public void update(City objectToUpdate)
+    public void update(JobSkill objectToUpdate)
             throws AlreadyExistsException, NoSuchElementException, SQLException {
-
     }
 
     /**
-     * Delete a line in the City table in the database
+     * Delete a JobSkill line in the table in the database
      * @param objectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the Location object in the database
      * @throws SQLException if we couldn't connect to the database
      */
     @Override
-    public void delete(City objectToDelete)
+    public void delete(JobSkill objectToDelete)
             throws NoSuchElementException, SQLException {
-
     }
 
     /**
-     * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Object
+     * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<City> findAll() throws SQLException {
+    public List<JobSkill> findAll() throws SQLException {
         return List.of();
     }
 }

@@ -1,15 +1,15 @@
 package be.hers.pi.comprendre_et_parler.domains;
 
-public class AcademicSkillCompetence {
+public class AcademicSkill {
     private String id;
     private String designation;
 
     /**
-        Constructor of a AcademicSkillCompetence Object
+        Constructor of a AcademicSkill Object
         @param id : represent id
         @param designation : represent designation
     */
-    public AcademicSkillCompetence(String id, String designation) {
+    public AcademicSkill(String id, String designation) {
         this.id = id;
         this.designation = designation;
     }

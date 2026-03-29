@@ -10,8 +10,8 @@ public class Mission {
     private List<Beneficiary> beneficiaries;
     private List<Interpreter> interpreters;
     private Location location;
-    private BusinessSkillCompetence businessSkill;
-    private AcademicSkillCompetence academicSkill;
+    private JobSkill jobSkill;
+    private AcademicSkill academicSkill;
 
     /**
      * Constructor of a Mission object
@@ -22,17 +22,17 @@ public class Mission {
      * @param beneficiaries represent the beneficiaries who concern this mission
      * @param interpreters represent the interpreters who work for this mission
      * @param location represent the location of the mission
-     * @param businessSkill represent the required business skill
+     * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      */
-    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, BusinessSkillCompetence businessSkill, AcademicSkillCompetence academicSkill) {
+    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
         this.id = id;
         this.subjet = subjet;
         this.stateOfMission = stateOfMission;
         this.beneficiaries = beneficiaries;
         this.interpreters = interpreters;
         this.location = location;
-        this.businessSkill = businessSkill;
+        this.jobSkill = jobSkill;
         this.academicSkill = academicSkill;
     }
 
@@ -128,30 +128,30 @@ public class Mission {
     }
 
     /**
-     * @return this.businessSkill
+     * @return this.jobSkill
      */
-    public BusinessSkillCompetence getBusinessSkill() {
-        return businessSkill;
+    public JobSkill getJobSkill() {
+        return jobSkill;
     }
 
     /**
-     * @param businessSkill represent the business skill required for the mission
+     * @param jobSkill represent the business skill required for the mission
      */
-    public void setBusinessSkill(BusinessSkillCompetence businessSkill) {
-        this.businessSkill = businessSkill;
+    public void setJobSkill(JobSkill jobSkill) {
+        this.jobSkill = jobSkill;
     }
 
     /**
      * @return this.academicSkill
      */
-    public AcademicSkillCompetence getAcademicSkill() {
+    public AcademicSkill getAcademicSkill() {
         return academicSkill;
     }
 
     /**
      * @param academicSkill represent the academic skill required for the mission
      */
-    public void setAcademicSkill(AcademicSkillCompetence academicSkill) {
+    public void setAcademicSkill(AcademicSkill academicSkill) {
         this.academicSkill = academicSkill;
     }
 }

@@ -25,28 +25,28 @@ public class Location {
     }
 
     /**
-        @return a String who contains the city of the Location
+        @return a String which contains the city of the Location
      */
     public String getCity() {
         return city;
     }
 
     /**
-        @return a String who contains the designation of the Location
+        @return a String which contains the designation of the Location
      */
     public String getDesignation() {
         return designation;
     }
 
     /**
-        @return a String who contains the street number of the Location
+        @return a String which contains the street number of the Location
      */
     public String getStreetNumber() {
         return streetNumber;
     }
 
     /**
-        @return a String who contains the street of the Location
+        @return a String which contains the street of the Location
      */
     public String getStreet() {
         return street;
