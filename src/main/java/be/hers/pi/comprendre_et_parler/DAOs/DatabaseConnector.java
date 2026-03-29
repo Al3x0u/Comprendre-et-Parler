@@ -65,8 +65,12 @@ public class DatabaseConnector {
         return connection;
     }
 
+    /**
+     * @post the connection has been closed if it wasn't already
+     * @throws SQLException if a database error occurs
+     */
     public static void closeInstance() throws SQLException {
-        if (connection != null)
+        if (connection != null && !connection.isClosed())
             connection.close();
     }
 }
