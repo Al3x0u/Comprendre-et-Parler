@@ -10,6 +10,9 @@ public class Interpreter extends AppliUser{
     private List<AcademicSkill> academicSkills;
     private List<JobSkill> jobSkills;
     private List<Beneficiary> beneficiaries;
+    private Location location;
+    private BaseTimeSlot baseTimeSlot;
+    private ExceptionalUnavailability unavailability;
 
     /**
      * Constructor of an Interpreter object

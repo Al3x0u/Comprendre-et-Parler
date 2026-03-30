@@ -24,29 +24,6 @@ public class DAOInterpreter implements DAO<Interpreter> {
     }
 
     /**
-     * @param rs the ResultSet to close, can be null
-     * @param stmt the Statement to close, can be null
-     * @post rs and stmt have been closed if they weren't null
-     */
-    private void fermer(ResultSet rs, Statement stmt) {
-        if(rs != null){
-            try{
-                rs.close();
-            }catch (SQLException e){
-                e.printStackTrace();
-            }
-        }
-
-        if(stmt != null){
-            try{
-                stmt.close();
-            }catch (SQLException e){
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
      * @param id the id of the transportation in database
      * @param connection an active connection to the database
      * @return the Transportation identified by id, or null if none was found
@@ -71,7 +48,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 );
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
         return transportation;
     }
@@ -102,7 +79,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 academicSkils.add(academicSkil);
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
         return academicSkils;
     }
@@ -133,7 +110,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 jobSkills.add(jobSkill);
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
         return jobSkills;
     }
@@ -164,7 +141,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 );
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
         return status;
     }
@@ -209,7 +186,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 );
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
         return interpreter;
     }
@@ -248,7 +225,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 beneficiaries.add(b);
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
         return beneficiaries;
     }
@@ -295,7 +272,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 throw new NoSuchElementException();
             }
         }finally {
-            fermer(rs, stmt);
+            DatabaseConnector.closeStmt(rs, stmt);
         }
 
         return interpreter;
@@ -368,7 +345,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 System.out.println("Un problème est survenu lors de l'insertion. Veuillez réessayer");
             }
         }finally {
-            fermer(null, stmt);
+            DatabaseConnector.closeStmt(null, stmt);
         }
 
     }
@@ -447,7 +424,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 rowsAffectedInsertJobSkill = stmt.executeUpdate();
             }
         }finally {
-            fermer(null, stmt);
+            DatabaseConnector.closeStmt(null, stmt);
         }
 
         if(rowsAffectedUser > 0 && rowsAffectedBeneficiary > 0 &&
@@ -468,6 +445,45 @@ public class DAOInterpreter implements DAO<Interpreter> {
     @Override
     public void delete(Interpreter objectToDelete)
             throws NoSuchElementException, SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        String queryUser = "DELETE FROM AppliUser  WHERE id = ?";
+        String queryInterpreter = "DELETE FROM Interpreter  WHERE id = ?";
+        String queryJobSkill = "DELETE FROM JobSkillInterpreter  WHERE interpreter = ?";
+        String queryAcademicSkill = "DELETE FROM AcademicSkillInterpreter  WHERE interpreter = ?";
+
+        PreparedStatement stmt = null;
+
+        int rowsAffectedUser = 0;
+        int rowsAffectedBeneficiary = 0;
+        int rowsAffectedJobSkill = 0;
+        int rowsAffectedAcademicSkill = 0;
+
+        try{
+            stmt = connection.prepareStatement(queryAcademicSkill);
+            stmt.setString(1, objectToDelete.getLogin());
+            rowsAffectedAcademicSkill = stmt.executeUpdate();
+
+            stmt = connection.prepareStatement(queryJobSkill);
+            stmt.setString(1, objectToDelete.getLogin());
+            rowsAffectedJobSkill = stmt.executeUpdate();
+
+            stmt = connection.prepareStatement(queryInterpreter);
+            stmt.setString(1, objectToDelete.getLogin());
+            rowsAffectedBeneficiary = stmt.executeUpdate();
+
+            stmt = connection.prepareStatement(queryUser);
+            stmt.setString(1, objectToDelete.getLogin());
+            rowsAffectedUser = stmt.executeUpdate();
+
+            if(rowsAffectedUser > 0 && rowsAffectedBeneficiary > 0 &&
+                    rowsAffectedAcademicSkill > 0 && rowsAffectedJobSkill > 0){
+                System.out.println("Suppression de l'interprète avec succès.");
+            }else{
+                System.out.println("Erreur lors de la suppression de l'interprète");
+            }
+        }finally {
+            DatabaseConnector.closeStmt(null, stmt);
+        }
     }
 
     /**
@@ -476,7 +492,41 @@ public class DAOInterpreter implements DAO<Interpreter> {
      */
     @Override
     public List<Interpreter> findAll() throws SQLException {
-        return List.of();
+        Connection connection = DatabaseConnector.getConnection();
+        List<Interpreter> interpreters = new ArrayList<>();
+        String query = "SELECT a.*, i.* FROM AppliUser a JOIN Interpreter i ON a.id = i.id";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            rs = stmt.executeQuery();
+
+            while(rs.next()){
+                int idTransportation = rs.getInt("transportation");
+                String interpreterId = rs.getString("id");
+                Interpreter interpreter = new Interpreter(
+                        interpreterId,
+                        rs.getString("lastName"),
+                        rs.getString("firstName"),
+                        rs.getDate("birthday").toLocalDate(),//pas sur que getString sois adapté pou un localDate
+                        rs.getString("hashPassword"),
+                        rs.getString("mail"),
+                        rs.getString("phone"),
+                        rs.getInt("hourQuotaWeek"),
+                        rs.getInt("hourQuotaYear"),
+                        getTransportation(idTransportation, connection),
+                        getAcademicSkills(interpreterId, connection),
+                        getJobSkills(interpreterId, connection),
+                        getBeneficiaries(interpreterId, connection)
+                );
+                interpreters.add(interpreter);
+            }
+        }finally {
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return interpreters;
     }
 
     /**
@@ -486,6 +536,8 @@ public class DAOInterpreter implements DAO<Interpreter> {
      * @return a List of Interpreter who are available in the given time and date
      */
     public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) {
+        List<Interpreter> interpreters = new ArrayList<>();
+        String query;
         return null;
     }
 

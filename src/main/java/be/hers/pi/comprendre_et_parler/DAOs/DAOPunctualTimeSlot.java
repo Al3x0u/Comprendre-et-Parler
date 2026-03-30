@@ -3,6 +3,9 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
@@ -64,5 +67,32 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     @Override
     public List<PunctualTimeSlot> findAll() throws SQLException {
         return List.of();
+    }
+
+    public List<PunctualTimeSlot> findAllBydate(LocalDate date) throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        List<PunctualTimeSlot> list = new ArrayList<>();
+        String query = "SELECT t.*, a.* FROM TimeSlot t, Availability a WHERE t.id = a.timeSlot AND (TRUNC(startHourTime) = TRUNC(?)) AND t.day IS NULL)";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setDate(1, Date.valueOf(date));
+            rs = stmt.executeQuery();
+            while(rs.next()){
+                PunctualTimeSlot punctualTimeSlot = new PunctualTimeSlot(
+                        rs.getString("interpreter"),
+                        rs.getTime("startHourTime").toLocalTime(),
+                        rs.getTime("endHourTime").toLocalTime(),
+                        date
+                );
+                list.add(punctualTimeSlot);
+            }
+        }finally{
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return list;
     }
 }

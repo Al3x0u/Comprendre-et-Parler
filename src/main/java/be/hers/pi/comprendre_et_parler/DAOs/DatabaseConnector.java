@@ -2,9 +2,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.DriverManager;
+import java.sql.*;
 
 import java.util.Scanner;
 import java.io.Console;
@@ -73,5 +71,28 @@ public class DatabaseConnector {
     public static void closeInstance() throws SQLException {
         if (connection != null && !connection.isClosed())
             connection.close();//where is the method ??
+    }
+
+    /**
+     * @param rs the ResultSet to close, can be null
+     * @param stmt the Statement to close, can be null
+     * @post rs and stmt have been closed if they weren't null
+     */
+    public static void closeStmt(ResultSet rs, Statement stmt) {
+        if(rs != null){
+            try{
+                rs.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+
+        if(stmt != null){
+            try{
+                stmt.close();
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
     }
 }

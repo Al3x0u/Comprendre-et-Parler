@@ -3,7 +3,9 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -66,5 +68,33 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     @Override
     public List<BaseTimeSlot> findAll() throws SQLException {
         return List.of();
+    }
+
+    public List<BaseTimeSlot> findByDay(int day) throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        List<BaseTimeSlot> baseTimeSlots = new ArrayList<>();
+        String query = "SELECT t.*, a.* FROM TimeSlot t, Availability a WHERE t.id = a.timeSlot AND t.day = ?";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, day);
+            rs = stmt.executeQuery();
+
+            while(rs.next()){
+                BaseTimeSlot baseTimeSlot = new BaseTimeSlot(
+                        rs.getString("interpreter"),
+                        rs.getTime("startHourTime").toLocalTime(),
+                        rs.getTime("endHourTime").toLocalTime(),
+                        rs.getInt("day")
+                );
+                baseTimeSlots.add(baseTimeSlot);
+            }
+        }finally{
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return baseTimeSlots;
     }
 }
