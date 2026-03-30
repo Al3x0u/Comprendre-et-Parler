@@ -36,10 +36,11 @@ public class DatabaseConnector {
     }
 
     /**
-     * @post the user has been prompted through the console to provide a login and password, and a connection to the database has been established
+     * @post the user has been prompted through the console to provide a login and password,
+     * and a connection to the database has been established
      * @throws SQLException if the connection failed
      */
-    public static void initialize() throws ConnectionException {
+    public static void initialize() throws SQLException {
         Console cons = System.console();
         if (cons == null) {
             System.out.println("WARNING : Could not open a console. Your password will not be hidden. Please make sure you're not in public or run this from a terminal.");
@@ -58,8 +59,8 @@ public class DatabaseConnector {
      * @return an active Connection to the database
      * @throws SQLException if the connection failed
      */
-    public static Connection getInstance() throws ConnectionException {
-        if (connection == null) {
+    public static Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
             initialize();
         }
         return connection;
@@ -71,6 +72,6 @@ public class DatabaseConnector {
      */
     public static void closeInstance() throws SQLException {
         if (connection != null && !connection.isClosed())
-            connection.close();
+            connection.close();//where is the method ??
     }
 }
