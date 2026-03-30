@@ -23,6 +23,11 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
+    /**
+     * @param rs the ResultSet to close, can be null
+     * @param stmt the Statement to close, can be null
+     * @post rs and stmt have been closed if they weren't null
+     */
     private void fermer(ResultSet rs, Statement stmt) {
         if(rs != null){
             try{
@@ -41,6 +46,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
+    /**
+     * @param id the id of the transportation in database
+     * @param connection an active connection to the database
+     * @return the Transportation identified by id, or null if none was found
+     * @throws SQLException if the database could not be reached
+     */
     private Transportation getTransportation(int id, Connection connection)throws SQLException {
         Transportation transportation = null;
         String query = "SELECT * FROM transportation WHERE id = ?";
@@ -65,6 +76,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return transportation;
     }
 
+    /**
+     * @param id the login of the interpreter
+     * @param connection an active connection to the database
+     * @return the list of academic skills of the interpreter, empty if none
+     * @throws SQLException if the database could not be reached
+     */
     private List<AcademicSkill> getAcademicSkills(String id, Connection connection) throws SQLException {
         List<AcademicSkill> academicSkils = new ArrayList<>();
         String query = "SELECT a.id, a.designation FROM AcademicSkillInterpreter asi JOIN AcademicSkill a ON a.id = asi.skill WHERE asi.interpreter = ?";
@@ -90,6 +107,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return academicSkils;
     }
 
+    /**
+     * @param login the login of the interpreter
+     * @param connection an active connection to the database
+     * @return the list of job skills of the interpreter, empty if none
+     * @throws SQLException if the database could not be reached
+     */
     private List<JobSkill> getJobSkills(String login, Connection connection) throws SQLException {
         List<JobSkill> jobSkills = new ArrayList<>();
         String query = "SELECT j.id, j.designation FROM JobSkillInterpreter jsi JOIN JobSkill j ON j.id = jsi.skill WHERE jsi.interpreter = ?";
@@ -115,6 +138,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return jobSkills;
     }
 
+    /**
+     * @param idStatus the id of the status in database
+     * @param connection an active connection to the database
+     * @return the Status identified by idStatus, or null if none was found
+     * @throws SQLException if the database could not be reached
+     */
     private Status getStatus(int idStatus, Connection connection) throws SQLException {
         Status status = null;
         String query = "SELECT * FROM Status WHERE id = ?";
@@ -140,6 +169,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return status;
     }
 
+    /**
+     * @param login the login of the interpreter
+     * @param connection an active connection to the database
+     * @return the Interpreter identified by login, or null if none was found
+     * @throws SQLException if the database could not be reached
+     */
     private Interpreter getInterpreter(String login, Connection connection) throws SQLException {
         Interpreter interpreter = null;
         String query = "SELECT * FROM interpreter WHERE login = ?";
@@ -179,6 +214,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return interpreter;
     }
 
+    /**
+     * @param login the login of the reference interpreter
+     * @param connection an active connection to the database
+     * @return the list of beneficiaries whose reference interpreter has this login, empty if none
+     * @throws SQLException if the database could not be reached
+     */
     private List<Beneficiary> getBeneficiaries(String login, Connection connection) throws SQLException {
         List<Beneficiary> beneficiaries = new ArrayList<>();
         String query = "SELECT a.*, b.beneficiaryStatus, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE b.referenceInterpreter = ?";
