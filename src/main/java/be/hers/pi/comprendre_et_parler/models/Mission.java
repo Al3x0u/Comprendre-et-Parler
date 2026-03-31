@@ -1,12 +1,16 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class Mission {
     private int id;
-    private String subjet;
+    private String subject;
     private MissionState stateOfMission;
+    private String commentary;
+    private TimeSlot timeSlot;
     private List<Beneficiary> beneficiaries;
     private List<Interpreter> interpreters;
     private Location location;
@@ -17,7 +21,7 @@ public class Mission {
      * Constructor of a Mission object
      *
      * @param id represent the id of the mission
-     * @param subjet represent the subject of the mission
+     * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
      * @param beneficiaries represent the beneficiaries who concern this mission
      * @param interpreters represent the interpreters who work for this mission
@@ -25,10 +29,12 @@ public class Mission {
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      */
-    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
+    public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
         this.id = id;
-        this.subjet = subjet;
+        this.subject = subject;
         this.stateOfMission = stateOfMission;
+        this.commentary = commentary;
+        this.timeSlot = timeSlot;
         this.beneficiaries = beneficiaries;
         this.interpreters = interpreters;
         this.location = location;
@@ -36,39 +42,17 @@ public class Mission {
         this.academicSkill = academicSkill;
     }
 
-    /**
-     * @return this.subject
-     */
-    public String getSubjet() {
-        return subjet;
-    }
-
-    /**
-     * @param subject represent the subject of Mission
-     */
-    public void setSubject(String subject){
-        this.subjet = subject;
-    }
-
-    /**
-     * @return this.stateOfMission
-     */
-    public MissionState getStateOfMission() {
-        return stateOfMission;
-    }
-
-    /**
-     * @param state represent the mission state
-     */
-    public void setStateOfMission(MissionState state){
-        this.stateOfMission = state;
-    }
-
-    /**
-     * @return a String which contains all information about the mission
-     */
-    public String toString(){
-        return null;
+    public Mission(Mission mission) {
+        this.id = mission.id;
+        this.subject = mission.subject;
+        this.stateOfMission = mission.stateOfMission;
+        this.commentary = mission.commentary;
+        this.timeSlot = mission.timeSlot;
+        this.beneficiaries = new ArrayList<>(mission.beneficiaries);
+        this.interpreters = new ArrayList<>(mission.interpreters);
+        this.location = mission.location;
+        this.jobSkill = mission.jobSkill;
+        this.academicSkill = mission.academicSkill;
     }
 
     /**
@@ -79,10 +63,31 @@ public class Mission {
     }
 
     /**
-     * @param newId represent the new id
+     * @return this.subject
      */
-    public void setId(int newId){
-        this.id = newId;
+    public String getSubject() {
+        return subject;
+    }
+
+    /**
+     * @return this.stateOfMission
+     */
+    public MissionState getStateOfMission() {
+        return stateOfMission;
+    }
+
+    /**
+     * @return this.commentary
+     */
+    public String getCommentary() {
+        return commentary;
+    }
+
+    /**
+     * @return this.timeSlot
+     */
+    public TimeSlot getTimeSlot() {
+        return timeSlot;
     }
 
     /**
@@ -93,24 +98,10 @@ public class Mission {
     }
 
     /**
-     * @param beneficiaries represent the beneficiaries of the mission
-     */
-    public void setBeneficiaries(List<Beneficiary> beneficiaries) {
-        this.beneficiaries = beneficiaries;
-    }
-
-    /**
      * @return this.interpreters
      */
     public List<Interpreter> getInterpreters() {
         return interpreters;
-    }
-
-    /**
-     * @param interpreters represent the interpreters of the mission
-     */
-    public void setInterpreters(List<Interpreter> interpreters) {
-        this.interpreters = interpreters;
     }
 
     /**
@@ -121,24 +112,10 @@ public class Mission {
     }
 
     /**
-     * @param location represent the location of the mission
-     */
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    /**
      * @return this.jobSkill
      */
     public JobSkill getJobSkill() {
         return jobSkill;
-    }
-
-    /**
-     * @param jobSkill represent the business skill required for the mission
-     */
-    public void setJobSkill(JobSkill jobSkill) {
-        this.jobSkill = jobSkill;
     }
 
     /**
@@ -149,9 +126,136 @@ public class Mission {
     }
 
     /**
+     * @param newId represent the new id
+     */
+    public void setId(int newId){
+        this.id = newId;
+    }
+
+    /**
+     * @param subject represent the subject of Mission
+     */
+    public void setSubject(String subject){
+        this.subject = subject;
+    }
+
+    /**
+     * @param state represent the mission state
+     */
+    public void setStateOfMission(MissionState state){
+        this.stateOfMission = state;
+    }
+
+    /**
+     * @param commentary : represent the mission commentary
+     */
+    public void setCommentary(String commentary){
+        this.commentary = commentary;
+    }
+
+    /**
+     * @param timeSlot represent the time slot of the mission
+     */
+    public void setTimeSlot(TimeSlot timeSlot){
+        this.timeSlot = timeSlot;
+    }
+
+    /**
+     * @param beneficiaries represent the beneficiaries of the mission
+     */
+    public void setBeneficiaries(List<Beneficiary> beneficiaries) {
+        this.beneficiaries = beneficiaries;
+    }
+
+    /**
+     * @param interpreters represent the interpreters of the mission
+     */
+    public void setInterpreters(List<Interpreter> interpreters) {
+        this.interpreters = interpreters;
+    }
+
+    /**
+     * @param location represent the location of the mission
+     */
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    /**
+     * @param jobSkill represent the business skill required for the mission
+     */
+    public void setJobSkill(JobSkill jobSkill) {
+        this.jobSkill = jobSkill;
+    }
+
+    /**
      * @param academicSkill represent the academic skill required for the mission
      */
     public void setAcademicSkill(AcademicSkill academicSkill) {
         this.academicSkill = academicSkill;
     }
+
+    /**
+     * @return a String which contains all information about the mission
+     */
+    public String toString(){
+        return id + " : " + subject + " (" + stateOfMission + ") : \n"
+                + "Commentaire : " + commentary + "\n"
+                + "Tranche Horaire : " + timeSlot + "\n"
+                + "Bénéficiaire : " + beneficiaries + "\n"
+                + "Interprètes : " + interpreters + "\n"
+                + "Lieu : " + location + "\n"
+                + "Compétence Métier : " + jobSkill + "\n"
+                + "Compétence Académique : " + academicSkill;
+    }
+
+    /**
+     * Compare if two missions are the same
+     * @param o
+     * @post o is unchanged
+     * @return true if o and this are the same, else false
+     * @throws ClassCastException
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        try {
+            Mission mission = (Mission) o;
+            return mission.id == this.id
+                    && mission.subject.equals(this.subject)
+                    && mission.stateOfMission.equals(this.stateOfMission)
+                    && mission.commentary.equals(this.commentary)
+                    && mission.timeSlot.equals(this.timeSlot)
+                    && mission.beneficiaries.equals(this.beneficiaries)
+                    && mission.interpreters.equals(this.interpreters)
+                    && mission.location.equals(this.location)
+                    && mission.jobSkill.equals(this.jobSkill)
+                    && mission.academicSkill.equals(this.academicSkill);
+        } catch (ClassCastException e) {
+            return false;
+        }
+    }
+
+    /**
+     * @return hashcode of the mission
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, subject, stateOfMission, commentary, timeSlot, beneficiaries, interpreters, location, jobSkill, academicSkill);
+    }
+
+    /**
+     * Compare 2 missions based on the time slot
+     * @param mission
+     * @post mission is unchanged
+     * @return 0 if this == mission based on time slot,
+     *         1 if this > mission based on time slot,
+     *         else -1
+     */
+    public int compareTo(Mission mission) {
+        if (this == mission) return 0;
+        return this.timeSlot.compareTo(mission.timeSlot); //en supposant que compareTo soit implémenté dans TimeSlot
+    }
+
 }

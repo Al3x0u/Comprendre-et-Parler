@@ -9,6 +9,17 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOMission implements DAO<Mission> {
+    public final String table = "mission";
+    public final String fieldID = "id";
+    public final String fieldSubject = "subject";
+    public final String fieldState = "stateOfMission";
+    public final String fieldCommentary = "commentary";
+    public final String fieldTimeSlot = "timeSlot";
+    public final String fieldBeneficiaries = "beneficiaries";
+    public final String fieldInterpreters = "interpreters";
+    public final String fieldLocation = "location";
+    public final String fieldJobSkill = "jobSkill";
+    public final String fieldAcademicSkill = "AcademicSkill";
 
     /**
      * @param id the primary key of the object to find in database
