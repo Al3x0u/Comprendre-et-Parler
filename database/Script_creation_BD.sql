@@ -153,8 +153,6 @@ ALTER TABLE Interpreter ADD CONSTRAINT QuotaYearValue CHECK (yearHourlyQuota >= 
 
 ALTER TABLE Beneficiary ADD CONSTRAINT IDBeneficiary CHECK (REGEXP_LIKE(login,'^b[0-9]{7}$')); 
 
-ALTER TABLE Beneficiary ADD CONSTRAINT IDBeneficiary CHECK (REGEXP_LIKE(login,'^b[0-9]{7}$')); 
-
 ALTER TABLE City ADD CONSTRAINT PostalCodeValue CHECK (postalCode > 999);
 
 ALTER TABLE TimeSlot ADD CONSTRAINT DateOrder CHECK (startTime < endTime);
