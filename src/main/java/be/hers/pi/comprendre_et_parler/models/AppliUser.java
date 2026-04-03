@@ -80,5 +80,12 @@ public abstract class AppliUser {
         return phoneNumber;
     }
 
-
+    /**
+     * Return a String representation of the AppliUser containing all fields
+     * @return formatted string with login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

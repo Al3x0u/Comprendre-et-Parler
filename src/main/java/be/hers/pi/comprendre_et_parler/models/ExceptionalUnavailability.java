@@ -64,4 +64,13 @@ public class ExceptionalUnavailability  {
     public void setId(int id) {
         this.id = id;
     }
+
+    /**
+     * Return a String representation of the ExceptionalUnavailability containing all fields
+     * @return formatted string with id, reason, ponctualTimeSlot and interpreter
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

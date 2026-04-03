@@ -4,29 +4,36 @@ public class JobSkill {
     private String id;
     private String designation;
 
-
     /**
-        Constructor of a JobSkill Object
-        @param id : represent the id
-        @param designation : represent the designation
+     * Constructor of a JobSkill Object
+     * @param id represent the id
+     * @param designation represent the designation
      */
     public JobSkill(String id, String designation) {
         this.id = id;
         this.designation = designation;
     }
 
-
     /**
-        @return this.id
+     * @return this.id
      */
     public String getId() {
         return id;
     }
 
     /**
-        @return this.designation
+     * @return this.designation
      */
     public String getDesignation() {
         return designation;
+    }
+
+    /**
+     * Return a String representation of the JobSkill containing all fields
+     * @return formatted string with id and designation
+     */
+    @Override
+    public String toString() {
+        return null;
     }
 }

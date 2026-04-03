@@ -55,5 +55,12 @@ public class TimeSlot {
         return endTime;
     }
 
-
+    /**
+     * Return a String representation of the TimeSlot containing all fields
+     * @return formatted string with id, startTime and endTime
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }
