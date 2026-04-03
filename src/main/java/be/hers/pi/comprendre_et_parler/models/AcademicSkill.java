@@ -27,4 +27,13 @@ public class AcademicSkill {
     public String getDesignation() {
         return designation;
     }
+
+    /**
+     * Return a String representation of the AcademicSkill containing all fields
+     * @return formatted string with id and designation
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

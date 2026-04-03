@@ -44,4 +44,13 @@ public class PunctualTimeSlot extends TimeSlot{
     public boolean overlapsCompletely(PunctualTimeSlot ponctualTimeSlot){
         return false;
     }
+
+    /**
+     * Return a String representation of the PunctualTimeSlot containing all fields
+     * @return formatted string with id, startHourTime, endHourTime and date
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

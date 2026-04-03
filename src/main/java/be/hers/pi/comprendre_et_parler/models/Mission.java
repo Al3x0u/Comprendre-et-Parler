@@ -1,7 +1,10 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 public class Mission {
     private int id;
@@ -64,12 +67,7 @@ public class Mission {
         this.stateOfMission = state;
     }
 
-    /**
-     * @return a String which contains all information about the mission
-     */
-    public String toString(){
-        return null;
-    }
+
 
     /**
      * @return this.id
@@ -173,4 +171,13 @@ public class Mission {
     public void setAcademicSkill(AcademicSkill academicSkill) {
         this.academicSkill = academicSkill;
     }
+
+    /**
+     * Return a String representation of the Mission containing all fields
+     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill and academicSkill
+     */
+    public String toString(){
+        return null;
+    }
+
 }

@@ -9,7 +9,6 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary extends User
-     *
      * @param login          represent the login
      * @param firstName      represent the firstname
      * @param lastName       represent he lastname
@@ -52,5 +51,14 @@ public class Beneficiary extends AppliUser {
      */
     public void setInterpreterRef(Interpreter interpreterRef) {
         this.interpreterRef = interpreterRef;
+    }
+
+    /**
+     * Return a String representation of the Beneficiary containing all fields
+     * @return formatted string with status, interpreterRef and AppliUser information
+     */
+    @Override
+    public String toString() {
+        return null;
     }
 }

@@ -43,4 +43,13 @@ public class BaseTimeSlot extends TimeSlot{
     public boolean overlapsCompletely(BaseTimeSlot baseTimeSlot){
         return false;
     }
+
+    /**
+     * Return a String representation of the BaseTimeSlot containing all fields
+     * @return formatted string with id, startHourTime, endHourTime and day
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

@@ -37,4 +37,13 @@ public class City {
     public String getId() {
         return id;
     }
+
+    /**
+     * Return a String representation of the City containing all fields
+     * @return formatted string with id, designation and postalCode
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }
