@@ -61,7 +61,7 @@ public class DAOCity implements DAO<City> {
 
     /**
      * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Object
+     * @return a List who contains City Object, if database is empty, an empty list
      * @throws SQLException if the database could not be reached
      */
     @Override

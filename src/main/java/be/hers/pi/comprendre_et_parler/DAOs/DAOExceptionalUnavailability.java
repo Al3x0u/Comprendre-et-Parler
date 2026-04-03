@@ -71,7 +71,7 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     /**
      * Return all ExceptionalUnavailability of an Interpreter with the given id
      * @param idInterpreter the id of an Interpreter
-     * @return a List of ExceptionalUnavailability which contains the ExceptionalUnavailability of an Interpreter, or an empty List if no ExceptionalUnavailability if he doesn't have
+     * @return a list of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty list if none exist
      * @throws NoSuchElementException if there are not an Interpreter with the given id
      */
     public List<ExceptionalUnavailability> findForInterpreter(String idInterpreter)
