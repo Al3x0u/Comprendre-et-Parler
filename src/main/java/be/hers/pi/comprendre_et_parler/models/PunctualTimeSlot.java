@@ -37,7 +37,7 @@ public class PunctualTimeSlot extends TimeSlot{
 
     /**
      * Same to the overlaps but compare overlapping completely
-     * @param ponctualTimeSlot represent the BaseTimeSlot to compare, not null
+     * @param ponctualTimeSlot represent the PunctualTimeSlot to compare, not null
      * @return True if this PunctualTimeSlot overlaps completely the given ponctualTimeSlot, else False
      * @throws NullPointerException if ponctualTimeSlot is null
      */

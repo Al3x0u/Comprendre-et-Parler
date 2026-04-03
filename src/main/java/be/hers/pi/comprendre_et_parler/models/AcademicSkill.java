@@ -28,6 +28,8 @@ public class AcademicSkill {
         return designation;
     }
 
+
+
     /**
      * Return a String representation of the AcademicSkill containing all fields
      * @return formatted string with id and designation
