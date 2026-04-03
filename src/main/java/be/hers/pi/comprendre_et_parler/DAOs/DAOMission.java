@@ -217,47 +217,28 @@ public class DAOMission implements DAO<Mission> {
      */
     public List<Mission> getSchedule(String idUser) throws SQLException {
         List<Mission> missions = new ArrayList<>();
-
-        String queryInterpreter = "SELECT mission FROM InterpreterMission WHERE interpreter = ?";
-        PreparedStatement statementInterpreter = null;
-        ResultSet resultInterpreter = null;
+        String query = "SELECT mission FROM InterpreterMission WHERE interpreter = ? " +
+                       "UNION " +
+                       "SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
         try {
-            statementInterpreter = DatabaseConnector.getInstance().prepareStatement(queryInterpreter);
-            statementInterpreter.setString(1, idUser);
-            resultInterpreter = statementInterpreter.executeQuery();
-            while (resultInterpreter.next()) {
-                Mission mission = find(String.valueOf(resultInterpreter.getInt("mission")));
-                if (mission != null && !missions.contains(mission))
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, idUser);
+            statement.setString(2, idUser);
+            result = statement.executeQuery();
+            while (result.next()) {
+                Mission mission = find(String.valueOf(result.getInt("mission")));
+                if (mission != null)
                     missions.add(mission);
             }
         }
         finally {
-            if (statementInterpreter != null)
-                statementInterpreter.close();
-            if (resultInterpreter != null)
-                resultInterpreter.close();
+            if (statement != null)
+                statement.close();
+            if (result != null)
+                result.close();
         }
-
-        String queryBeneficiary = "SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?";
-        PreparedStatement statementBeneficiary = null;
-        ResultSet resultBeneficiary = null;
-        try {
-            statementBeneficiary = DatabaseConnector.getInstance().prepareStatement(queryBeneficiary);
-            statementBeneficiary.setString(1, idUser);
-            resultBeneficiary = statementBeneficiary.executeQuery();
-            while (resultBeneficiary.next()) {
-                Mission mission = find(String.valueOf(resultBeneficiary.getInt("mission")));
-                if (mission != null && !missions.contains(mission))
-                    missions.add(mission);
-            }
-        }
-        finally {
-            if (statementBeneficiary != null)
-                statementBeneficiary.close();
-            if (resultBeneficiary != null)
-                resultBeneficiary.close();
-        }
-
         return missions;
     }
 
