@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public abstract class AppliUser {
     private String login;
@@ -78,6 +79,17 @@ public abstract class AppliUser {
      */
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+
+    /**
+     * Compare this AppliUser with another AppliUser for equality
+     * @param other the AppliUser object to compare with
+     * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
+     */
+    public boolean equals(AppliUser other) {
+        return (login == other.login && firstName == other.firstName && lastName == other.lastName &&
+                birthDate == other.birthDate && hashedPassword == other.hashedPassword &&
+                email == other.email && phoneNumber == other.phoneNumber);
     }
 
     /**

@@ -46,6 +46,15 @@ public class PunctualTimeSlot extends TimeSlot{
     }
 
     /**
+     * Compare this PunctualTimeSlot with another PunctualTimeSlot for equality
+     * @param other the PunctualTimeSlot object to compare with
+     * @return true if both PunctualTimeSlot objects have identical  date
+     */
+    public boolean equals(PunctualTimeSlot other) {
+        return (super.equals(other) && date == other.date);
+    }
+
+    /**
      * Return a String representation of the PunctualTimeSlot containing all fields
      * @return formatted string with id, startHourTime, endHourTime and date
      */

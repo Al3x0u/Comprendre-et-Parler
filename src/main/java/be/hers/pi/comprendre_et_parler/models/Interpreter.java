@@ -85,6 +85,16 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * Compare this Interpreter with another Interpreter for equality
+     * @param other the Interpreter object to compare with
+     * @return true if both Interpreter objects have identical hourQuotaWeek, hourQuotaYear, transportMode and AppliUser fields
+     */
+    public boolean equals(Interpreter other) {
+        return (super.equals(other) && hourQuotaWeek == other.hourQuotaWeek &&
+                hourQuotaYear == other.hourQuotaYear && transportMode == other.transportMode);
+    }
+
+    /**
      * Return a String representation of the Interpreter containing all fields
      * @return formatted string with hour quotas, transport mode and AppliUser fields
      */

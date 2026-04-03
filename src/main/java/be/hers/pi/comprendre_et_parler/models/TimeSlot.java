@@ -56,6 +56,15 @@ public class TimeSlot {
     }
 
     /**
+     * Compare this TimeSlot with another TimeSlot for equality
+     * @param other the TimeSlot object to compare with
+     * @return true if both TimeSlot objects have identical id, startTime and endTime
+     */
+    public boolean equals(TimeSlot other) {
+        return (id == other.id && startTime == other.startTime && endTime == other.endTime);
+    }
+
+    /**
      * Return a String representation of the TimeSlot containing all fields
      * @return formatted string with id, startTime and endTime
      */

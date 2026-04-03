@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class AcademicSkill {
     private String id;
     private String designation;
@@ -29,6 +31,14 @@ public class AcademicSkill {
     }
 
 
+    /**
+     * Compare this AcademicSkill with another AcademicSkill for equality
+     * @param other the AcademicSkill object to compare with
+     * @return true if both AcademicSkill objects have identical id and designation
+     */
+    public boolean equals(AcademicSkill other) {
+        return (id == other.id && designation == other.designation);
+    }
 
     /**
      * Return a String representation of the AcademicSkill containing all fields

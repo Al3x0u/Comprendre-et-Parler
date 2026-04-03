@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class City {
     private String id;
     private String designation;
@@ -36,6 +38,15 @@ public class City {
      */
     public String getId() {
         return id;
+    }
+
+    /**
+     * Compare this City with another City for equality
+     * @param other the City object to compare with
+     * @return true if both City objects have identical id, designation and postalCode
+     */
+    public boolean equals(City other) {
+        return (id == other.id && designation == other.designation && postalCode == other.postalCode);
     }
 
     /**

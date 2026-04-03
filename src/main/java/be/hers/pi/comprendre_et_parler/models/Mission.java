@@ -207,6 +207,17 @@ public class Mission {
     }
 
     /**
+     * Compare this Mission with another Mission for equality
+     * @param other the Mission object to compare with
+     * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
+     */
+    public boolean equals(Mission other) {
+        return (id == other.id && subjet == other.subjet && stateOfMission == other.stateOfMission &&
+                location == other.location && jobSkill == other.jobSkill &&
+                academicSkill == other.academicSkill && room == other.room);
+    }
+
+    /**
      * Return a String representation of the Mission containing all fields
      * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill, academicSkill and room
      */
