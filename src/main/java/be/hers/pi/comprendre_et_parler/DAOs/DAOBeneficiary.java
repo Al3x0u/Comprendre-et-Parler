@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 public class DAOBeneficiary implements DAO<Beneficiary> {
 
     /**
-     *
+     * Search for a Beneficiary in the database with the String parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -22,8 +22,8 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     *
-     * @param objectToInsert an object of type T to add to the database
+     * Insert a Beneficiary object in the database
+     * @param objectToInsert an object of type Beneficiary to add to the database
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
      * @throws SQLException          if the database could not be reached
@@ -36,7 +36,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     *
+     * Update a Beneficiary line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException    if the database could not be reached
@@ -49,7 +49,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     *
+     * Delete a Beneficiary line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException    if the database could not be reached
@@ -62,7 +62,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     *
+     * Return all line of Beneficiary table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
@@ -72,7 +72,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     *
+     * Return all Beneficiary referenced by the interpreter with the given id
      * @param idInterpreter represent the id of the interpreter which we want the beneficiary
      * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter
      * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
@@ -82,7 +82,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     *
+     * Return all Beneficiary having the given status
      * @param idStatus represent the id of the status
      * @return a List of Beneficiary who have the id having the given idStatus
      * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status

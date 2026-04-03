@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
     /**
-     *
+     * Search for a PunctualTimeSlot in the database with the String parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws ConnectionException if the database could not be reached
@@ -22,7 +22,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     }
 
     /**
-     *
+     * Insert a PunctualTimeSlot object in the database
      * @param objectToInsert an object of PunctualTimeSlot to add to the database
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
@@ -35,7 +35,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     }
 
     /**
-     *
+     * Update a PunctualTimeSlot line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws ConnectionException    if the database could not be reached
@@ -47,8 +47,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     }
 
     /**
-     *
-     *
+     * Delete a PunctualTimeSlot line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws ConnectionException    if the database could not be reached
@@ -60,7 +59,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     }
 
     /**
-     *
+     * Return all line of PunctualTimeSlot table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws ConnectionException if the database could not be reached
      */

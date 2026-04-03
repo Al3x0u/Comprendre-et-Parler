@@ -6,11 +6,11 @@ public class BaseTimeSlot extends TimeSlot{
     private int day;
 
     /**
-        Constructor of a BaseTimeSlot which extends TimeSlot
-        @param id represent the id
-        @param startHourTime represent the hour at which start
-        @param startHourTime represent the hour at which finish
-        @param day represent the day of the week
+     Constructor of a BaseTimeSlot which extends TimeSlot
+     @param id represent the id
+     @param startHourTime represent the hour at which start
+     @param endHourTime represent the hour at which finish
+     @param day represent the day of the week
      */
     public BaseTimeSlot(String id, LocalTime startHourTime, LocalTime endHourTime, int day) {
         super(id, startHourTime, endHourTime);
@@ -18,25 +18,27 @@ public class BaseTimeSlot extends TimeSlot{
     }
 
     /**
-        @return this.day
+     @return this.day
      */
     public int getDay() {
         return day;
     }
 
     /**
-     *
-     * @param baseTimeSlot represent the BaseTimeSlot to compare
-     * @return True if he overlaps this, else False
+     * Compare this BaseTimeSlot with another one to know if they overlap
+     * @param baseTimeSlot represent the BaseTimeSlot to compare, not null
+     * @return True if this BaseTimeSlot overlaps the given BaseTimeSlot, else False
+     * @throws NullPointerException if baseTimeSlot is null
      */
     public boolean overlaps(BaseTimeSlot baseTimeSlot){
-       return false;
+        return false;
     }
 
     /**
      * Same to the overlaps but compare overlapping completely
-     * @param baseTimeSlot represent the BaseTimeSlot to compare
-     * @return True if he overlaps completely this, else False
+     * @param baseTimeSlot represent the BaseTimeSlot to compare, not null
+     * @return True if this BaseTimeSlot overlaps completely the given BaseTimeSlot, else False
+     * @throws NullPointerException if baseTimeSlot is null
      */
     public boolean overlapsCompletely(BaseTimeSlot baseTimeSlot){
         return false;

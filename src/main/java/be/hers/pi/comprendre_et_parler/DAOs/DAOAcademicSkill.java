@@ -11,9 +11,10 @@ import java.util.NoSuchElementException;
 public class DAOAcademicSkill implements DAO<AcademicSkill> {
 
     /**
-     Search for a AcademicSkill in the database with the String parameter
-     @param id : identification of the AcademicSkill
-     @return AcademicSkill object who correspond to the given id else null
+     * Search for a AcademicSkill in the database with the String parameter
+     * @param id : identification of the AcademicSkill
+     * @return AcademicSkill object who correspond to the given id else null
+     * @throws SQLException if the database could not be reached
      */
     @Override
     public AcademicSkill find(String id) throws SQLException {
@@ -21,11 +22,12 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     }
 
     /**
-     Insert a BusinessSkillCompetence Object in the database
-     @param objectToInsert : Object that we gonna insert
-     @throws AlreadyExistsException if there are already a line with there information
-     @throws DuplicatePrimaryKeyException if the given id already used in the database
-     @throws SQLException if we couldn't connect to the database
+     * Insert a AcademicSkill object in the database
+     * @param objectToInsert : Object that we gonna insert
+     * @throws AlreadyExistsException if there are already a line with there information
+     * @throws DuplicatePrimaryKeyException if the given id already used in the database
+     * @throws SQLException if we couldn't connect to the database
+     * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
     public void create(AcademicSkill objectToInsert)
@@ -34,11 +36,12 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     }
 
     /**
-     Update a AcademicSkill line who already exist in the database
-     @param objectToUpdate : object with the news information
-     @throws AlreadyExistsException if there are already a line with there information
-     @throws NoSuchElementException if there are not the element to update in the database
-     @throws SQLException if there are an error during the connection to the database
+     * Update a AcademicSkill line who already exist in the database
+     * @param objectToUpdate : object with the news information
+     * @throws AlreadyExistsException if there are already a line with there information
+     * @throws NoSuchElementException if there are not the element to update in the database
+     * @throws SQLException if there are an error during the connection to the database
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
     public void update(AcademicSkill objectToUpdate)
@@ -47,10 +50,11 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     }
 
     /**
-     Delete a AcademicSkill line in the table in the database
-     @param objectToDelete : object with the information of the line who need to be deleted
-     @throws NoSuchElementException if we couldn't find the Location object in the database
-     @throws SQLException if we couldn't connect to the database
+     * Delete a AcademicSkill line in the table in the database
+     * @param objectToDelete : object with the information of the line who need to be deleted
+     * @throws NoSuchElementException if we couldn't find the AcademicSkill object in the database
+     * @throws SQLException if we couldn't connect to the database
+     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
     public void delete(AcademicSkill objectToDelete)
@@ -59,7 +63,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     }
 
     /**
-     *
+     * Return all line of AcademicSkill table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */

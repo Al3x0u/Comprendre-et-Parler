@@ -18,6 +18,8 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public JobSkill find(String id) throws SQLException {
+        JobSkill jobSkill = null;
+        String query = "SELECT * FROM jobskill ";
         return null;
     }
 
@@ -57,6 +59,7 @@ public class DAOJobSkill implements DAO<JobSkill> {
     }
 
     /**
+     * Return all line of JobSkill table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
