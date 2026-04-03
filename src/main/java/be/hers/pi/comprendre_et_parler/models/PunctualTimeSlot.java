@@ -26,6 +26,13 @@ public class PunctualTimeSlot extends TimeSlot{
     }
 
     /**
+     * @param newDate represent the new date
+     */
+    public void setDate(LocalDate newDate){
+        this.date = newDate;
+    }
+
+    /**
      * Compare this PunctualTimeSlot with another one to know if they overlap
      * @param ponctualTimeSlot represent the ponctualTimeSlot to compare, not null
      * @return True if this PunctualTimeSlot overlaps the given ponctualTimeSlot, else False

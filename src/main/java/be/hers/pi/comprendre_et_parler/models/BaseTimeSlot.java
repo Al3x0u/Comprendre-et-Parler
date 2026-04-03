@@ -25,6 +25,13 @@ public class BaseTimeSlot extends TimeSlot{
     }
 
     /**
+     * @param newDay    represent the new day
+     */
+    public void setDay(int newDay){
+        this.day = newDay;
+    }
+
+    /**
      * Compare this BaseTimeSlot with another one to know if they overlap
      * @param baseTimeSlot represent the BaseTimeSlot to compare, not null
      * @return True if this BaseTimeSlot overlaps the given BaseTimeSlot, else False
