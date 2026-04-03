@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Location {
     private String id;
     private String designation;
@@ -110,6 +112,15 @@ public class Location {
         this.box = box;
     }
 
+    /**
+     * Compare this Location with another Location for equality
+     * @param other the Location object to compare with
+     * @return true if both Location objects have identical id, designation, city, street, streetNumber and box
+     */
+    public boolean equals(Location other) {
+        return (id == other.id && designation == other.designation && city == other.city &&
+                street == other.street && streetNumber == other.streetNumber && box == other.box);
+    }
     /**
      * Return a String representation of the Location containing all fields
      * @return formatted string with id, designation, city, street, streetNumber and box

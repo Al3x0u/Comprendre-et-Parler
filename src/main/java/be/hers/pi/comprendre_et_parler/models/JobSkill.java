@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class JobSkill {
     private String id;
     private String designation;
@@ -26,6 +28,15 @@ public class JobSkill {
      */
     public String getDesignation() {
         return designation;
+    }
+
+    /**
+     * Compare this JobSkill with another JobSkill for equality
+     * @param other the JobSkill object to compare with
+     * @return true if both JobSkill objects have identical id and designation
+     */
+    public boolean equals(JobSkill other) {
+        return (id == other.id && designation == other.designation);
     }
 
     /**

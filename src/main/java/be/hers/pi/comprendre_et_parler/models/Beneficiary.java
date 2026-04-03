@@ -54,6 +54,15 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
+     * Compare this Beneficiary with another Beneficiary for equality
+     * @param other the Beneficiary object to compare with
+     * @return true if both Beneficiary objects have identical status, interpreterRef and AppliUser fields
+     */
+    public boolean equals(Beneficiary other) {
+        return (super.equals(other) && status == other.status && interpreterRef == other.interpreterRef);
+    }
+
+    /**
      * Return a String representation of the Beneficiary containing all fields
      * @return formatted string with status, interpreterRef and AppliUser information
      */

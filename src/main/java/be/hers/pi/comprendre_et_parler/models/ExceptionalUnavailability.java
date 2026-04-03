@@ -66,6 +66,16 @@ public class ExceptionalUnavailability  {
     }
 
     /**
+     * Compare this ExceptionalUnavailability with another ExceptionalUnavailability for equality
+     * @param other the ExceptionalUnavailability object to compare with
+     * @return true if both ExceptionalUnavailability objects have identical id, reason, ponctualTimeSlot and interpreter
+     */
+    public boolean equals(ExceptionalUnavailability other) {
+        return (id == other.id && reason == other.reason &&
+                ponctualTimeSlot == other.ponctualTimeSlot && interpreter == other.interpreter);
+    }
+
+    /**
      * Return a String representation of the ExceptionalUnavailability containing all fields
      * @return formatted string with id, reason, ponctualTimeSlot and interpreter
      */

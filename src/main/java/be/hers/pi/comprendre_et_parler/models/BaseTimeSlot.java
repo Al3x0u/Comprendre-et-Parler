@@ -45,6 +45,15 @@ public class BaseTimeSlot extends TimeSlot{
     }
 
     /**
+     * Compare this BaseTimeSlot with another BaseTimeSlot for equality
+     * @param other the BaseTimeSlot object to compare with
+     * @return true if both BaseTimeSlot objects have identical day
+     */
+    public boolean equals(BaseTimeSlot other) {
+        return (super.equals(other) && day == other.day);
+    }
+
+    /**
      * Return a String representation of the BaseTimeSlot containing all fields
      * @return formatted string with id, startHourTime, endHourTime and day
      */
