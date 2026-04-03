@@ -15,6 +15,7 @@ public class Mission {
     private Location location;
     private JobSkill jobSkill;
     private AcademicSkill academicSkill;
+    private String room;
 
     /**
      * Constructor of a Mission object
@@ -27,8 +28,9 @@ public class Mission {
      * @param location represent the location of the mission
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
+     * @param room represent the room of the mission (can be null)
      */
-    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
+    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill, String room) {
         this.id = id;
         this.subjet = subjet;
         this.stateOfMission = stateOfMission;
@@ -37,6 +39,7 @@ public class Mission {
         this.location = location;
         this.jobSkill = jobSkill;
         this.academicSkill = academicSkill;
+        this.room = room;
     }
 
     /**
@@ -67,8 +70,6 @@ public class Mission {
         this.stateOfMission = state;
     }
 
-
-
     /**
      * @return this.id
      */
@@ -95,6 +96,25 @@ public class Mission {
      */
     public void setBeneficiaries(List<Beneficiary> beneficiaries) {
         this.beneficiaries = beneficiaries;
+    }
+
+    /**
+     * Add a Beneficiary to the beneficiaries List
+     * @param beneficiary represent the Beneficiary to add, not null
+     * @throws AlreadyExistsException if the beneficiary is already in the list
+     * @throws NullPointerException if beneficiary is null
+     */
+    public void addBeneficiary(Beneficiary beneficiary) throws AlreadyExistsException, NullPointerException {
+
+    }
+
+    /**
+     * Remove a Beneficiary from the beneficiaries List by login
+     * @param login represent the login of the Beneficiary to remove
+     * @throws NoSuchElementException if no beneficiary with the given login exists in the list
+     */
+    public void deleteBeneficiary(String login) throws NoSuchElementException {
+
     }
 
     /**
@@ -173,11 +193,24 @@ public class Mission {
     }
 
     /**
+     * @return this.room (can be null)
+     */
+    public String getRoom() {
+        return room;
+    }
+
+    /**
+     * @param room represent the room of the mission (can be null)
+     */
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    /**
      * Return a String representation of the Mission containing all fields
-     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill and academicSkill
+     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill, academicSkill and room
      */
     public String toString(){
         return null;
     }
-
 }
