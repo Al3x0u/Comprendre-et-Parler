@@ -30,6 +30,20 @@ public class AcademicSkill {
         return designation;
     }
 
+    /**
+     * @param id represent the new id
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @param designation represent the new designation
+     */
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
 
     /**
      * Compare this AcademicSkill with another AcademicSkill for equality

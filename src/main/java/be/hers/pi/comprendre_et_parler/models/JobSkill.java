@@ -31,6 +31,20 @@ public class JobSkill {
     }
 
     /**
+     * @param id represent the new id
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @param designation represent the new designation
+     */
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    /**
      * Compare this JobSkill with another JobSkill for equality
      * @param other the JobSkill object to compare with
      * @return true if both JobSkill objects have identical id and designation

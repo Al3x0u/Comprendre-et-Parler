@@ -41,6 +41,27 @@ public class City {
     }
 
     /**
+     * @param postalCode represent the new postal code
+     */
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    /**
+     * @param designation represent the new designation
+     */
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    /**
+     * @param id represent the new id
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
      * Compare this City with another City for equality
      * @param other the City object to compare with
      * @return true if both City objects have identical id, designation and postalCode

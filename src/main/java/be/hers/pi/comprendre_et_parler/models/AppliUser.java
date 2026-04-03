@@ -82,6 +82,55 @@ public abstract class AppliUser {
     }
 
     /**
+     * @param login represent the new login
+     */
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    /**
+     * @param firstName represent the new first name
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    /**
+     * @param lastName represent the new last name
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    /**
+     * @param birthDate represent the new birth date
+     */
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    /**
+     * @param hashedPassword represent the new hashed password
+     */
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
+
+    /**
+     * @param email represent the new email
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * @param phoneNumber represent the new phone number
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
      * Compare this AppliUser with another AppliUser for equality
      * @param other the AppliUser object to compare with
      * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
