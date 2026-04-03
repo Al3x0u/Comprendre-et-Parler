@@ -74,7 +74,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     /**
      * Return all Beneficiary referenced by the interpreter with the given id
      * @param idInterpreter represent the id of the interpreter which we want the beneficiary
-     * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter
+     * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter, or null if no beneficiaries
      * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
      */
     public List<Beneficiary> getReferenced(String idInterpreter) throws NoSuchElementException {
@@ -84,7 +84,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     /**
      * Return all Beneficiary having the given status
      * @param idStatus represent the id of the status
-     * @return a List of Beneficiary who have the id having the given idStatus
+     * @return a List of Beneficiary who have the id having the given idStatus,or null if no or null if no beneficiaries having this Status
      * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
      */
     public List<Beneficiary> getByStatus(int idStatus) throws NoSuchElementException {
