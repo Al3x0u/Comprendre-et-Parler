@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.time.LocalDate;
 
 public abstract class AppliUser {
-    private String id;
     private String login;
     private String firstName;
     private String lastName;
@@ -14,8 +13,7 @@ public abstract class AppliUser {
 
     /**
      Constructor of a AppliUser
-     @param id represent the id
-     @param login represent the login
+     @param login represent the id
      @param firstName represent the firstname
      @param lastName represent he lastname
      @param birthDate represent the birthdate
@@ -23,8 +21,7 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(String id,String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
-        this.id = id;
+    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -83,10 +80,5 @@ public abstract class AppliUser {
         return phoneNumber;
     }
 
-    /**
-     * @return this.id
-     */
-    public String getId() {
-        return id;
-    }
+
 }

@@ -37,7 +37,7 @@ public class Mission {
     }
 
     /**
-     * @return this.subject
+     * @return this.subjet
      */
     public String getSubjet() {
         return subjet;
@@ -111,6 +111,25 @@ public class Mission {
      */
     public void setInterpreters(List<Interpreter> interpreters) {
         this.interpreters = interpreters;
+    }
+
+    /**
+     * Add an Interpreter to the interpreters List
+     * @param interpreter represent the Interpreter to add, not null
+     * @throws AlreadyExistsException if the interpreter is already in the list
+     * @throws NullPointerException if interpreter is null
+     */
+    public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException {
+
+    }
+
+    /**
+     * Remove an Interpreter from the interpreters List by login
+     * @param login represent the login of the Interpreter to remove
+     * @throws NoSuchElementException if no interpreter with the given login exists in the list
+     */
+    public void deleteInterpreter(String login) throws NoSuchElementException {
+
     }
 
     /**

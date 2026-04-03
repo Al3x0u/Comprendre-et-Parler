@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 public class DAOMission implements DAO<Mission> {
 
     /**
+     * Search for a Mission in the database with the String parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -21,7 +22,8 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * @param objectToInsert an object of type T to add to the database
+     * Insert a Mission object in the database
+     * @param objectToInsert an object of type Mission to add to the database
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
@@ -33,6 +35,7 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
+     * Update a Mission line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException if the database could not be reached
@@ -44,6 +47,7 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
+     * Delete a Mission line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the database could not be reached
@@ -55,6 +59,7 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
+     * Return all line of Mission table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
@@ -64,8 +69,9 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
+     * Return the schedule of the user with the given id
      * @param idUser represent the id of the user which we want the schedule
-     * @return a list of Mission which compose the schedule of the idUser
+     * @return a list of Mission which compose the schedule of the idUser, or an empty List if the user has no Mission
      * @throws NoSuchElementException if the given idUser doesn't correspond to an existent id
      */
     public List<Mission> getSchedule(String idUser) throws NoSuchElementException {

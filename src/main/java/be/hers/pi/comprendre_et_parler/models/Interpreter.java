@@ -10,7 +10,6 @@ public class Interpreter extends AppliUser{
     /**
      * Constructor of an Interpreter object
      *
-     * @param id             represent the id
      * @param hQW            represent the hour quota per week
      * @param hQY            represent the hour quota per year
      * @param login          represent the login
@@ -22,9 +21,9 @@ public class Interpreter extends AppliUser{
      * @param phoneNumber    represent the phone number of the interpreter
      * @param transportMode  represent the transport mode of the interpreter
      */
-    public Interpreter(String id, int hQW, int hQY,String login, String firstName, String lastName,
+    public Interpreter( int hQW, int hQY,String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email, String phoneNumber,String transportMode) {
-        super(id,login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.hourQuotaWeek = hQW;
         this.hourQuotaYear = hQY;
         this.transportMode = transportMode;
