@@ -49,7 +49,6 @@ public class DAOCity implements DAO<City> {
                 result.close();
         }
         return city;
-
     }
 
     /**
@@ -85,8 +84,6 @@ public class DAOCity implements DAO<City> {
                 statement.close();
             }
         }
-
-
     }
 
     /**
@@ -107,7 +104,7 @@ public class DAOCity implements DAO<City> {
                 throw new AlreadyExistsException("Object " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         });
         if (allLines.stream().noneMatch((City line) -> line.getId() == objectToUpdate.getId())) {
-            throw new NoSuchElementException("Object " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + "could not be found in database");
+            throw new NoSuchElementException("Object " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
@@ -125,7 +122,6 @@ public class DAOCity implements DAO<City> {
                 statement.close();
             }
         }
-
     }
 
     /**
@@ -154,7 +150,6 @@ public class DAOCity implements DAO<City> {
                 statement.close();
             }
         }
-
     }
 
     /**
@@ -186,6 +181,5 @@ public class DAOCity implements DAO<City> {
                 result.close();
         }
         return cities;
-
     }
 }

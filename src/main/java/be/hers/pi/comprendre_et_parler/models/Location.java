@@ -8,7 +8,7 @@ public class Location {
     private City city;
     private String street;
     private String streetNumber;
-    private String box;
+    private int box;
 
     /**
         Constructor of a Location Object
@@ -18,7 +18,7 @@ public class Location {
         @param s : represent the street name
         @param sN : represent the street number
      */
-    public Location(int id,String d, City c, String s, String sN, String box){
+    public Location(int id,String d, City c, String s, String sN, int box){
         this.id = id;
         this.designation = d;
         this.city = c;
@@ -78,7 +78,7 @@ public class Location {
     /**
      * @return a String which contains the box of the Location
      */
-    public String getBox() {
+    public int getBox() {
         return box;
     }
 
@@ -120,7 +120,7 @@ public class Location {
     /**
      * @param box : location box
      */
-    public void setBox(String box) {
+    public void setBox(int box) {
         this.box = box;
     }
 
@@ -128,7 +128,8 @@ public class Location {
      * @return location information in a string
      */
     public String toString(){
-        return id + " : " + designation + ", " + streetNumber + " " + street + ", " + box + ", " + city;
+        return "Location{id=" + id + ", designation=" + designation + ", city=" + city + ", street=" + street +
+                ", streetNumber=" + streetNumber + ", box=" + box + "}";
     }
 
     /**
@@ -149,7 +150,7 @@ public class Location {
                     && location.city.equals(this.city)
                     && location.street.equals(this.street)
                     && location.streetNumber.equals(this.streetNumber)
-                    &&  location.box.equals(this.box);
+                    &&  location.box == this.box;
         } catch (ClassCastException e) {
             return false;
         }
@@ -173,15 +174,7 @@ public class Location {
      */
     public int compareTo(Location l) {
         if (this == l) return 0;
-
-        int cityComparison = this.city.compareTo(l.city);
-        if (cityComparison < 0) {
-            return -1;
-        } else if (cityComparison > 0) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return this.city.compareTo(l.city);
     }
 
 }

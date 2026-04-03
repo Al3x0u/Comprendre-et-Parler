@@ -19,7 +19,6 @@ public class Mission {
 
     /**
      * Constructor of a Mission object
-     *
      * @param id represent the id of the mission
      * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
@@ -42,6 +41,10 @@ public class Mission {
         this.academicSkill = academicSkill;
     }
 
+    /**
+     * Copy constructor of a Mission Object
+     * @param mission
+     */
     public Mission(Mission mission) {
         this.id = mission.id;
         this.subject = mission.subject;
@@ -198,15 +201,12 @@ public class Mission {
     /**
      * @return a String which contains all information about the mission
      */
+    @Override
     public String toString(){
-        return id + " : " + subject + " (" + stateOfMission + ") : \n"
-                + "Commentaire : " + commentary + "\n"
-                + "Tranche Horaire : " + timeSlot + "\n"
-                + "Bénéficiaire : " + beneficiaries + "\n"
-                + "Interprètes : " + interpreters + "\n"
-                + "Lieu : " + location + "\n"
-                + "Compétence Métier : " + jobSkill + "\n"
-                + "Compétence Académique : " + academicSkill;
+        return "Mission{id=" + id + ", subject=" + subject + ", stateOfMission=" + stateOfMission +
+                ", commentary=" + commentary + ", timeSlot=" + timeSlot + ", beneficiaries=" + beneficiaries +
+                ", interpreters=" + interpreters + ", location=" + location + ", jobSkill=" + jobSkill +
+                ", academicSkill=" + academicSkill + "}";
     }
 
     /**

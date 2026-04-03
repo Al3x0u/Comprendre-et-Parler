@@ -75,7 +75,7 @@ public class City {
      */
     @Override
     public String toString() {
-        return id + " - " + designation + " (" + postalCode + ")";
+        return "City{id=" + id + ", designation=" + designation + ", postalCode=" + postalCode + "}";
     }
 
     /**
@@ -119,20 +119,10 @@ public class City {
         if (this == city) return 0;
 
         int postalCodeComparison = Integer.compare(this.postalCode, city.postalCode);
-        if (postalCodeComparison < 0) {
-            return -1;
-        } else if (postalCodeComparison > 0) {
-            return 1;
-        } else {
-            int designationComparison = this.designation.compareTo(city.designation);
-            if (designationComparison < 0) {
-                return -1;
-            } else if (designationComparison > 0) {
-                return 1;
-            } else {
-                return 0;
-            }
+        if (postalCodeComparison != 0) {
+            return postalCodeComparison;
         }
+        return this.designation.compareTo(city.designation);
     }
 
 

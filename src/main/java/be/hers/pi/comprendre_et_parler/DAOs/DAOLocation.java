@@ -44,7 +44,7 @@ public class DAOLocation implements DAO<Location> {
                         new DAOCity().find(String.valueOf(result.getInt(fieldCity))),
                         result.getString(fieldStreet),
                         result.getString(fieldStreetNumber),
-                        result.getString(fieldBox)
+                        result.getInt(fieldBox)
                 );
             }
         }
@@ -66,7 +66,7 @@ public class DAOLocation implements DAO<Location> {
      */
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
-        // Manage invalid city
+        // Manage invalid Location
         Location alreadyPresent = find(String.valueOf(objectToInsert.getId()));
         if (alreadyPresent != null) {
             if (alreadyPresent.equals(objectToInsert))
@@ -85,7 +85,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(2, objectToInsert.getCity().getId());
             statement.setString(3, objectToInsert.getStreet());
             statement.setString(4, objectToInsert.getStreetNumber());
-            statement.setString(5, objectToInsert.getBox());
+            statement.setInt(5, objectToInsert.getBox());
             statement.executeUpdate();
         }
         finally {
@@ -104,14 +104,14 @@ public class DAOLocation implements DAO<Location> {
      */
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        // Manage invalid city
+        // Manage invalid Location
         List<Location> allLines = findAll();
         if (allLines.contains(objectToUpdate))
             return;
         allLines.forEach((Location line) -> {
             if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getCity().equals(objectToUpdate.getCity())
                     && line.getStreet().equals(objectToUpdate.getStreet()) && line.getStreetNumber().equals(objectToUpdate.getStreetNumber())
-                    && line.getBox().equals(objectToUpdate.getBox()) && line.getId() != objectToUpdate.getId())
+                    && line.getBox() == objectToUpdate.getBox() && line.getId() != objectToUpdate.getId())
                 throw new AlreadyExistsException("Object " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         });
         if (allLines.stream().noneMatch((Location line) -> line.getId() == objectToUpdate.getId())) {
@@ -127,7 +127,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(2, objectToUpdate.getCity().getId());
             statement.setString(3, objectToUpdate.getStreet());
             statement.setString(4, objectToUpdate.getStreetNumber());
-            statement.setString(5, objectToUpdate.getBox());
+            statement.setInt(5, objectToUpdate.getBox());
             statement.setInt(6, objectToUpdate.getId());
             statement.executeUpdate();
         }
@@ -159,7 +159,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(3, objectToDelete.getCity().getId());
             statement.setString(4, objectToDelete.getStreet());
             statement.setString(5, objectToDelete.getStreetNumber());
-            statement.setString(6, objectToDelete.getBox());
+            statement.setInt(6, objectToDelete.getBox());
             statement.executeUpdate();
         }
         finally {
@@ -190,7 +190,7 @@ public class DAOLocation implements DAO<Location> {
                         new DAOCity().find(String.valueOf(result.getInt(fieldCity))),
                         result.getString(fieldStreet),
                         result.getString(fieldStreetNumber),
-                        result.getString(fieldBox)
+                        result.getInt(fieldBox)
                 ));
             }
         }
