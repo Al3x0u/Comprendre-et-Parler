@@ -129,10 +129,11 @@ public class Mission {
     }
 
     /**
-     * @param newId represent the new id
+     * @param id : mission id
+     * @post if id >= 0, id is affected to this.id
      */
-    public void setId(int newId){
-        this.id = newId;
+    public void setId(int id) {
+        if(id >= 0) this.id = id;
     }
 
     /**
@@ -211,30 +212,23 @@ public class Mission {
 
     /**
      * Compare if two missions are the same
-     * @param o
-     * @post o is unchanged
-     * @return true if o and this are the same, else false
-     * @throws ClassCastException
+     * @param mission
+     * @post mission is unchanged
+     * @return true if mission and this are the same, else false
      */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        try {
-            Mission mission = (Mission) o;
-            return mission.id == this.id
-                    && mission.subject.equals(this.subject)
-                    && mission.stateOfMission.equals(this.stateOfMission)
-                    && mission.commentary.equals(this.commentary)
-                    && mission.timeSlot.equals(this.timeSlot)
-                    && mission.beneficiaries.equals(this.beneficiaries)
-                    && mission.interpreters.equals(this.interpreters)
-                    && mission.location.equals(this.location)
-                    && mission.jobSkill.equals(this.jobSkill)
-                    && mission.academicSkill.equals(this.academicSkill);
-        } catch (ClassCastException e) {
-            return false;
-        }
+    public boolean equals(Mission mission) {
+        if (this == mission) return true;
+        if (mission == null) return false;
+        return mission.id == this.id
+                && mission.subject.equals(this.subject)
+                && mission.stateOfMission.equals(this.stateOfMission)
+                && mission.commentary.equals(this.commentary)
+                && mission.timeSlot.equals(this.timeSlot)
+                && mission.beneficiaries.equals(this.beneficiaries)
+                && mission.interpreters.equals(this.interpreters)
+                && mission.location.equals(this.location)
+                && mission.jobSkill.equals(this.jobSkill)
+                && mission.academicSkill.equals(this.academicSkill);
     }
 
     /**

@@ -84,9 +84,10 @@ public class Location {
 
     /**
      * @param id : location id
+     * @post if id >= 0, id is affected to this.id
      */
     public void setId(int id) {
-        this.id = id;
+        if(id >= 0) this.id = id;
     }
 
     /**
@@ -134,34 +135,19 @@ public class Location {
 
     /**
      * Compare if two locations are the same
-     * @param o
-     * @post o is unchanged
-     * @return true if o and this are the same, else false
-     * @throws ClassCastException
+     * @param location
+     * @post location is unchanged
+     * @return true if location and this are the same, else false
      */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        try {
-            Location location = (Location) o;
-            return location.id == this.id
-                    && location.designation.equals(this.designation)
-                    && location.city.equals(this.city)
-                    && location.street.equals(this.street)
-                    && location.streetNumber.equals(this.streetNumber)
-                    &&  location.box == this.box;
-        } catch (ClassCastException e) {
-            return false;
-        }
-    }
-
-    /**
-     * @return hashcode of the location
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, designation, city, street, streetNumber, box);
+    public boolean equals(Location location) {
+        if (this == location) return true;
+        if (location == null) return false;
+        return location.id == this.id
+                && location.designation.equals(this.designation)
+                && location.city.equals(this.city)
+                && location.street.equals(this.street)
+                && location.streetNumber.equals(this.streetNumber)
+                &&  location.box == this.box;
     }
 
     /**

@@ -49,11 +49,13 @@ public class City {
         return postalCode;
     }
 
+
     /**
      * @param id : city id
+     * @post if id >= 0, id is affected to this.id
      */
     public void setId(int id) {
-        this.id = id;
+       if(id >= 0) this.id = id;
     }
 
     /**
@@ -80,31 +82,16 @@ public class City {
 
     /**
      * Compare if two cities are the same
-     * @param o
-     * @post o is unchanged
-     * @return true if o and this are the same, else false
-     * @throws ClassCastException
+     * @param city
+     * @post city is unchanged
+     * @return true if city and this are the same, else false
      */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        try {
-            City city = (City) o;
-            return city.id == this.id
-                    && city.designation.equals(this.designation)
-                    && city.postalCode == this.postalCode;
-        } catch (ClassCastException e) {
-            return false;
-        }
-    }
-
-    /**
-     * @return hashcode of the city
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, designation, postalCode);
+    public boolean equals(City city) {
+        if (this == city) return true;
+        if (city == null) return false;
+        return city.id == this.id
+                && city.designation.equals(this.designation)
+                && city.postalCode == this.postalCode;
     }
 
     /**
