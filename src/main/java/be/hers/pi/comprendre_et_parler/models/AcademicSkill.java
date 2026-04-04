@@ -60,6 +60,6 @@ public class AcademicSkill {
      */
     @Override
     public String toString() {
-        return null;
+        return "AcademicSkill{id=" + id + ", designation=" + designation + "}";
     }
 }

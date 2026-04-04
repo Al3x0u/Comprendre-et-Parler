@@ -6,9 +6,15 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class DAOAcademicSkill implements DAO<AcademicSkill> {
+    public final String table = "academicskill";
+    public final String field_id = "id";
+    public final String field_designation = "designation";
 
     /**
      * Search for a AcademicSkill in the database with the String parameter
@@ -18,7 +24,28 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      */
     @Override
     public AcademicSkill find(String id) throws SQLException {
-        return null;
+        String query = "SELECT * FROM " + table + " WHERE " + field_id + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        AcademicSkill ret = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, id);
+            result = statement.executeQuery();
+            if (result.next()) {
+                ret = new AcademicSkill(
+                        result.getString(field_id),
+                        result.getString(field_designation)
+                );
+            }
+        }
+        finally {
+            if (statement != null)
+                statement.close();
+            if (result != null)
+                result.close();
+        }
+        return ret;
     }
 
     /**
@@ -32,7 +59,28 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     @Override
     public void create(AcademicSkill objectToInsert)
             throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+        AcademicSkill alreadyPresent = find(objectToInsert.getId());
+        if (alreadyPresent != null) {
+            if (alreadyPresent.getDesignation().equals(objectToInsert.getDesignation()))
+                throw new AlreadyExistsException("Object already exists in database");
+            else
+                throw new DuplicatePrimaryKeyException("Object is already present in database under a different primary key");
+        }
 
+        String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
+        query = String.format(query, table, field_id, field_designation);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToInsert.getId());
+            statement.setString(2, objectToInsert.getDesignation());
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 
     /**
@@ -46,7 +94,30 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     @Override
     public void update(AcademicSkill objectToUpdate)
             throws AlreadyExistsException, NoSuchElementException, SQLException {
+        List<AcademicSkill> allLines = findAll();
 
+        allLines.forEach((AcademicSkill line) -> {
+            if (line.getDesignation().equals(objectToUpdate.getDesignation()) && !line.getId().equals(objectToUpdate.getId()))
+                throw new AlreadyExistsException("Object " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
+        });
+
+        if (allLines.stream().noneMatch((AcademicSkill line) -> line.getId().equals(objectToUpdate.getId())))
+            throw new NoSuchElementException("Object " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
+        String query = "UPDATE %s SET %s = ? WHERE %s = ?";
+        query = String.format(query, table, field_designation, field_id);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToUpdate.getDesignation());
+            statement.setString(2, objectToUpdate.getId());
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 
     /**
@@ -59,7 +130,23 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     @Override
     public void delete(AcademicSkill objectToDelete)
             throws NoSuchElementException, SQLException {
+        if (find(objectToDelete.getId()) == null)
+            throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
 
+        String query = "DELETE FROM %s WHERE %s = ? AND %s = ?";
+        query = String.format(query, table, field_id, field_designation);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToDelete.getId());
+            statement.setString(2, objectToDelete.getDesignation());
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 
     /**
@@ -69,6 +156,26 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      */
     @Override
     public List<AcademicSkill> findAll() throws SQLException {
-        return List.of();
+        String query = "SELECT * FROM " + table;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        List<AcademicSkill> ret = new ArrayList<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            while (result.next()) {
+                ret.add(new AcademicSkill(
+                        result.getString(field_id),
+                        result.getString(field_designation)
+                ));
+            }
+        }
+        finally {
+            if (statement != null)
+                statement.close();
+            if (result != null)
+                result.close();
+        }
+        return ret;
     }
 }
