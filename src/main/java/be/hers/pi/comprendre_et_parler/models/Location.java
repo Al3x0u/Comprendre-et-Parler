@@ -21,7 +21,7 @@ public class Location {
     public Location(int id,String d, City c, String s, String sN, int box){
         this.id = id;
         this.designation = d;
-        this.city = c;
+        this.city = new City(c);
         this.street = s;
         this.streetNumber = sN;
         this.box = box;
@@ -34,7 +34,7 @@ public class Location {
     public Location(Location l){
         this.id = l.id;
         this.designation = l.designation;
-        this.city = l.city;
+        this.city = new City(l.city);
         this.street = l.street;
         this.streetNumber = l.streetNumber;
         this.box = l.box;
@@ -101,7 +101,7 @@ public class Location {
      * @param city : location city
      */
     public void setCity(City city) {
-        this.city = city;
+        this.city = new City(city);
     }
 
     /**
@@ -120,9 +120,10 @@ public class Location {
 
     /**
      * @param box : location box
+     * @post if box >= 0, box is affected to this.box
      */
     public void setBox(int box) {
-        this.box = box;
+        if(box >= 0) this.box = box;
     }
 
     /**

@@ -33,12 +33,12 @@ public class Mission {
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
-        this.timeSlot = timeSlot;
-        this.beneficiaries = beneficiaries;
-        this.interpreters = interpreters;
-        this.location = location;
-        this.jobSkill = jobSkill;
-        this.academicSkill = academicSkill;
+        this.timeSlot = new TimeSlot(timeSlot);
+        this.beneficiaries = new ArrayList<>(beneficiaries);
+        this.interpreters = new ArrayList<>(interpreters);
+        this.location = new Location(location);
+        this.jobSkill = new JobSkill(jobSkill);
+        this.academicSkill = new AcademicSkill(academicSkill);
     }
 
     /**
@@ -50,12 +50,12 @@ public class Mission {
         this.subject = mission.subject;
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
-        this.timeSlot = mission.timeSlot;
+        this.timeSlot = new TimeSlot(mission.timeSlot);
         this.beneficiaries = new ArrayList<>(mission.beneficiaries);
         this.interpreters = new ArrayList<>(mission.interpreters);
-        this.location = mission.location;
-        this.jobSkill = mission.jobSkill;
-        this.academicSkill = mission.academicSkill;
+        this.location = new Location(mission.location);
+        this.jobSkill = new JobSkill(mission.jobSkill);
+        this.academicSkill = new AcademicSkill(mission.academicSkill);
     }
 
     /**
@@ -161,42 +161,42 @@ public class Mission {
      * @param timeSlot represent the time slot of the mission
      */
     public void setTimeSlot(TimeSlot timeSlot){
-        this.timeSlot = timeSlot;
+        this.timeSlot = new TimeSlot(timeSlot);
     }
 
     /**
      * @param beneficiaries represent the beneficiaries of the mission
      */
     public void setBeneficiaries(List<Beneficiary> beneficiaries) {
-        this.beneficiaries = beneficiaries;
+        this.beneficiaries = new ArrayList<>(beneficiaries);
     }
 
     /**
      * @param interpreters represent the interpreters of the mission
      */
     public void setInterpreters(List<Interpreter> interpreters) {
-        this.interpreters = interpreters;
+        this.interpreters = new ArrayList<>(interpreters);
     }
 
     /**
      * @param location represent the location of the mission
      */
     public void setLocation(Location location) {
-        this.location = location;
+        this.location = new Location(location);
     }
 
     /**
      * @param jobSkill represent the business skill required for the mission
      */
     public void setJobSkill(JobSkill jobSkill) {
-        this.jobSkill = jobSkill;
+        this.jobSkill = new JobSkill(jobSkill);
     }
 
     /**
      * @param academicSkill represent the academic skill required for the mission
      */
     public void setAcademicSkill(AcademicSkill academicSkill) {
-        this.academicSkill = academicSkill;
+        this.academicSkill = new AcademicSkill(academicSkill);
     }
 
     /**

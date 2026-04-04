@@ -67,9 +67,10 @@ public class City {
 
     /**
      * @param postalCode : city postal code
+     * @post if 1000 <= postalCode <= 10000, postalCode is affected to this.postalCode
      */
     public void setPostalCode(int postalCode) {
-        this.postalCode = postalCode;
+        if(postalCode >= 1000 && postalCode <= 10000) this.postalCode = postalCode;
     }
 
     /**
