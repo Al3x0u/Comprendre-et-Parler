@@ -59,6 +59,6 @@ public class JobSkill {
      */
     @Override
     public String toString() {
-        return null;
+        return "JobSkill{id=" + id + ", designation=" + designation + "}";
     }
 }
