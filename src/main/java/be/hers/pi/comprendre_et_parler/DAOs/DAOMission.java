@@ -62,11 +62,12 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * Insert a Mission Object in the database
-     * @param objectToInsert : Object that we gonna insert
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if the given id is already used in the database
-     * @throws SQLException if we couldn't connect to the database
+     * Insert a Mission object in the database
+     * @param objectToInsert an object of type Mission to add to the database
+     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
+     * @throws AlreadyExistsException if objectToInsert is already present in database
+     * @throws SQLException if the database could not be reached
+     * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
@@ -99,10 +100,10 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Update a Mission line who already exist in the database
-     * @param objectToUpdate : object with the news information
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws NoSuchElementException if there are not the element to update in the database
-     * @throws SQLException if there are an error during the connection to the database
+     * @param objectToUpdate the object to edit in the database
+     * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
+     * @throws SQLException if the database could not be reached
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
@@ -147,10 +148,11 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * Delete a line in the Mission table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
-     * @throws NoSuchElementException if we couldn't find the Mission object in the database
-     * @throws SQLException if we couldn't connect to the database
+     * Delete a Mission line in the table in the database
+     * @param objectToDelete the object to delete in the database
+     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @throws SQLException if the database could not be reached
+     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
     public void delete(Mission objectToDelete) throws NoSuchElementException, SQLException {
@@ -172,8 +174,8 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * Return all lines of Mission table in the database as Mission Objects in a List
-     * @return a List which contains Mission Objects
+     * Return all line of Mission table in the database in a List
+     * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
     @Override
@@ -210,12 +212,17 @@ public class DAOMission implements DAO<Mission> {
         return missions;
     }
 
+
+
     /**
+     * Return the schedule of the user with the given id
      * @param idUser represent the id of the user which we want the schedule
-     * @return a list of Mission which compose the schedule of the idUser
+     * @return a list of Mission which compose the schedule of the idUser, or an empty List if the user has no Mission
+     * @throws NoSuchElementException if the given idUser doesn't correspond to an existent id
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getSchedule(String idUser) throws SQLException {
+
+    public List<Mission> getSchedule(String idUser) throws NoSuchElementException, SQLException {
         List<Mission> missions = new ArrayList<>();
         String query = "SELECT mission FROM InterpreterMission WHERE interpreter = ? " +
                        "UNION " +
@@ -321,4 +328,98 @@ public class DAOMission implements DAO<Mission> {
         }
         return interpreters;
     }
+
+    public void addBeneficiaryToMission(int missionId, String beneficiaryId) throws SQLException, AlreadyExistsException {
+        String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
+        String insertQuery = "INSERT INTO BeneficiaryMission(mission, beneficiary) VALUES(?, ?)";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, beneficiaryId);
+            result = statement.executeQuery();
+            if (result.next()) throw new AlreadyExistsException("This beneficiary is already linked to the mission");
+
+            statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, beneficiaryId);
+            statement.executeUpdate();
+        }
+        finally {
+            if (result != null) result.close();
+            if (statement != null) statement.close();
+        }
+    }
+
+    public void addInterpreterToMission(int missionId, String interpreterId) throws SQLException, AlreadyExistsException {
+        String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
+        String insertQuery = "INSERT INTO InterpreterMission(mission, interpreter) VALUES(?, ?)";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, interpreterId);
+            result = statement.executeQuery();
+            if (result.next()) throw new AlreadyExistsException("This interpreter is already linked to the mission");
+
+            statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, interpreterId);
+            statement.executeUpdate();
+        }
+        finally {
+            if (result != null) result.close();
+            if (statement != null) statement.close();
+        }
+    }
+
+    public void removeBeneficiaryFromMission(int missionId, String beneficiaryId) throws SQLException, NoSuchElementException {
+        String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
+        String deleteQuery = "DELETE FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, beneficiaryId);
+            result = statement.executeQuery();
+            if (!result.next()) throw new NoSuchElementException("This beneficiary is not linked to the mission");
+
+            statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, beneficiaryId);
+            statement.executeUpdate();
+        }
+        finally {
+            if (result != null) result.close();
+            if (statement != null) statement.close();
+        }
+    }
+
+    public void removeInterpreterFromMission(int missionId, String interpreterId) throws SQLException, NoSuchElementException {
+        String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
+        String deleteQuery = "DELETE FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, interpreterId);
+            result = statement.executeQuery();
+            if (!result.next()) throw new NoSuchElementException("This interpreter is not linked to the mission");
+
+            statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
+            statement.setInt(1, missionId);
+            statement.setString(2, interpreterId);
+            statement.executeUpdate();
+        }
+        finally {
+            if (result != null) result.close();
+            if (statement != null) statement.close();
+        }
+    }
+
+
 }

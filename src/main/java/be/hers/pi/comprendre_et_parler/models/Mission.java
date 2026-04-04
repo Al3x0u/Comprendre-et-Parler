@@ -1,9 +1,12 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.NoSuchElementException;
+
+import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 public class Mission {
     private int id;
@@ -16,6 +19,7 @@ public class Mission {
     private Location location;
     private JobSkill jobSkill;
     private AcademicSkill academicSkill;
+    private String room;
 
     /**
      * Constructor of a Mission object
@@ -27,8 +31,11 @@ public class Mission {
      * @param location represent the location of the mission
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
+     * @param room represent the room of the mission (can be null)
      */
-    public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
+    public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
+                   List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location,
+                   JobSkill jobSkill, AcademicSkill academicSkill, String room) {
         this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
@@ -39,6 +46,7 @@ public class Mission {
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
+        this.room = room;
     }
 
     /**
@@ -56,6 +64,7 @@ public class Mission {
         this.location = new Location(mission.location);
         this.jobSkill = new JobSkill(mission.jobSkill);
         this.academicSkill = new AcademicSkill(mission.academicSkill);
+        this.room = mission.room;
     }
 
     /**
@@ -126,6 +135,13 @@ public class Mission {
      */
     public AcademicSkill getAcademicSkill() {
         return academicSkill;
+    }
+
+    /**
+     * @return this.room (can be null)
+     */
+    public String getRoom() {
+        return room;
     }
 
     /**
@@ -200,7 +216,15 @@ public class Mission {
     }
 
     /**
-     * @return a String which contains all information about the mission
+     * @param room represent the room of the mission (can be null)
+     */
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    /**
+     * Return a String representation of the Mission containing all fields
+     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill, academicSkill and room
      */
     @Override
     public String toString(){
@@ -211,32 +235,23 @@ public class Mission {
     }
 
     /**
-     * Compare if two missions are the same
-     * @param mission
-     * @post mission is unchanged
-     * @return true if mission and this are the same, else false
+     * Compare this Mission with another Mission for equality
+     * @param other the Mission object to compare with
+     * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
      */
-    public boolean equals(Mission mission) {
-        if (this == mission) return true;
-        if (mission == null) return false;
-        return mission.id == this.id
-                && mission.subject.equals(this.subject)
-                && mission.stateOfMission.equals(this.stateOfMission)
-                && mission.commentary.equals(this.commentary)
-                && mission.timeSlot.equals(this.timeSlot)
-                && mission.beneficiaries.equals(this.beneficiaries)
-                && mission.interpreters.equals(this.interpreters)
-                && mission.location.equals(this.location)
-                && mission.jobSkill.equals(this.jobSkill)
-                && mission.academicSkill.equals(this.academicSkill);
-    }
-
-    /**
-     * @return hashcode of the mission
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, subject, stateOfMission, commentary, timeSlot, beneficiaries, interpreters, location, jobSkill, academicSkill);
+    public boolean equals(Mission other) {
+        if (this == other) return true;
+        if (other == null) return false;
+        return other.id == this.id
+                && other.subject.equals(this.subject)
+                && other.stateOfMission.equals(this.stateOfMission)
+                && other.commentary.equals(this.commentary)
+                && other.timeSlot.equals(this.timeSlot)
+                && other.beneficiaries.equals(this.beneficiaries)
+                && other.interpreters.equals(this.interpreters)
+                && other.location.equals(this.location)
+                && other.jobSkill.equals(this.jobSkill)
+                && other.academicSkill.equals(this.academicSkill);
     }
 
     /**
@@ -251,5 +266,97 @@ public class Mission {
         if (this == mission) return 0;
         return this.timeSlot.compareTo(mission.timeSlot); //en supposant que compareTo soit implémenté dans TimeSlot
     }
+
+    /**
+     * Add a Beneficiary to the beneficiaries List
+     * @param beneficiary represent the Beneficiary to add, not null
+     * @throws AlreadyExistsException if the beneficiary is already in the list
+     * @throws NullPointerException if beneficiary is null
+     * @throws SQLException
+     */
+    public void addBeneficiary(Beneficiary beneficiary) throws AlreadyExistsException, NullPointerException, SQLException {
+        if (beneficiary == null)
+            throw new NullPointerException("Beneficiary cannot be null");
+
+        if (beneficiaries.contains(beneficiary))
+            throw new AlreadyExistsException("Beneficiary already exists in this mission");
+
+        DAOMission daoMission = new DAOMission();
+        daoMission.addBeneficiaryToMission(this.getId(), beneficiary.getId());
+        beneficiaries.add(beneficiary);
+    }
+
+    /**
+     * Remove a Beneficiary from the beneficiaries List by login
+     * @param login represent the login of the Beneficiary to remove
+     * @throws NoSuchElementException if no beneficiary with the given login exists in the list
+     */
+    public void deleteBeneficiary(String login) throws NoSuchElementException, SQLException {
+        if (login == null) throw new NullPointerException("Login cannot be null");
+
+        Beneficiary toRemove = null;
+        boolean found = false;
+        int i = 0;
+        while (!found && i < beneficiaries.size()) {
+            if (beneficiaries.get(i).getLogin().equals(login)) {
+                toRemove = beneficiaries.get(i);
+                found = true;
+            }
+            i++;
+        }
+        if (!found) throw new NoSuchElementException("No beneficiary with login: " + login);
+
+        DAOMission daoMission = new DAOMission();
+        daoMission.removeBeneficiaryFromMission(this.getId(), toRemove.getId());
+        beneficiaries.remove(toRemove);
+    }
+
+
+    /**
+     * Add an Interpreter to the interpreters List
+     * @param interpreter represent the Interpreter to add, not null
+     * @throws AlreadyExistsException if the interpreter is already in the list
+     * @throws NullPointerException if interpreter is null
+     * @throws SQLException
+     */
+    public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException, SQLException {
+        if (interpreter == null)
+            throw new NullPointerException("Interpreter cannot be null");
+
+        if (interpreters.contains(interpreter))
+            throw new AlreadyExistsException("Interpreter already exists in this mission");
+
+        DAOMission daoMission = new DAOMission();
+        daoMission.addInterpreterToMission(this.getId(), interpreter.getId());
+        interpreters.add(interpreter);
+    }
+
+    /**
+     * Remove an Interpreter from the interpreters List by login
+     * @param login represent the login of the Interpreter to remove
+     * @throws NoSuchElementException if no interpreter with the given login exists in the list
+     * @throws SQLException
+     */
+    public void deleteInterpreter(String login) throws NoSuchElementException, SQLException {
+        if (login == null) throw new NullPointerException("Login cannot be null");
+
+        Interpreter toRemove = null;
+        boolean found = false;
+        int i = 0;
+        while (!found && i < interpreters.size()) {
+            if (interpreters.get(i).getLogin().equals(login)) {
+                toRemove = interpreters.get(i);
+                found = true;
+            }
+            i++;
+        }
+        if (!found) throw new NoSuchElementException("No interpreter with login: " + login);
+
+        DAOMission daoMission = new DAOMission();
+        daoMission.removeInterpreterFromMission(this.getId(), toRemove.getId());
+        interpreters.remove(toRemove);
+    }
+
+
 
 }
