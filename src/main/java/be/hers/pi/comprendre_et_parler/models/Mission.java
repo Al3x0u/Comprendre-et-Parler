@@ -7,8 +7,7 @@ public class Mission {
     private String subjet;
     private MissionState stateOfMission;
     private String commentary;
-    private int importance;
-    private List<Beneficiary> beneficiaries;
+    private List<Importance> importance;
     private List<Interpreter> interpreters;
     private PunctualTimeSlot punctualTime;
     private Location location;
@@ -26,11 +25,10 @@ public class Mission {
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      */
-    public Mission( String subjet, MissionState stateOfMission, String comment, int importance, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, PunctualTimeSlot time, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
+    public Mission( String subjet, MissionState stateOfMission, String comment, List<Importance> importance, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, PunctualTimeSlot time, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
         this.subjet = subjet;
         this.stateOfMission = stateOfMission;
         commentary = comment;
-        this.beneficiaries = beneficiaries;
         this.interpreters = interpreters;
         punctualTime = time;
         this.location = location;
@@ -70,15 +68,15 @@ public class Mission {
         return this.commentary;
     }
 
-    public void setCommentary(final String commentary) {
+    public void setCommentary(String commentary) {
         this.commentary = commentary;
     }
 
-    public int getImportance() {
+    public List<Importance> getImportance() {
         return this.importance;
     }
 
-    public void setImportance(final int importance) {
+    public void setImportance(List<Importance> importance) {
         this.importance = importance;
     }
 
@@ -87,20 +85,6 @@ public class Mission {
      */
     public String toString(){
         return null;
-    }
-
-    /**
-     * @return this.beneficiaries
-     */
-    public List<Beneficiary> getBeneficiaries() {
-        return beneficiaries;
-    }
-
-    /**
-     * @param beneficiaries represent the beneficiaries of the mission
-     */
-    public void setBeneficiaries(List<Beneficiary> beneficiaries) {
-        this.beneficiaries = beneficiaries;
     }
 
     /**
