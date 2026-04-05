@@ -111,18 +111,21 @@ public class DAOLocation implements DAO<Location> {
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         // Manage invalid Location
-        List<Location> allLines = findAll();
-        if (allLines.contains(objectToUpdate))
-            return;
-        allLines.forEach((Location line) -> {
-            if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getCity().equals(objectToUpdate.getCity())
-                    && line.getStreet().equals(objectToUpdate.getStreet()) && line.getStreetNumber().equals(objectToUpdate.getStreetNumber())
-                    && line.getBox() == objectToUpdate.getBox() && line.getId() != objectToUpdate.getId())
-                throw new AlreadyExistsException("Object " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
-        });
-        if (allLines.stream().noneMatch((Location line) -> line.getId() == objectToUpdate.getId())) {
-            throw new NoSuchElementException("Object " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
+        List<Location> locations = findAll();
+        boolean found = false;
+        for (Location line : locations) {
+            if (line.getId() == objectToUpdate.getId())
+                found = true;
+            if (line.getDesignation().equals(objectToUpdate.getDesignation())
+                    && line.getCity().equals(objectToUpdate.getCity())
+                    && line.getStreet().equals(objectToUpdate.getStreet())
+                    && line.getStreetNumber().equals(objectToUpdate.getStreetNumber())
+                    && line.getBox() == objectToUpdate.getBox())
+                throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         }
+        if (!found)
+            throw new NoSuchElementException("Location " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, table, fieldDesignation, fieldCity, fieldStreet, fieldStreetNumber, fieldBox, fieldID);

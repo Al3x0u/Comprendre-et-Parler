@@ -116,25 +116,21 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<Mission> allLines = findAll();
-        if (allLines.contains(objectToUpdate))
-            return;
-        allLines.forEach((Mission line) -> {
+        List<Mission> missions = findAll();
+        boolean found = false;
+        for (Mission line : missions) {
+            if (line.getId() == objectToUpdate.getId())
+                found = true;
             if (line.getSubject().equals(objectToUpdate.getSubject())
                     && line.getStateOfMission().equals(objectToUpdate.getStateOfMission())
                     && line.getCommentary().equals(objectToUpdate.getCommentary())
                     && line.getTimeSlot().equals(objectToUpdate.getTimeSlot())
-                    && line.getBeneficiaries().equals(objectToUpdate.getBeneficiaries())
-                    && line.getInterpreters().equals(objectToUpdate.getInterpreters())
-                    && line.getLocation().equals(objectToUpdate.getLocation())
                     && line.getJobSkill().equals(objectToUpdate.getJobSkill())
-                    && line.getAcademicSkill().equals(objectToUpdate.getAcademicSkill())
-                    && line.getId() != objectToUpdate.getId())
-                throw new AlreadyExistsException("Object " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
-        });
-        if (allLines.stream().noneMatch((Mission line) -> line.getId() == objectToUpdate.getId())) {
-            throw new NoSuchElementException("Object " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
+                    && line.getAcademicSkill().equals(objectToUpdate.getAcademicSkill()))
+                throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
         }
+        if (!found)
+            throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, table, fieldSubject, fieldState, fieldCommentary, fieldTimeSlot, fieldJobSkill, fieldAcademicSkill, fieldID);

@@ -98,16 +98,17 @@ public class DAOCity implements DAO<City> {
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         // Manage invalid city
-        List<City> allLines = findAll();
-        if (allLines.contains(objectToUpdate))
-            return;
-        allLines.forEach((City line) -> {
-            if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getPostalCode() == objectToUpdate.getPostalCode() && line.getId() != objectToUpdate.getId())
-                throw new AlreadyExistsException("Object " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
-        });
-        if (allLines.stream().noneMatch((City line) -> line.getId() == objectToUpdate.getId())) {
-            throw new NoSuchElementException("Object " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
+        List<City> cities = findAll();
+        boolean found = false;
+        for (City line : cities) {
+            if (line.getId() == objectToUpdate.getId())
+                found = true;
+            if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getPostalCode() == objectToUpdate.getPostalCode())
+                throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         }
+        if (!found)
+            throw new NoSuchElementException("City " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, table, fieldDesignation, fieldPostalCode, fieldID);
