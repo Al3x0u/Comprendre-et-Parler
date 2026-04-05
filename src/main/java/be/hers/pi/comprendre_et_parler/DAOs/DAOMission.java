@@ -117,10 +117,7 @@ public class DAOMission implements DAO<Mission> {
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         List<Mission> missions = findAll();
-        boolean found = false;
         for (Mission line : missions) {
-            if (line.getId() == objectToUpdate.getId())
-                found = true;
             if (line.getSubject().equals(objectToUpdate.getSubject())
                     && line.getStateOfMission().equals(objectToUpdate.getStateOfMission())
                     && line.getCommentary().equals(objectToUpdate.getCommentary())
@@ -129,8 +126,6 @@ public class DAOMission implements DAO<Mission> {
                     && line.getAcademicSkill().equals(objectToUpdate.getAcademicSkill()))
                 throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
         }
-        if (!found)
-            throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, table, fieldSubject, fieldState, fieldCommentary, fieldTimeSlot, fieldJobSkill, fieldAcademicSkill, fieldID);
@@ -144,7 +139,9 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(5, objectToUpdate.getJobSkill().getId());
             statement.setInt(6, objectToUpdate.getAcademicSkill().getId());
             statement.setInt(7, objectToUpdate.getId());
-            statement.executeUpdate();
+            int nbImpactedLines = statement.executeUpdate();
+            if (nbImpactedLines == 0)
+                throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
             if (statement != null) {
@@ -162,16 +159,15 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void delete(Mission objectToDelete) throws NoSuchElementException, SQLException {
-        if (find(String.valueOf(objectToDelete.getId())) == null)
-            throw new NoSuchElementException("Object " + objectToDelete.getSubject() + " was not found in database");
-
         String query = "DELETE FROM %s WHERE %s = ?";
         query = String.format(query, table, fieldID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, objectToDelete.getId());
-            statement.executeUpdate();
+            int nbImpactedLines = statement.executeUpdate();
+            if (nbImpactedLines == 0)
+                throw new NoSuchElementException("Mission " + objectToDelete.getSubject() + " was not found in database");
         }
         finally {
             if (statement != null) {

@@ -97,19 +97,12 @@ public class DAOCity implements DAO<City> {
      */
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        // Manage invalid city
         List<City> cities = findAll();
-        boolean found = false;
         for (City line : cities) {
-            if (line.getId() == objectToUpdate.getId())
-                found = true;
             if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getPostalCode() == objectToUpdate.getPostalCode())
                 throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         }
-        if (!found)
-            throw new NoSuchElementException("City " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
 
-        // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, table, fieldDesignation, fieldPostalCode, fieldID);
         PreparedStatement statement = null;
@@ -118,7 +111,9 @@ public class DAOCity implements DAO<City> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getPostalCode());
             statement.setInt(3, objectToUpdate.getId());
-            statement.executeUpdate();
+            int nbLignesImpactees = statement.executeUpdate();
+            if (nbLignesImpactees == 0)
+                throw new NoSuchElementException("City " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
             if (statement != null) {
@@ -135,9 +130,6 @@ public class DAOCity implements DAO<City> {
      */
     @Override
     public void delete(City objectToDelete) throws NoSuchElementException, SQLException {
-        if (find(String.valueOf(objectToDelete.getId())) == null)
-            throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
-
         String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
         query = String.format(query, table, fieldID, fieldDesignation, fieldPostalCode);
         PreparedStatement statement = null;
@@ -146,7 +138,9 @@ public class DAOCity implements DAO<City> {
             statement.setInt(1, objectToDelete.getId());
             statement.setString(2, objectToDelete.getDesignation());
             statement.setInt(3, objectToDelete.getPostalCode());
-            statement.executeUpdate();
+            int nbLignesImpactees = statement.executeUpdate();
+            if (nbLignesImpactees == 0)
+                throw new NoSuchElementException("City " + objectToDelete.getDesignation() + " was not found in database");
         }
         finally {
             if (statement != null) {
