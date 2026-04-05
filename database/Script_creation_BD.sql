@@ -10,6 +10,7 @@ DROP TABLE Unavailability;
 DROP TABLE Availability;
 DROP TABLE TimeSlot;
 DROP TABLE Beneficiary;
+DROP TABLE Manager;
 DROP TABLE Interpreter;
 DROP TABLE AppliUser;
 DROP TABLE Location;
@@ -61,6 +62,10 @@ CREATE TABLE Interpreter (
     yearHourlyQuota INTEGER NOT NULL,
     transportMode INTEGER NOT NULL REFERENCES Transportation(id),
     location INTEGER NOT NULL REFERENCES Location(id)
+);
+
+CREATE Table Manager (
+    id INTEGER PRIMARY KEY REFERENCES Interpreter(id) ON DELETE CASCADE
 );
 
 CREATE TABLE Beneficiary (
@@ -159,5 +164,6 @@ ALTER TABLE TimeSlot ADD CONSTRAINT TimeSlotUnique UNIQUE (startTime, endTime, d
 
 ALTER TABLE Mission ADD CONSTRAINT StateOfMissionValue CHECK (stateOfMission IN ('A', 'R', 'D', 'H'));
 ALTER TABLE Mission ADD CONSTRAINT SkillsNeeded CHECK ((jobSkill IS NULL AND academicSkill IS NULL) OR (jobSkill IS NOT NULL AND academicSkill IS NOT NULL));
+
 
 commit;
