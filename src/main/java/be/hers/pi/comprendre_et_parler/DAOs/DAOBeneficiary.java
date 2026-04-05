@@ -4,6 +4,8 @@ import be.hers.pi.comprendre_et_parler.models.Beneficiary;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 import be.hers.pi.comprendre_et_parler.models.Interpreter;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
+import org.thymeleaf.standard.processor.StandardAttrprependTagProcessor;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,61 +64,19 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      */
     @Override
     public List<Beneficiary> findAll() throws SQLException {
-        return List.of();
-    }
-
-    /**
-     *
-     * @param idInterpreter represent the id of the interpreter which we want the beneficiaries
-     * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter
-     * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
-     */
-    public List<Beneficiary> getReferenced(String idInterpreter) throws NoSuchElementException {
-        return null;
-    }
-
-    /**
-     *
-     * @param idStatus represent the id of the status
-     * @return a List of Beneficiary who have the id having the given idStatus
-     * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
-     */
-    public List<Beneficiary> getByStatus(int idStatus) throws NoSuchElementException {
-        return null;
-    }
-
-    /**
-     * @param login the login of the reference interpreter
-     * @return the list of beneficiaries whose reference interpreter has this login, empty if none
-     * @throws SQLException if the database could not be reached
-     */
-    public static List<Beneficiary> findAllReferenceInterpreter(String login) throws SQLException {
         Connection connection = DatabaseConnector.getConnection();
         List<Beneficiary> beneficiaries = new ArrayList<>();
-        String query = "SELECT a.*, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE b.referenceInterpreter = ?";
+        String query = "SELECT login FROM Beneficiary";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try{
             stmt = connection.prepareStatement(query);
-            stmt.setString(1, login);
             rs = stmt.executeQuery();
-            Interpreter interpreter = DAOInterpreter.findByLogin(login);
+
             while(rs.next()){
-                int idStatus = rs.getInt("beneficiaryStatus");
-                Beneficiary b = new Beneficiary(
-                        rs.getString("login"),
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),//pas sur que getString sois adapté pou un localDate
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        DAOStatus.findById(idStatus),
-                        interpreter
-                );
-                beneficiaries.add(b);
+                beneficiaries.add(findByLogin(rs.getString("login")));
             }
         }finally {
             DatabaseConnector.closeStmt(rs, stmt);
@@ -124,37 +84,52 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         return beneficiaries;
     }
 
-    public static List<Beneficiary> findByIdBeneficiariesMission(int missionId)throws SQLException{
+    /**
+     *
+     * @param idStatus represent the id of the status
+     * @return a List of Beneficiary who have the id having the given idStatus
+     * @throws SQLException
+     */
+    public List<Beneficiary> getByStatus(int idStatus) throws SQLException {
         Connection connection = DatabaseConnector.getConnection();
-        String query = "SELECT a.*, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login JOIN BeneficiaryMission bm ON  a.login = bm.login JOIN Mission m ON bm.mission = m.id WHERE m.id = ?";
-        List<Beneficiary> list = new ArrayList<>();
+        List<Beneficiary> beneficiaries = new ArrayList<>();
+        String query = "SELECT * FROM Beneficiary WHERE status = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try{
             stmt = connection.prepareStatement(query);
-            stmt.setInt(1, missionId);
+            stmt.setInt(1, idStatus);
             rs = stmt.executeQuery();
 
             while(rs.next()){
-                Beneficiary b = new Beneficiary(
-                        rs.getString("login"),
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),//pas sur que getString sois adapté pou un localDate
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        DAOStatus.findById(rs.getInt("status")),
-                        DAOInterpreter.findByLogin(rs.getString("referenceInterpreter"))
-                );
-                list.add(b);
+                beneficiaries.add(findByLogin(rs.getString("login")));
             }
         }finally {
             DatabaseConnector.closeStmt(rs, stmt);
         }
-        return list;
+        return beneficiaries;
+    }
+
+    private static Beneficiary getBeneficiary(ResultSet rs)throws SQLException, NoSuchElementException{
+        Beneficiary beneficiary;
+        if (rs.next()) {
+            beneficiary = new Beneficiary(
+                    rs.getString("login"),
+                    rs.getString("lastName"),
+                    rs.getString("firstName"),
+                    rs.getDate("birthday").toLocalDate(),
+                    rs.getString("password"),
+                    rs.getString("mail"),
+                    rs.getString("phone"),
+                    DAOStatus.findById(rs.getInt("status")),
+                    DAOInterpreter.findByLogin(rs.getString("referenceInterpreter"))
+            );
+        } else {
+            throw new NoSuchElementException();
+        }
+        return beneficiary;
     }
 
     public static Beneficiary findByLogin(String login) throws SQLException {
@@ -170,24 +145,59 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             stmt.setString(1, login);
             rs = stmt.executeQuery();
 
-            if (rs.next()) {
-                beneficiary = new Beneficiary(
-                        login,
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),
-                        rs.getString("password"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        DAOStatus.findById(rs.getInt("status")),
-                        DAOInterpreter.findByLogin(rs.getString("referenceInterpreter"))
-                );
-            } else {
-                throw new NoSuchElementException();
-            }
+            beneficiary = getBeneficiary(rs);
         } finally {
             DatabaseConnector.closeStmt(rs, stmt);
         }
         return beneficiary;
+    }
+
+    /**
+     * @param loginInterpreter the login of the reference interpreter
+     * @return the list of beneficiaries whose reference interpreter has this login, empty if none
+     * @throws SQLException if the database could not be reached
+     */
+    public static List<Beneficiary> findAllReferenceInterpreter(String loginInterpreter) throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        List<Beneficiary> beneficiaries = new ArrayList<>();
+        String query = "SELECT *, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE b.referenceInterpreter = ?";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, loginInterpreter);
+            rs = stmt.executeQuery();
+            Interpreter interpreter = DAOInterpreter.findByLogin(loginInterpreter);
+            while(rs.next()){
+                beneficiaries.add(findByLogin(rs.getString("beneficiary")));
+            }
+        }finally {
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return beneficiaries;
+    }
+
+    public static List<Beneficiary> findByIdBeneficiariesMission(int missionId)throws SQLException{
+        Connection connection = DatabaseConnector.getConnection();
+        String query = "SELECT beneficiary FROM BeneficiaryMission WHERE mission = ?";
+        List<Beneficiary> list = new ArrayList<>();
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, missionId);
+            rs = stmt.executeQuery();
+
+            while(rs.next()){
+               list.add(findByLogin(rs.getString("beneficiary")));
+            }
+        }finally {
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return list;
     }
 }
