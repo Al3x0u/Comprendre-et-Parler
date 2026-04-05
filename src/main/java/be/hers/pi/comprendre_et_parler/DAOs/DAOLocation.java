@@ -69,12 +69,16 @@ public class DAOLocation implements DAO<Location> {
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
         // Manage invalid Location
-        Location alreadyPresent = find(String.valueOf(objectToInsert.getId()));
-        if (alreadyPresent != null) {
-            if (alreadyPresent.equals(objectToInsert))
-                throw new AlreadyExistsException("Object already exists in database");
-            else
-                throw new DuplicatePrimaryKeyException("Object is already present in database under a different primary key");
+        List<Location> locations = findAll();
+        for (Location line : locations) {
+            if (line.getId() == objectToInsert.getId())
+                throw new DuplicatePrimaryKeyException("Id " + objectToInsert.getId() + " is already used in database");
+            if (line.getDesignation().equals(objectToInsert.getDesignation())
+                    && line.getCity().equals(objectToInsert.getCity())
+                    && line.getStreet().equals(objectToInsert.getStreet())
+                    && line.getStreetNumber().equals(objectToInsert.getStreetNumber())
+                    && line.getBox() == objectToInsert.getBox())
+                throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
         }
 
         // Attempt insertion

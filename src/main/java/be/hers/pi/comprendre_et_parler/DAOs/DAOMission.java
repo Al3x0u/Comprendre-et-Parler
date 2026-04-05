@@ -73,13 +73,19 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
-        Mission alreadyPresent = find(String.valueOf(objectToInsert.getId()));
-        if (alreadyPresent != null) {
-            if (alreadyPresent.equals(objectToInsert))
-                throw new AlreadyExistsException("Object already exists in database");
-            else
-                throw new DuplicatePrimaryKeyException("Object is already present in database under a different primary key");
+        List<Mission> missions = findAll();
+        for (Mission line : missions) {
+            if (line.getId() == objectToInsert.getId())
+                throw new DuplicatePrimaryKeyException("Id " + objectToInsert.getId() + " is already used in database");
+            if (line.getSubject().equals(objectToInsert.getSubject())
+                    && line.getStateOfMission().equals(objectToInsert.getStateOfMission())
+                    && line.getCommentary().equals(objectToInsert.getCommentary())
+                    && line.getTimeSlot().equals(objectToInsert.getTimeSlot())
+                    && line.getJobSkill().equals(objectToInsert.getJobSkill())
+                    && line.getAcademicSkill().equals(objectToInsert.getAcademicSkill()))
+                throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
         }
+
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?)";
         query = String.format(query, table, fieldSubject, fieldState, fieldCommentary, fieldTimeSlot, fieldJobSkill, fieldAcademicSkill);
