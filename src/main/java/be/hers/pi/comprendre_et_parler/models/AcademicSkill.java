@@ -51,7 +51,7 @@ public class AcademicSkill {
      * @return true if both AcademicSkill objects have identical id and designation
      */
     public boolean equals(AcademicSkill other) {
-        return (id == other.id && designation == other.designation);
+        return false;
     }
 
     /**
@@ -60,6 +60,6 @@ public class AcademicSkill {
      */
     @Override
     public String toString() {
-        return "AcademicSkill{id=" + id + ", designation=" + designation + "}";
+        return null;
     }
 }

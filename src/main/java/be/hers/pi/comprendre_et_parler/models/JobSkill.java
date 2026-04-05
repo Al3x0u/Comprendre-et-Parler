@@ -50,7 +50,7 @@ public class JobSkill {
      * @return true if both JobSkill objects have identical id and designation
      */
     public boolean equals(JobSkill other) {
-        return (id == other.id && designation == other.designation);
+        return false;
     }
 
     /**
@@ -59,6 +59,6 @@ public class JobSkill {
      */
     @Override
     public String toString() {
-        return "JobSkill{id=" + id + ", designation=" + designation + "}";
+        return null;
     }
 }
