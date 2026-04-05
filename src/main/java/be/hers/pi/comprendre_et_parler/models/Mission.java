@@ -272,7 +272,7 @@ public class Mission {
      * @param beneficiary represent the Beneficiary to add, not null
      * @throws AlreadyExistsException if the beneficiary is already in the list
      * @throws NullPointerException if beneficiary is null
-     * @throws SQLException
+     * @throws SQLException if the database could not be reached
      */
     public void addBeneficiary(Beneficiary beneficiary) throws AlreadyExistsException, NullPointerException, SQLException {
         if (beneficiary == null)
@@ -290,6 +290,7 @@ public class Mission {
      * Remove a Beneficiary from the beneficiaries List by login
      * @param login represent the login of the Beneficiary to remove
      * @throws NoSuchElementException if no beneficiary with the given login exists in the list
+     * @throws SQLException if the database could not be reached
      */
     public void deleteBeneficiary(String login) throws NoSuchElementException, SQLException {
         if (login == null) throw new NullPointerException("Login cannot be null");
@@ -317,7 +318,7 @@ public class Mission {
      * @param interpreter represent the Interpreter to add, not null
      * @throws AlreadyExistsException if the interpreter is already in the list
      * @throws NullPointerException if interpreter is null
-     * @throws SQLException
+     * @throws SQLException if the database could not be reached
      */
     public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException, SQLException {
         if (interpreter == null)
@@ -335,7 +336,7 @@ public class Mission {
      * Remove an Interpreter from the interpreters List by login
      * @param login represent the login of the Interpreter to remove
      * @throws NoSuchElementException if no interpreter with the given login exists in the list
-     * @throws SQLException
+     * @throws SQLException if the database could not be reached
      */
     public void deleteInterpreter(String login) throws NoSuchElementException, SQLException {
         if (login == null) throw new NullPointerException("Login cannot be null");
@@ -356,7 +357,4 @@ public class Mission {
         daoMission.removeInterpreterFromMission(this.getId(), toRemove.getId());
         interpreters.remove(toRemove);
     }
-
-
-
 }

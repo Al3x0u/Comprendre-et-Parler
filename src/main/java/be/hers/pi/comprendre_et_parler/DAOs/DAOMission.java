@@ -44,9 +44,9 @@ public class DAOMission implements DAO<Mission> {
                         MissionState.valueOf(result.getString(fieldState)),
                         result.getString(fieldCommentary),
                         new DAOTimeSlot().find(String.valueOf(result.getInt(fieldTimeSlot))),
-                        getMissionBeneficiaries(missionId),
-                        getMissionInterpreters(missionId),
-                        getMissionLocation(missionId),
+                        new DAOBeneficiary().getMissionBeneficiaries(missionId),
+                        new DAOInterpreters().getMissionInterpreters(missionId),
+                        new DAOLocation().getMissionLocation(missionId),
                         new DAOJobSkill().find(String.valueOf(result.getInt(fieldJobSkill))),
                         new DAOAcademicSkill().find(String.valueOf(result.getInt(fieldAcademicSkill)))
                 );
@@ -195,9 +195,9 @@ public class DAOMission implements DAO<Mission> {
                         MissionState.valueOf(result.getString(fieldState)),
                         result.getString(fieldCommentary),
                         new DAOTimeSlot().find(String.valueOf(result.getInt(fieldTimeSlot))),
-                        getMissionBeneficiaries(missionId),
-                        getMissionInterpreters(missionId),
-                        getMissionLocation(missionId),
+                        new DAOBeneficiary().getMissionBeneficiaries(missionId),
+                        new DAOInterpreter().getMissionInterpreters(missionId),
+                        new DAOLocation().getMissionLocation(missionId),
                         new DAOJobSkill().find(String.valueOf(result.getInt(fieldJobSkill))),
                         new DAOAcademicSkill().find(String.valueOf(result.getInt(fieldAcademicSkill)))
                 ));
@@ -212,8 +212,6 @@ public class DAOMission implements DAO<Mission> {
         return missions;
     }
 
-
-
     /**
      * Return the schedule of the user with the given id
      * @param idUser represent the id of the user which we want the schedule
@@ -221,7 +219,6 @@ public class DAOMission implements DAO<Mission> {
      * @throws NoSuchElementException if the given idUser doesn't correspond to an existent id
      * @throws SQLException if the database could not be reached
      */
-
     public List<Mission> getSchedule(String idUser) throws NoSuchElementException, SQLException {
         List<Mission> missions = new ArrayList<>();
         String query = "SELECT mission FROM InterpreterMission WHERE interpreter = ? " +
@@ -250,85 +247,13 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * Get the location of a mission via MissionLocation table
+     * Add a beneficiary to a mission in the BeneficiaryMission table
      * @param missionId : id of the mission
-     * @return Location object or null
+     * @param beneficiaryId : login of the beneficiary
+     * @throws AlreadyExistsException if the beneficiary is already linked to the mission
      * @throws SQLException if the database could not be reached
+     * @post the beneficiary is linked to the mission in the database
      */
-    private Location getMissionLocation(int missionId) throws SQLException {
-        String query = "SELECT location FROM MissionLocation WHERE mission = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            result = statement.executeQuery();
-            if (result.next())
-                return new DAOLocation().find(String.valueOf(result.getInt("location")));
-        }
-        finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
-        }
-        return null;
-    }
-
-    /**
-     * Get the beneficiaries of a mission via BeneficiaryMission table
-     * @param missionId : id of the mission
-     * @return List of Beneficiary objects
-     * @throws SQLException if the database could not be reached
-     */
-    private List<Beneficiary> getMissionBeneficiaries(int missionId) throws SQLException {
-        String query = "SELECT beneficiary FROM BeneficiaryMission WHERE mission = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        List<Beneficiary> beneficiaries = new ArrayList<>();
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            result = statement.executeQuery();
-            while (result.next())
-                beneficiaries.add(new DAOBeneficiary().find(result.getString("beneficiary")));
-        }
-        finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
-        }
-        return beneficiaries;
-    }
-
-    /**
-     * Get the interpreters of a mission via InterpreterMission table
-     * @param missionId : id of the mission
-     * @return List of Interpreter objects
-     * @throws SQLException if the database could not be reached
-     */
-    private List<Interpreter> getMissionInterpreters(int missionId) throws SQLException {
-        String query = "SELECT interpreter FROM InterpreterMission WHERE mission = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        List<Interpreter> interpreters = new ArrayList<>();
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(new DAOInterpreter().find(result.getString("interpreter")));
-        }
-        finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
-        }
-        return interpreters;
-    }
-
     public void addBeneficiaryToMission(int missionId, String beneficiaryId) throws SQLException, AlreadyExistsException {
         String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         String insertQuery = "INSERT INTO BeneficiaryMission(mission, beneficiary) VALUES(?, ?)";
@@ -352,6 +277,14 @@ public class DAOMission implements DAO<Mission> {
         }
     }
 
+    /**
+     * Add an interpreter to a mission in the InterpreterMission table
+     * @param missionId : id of the mission
+     * @param interpreterId : login of the interpreter
+     * @throws AlreadyExistsException if the interpreter is already linked to the mission
+     * @throws SQLException if the database could not be reached
+     * @post the interpreter is linked to the mission in the database
+     */
     public void addInterpreterToMission(int missionId, String interpreterId) throws SQLException, AlreadyExistsException {
         String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         String insertQuery = "INSERT INTO InterpreterMission(mission, interpreter) VALUES(?, ?)";
@@ -375,6 +308,14 @@ public class DAOMission implements DAO<Mission> {
         }
     }
 
+    /**
+     * Remove a beneficiary from a mission in the BeneficiaryMission table
+     * @param missionId : id of the mission
+     * @param beneficiaryId : login of the beneficiary
+     * @throws NoSuchElementException if the beneficiary is not linked to the mission
+     * @throws SQLException if the database could not be reached
+     * @post the beneficiary is no longer linked to the mission in the database
+     */
     public void removeBeneficiaryFromMission(int missionId, String beneficiaryId) throws SQLException, NoSuchElementException {
         String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         String deleteQuery = "DELETE FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
@@ -398,6 +339,14 @@ public class DAOMission implements DAO<Mission> {
         }
     }
 
+    /**
+     * Remove an interpreter from a mission in the InterpreterMission table
+     * @param missionId : id of the mission
+     * @param interpreterId : login of the interpreter
+     * @throws NoSuchElementException if the interpreter is not linked to the mission
+     * @throws SQLException if the database could not be reached
+     * @post the interpreter is no longer linked to the mission in the database
+     */
     public void removeInterpreterFromMission(int missionId, String interpreterId) throws SQLException, NoSuchElementException {
         String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         String deleteQuery = "DELETE FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
@@ -420,6 +369,4 @@ public class DAOMission implements DAO<Mission> {
             if (statement != null) statement.close();
         }
     }
-
-
 }
