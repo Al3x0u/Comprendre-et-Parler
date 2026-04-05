@@ -53,10 +53,12 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return mission;
     }
@@ -93,8 +95,9 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (statement != null)
-                statement.close();
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
@@ -142,8 +145,9 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (statement != null)
-                statement.close();
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
@@ -168,8 +172,9 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (statement != null)
-                statement.close();
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
@@ -204,10 +209,12 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return missions;
     }
@@ -238,10 +245,12 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return missions;
     }
@@ -272,8 +281,12 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (result != null) result.close();
-            if (statement != null) statement.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
@@ -303,8 +316,12 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (result != null) result.close();
-            if (statement != null) statement.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
@@ -334,8 +351,12 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (result != null) result.close();
-            if (statement != null) statement.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 
@@ -365,8 +386,12 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (result != null) result.close();
-            if (statement != null) statement.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
     }
 }

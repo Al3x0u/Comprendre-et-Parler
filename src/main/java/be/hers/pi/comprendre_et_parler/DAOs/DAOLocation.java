@@ -49,10 +49,12 @@ public class DAOLocation implements DAO<Location> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return location;
     }
@@ -90,7 +92,7 @@ public class DAOLocation implements DAO<Location> {
         }
         finally {
             if (statement != null) {
-                statement.close();
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
     }
@@ -133,7 +135,7 @@ public class DAOLocation implements DAO<Location> {
         }
         finally {
             if (statement != null) {
-                statement.close();
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
     }
@@ -164,7 +166,7 @@ public class DAOLocation implements DAO<Location> {
         }
         finally {
             if (statement != null) {
-                statement.close();
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
     }
@@ -195,10 +197,12 @@ public class DAOLocation implements DAO<Location> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return locations;
     }
@@ -221,10 +225,12 @@ public class DAOLocation implements DAO<Location> {
                 return new DAOLocation().find(String.valueOf(result.getInt("location")));
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return null;
     }

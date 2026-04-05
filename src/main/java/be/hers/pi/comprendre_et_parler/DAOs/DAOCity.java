@@ -43,10 +43,12 @@ public class DAOCity implements DAO<City> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return city;
     }
@@ -81,7 +83,7 @@ public class DAOCity implements DAO<City> {
         }
         finally {
             if (statement != null) {
-                statement.close();
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
     }
@@ -119,7 +121,7 @@ public class DAOCity implements DAO<City> {
         }
         finally {
             if (statement != null) {
-                statement.close();
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
     }
@@ -147,7 +149,7 @@ public class DAOCity implements DAO<City> {
         }
         finally {
             if (statement != null) {
-                statement.close();
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
     }
@@ -175,10 +177,12 @@ public class DAOCity implements DAO<City> {
             }
         }
         finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return cities;
     }
