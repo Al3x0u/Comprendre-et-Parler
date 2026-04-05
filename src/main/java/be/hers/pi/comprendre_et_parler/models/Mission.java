@@ -9,7 +9,7 @@ import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 public class Mission {
-    private int id;
+    private int id=0;
     private String subject;
     private MissionState stateOfMission;
     private String commentary;
@@ -36,7 +36,7 @@ public class Mission {
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                    List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location,
                    JobSkill jobSkill, AcademicSkill academicSkill, String room) {
-        this.id = id;
+        if(id > 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
@@ -54,7 +54,7 @@ public class Mission {
      * @param mission
      */
     public Mission(Mission mission) {
-        this.id = mission.id;
+        if(mission.id > 0) this.id = mission.id;
         this.subject = mission.subject;
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
@@ -99,42 +99,42 @@ public class Mission {
      * @return this.timeSlot
      */
     public TimeSlot getTimeSlot() {
-        return timeSlot;
+        return new TimeSlot(timeSlot);
     }
 
     /**
      * @return this.beneficiaries
      */
     public List<Beneficiary> getBeneficiaries() {
-        return beneficiaries;
+        return new ArrayList<>(beneficiaries);
     }
 
     /**
      * @return this.interpreters
      */
     public List<Interpreter> getInterpreters() {
-        return interpreters;
+        return new ArrayList<>(interpreters);
     }
 
     /**
      * @return this.location
      */
     public Location getLocation() {
-        return location;
+        return new Location(location);
     }
 
     /**
      * @return this.jobSkill
      */
     public JobSkill getJobSkill() {
-        return jobSkill;
+        return new JobSkill(jobSkill);
     }
 
     /**
      * @return this.academicSkill
      */
     public AcademicSkill getAcademicSkill() {
-        return academicSkill;
+        return new AcademicSkill(academicSkill);
     }
 
     /**

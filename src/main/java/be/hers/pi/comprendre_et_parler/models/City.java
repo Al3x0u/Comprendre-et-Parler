@@ -1,10 +1,9 @@
 package be.hers.pi.comprendre_et_parler.models;
-import java.util.Objects;
 
 public class City {
-    private int id;
+    private int id=0;
     private String designation;
-    private int postalCode;
+    private int postalCode=1000;
 
     /**
         Constructor of a City Object
@@ -13,9 +12,9 @@ public class City {
         @param pC : represent the postal code
      */
     public City(int id,String d, int pC ){
-        this.id = id;
+        if(id > 0) this.id = id;
         this.designation = d;
-        this.postalCode = pC;
+        if(pC > 1000 && pC <= 10000) this.postalCode = pC;
     }
 
     /**
@@ -23,9 +22,9 @@ public class City {
      * @param city
      */
     public City(City city) {
-        this.id = city.id;
+        if(city.id > 0) this.id = city.id;
         this.designation = city.designation;
-        this.postalCode = city.postalCode;
+        if(city.postalCode > 1000 && city.postalCode <= 10000) this.postalCode = city.postalCode;
     }
 
     /**

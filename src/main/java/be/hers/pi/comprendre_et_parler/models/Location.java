@@ -3,12 +3,12 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class Location {
-    private int id;
+    private int id=0;
     private String designation;
     private City city;
     private String street;
     private String streetNumber;
-    private int box;
+    private int box=0;
 
     /**
         Constructor of a Location Object
@@ -19,12 +19,12 @@ public class Location {
         @param sN : represent the street number
      */
     public Location(int id,String d, City c, String s, String sN, int box){
-        this.id = id;
+        if(id > 0) this.id = id;
         this.designation = d;
         this.city = new City(c);
         this.street = s;
         this.streetNumber = sN;
-        this.box = box;
+        if(box > 0) this.box = box;
     }
 
     /**
@@ -32,12 +32,12 @@ public class Location {
      * @param l
      */
     public Location(Location l){
-        this.id = l.id;
+        if(l.id > 0) this.id = l.id;
         this.designation = l.designation;
         this.city = new City(l.city);
         this.street = l.street;
         this.streetNumber = l.streetNumber;
-        this.box = l.box;
+        if(l.id > 0) this.box = l.box;
     }
 
     /**
@@ -58,7 +58,7 @@ public class Location {
      * @return a String which contains the city of the Location
      */
     public City getCity() {
-        return city;
+        return new City(city);
     }
 
     /**
