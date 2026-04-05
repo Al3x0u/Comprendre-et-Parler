@@ -3,12 +3,12 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class Location {
-    private String id;
+    private int id;
     private String designation;
     private City city;
     private String street;
     private String streetNumber;
-    private String box;
+    private int box;
 
     /**
      Constructor of a Location Object
@@ -19,7 +19,7 @@ public class Location {
      @param sN : represent the street number
      @param box : represent the new box
      */
-    public Location(String id, String d, City c, String s, String sN, String box){
+    public Location(int id, String d, City c, String s, String sN, int box){
         this.id = id;
         this.designation = d;
         this.city = c;
@@ -87,28 +87,28 @@ public class Location {
     /**
      @return this.id
      */
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     /**
      * @param id represent the new id
      */
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
     /**
-     * @return a String which contains the box of the Location (can be null)
+     * @return an int which contains the box of the Location (can be null)
      */
-    public String getBox() {
+    public int getBox() {
         return box;
     }
 
     /**
      * @param box a new String which contains the box of the Location (can be null)
      */
-    public void setBox(String box) {
+    public void setBox(int box) {
         this.box = box;
     }
 

@@ -11,13 +11,13 @@ import java.util.NoSuchElementException;
 public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
     /**
-     * Search for a BaseTimeSlot in the database with the String parameter
+     * Search for a BaseTimeSlot in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public BaseTimeSlot find(String id) throws SQLException {
+    public BaseTimeSlot find(int id) throws SQLException {
         return null;
     }
 

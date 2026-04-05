@@ -11,13 +11,13 @@ import java.util.NoSuchElementException;
 public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
     /**
-     * Search for a PunctualTimeSlot in the database with the String parameter
+     * Search for a PunctualTimeSlot in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws ConnectionException if the database could not be reached
      */
     @Override
-    public PunctualTimeSlot find(String id) throws ConnectionException {
+    public PunctualTimeSlot find(int id) throws ConnectionException {
         return null;
     }
 

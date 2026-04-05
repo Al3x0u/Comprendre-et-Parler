@@ -11,6 +11,7 @@ public class Interpreter extends AppliUser{
      * Constructor of an Interpreter object
      * @param hQW            represent the hour quota per week
      * @param hQY            represent the hour quota per year
+     * @param id             represent the id
      * @param login          represent the login
      * @param firstName      represent the firstname of the interpreter
      * @param lastName       represent he lastname of the interpreter
@@ -21,9 +22,9 @@ public class Interpreter extends AppliUser{
      * @param transportMode  represent the transport mode of the interpreter
      * @throws IllegalArgumentException if hQW or hQY is negative
      */
-    public Interpreter(int hQW, int hQY, String login, String firstName, String lastName,
+    public Interpreter(int hQW, int hQY, int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email, String phoneNumber, String transportMode) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
         }

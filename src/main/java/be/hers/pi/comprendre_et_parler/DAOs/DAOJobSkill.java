@@ -14,13 +14,13 @@ public class DAOJobSkill implements DAO<JobSkill> {
     public final String field_designation = "designation";
 
     /**
-     * Search for a JobSkill in the database with the String parameter
+     * Search for a JobSkill in the database with the int parameter
      * @param id identification of the JobSkill
      * @return JobSkill object which correspond to the given id else null
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public JobSkill find(String id) throws SQLException {
+    public JobSkill find(int id) throws SQLException {
         return null;
     }
 

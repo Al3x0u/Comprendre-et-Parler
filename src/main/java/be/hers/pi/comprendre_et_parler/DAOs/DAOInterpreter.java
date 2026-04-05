@@ -13,18 +13,28 @@ import java.util.NoSuchElementException;
 public class DAOInterpreter implements DAO<Interpreter> {
 
     /**
-     * Search for an Interpreter in the database with the String parameter
+     * Search for an Interpreter in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Interpreter find(String id) throws SQLException {
+    public Interpreter find(int id) throws SQLException {
         return null;
     }
 
     /**
-     * Insert a Interpreter object in the database
+     * Search for an Interpreter in the database with the String parameter
+     * @param login the login of the object to find in database
+     * @return the object identified by login in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
+    public Interpreter find(String login) throws SQLException {
+        return null;
+    }
+
+    /**
+     * Insert an Interpreter object in the database
      * @param objectToInsert an object of type Interpreter to add to the database
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException if objectToInsert is already present in database
@@ -37,7 +47,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
     }
 
     /**
-     * Update a Interpreter line who already exist in the database
+     * Update an Interpreter line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException if the database could not be reached
@@ -49,7 +59,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
     }
 
     /**
-     * Delete a Interpreter line in the table in the database
+     * Delete an Interpreter line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the database could not be reached

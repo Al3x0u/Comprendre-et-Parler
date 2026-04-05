@@ -11,13 +11,13 @@ import java.util.NoSuchElementException;
 public class DAOCity implements DAO<City> {
 
     /**
-     * Search for a City in the database with the String parameter
+     * Search for a City in the database with the int parameter
      * @param id : identification of the city
      * @return City object who correspond to the given id else null
      * @throws SQLException if the database couldn't be reached
      */
     @Override
-    public City find(String id) throws SQLException {
+    public City find(int id) throws SQLException {
         return null;
     }
 

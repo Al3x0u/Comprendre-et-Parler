@@ -11,13 +11,13 @@ import java.util.NoSuchElementException;
 public class DAOMission implements DAO<Mission> {
 
     /**
-     * Search for a Mission in the database with the String parameter
+     * Search for a Mission in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Mission find(String id) throws SQLException {
+    public Mission find(int id) throws SQLException {
         return null;
     }
 

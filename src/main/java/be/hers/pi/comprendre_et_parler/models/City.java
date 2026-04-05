@@ -3,9 +3,9 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class City {
-    private String id;
+    private int id;
     private String designation;
-    private String postalCode;
+    private int postalCode;
 
     /**
         Constructor of a City Object
@@ -13,7 +13,7 @@ public class City {
         @param d : represent the designation
         @param pC : represent the postal code
      */
-    public City(String id,String d, String pC ){
+    public City(int id, String d, int pC ){
         this.id = id;
         this.designation = d;
         this.postalCode = pC;
@@ -22,7 +22,7 @@ public class City {
     /**
         @return this.postalCode
      */
-    public String getPostalCode() {
+    public int getPostalCode() {
         return postalCode;
     }
 
@@ -36,14 +36,14 @@ public class City {
     /**
         @return this.id
      */
-    public String getId() {
+    public int getId() {
         return id;
     }
 
     /**
      * @param postalCode represent the new postal code
      */
-    public void setPostalCode(String postalCode) {
+    public void setPostalCode(int postalCode) {
         this.postalCode = postalCode;
     }
 
@@ -57,7 +57,7 @@ public class City {
     /**
      * @param id represent the new id
      */
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

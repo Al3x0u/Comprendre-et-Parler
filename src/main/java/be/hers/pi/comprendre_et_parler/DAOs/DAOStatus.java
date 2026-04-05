@@ -17,20 +17,20 @@ public class DAOStatus implements DAO<Status> {
     public final String field_hourQuota = "hourquota";
 
     /**
-     * Search for a Status in the database with the String parameter
+     * Search for a Status in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Status find(String id) throws SQLException {
+    public Status find(int id) throws SQLException {
         String query = "SELECT * FROM " + table + " WHERE " + field_id + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Status ret = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, Integer.parseInt(id));
+            statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
                 ret = new Status(
@@ -60,7 +60,7 @@ public class DAOStatus implements DAO<Status> {
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
         // Manage invalid states
-        Status alreadyPresent = find(String.valueOf(objectToInsert.getId()));
+        Status alreadyPresent = find(objectToInsert.getId());
         if (alreadyPresent != null) {
             if (alreadyPresent.equals(objectToInsert))
                 throw new AlreadyExistsException("Object already exists in database");
@@ -133,7 +133,7 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public void delete(Status objectToDelete) throws NoSuchElementException, SQLException {
-            if (find(String.valueOf(objectToDelete.getId())) == null)
+            if (find(objectToDelete.getId()) == null)
                 throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
 
             String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";

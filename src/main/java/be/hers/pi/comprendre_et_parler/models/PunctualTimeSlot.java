@@ -13,7 +13,7 @@ public class PunctualTimeSlot extends TimeSlot{
      * @param endHourTime represent the hour at which finish
      * @param date represent the date of the ponctual time slot
      */
-    public PunctualTimeSlot(String id, LocalTime startHourTime, LocalTime endHourTime,LocalDate date) {
+    public PunctualTimeSlot(int id, LocalTime startHourTime, LocalTime endHourTime,LocalDate date) {
         super(id,startHourTime,endHourTime);
         this.date = date;
     }

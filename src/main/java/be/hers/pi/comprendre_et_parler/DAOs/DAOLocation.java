@@ -11,13 +11,13 @@ import java.util.NoSuchElementException;
 public class DAOLocation implements DAO<Location> {
 
     /**
-     * Search for a location in the database with the String parameter
+     * Search for a location in the database with the int parameter
      * @param id : identification of the location
      * @return Location object who correspond to the given id else null
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Location find(String id) throws SQLException {
+    public Location find(int id) throws SQLException {
         return null;
     }
 
