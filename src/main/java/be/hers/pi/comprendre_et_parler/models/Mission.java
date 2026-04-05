@@ -295,21 +295,20 @@ public class Mission {
     public void deleteBeneficiary(String login) throws NoSuchElementException, SQLException {
         if (login == null) throw new NullPointerException("Login cannot be null");
 
-        Beneficiary toRemove = null;
-        boolean found = false;
         int i = 0;
+        boolean found = false;
         while (!found && i < beneficiaries.size()) {
             if (beneficiaries.get(i).getLogin().equals(login)) {
-                toRemove = beneficiaries.get(i);
                 found = true;
+            } else {
+                i++;
             }
-            i++;
         }
         if (!found) throw new NoSuchElementException("No beneficiary with login: " + login);
 
         DAOMission daoMission = new DAOMission();
-        daoMission.removeBeneficiaryFromMission(this.getId(), toRemove.getId());
-        beneficiaries.remove(toRemove);
+        daoMission.removeBeneficiaryFromMission(this.getId(), beneficiaries.get(i).getId());
+        beneficiaries.remove(i);
     }
 
 
@@ -341,20 +340,19 @@ public class Mission {
     public void deleteInterpreter(String login) throws NoSuchElementException, SQLException {
         if (login == null) throw new NullPointerException("Login cannot be null");
 
-        Interpreter toRemove = null;
-        boolean found = false;
         int i = 0;
+        boolean found = false;
         while (!found && i < interpreters.size()) {
             if (interpreters.get(i).getLogin().equals(login)) {
-                toRemove = interpreters.get(i);
                 found = true;
+            } else {
+                i++;
             }
-            i++;
         }
         if (!found) throw new NoSuchElementException("No interpreter with login: " + login);
 
         DAOMission daoMission = new DAOMission();
-        daoMission.removeInterpreterFromMission(this.getId(), toRemove.getId());
-        interpreters.remove(toRemove);
+        daoMission.removeInterpreterFromMission(this.getId(), interpreters.get(i).getId());
+        interpreters.remove(i);
     }
 }
