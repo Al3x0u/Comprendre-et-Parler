@@ -5,6 +5,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.*;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -376,10 +377,48 @@ public class DAOInterpreter implements DAO<Interpreter> {
      * @param date represent the date
      * @return a List of Interpreter who are available in the given time and date or null
      */
-    public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) {
+    public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date)throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
         List<Interpreter> interpreters = new ArrayList<>();
-        String query;
-        return null;
+        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN Interpreter i ON a.login = i.login JOIN Availability av ON a.login = av.interpreter JOIN TimeSlot t ON av.timeSlot = t.id WHERE t.startTime = ? AND t.endTime = ? AND TRUNC(t.startTime) = ?";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(date, start)));
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(date, end)));
+            stmt.setDate(3, Date.valueOf(date));
+            rs = stmt.executeQuery();
+
+            while(rs.next()){
+                String interpreterLogin = rs.getString("login");
+                int idTransportation = rs.getInt("transportMode");
+                interpreters.add(new Interpreter(
+                        rs.getString("login"),
+                        rs.getString("lastName"),
+                        rs.getString("firstName"),
+                        rs.getDate("birthday").toLocalDate(),
+                        rs.getString("hashPassword"),
+                        rs.getString("mail"),
+                        rs.getString("phone"),
+                        rs.getInt("hourQuotaWeek"),
+                        rs.getInt("hourQuotaYear"),
+                        DAOTransportation.findById(idTransportation),
+                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
+                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
+                        DAOLocation.findById(rs.getInt("location")),
+                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
+                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
+                ));
+            }
+        }finally {
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return interpreters;
     }
 
     /**
