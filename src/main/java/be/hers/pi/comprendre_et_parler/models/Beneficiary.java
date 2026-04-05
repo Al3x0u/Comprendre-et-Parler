@@ -9,6 +9,7 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary extends User
+     * @param id             represent the id
      * @param login          represent the login
      * @param firstName      represent the firstname
      * @param lastName       represent he lastname
@@ -19,8 +20,8 @@ public class Beneficiary extends AppliUser {
      * @param status         represent the status
      * @param interpreterRef represent the referent interpreter
      */
-    public Beneficiary(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber, Status status, Interpreter interpreterRef) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+    public Beneficiary(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber, Status status, Interpreter interpreterRef) {
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
         this.interpreterRef = interpreterRef;
     }

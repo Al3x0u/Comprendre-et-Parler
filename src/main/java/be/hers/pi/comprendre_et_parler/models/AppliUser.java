@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public abstract class AppliUser {
+    private int id;
     private String login;
     private String firstName;
     private String lastName;
@@ -14,7 +15,8 @@ public abstract class AppliUser {
 
     /**
      Constructor of a AppliUser
-     @param login represent the id
+     @param id represent the id
+     @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
      @param birthDate represent the birthdate
@@ -22,7 +24,8 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -30,6 +33,13 @@ public abstract class AppliUser {
         this.hashedPassword = hashedPassword;
         this.email = email;
         this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * @return this.id
+     */
+    public int getId() {
+        return id;
     }
 
     /**
@@ -79,6 +89,13 @@ public abstract class AppliUser {
      */
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+
+    /**
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**

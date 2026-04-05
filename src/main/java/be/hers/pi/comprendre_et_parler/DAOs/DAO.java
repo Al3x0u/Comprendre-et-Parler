@@ -9,15 +9,13 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 public interface DAO<T> {
 
     /**
-     *
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
-    T find(String id) throws SQLException;
+    T find(int id) throws SQLException;
 
     /**
-     *
      * @param objectToInsert an object of type T to add to the database
      * @post objectToInsert has been added to the database, and the change was commited
      * @throws AlreadyExistsException if objectToInsert is already present in database
@@ -27,7 +25,6 @@ public interface DAO<T> {
     void create(T objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException;
 
     /**
-     *
      * @param objectToUpdate the object to edit in the database
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database

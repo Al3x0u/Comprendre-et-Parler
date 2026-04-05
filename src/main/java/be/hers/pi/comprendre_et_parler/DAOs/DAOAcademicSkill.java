@@ -14,20 +14,18 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     public final String field_designation = "designation";
 
     /**
-     * Search for a AcademicSkill in the database with the String parameter
-     *
+     * Search for an AcademicSkill in the database with the int parameter
      * @param id : identification of the AcademicSkill
      * @return AcademicSkill object who correspond to the given id else null
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public AcademicSkill find(String id) throws SQLException {
+    public AcademicSkill find(int id) throws SQLException {
         return null;
     }
 
     /**
-     * Insert a AcademicSkill object in the database
-     *
+     * Insert an AcademicSkill object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException       if there are already a line with there information
      * @throws DuplicatePrimaryKeyException if the given id already used in the database
@@ -40,8 +38,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     }
 
     /**
-     * Update a AcademicSkill line who already exist in the database
-     *
+     * Update an AcademicSkill line who already exist in the database
      * @param objectToUpdate : object with the news information
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws NoSuchElementException if there are not the element to update in the database
@@ -54,8 +51,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     }
 
     /**
-     * Delete a AcademicSkill line in the table in the database
-     *
+     * Delete an AcademicSkill line in the table in the database
      * @param objectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the AcademicSkill object in the database
      * @throws SQLException           if we couldn't connect to the database
@@ -68,7 +64,6 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
 
     /**
      * Return all line of AcademicSkill table in the database in a List
-     *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */

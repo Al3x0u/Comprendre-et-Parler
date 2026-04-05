@@ -11,13 +11,23 @@ import java.util.NoSuchElementException;
 public class DAOBeneficiary implements DAO<Beneficiary> {
 
     /**
-     * Search for a Beneficiary in the database with the String parameter
+     * Search for a Beneficiary in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Beneficiary find(String id) throws SQLException {
+    public Beneficiary find(int id) throws SQLException {
+        return null;
+    }
+
+    /**
+     * Search for a Beneficiary in the database with the String parameter
+     * @param login the login of the object to find in database
+     * @return the object identified by login in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
+    public Beneficiary find(String login) throws SQLException {
         return null;
     }
 

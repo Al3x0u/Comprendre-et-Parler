@@ -12,7 +12,7 @@ public class BaseTimeSlot extends TimeSlot{
      @param endHourTime represent the hour at which finish
      @param day represent the day of the week
      */
-    public BaseTimeSlot(String id, LocalTime startHourTime, LocalTime endHourTime, int day) {
+    public BaseTimeSlot(int id, LocalTime startHourTime, LocalTime endHourTime, int day) {
         super(id, startHourTime, endHourTime);
         this.day = day;
     }
