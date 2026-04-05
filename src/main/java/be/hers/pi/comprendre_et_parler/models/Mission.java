@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class Mission {
+    private int id;
     private String subjet;
     private MissionState stateOfMission;
     private String commentary;
@@ -25,7 +26,7 @@ public class Mission {
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      */
-    public Mission( String subjet, MissionState stateOfMission, String comment, List<Importance> importance, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, PunctualTimeSlot time, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
+    public Mission(int id, String subjet, MissionState stateOfMission, String comment, List<Importance> importance, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, PunctualTimeSlot time, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
         this.subjet = subjet;
         this.stateOfMission = stateOfMission;
         commentary = comment;
@@ -34,6 +35,10 @@ public class Mission {
         this.location = location;
         this.jobSkill = jobSkill;
         this.academicSkill = academicSkill;
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     /**

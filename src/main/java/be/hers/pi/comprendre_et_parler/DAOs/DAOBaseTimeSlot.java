@@ -4,6 +4,7 @@ import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -59,6 +60,23 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     @Override
     public void delete(BaseTimeSlot objectToDelete)
             throws NoSuchElementException, SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        String query = "DELETE TimeSlot WHERE id = ?";
+
+        PreparedStatement stmt = null;
+        int rowsAffected = 0;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, objectToDelete.getId());
+            rowsAffected = stmt.executeUpdate();
+
+            if(rowsAffected < 1){
+                throw new NoSuchElementException();
+            }
+        }finally {
+            DatabaseConnector.closeStmt(null, stmt);
+        }
 
     }
 
@@ -87,7 +105,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
             while(rs.next()){
                 BaseTimeSlot baseTimeSlot = new BaseTimeSlot(
-                        rs.getString("interpreter"),
+                        rs.getInt("id"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getInt("day")

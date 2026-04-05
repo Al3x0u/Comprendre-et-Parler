@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
+import be.hers.pi.comprendre_et_parler.models.City;
 
 public interface DAO<T> {
 

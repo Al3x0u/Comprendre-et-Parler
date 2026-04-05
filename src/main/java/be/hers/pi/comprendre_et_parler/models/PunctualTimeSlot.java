@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class PunctualTimeSlot extends TimeSlot{
+
     private LocalDate date;
 
     /**
@@ -12,8 +13,8 @@ public class PunctualTimeSlot extends TimeSlot{
      @param endHourTime represent the hour at which finish
      @param date represent the date of the ponctual time slot
      */
-    public PunctualTimeSlot(LocalTime startHourTime, LocalTime endHourTime,LocalDate date) {
-        super(startHourTime,endHourTime);
+    public PunctualTimeSlot(int id, String interpreter, LocalTime startHourTime, LocalTime endHourTime, LocalDate date) {
+        super(id,interpreter, startHourTime,endHourTime);
         this.date = date;
     }
 

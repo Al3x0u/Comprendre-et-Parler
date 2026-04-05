@@ -124,7 +124,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         return beneficiaries;
     }
 
-    public static List<Beneficiary> findByIdBeneficiariesMission(int id)throws SQLException{
+    public static List<Beneficiary> findByIdBeneficiariesMission(int missionId)throws SQLException{
         Connection connection = DatabaseConnector.getConnection();
         String query = "SELECT a.*, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login JOIN BeneficiaryMission bm ON  a.login = bm.login JOIN Mission m ON bm.mission = m.id WHERE m.id = ?";
         List<Beneficiary> list = new ArrayList<>();
@@ -134,7 +134,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
 
         try{
             stmt = connection.prepareStatement(query);
-            stmt.setInt(1, id);
+            stmt.setInt(1, missionId);
             rs = stmt.executeQuery();
 
             while(rs.next()){
@@ -155,5 +155,39 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             DatabaseConnector.closeStmt(rs, stmt);
         }
         return list;
+    }
+
+    public static Beneficiary findByLogin(String login) throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        Beneficiary beneficiary;
+        String query = "SELECT a.*, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE a.login = ?";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, login);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                beneficiary = new Beneficiary(
+                        login,
+                        rs.getString("lastName"),
+                        rs.getString("firstName"),
+                        rs.getDate("birthday").toLocalDate(),
+                        rs.getString("password"),
+                        rs.getString("mail"),
+                        rs.getString("phone"),
+                        DAOStatus.findById(rs.getInt("status")),
+                        DAOInterpreter.findByLogin(rs.getString("referenceInterpreter"))
+                );
+            } else {
+                throw new NoSuchElementException();
+            }
+        } finally {
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+        return beneficiary;
     }
 }

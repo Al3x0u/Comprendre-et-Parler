@@ -102,6 +102,8 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
                 ExceptionalUnavailability unavailability = new ExceptionalUnavailability(
                         rs.getString("reason"),
                         new PunctualTimeSlot(
+                                rs.getInt("id"),
+                                rs.getString("interpreter"),
                                 rs.getTime("startHourTime").toLocalTime(),
                                 rs.getTime("endHourTime").toLocalTime(),
                                 rs.getDate("startHourTime").toLocalDate()
@@ -133,6 +135,8 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
                 ExceptionalUnavailability unavailability = new ExceptionalUnavailability(
                         rs.getString("reason"),
                         new PunctualTimeSlot(
+                                rs.getInt("id"),
+                                rs.getString("interpreter"),
                                 rs.getTime("startTime").toLocalTime(),
                                 rs.getTime("endTime").toLocalTime(),
                                 rs.getDate("startTime").toLocalDate()

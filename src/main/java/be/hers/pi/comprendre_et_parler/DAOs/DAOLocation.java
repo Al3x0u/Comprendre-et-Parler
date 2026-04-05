@@ -77,7 +77,7 @@ public class DAOLocation implements DAO<Location> {
     public static Location findById(int id)throws SQLException, NoSuchElementException{
         Connection connection = DatabaseConnector.getConnection();
         Location location = null;
-        String query = "SELECT * FROM Location WHERE id = ?";
+        String query = "SELECT l.*, ml.room FROM Location l JOIN MissionLocation ml ON ml.location = l.id WHERE l.id = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -89,9 +89,11 @@ public class DAOLocation implements DAO<Location> {
 
             if(rs.next()){
                 location = new Location(
+                        rs.getInt("id"),
                         rs.getString("designation"),
                         rs.getString("city"),
                         rs.getString("street"),
+                        rs.getString("room"),
                         rs.getString("streetNumber"),
                         rs.getInt("box")
                 );

@@ -8,6 +8,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,24 +30,60 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      * @param objectToInsert an object of PunctualTimeSlot to add to the database
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
-     * @throws ConnectionException          if the database could not be reached
+     * @throws SQLException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException {
+    public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        String queryTimeSlot = "INSERT INTO TimeSlot(startTime, endTime, day) VALUES(?, ?, ?)";
+        PreparedStatement stmt = null;
+        int rowsAffected = 0;
 
+        try{
+            stmt = connection.prepareStatement(queryTimeSlot);
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getStartTime())));
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getEndTime())));
+            stmt.setNull(3, Types.INTEGER);
+            rowsAffected = stmt.executeUpdate();
+
+            if(rowsAffected < 1){
+                throw new NoSuchElementException();
+            }
+        }finally {
+            DatabaseConnector.closeStmt(null, stmt);
+        }
     }
 
     /**
      *
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws ConnectionException    if the database could not be reached
+     * @throws SQLException    if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
-    public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, ConnectionException {
+    public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        PreparedStatement stmt = null;
+        String query = "UPDATE TimeSlot SET startTime = ?, endTime = ?, day = ? WHERE id = ?";
+        int rowsAffected = 0;
 
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(objectToUpdate.getDate(), objectToUpdate.getStartTime())));
+            stmt.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(objectToUpdate.getDate(), objectToUpdate.getEndTime())));
+            stmt.setNull(3, Types.INTEGER);
+            stmt.setInt(4, objectToUpdate.getId());
+
+            rowsAffected = stmt.executeUpdate();
+
+            if(rowsAffected < 1){
+                throw new NoSuchElementException();
+            }
+        }finally {
+            DatabaseConnector.closeStmt(null, stmt);
+        }
     }
 
     /**
@@ -54,12 +91,28 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      *
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
-     * @throws ConnectionException    if the database could not be reached
+     * @throws SQLException if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(PunctualTimeSlot objectToDelete) throws NoSuchElementException, ConnectionException {
+    public void delete(PunctualTimeSlot objectToDelete) throws NoSuchElementException, SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        PreparedStatement stmt = null;
 
+        String query = "DELETE FROM TimeSlot WHERE id = ?";
+        int rowsAffected = 0;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, objectToDelete.getId());
+            rowsAffected = stmt.executeUpdate();
+
+            if(rowsAffected < 1){
+                throw new NoSuchElementException();
+            }
+        }finally {
+            DatabaseConnector.closeStmt(null, stmt);
+        }
     }
 
     /**
@@ -89,6 +142,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             rs = stmt.executeQuery();
             while(rs.next()){
                 PunctualTimeSlot punctualTimeSlot = new PunctualTimeSlot(
+                        rs.getInt("id"),
+                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         date
@@ -116,6 +171,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
             if(rs.next()){
                 time = new PunctualTimeSlot(
+                        rs.getInt("id"),
+                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getDate("startHourTime").toLocalDate()
@@ -145,6 +202,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
             while(rs.next()){
                 PunctualTimeSlot time = new PunctualTimeSlot(
+                        rs.getInt("id"),
+                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getDate("startHourTime").toLocalDate()
@@ -172,6 +231,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
             while(rs.next()){
                 PunctualTimeSlot time = new PunctualTimeSlot(
+                        rs.getInt("id"),
+                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getDate("startHourTime").toLocalDate()

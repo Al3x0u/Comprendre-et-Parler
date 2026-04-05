@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class TimeSlot {
+    private int id;
+    private String Interpreter;
     private LocalTime startTime;
     private LocalTime endTime;
 
@@ -12,9 +14,17 @@ public class TimeSlot {
         @param startTime represent the hour at which start
         @param endTime represent the hour at which finish
      */
-    public TimeSlot(LocalTime startTime, LocalTime endTime) {
+    public TimeSlot(int id, String interpreter, LocalTime startTime, LocalTime endTime) {
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public String getInterpreter() {
+        return this.Interpreter;
     }
 
     /**
