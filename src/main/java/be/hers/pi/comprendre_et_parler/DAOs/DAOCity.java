@@ -130,7 +130,7 @@ public class DAOCity implements DAO<City> {
     /**
      * Delete a line in the City table in the database
      * @param objectToDelete : object with the information of the line who need to be deleted
-     * @throws NoSuchElementException if we couldn't find the Location object in the database
+     * @throws NoSuchElementException if we couldn't find the City object in the database
      * @throws SQLException if we couldn't connect to the database
      */
     @Override
@@ -157,7 +157,7 @@ public class DAOCity implements DAO<City> {
 
     /**
      * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Object
+     * @return a List who contains City Objects, or an empty list if none was found
      * @throws SQLException if the database could not be reached
      */
     @Override

@@ -180,7 +180,7 @@ public class DAOLocation implements DAO<Location> {
 
     /**
      * Return all line of Location table in the database in Location Object in a List
-     * @return a List who contains Location Object
+     * @return a List who contains Location Objects, or an empty list if none was found
      * @throws SQLException if the database could not be reached
      */
     @Override
