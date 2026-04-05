@@ -23,138 +23,16 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
-    /**
-     * @param id the id of the transportation in database
-     * @param connection an active connection to the database
-     * @return the Transportation identified by id, or null if none was found
-     * @throws SQLException if the database could not be reached
-     */
-    private Transportation getTransportation(int id, Connection connection)throws SQLException {
-        Transportation transportation = null;
-        String query = "SELECT * FROM transportation WHERE id = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-
-            if(rs.next()){
-                transportation = new Transportation(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-            }
-        }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
-        }
-        return transportation;
-    }
-
-    /**
-     * @param id the login of the interpreter
-     * @param connection an active connection to the database
-     * @return the list of academic skills of the interpreter, empty if none
-     * @throws SQLException if the database could not be reached
-     */
-    private List<AcademicSkill> getAcademicSkills(String id, Connection connection) throws SQLException {
-        List<AcademicSkill> academicSkils = new ArrayList<>();
-        String query = "SELECT a.id, a.designation FROM AcademicSkillInterpreter asi JOIN AcademicSkill a ON a.id = asi.skill WHERE asi.interpreter = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, id);
-            rs = stmt.executeQuery();
-
-            while(rs.next()){
-                AcademicSkill academicSkil = new AcademicSkill(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-                academicSkils.add(academicSkil);
-            }
-        }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
-        }
-        return academicSkils;
-    }
 
     /**
      * @param login the login of the interpreter
-     * @param connection an active connection to the database
-     * @return the list of job skills of the interpreter, empty if none
-     * @throws SQLException if the database could not be reached
-     */
-    private List<JobSkill> getJobSkills(String login, Connection connection) throws SQLException {
-        List<JobSkill> jobSkills = new ArrayList<>();
-        String query = "SELECT j.id, j.designation FROM JobSkillInterpreter jsi JOIN JobSkill j ON j.id = jsi.skill WHERE jsi.interpreter = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, login);
-            rs = stmt.executeQuery();
-
-            while(rs.next()){
-                JobSkill jobSkill = new JobSkill(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-                jobSkills.add(jobSkill);
-            }
-        }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
-        }
-        return jobSkills;
-    }
-
-    /**
-     * @param idStatus the id of the status in database
-     * @param connection an active connection to the database
-     * @return the Status identified by idStatus, or null if none was found
-     * @throws SQLException if the database could not be reached
-     */
-    private Status getStatus(int idStatus, Connection connection) throws SQLException {
-        Status status = null;
-        String query = "SELECT * FROM Status WHERE id = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, idStatus);
-            rs = stmt.executeQuery();
-
-            if(rs.next()){
-                status = new Status(
-                        rs.getInt("id"),
-                        rs.getString("designation"),
-                        rs.getInt("hourQuota")
-                );
-            }
-        }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
-        }
-        return status;
-    }
-
-    /**
-     * @param login the login of the interpreter
-     * @param connection an active connection to the database
      * @return the Interpreter identified by login, or null if none was found
      * @throws SQLException if the database could not be reached
      */
-    private Interpreter getInterpreter(String login, Connection connection) throws SQLException {
+    public static Interpreter findByLogin(String login) throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
         Interpreter interpreter = null;
-        String query = "SELECT * FROM interpreter WHERE login = ?";
+        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN interpreter i ON a.login = i.login WHERE a.login = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -172,109 +50,24 @@ public class DAOInterpreter implements DAO<Interpreter> {
                         rs.getString("lastName"),
                         rs.getString("firstName"),
                         rs.getDate("birthday").toLocalDate(),
-                        rs.getString("hashPassword"),
+                        rs.getString("hashedPassword"),
                         rs.getString("mail"),
                         rs.getString("phone"),
                         rs.getInt("hourQuotaWeek"),
                         rs.getInt("hourQuotaYear"),
-
-                        getTransportation(idTransportation, connection),
-                        getAcademicSkills(interpreterId, connection),
-                        getJobSkills(interpreterId, connection),
-                        getBeneficiaries(interpreterId, connection)
-
+                        DAOTransportation.findById(idTransportation),
+                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterId),
+                        DAOJobSkill.findAllByInterpreterLogin(login),
+                        DAOBeneficiary.findAllReferenceInterpreter(interpreterId),
+                        DAOMission.findAllByInterpreterLogin(login),
+                        DAOLocation.findById(rs.getInt("location")),
+                        DAOPunctualTimeSlot.findAllByInterpreterLogin(login),
+                        DAOExceptionalUnavailability.findByInterpreterLogin(login)
                 );
             }
         }finally {
             DatabaseConnector.closeStmt(rs, stmt);
         }
-        return interpreter;
-    }
-
-    /**
-     * @param login the login of the reference interpreter
-     * @param connection an active connection to the database
-     * @return the list of beneficiaries whose reference interpreter has this login, empty if none
-     * @throws SQLException if the database could not be reached
-     */
-    private List<Beneficiary> getBeneficiaries(String login, Connection connection) throws SQLException {
-        List<Beneficiary> beneficiaries = new ArrayList<>();
-        String query = "SELECT a.*, b.beneficiaryStatus, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE b.referenceInterpreter = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, login);
-            rs = stmt.executeQuery();
-
-            while(rs.next()){
-                int idStatus = rs.getInt("beneficiaryStatus");
-                Beneficiary b = new Beneficiary(
-                        rs.getString("login"),
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),//pas sur que getString sois adapté pou un localDate
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        getStatus(idStatus, connection),
-                        getInterpreter(login, connection)
-                );
-                beneficiaries.add(b);
-            }
-        }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
-        }
-        return beneficiaries;
-    }
-
-    /**
-     * @param id the primary key of the object to find in database
-     * @return the object identified by id in database, or null if none was present
-     * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if there is no interpreter with that login in the database
-     */
-    @Override
-    public Interpreter find(String login) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getConnection();
-
-        Interpreter interpreter = null;
-        String query = "SELECT * FROM interpreter i JOIN AppliUser a ON a.login = i.login WHERE i.login = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, login);
-            rs = stmt.executeQuery();
-
-            if(rs.next()){
-                int idTransportation = rs.getInt("transportation");
-                interpreter = new Interpreter(
-                        rs.getString("id"),
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        rs.getInt("hourQuotaWeek"),
-                        rs.getInt("hourQuotaYear"),
-                        getTransportation(idTransportation, connection),
-                        getAcademicSkills(login, connection),
-                        getJobSkills(login, connection),
-                        getBeneficiaries(login, connection)
-                );
-            }else{
-                throw new NoSuchElementException();
-            }
-        }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
-        }
-
         return interpreter;
     }
 
@@ -301,7 +94,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
 
         try{
             try {
-                find(objectToInsert.getLogin());
+                findByLogin(objectToInsert.getLogin());
                 throw new AlreadyExistsException();
             } catch (NoSuchElementException e) {
                 //only to continue
@@ -379,7 +172,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
 
         try{
             try {
-                find(objectToUpdate.getLogin());
+                findByLogin(objectToUpdate.getLogin());
                 throw new AlreadyExistsException();
             } catch (NoSuchElementException e) {
                 //only to continue
@@ -505,21 +298,25 @@ public class DAOInterpreter implements DAO<Interpreter> {
 
             while(rs.next()){
                 int idTransportation = rs.getInt("transportation");
-                String interpreterId = rs.getString("id");
+                String interpreterLogin = rs.getString("id");
                 Interpreter interpreter = new Interpreter(
-                        interpreterId,
+                        interpreterLogin,
                         rs.getString("lastName"),
                         rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),//pas sur que getString sois adapté pou un localDate
+                        rs.getDate("birthday").toLocalDate(),
                         rs.getString("hashPassword"),
                         rs.getString("mail"),
                         rs.getString("phone"),
                         rs.getInt("hourQuotaWeek"),
                         rs.getInt("hourQuotaYear"),
-                        getTransportation(idTransportation, connection),
-                        getAcademicSkills(interpreterId, connection),
-                        getJobSkills(interpreterId, connection),
-                        getBeneficiaries(interpreterId, connection)
+                        DAOTransportation.findById(idTransportation),
+                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
+                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
+                        DAOLocation.findById(rs.getInt("location")),
+                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
+                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
                 );
                 interpreters.add(interpreter);
             }
@@ -529,11 +326,55 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return interpreters;
     }
 
+    public static List<Interpreter> findAllByMissionId(int id) throws SQLException{
+        Connection connection = DatabaseConnector.getConnection();
+        List<Interpreter> list = new ArrayList<>();
+        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN Interpreter i ON a.login = i.login JOIN InterpreterMission im ON a.login = im.interpreter WHERE im.mission = ?";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, id);
+            rs = stmt.executeQuery();
+
+            while(rs.next()){
+                String interpreterLogin = rs.getString("login");
+                int idTransportation = rs.getInt("transportMode");
+                Interpreter interpreter = new Interpreter(
+                        interpreterLogin,
+                        rs.getString("lastName"),
+                        rs.getString("firstName"),
+                        rs.getDate("birthday").toLocalDate(),
+                        rs.getString("hashPassword"),
+                        rs.getString("mail"),
+                        rs.getString("phone"),
+                        rs.getInt("hourQuotaWeek"),
+                        rs.getInt("hourQuotaYear"),
+                        DAOTransportation.findById(idTransportation),
+                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
+                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
+                        DAOLocation.findById(rs.getInt("location")),
+                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
+                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
+                );
+                list.add(interpreter);
+            }
+        }finally {
+            DatabaseConnector.closeStmt(rs, stmt);
+        }
+
+        return list;
+    }
+
     /**
      * @param start represent the start of the time that we want the availability
      * @param end represent the end of the time that we want the availability
      * @param date represent the date
-     * @return a List of Interpreter who are available in the given time and date
+     * @return a List of Interpreter who are available in the given time and date or null
      */
     public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) {
         List<Interpreter> interpreters = new ArrayList<>();
@@ -543,11 +384,49 @@ public class DAOInterpreter implements DAO<Interpreter> {
 
     /**
      * @param idAcademicSkills the id of the AcademicSkill
-     * @return a List of Interpreter who have the AcademicSkill having the idAcademicSkills
-     * @throws NoSuchElementException if idAcademicSkills doesn't correspond to the id of any AcademicSkill
+     * @return a List of Interpreter who have the AcademicSkill having the idAcademicSkills or null
      */
     public List<Interpreter> findByAcademicSkills(int idAcademicSkills)
-            throws NoSuchElementException {
-        return null;
+            throws SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        List<Interpreter> list = new ArrayList<>();
+        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN Interpreter i ON a.login = i.login JOIN AcademicSkillInterpreter ai ON a.login = ai.interpreter WHERE ai.skill = ?";
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, idAcademicSkills);
+            rs = stmt.executeQuery();
+
+            while(rs.next()){
+                String interpreterLogin = rs.getString("login");
+                int idTransportation = rs.getInt("transportMode");
+                Interpreter interpreter = new Interpreter(
+                        interpreterLogin,
+                        rs.getString("lastName"),
+                        rs.getString("firstName"),
+                        rs.getDate("birthday").toLocalDate(),
+                        rs.getString("hashPassword"),
+                        rs.getString("mail"),
+                        rs.getString("phone"),
+                        rs.getInt("hourQuotaWeek"),
+                        rs.getInt("hourQuotaYear"),
+                        DAOTransportation.findById(idTransportation),
+                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
+                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
+                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
+                        DAOLocation.findById(rs.getInt("location")),
+                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
+                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
+                );
+                list.add(interpreter);
+            }
+        }finally {
+            DatabaseConnector.closeStmt(rs,stmt);
+        }
+        return list;
     }
 }

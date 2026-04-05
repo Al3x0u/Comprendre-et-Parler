@@ -10,14 +10,6 @@ public interface DAO<T> {
 
     /**
      *
-     * @param id the primary key of the object to find in database
-     * @return the object identified by id in database, or null if none was present
-     * @throws SQLException if the database could not be reached
-     */
-    T find(String id) throws SQLException,  NoSuchElementException;
-
-    /**
-     *
      * @param objectToInsert an object of type T to add to the database
      * @post objectToInsert has been added to the database, and the change was commited
      * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database

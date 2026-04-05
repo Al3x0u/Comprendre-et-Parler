@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import tools.jackson.core.ObjectReadContext;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class Interpreter extends AppliUser{
     private List<Beneficiary> beneficiaries;
     private List<Mission> missions;
     private Location location;
-    private List<BaseTimeSlot> baseTimeSlots;
+    private List<PunctualTimeSlot> punctualTime;
     private List<ExceptionalUnavailability> unavailability;
 
     /**
@@ -28,10 +30,11 @@ public class Interpreter extends AppliUser{
      * @param phoneNumber    represent the phone number of the interpreter
      * @param transport  represent the transport mode of the interpreter
      */
-    public Interpreter(String login,String firstName, String lastName,
+    public Interpreter(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber,int hQW, int hQY, Transportation transport,
-                       List<AcademicSkill> academic, List<JobSkill> job, List<Beneficiary> beneficiaries) {
+                       String phoneNumber, int hQW, int hQY, Transportation transport,
+                       List<AcademicSkill> academic, List<JobSkill> job, List<Beneficiary> beneficiaries,
+                       List<Mission> missions, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
         super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         hourQuotaWeek = hQW;
         hourQuotayear = hQY;
@@ -39,6 +42,10 @@ public class Interpreter extends AppliUser{
         jobSkills = job;
         academicSkills = academic;
         this.beneficiaries = beneficiaries;
+        this.missions = missions;
+        this.punctualTime = time;
+        this.location = location;
+        this.unavailability = unavailability;
     }
 
 

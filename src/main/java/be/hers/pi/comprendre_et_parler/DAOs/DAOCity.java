@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -10,13 +11,12 @@ import java.util.NoSuchElementException;
 public class DAOCity implements DAO<City> {
 
     /**
-     * Search for a City in the database with the int parameter
+     * Search for a City in the database with the String parameter
      * @param id : identification of the city
      * @return City object who correspond to the given id else null
      * @throws SQLException if the database couldn't be reached
      */
-    @Override
-    public City find(int id) throws SQLException {
+    public City find(String id) throws SQLException {
         return null;
     }
 
@@ -24,11 +24,12 @@ public class DAOCity implements DAO<City> {
      * Insert a City Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
+     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws SQLException if the database could not be reached
      */
     @Override
     public void create(City objectToInsert)
-            throws AlreadyExistsException, SQLException {
+            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
 
     }
 
@@ -59,7 +60,7 @@ public class DAOCity implements DAO<City> {
 
     /**
      * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Object, if database is empty, an empty list
+     * @return a List who contains City Object
      * @throws SQLException if the database could not be reached
      */
     @Override
