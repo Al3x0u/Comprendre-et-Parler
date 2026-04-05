@@ -270,11 +270,12 @@ public class Mission {
     /**
      * Add a Beneficiary to the beneficiaries List
      * @param beneficiary represent the Beneficiary to add, not null
+     * @param importance represent the importance of the beneficiary in the mission
      * @throws AlreadyExistsException if the beneficiary is already in the list
      * @throws NullPointerException if beneficiary is null
      * @throws SQLException if the database could not be reached
      */
-    public void addBeneficiary(Beneficiary beneficiary) throws AlreadyExistsException, NullPointerException, SQLException {
+    public void addBeneficiary(Beneficiary beneficiary, int importance) throws AlreadyExistsException, NullPointerException, SQLException {
         if (beneficiary == null)
             throw new NullPointerException("Beneficiary cannot be null");
 
@@ -282,7 +283,7 @@ public class Mission {
             throw new AlreadyExistsException("Beneficiary already exists in this mission");
 
         DAOMission daoMission = new DAOMission();
-        daoMission.addBeneficiaryToMission(this.getId(), beneficiary.getId());
+        daoMission.addBeneficiaryToMission(this.getId(), beneficiary.getId(), importance);
         beneficiaries.add(beneficiary);
     }
 
