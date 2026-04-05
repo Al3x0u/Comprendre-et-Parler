@@ -25,14 +25,14 @@ public class DAOCity implements DAO<City> {
      * @throws SQLException if the database couldn't be reached
      */
     @Override
-    public City find(String id) throws SQLException {
+    public City find(int id) throws SQLException {
         String query = "SELECT * FROM " + table + " WHERE " + fieldID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         City city = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, Integer.parseInt(id));
+            statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
                 city = new City(

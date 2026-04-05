@@ -14,7 +14,7 @@ public class City {
     public City(int id,String d, int pC ){
         if(id > 0) this.id = id;
         this.designation = d;
-        if(pC > 1000 && pC <= 10000) this.postalCode = pC;
+        if(pC >= 1000 && pC <= 10000) this.postalCode = pC;
     }
 
     /**
@@ -24,7 +24,7 @@ public class City {
     public City(City city) {
         if(city.id > 0) this.id = city.id;
         this.designation = city.designation;
-        if(city.postalCode > 1000 && city.postalCode <= 10000) this.postalCode = city.postalCode;
+        if(city.postalCode >= 1000 && city.postalCode <= 10000) this.postalCode = city.postalCode;
     }
 
     /**

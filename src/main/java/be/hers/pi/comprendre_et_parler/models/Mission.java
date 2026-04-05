@@ -289,17 +289,15 @@ public class Mission {
 
     /**
      * Remove a Beneficiary from the beneficiaries List by login
-     * @param login represent the login of the Beneficiary to remove
+     * @param login represent the id of the Beneficiary to remove
      * @throws NoSuchElementException if no beneficiary with the given login exists in the list
      * @throws SQLException if the database could not be reached
      */
-    public void deleteBeneficiary(String login) throws NoSuchElementException, SQLException {
-        if (login == null) throw new NullPointerException("Login cannot be null");
-
+    public void deleteBeneficiary(int login) throws NoSuchElementException, SQLException {
         int i = 0;
         boolean found = false;
         while (!found && i < beneficiaries.size()) {
-            if (beneficiaries.get(i).getLogin().equals(login)) {
+            if (beneficiaries.get(i).getLogin() == login) {
                 found = true;
             } else {
                 i++;
@@ -338,13 +336,11 @@ public class Mission {
      * @throws NoSuchElementException if no interpreter with the given login exists in the list
      * @throws SQLException if the database could not be reached
      */
-    public void deleteInterpreter(String login) throws NoSuchElementException, SQLException {
-        if (login == null) throw new NullPointerException("Login cannot be null");
-
+    public void deleteInterpreter(int login) throws NoSuchElementException, SQLException {
         int i = 0;
         boolean found = false;
         while (!found && i < interpreters.size()) {
-            if (interpreters.get(i).getLogin().equals(login)) {
+            if (interpreters.get(i).getLogin() == login) {
                 found = true;
             } else {
                 i++;

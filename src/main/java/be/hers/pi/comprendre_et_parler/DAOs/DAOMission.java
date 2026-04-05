@@ -27,14 +27,14 @@ public class DAOMission implements DAO<Mission> {
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Mission find(String id) throws SQLException {
+    public Mission find(int id) throws SQLException {
         String query = "SELECT * FROM " + table + " WHERE " + fieldID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Mission mission = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, Integer.parseInt(id));
+            statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
                 int missionId = result.getInt(fieldID);
@@ -224,7 +224,7 @@ public class DAOMission implements DAO<Mission> {
      * @throws NoSuchElementException if the given idUser doesn't correspond to an existent id
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getSchedule(String idUser) throws NoSuchElementException, SQLException {
+    public List<Mission> getSchedule(int idUser) throws NoSuchElementException, SQLException {
         List<Mission> missions = new ArrayList<>();
         String query = "SELECT mission FROM InterpreterMission WHERE interpreter = ? " +
                        "UNION " +
@@ -233,8 +233,8 @@ public class DAOMission implements DAO<Mission> {
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, idUser);
-            statement.setString(2, idUser);
+            statement.setInt(1, idUser);
+            statement.setInt(2, idUser);
             result = statement.executeQuery();
             while (result.next()) {
                 Mission mission = find(String.valueOf(result.getInt("mission")));
@@ -256,13 +256,13 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Add a beneficiary to a mission in the BeneficiaryMission table
      * @param missionId : id of the mission
-     * @param beneficiaryId : login of the beneficiary
+     * @param beneficiaryId : id of the beneficiary
      * @param importance : importance of the beneficiary in the mission
      * @throws AlreadyExistsException if the beneficiary is already linked to the mission
      * @throws SQLException if the database could not be reached
      * @post the beneficiary is linked to the mission in the database
      */
-    public void addBeneficiaryToMission(int missionId, String beneficiaryId, int importance) throws SQLException, AlreadyExistsException {
+    public void addBeneficiaryToMission(int missionId, int beneficiaryId, int importance) throws SQLException, AlreadyExistsException {
         String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         String insertQuery = "INSERT INTO BeneficiaryMission(mission, beneficiary, importance) VALUES(?, ?, ?)";
         PreparedStatement statement = null;
@@ -270,13 +270,13 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, beneficiaryId);
+            statement.setInt(2, beneficiaryId);
             result = statement.executeQuery();
             if (result.next()) throw new AlreadyExistsException("This beneficiary is already linked to the mission");
 
             statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, beneficiaryId);
+            statement.setInt(2, beneficiaryId);
             statement.setInt(3, importance);
             statement.executeUpdate();
         }
@@ -293,12 +293,12 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Add an interpreter to a mission in the InterpreterMission table
      * @param missionId : id of the mission
-     * @param interpreterId : login of the interpreter
+     * @param interpreterId : id of the interpreter
      * @throws AlreadyExistsException if the interpreter is already linked to the mission
      * @throws SQLException if the database could not be reached
      * @post the interpreter is linked to the mission in the database
      */
-    public void addInterpreterToMission(int missionId, String interpreterId) throws SQLException, AlreadyExistsException {
+    public void addInterpreterToMission(int missionId, int interpreterId) throws SQLException, AlreadyExistsException {
         String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         String insertQuery = "INSERT INTO InterpreterMission(mission, interpreter) VALUES(?, ?)";
         PreparedStatement statement = null;
@@ -306,13 +306,13 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, interpreterId);
+            statement.setInt(2, interpreterId);
             result = statement.executeQuery();
             if (result.next()) throw new AlreadyExistsException("This interpreter is already linked to the mission");
 
             statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, interpreterId);
+            statement.setInt(2, interpreterId);
             statement.executeUpdate();
         }
         finally {
@@ -328,12 +328,12 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Remove a beneficiary from a mission in the BeneficiaryMission table
      * @param missionId : id of the mission
-     * @param beneficiaryId : login of the beneficiary
+     * @param beneficiaryId : id of the beneficiary
      * @throws NoSuchElementException if the beneficiary is not linked to the mission
      * @throws SQLException if the database could not be reached
      * @post the beneficiary is no longer linked to the mission in the database
      */
-    public void removeBeneficiaryFromMission(int missionId, String beneficiaryId) throws SQLException, NoSuchElementException {
+    public void removeBeneficiaryFromMission(int missionId, int beneficiaryId) throws SQLException, NoSuchElementException {
         String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         String deleteQuery = "DELETE FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         PreparedStatement statement = null;
@@ -341,13 +341,13 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, beneficiaryId);
+            statement.setInt(2, beneficiaryId);
             result = statement.executeQuery();
             if (!result.next()) throw new NoSuchElementException("This beneficiary is not linked to the mission");
 
             statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, beneficiaryId);
+            statement.setInt(2, beneficiaryId);
             statement.executeUpdate();
         }
         finally {
@@ -363,12 +363,12 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Remove an interpreter from a mission in the InterpreterMission table
      * @param missionId : id of the mission
-     * @param interpreterId : login of the interpreter
+     * @param interpreterId : id of the interpreter
      * @throws NoSuchElementException if the interpreter is not linked to the mission
      * @throws SQLException if the database could not be reached
      * @post the interpreter is no longer linked to the mission in the database
      */
-    public void removeInterpreterFromMission(int missionId, String interpreterId) throws SQLException, NoSuchElementException {
+    public void removeInterpreterFromMission(int missionId, int interpreterId) throws SQLException, NoSuchElementException {
         String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         String deleteQuery = "DELETE FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         PreparedStatement statement = null;
@@ -376,13 +376,13 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, interpreterId);
+            statement.setInt(2, interpreterId);
             result = statement.executeQuery();
             if (!result.next()) throw new NoSuchElementException("This interpreter is not linked to the mission");
 
             statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
             statement.setInt(1, missionId);
-            statement.setString(2, interpreterId);
+            statement.setInt(2, interpreterId);
             statement.executeUpdate();
         }
         finally {

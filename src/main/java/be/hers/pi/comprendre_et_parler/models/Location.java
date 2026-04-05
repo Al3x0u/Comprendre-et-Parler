@@ -37,7 +37,7 @@ public class Location {
         this.city = new City(l.city);
         this.street = l.street;
         this.streetNumber = l.streetNumber;
-        if(l.id > 0) this.box = l.box;
+        if(l.box > 0) this.box = l.box;
     }
 
     /**

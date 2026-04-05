@@ -28,20 +28,20 @@ public class DAOLocation implements DAO<Location> {
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public Location find(String id) throws SQLException {
+    public Location find(int id) throws SQLException {
         String query = "SELECT * FROM " + table + " WHERE " + fieldID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Location location = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, Integer.parseInt(id));
+            statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
                 location = new Location(
                         result.getInt(fieldID),
                         result.getString(fieldDesignation),
-                        new DAOCity().find(String.valueOf(result.getInt(fieldCity))),
+                        new DAOCity().find(result.getInt(fieldCity)),
                         result.getString(fieldStreet),
                         result.getString(fieldStreetNumber),
                         result.getInt(fieldBox)
@@ -190,7 +190,7 @@ public class DAOLocation implements DAO<Location> {
                 locations.add(new Location(
                         result.getInt(fieldID),
                         result.getString(fieldDesignation),
-                        new DAOCity().find(String.valueOf(result.getInt(fieldCity))),
+                        new DAOCity().find(result.getInt(fieldCity)),
                         result.getString(fieldStreet),
                         result.getString(fieldStreetNumber),
                         result.getInt(fieldBox)
@@ -223,7 +223,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(1, missionId);
             result = statement.executeQuery();
             if (result.next())
-                return new DAOLocation().find(String.valueOf(result.getInt("location")));
+                return new DAOLocation().find(result.getInt("location"));
         }
         finally {
             if (result != null) {
