@@ -257,13 +257,14 @@ public class DAOMission implements DAO<Mission> {
      * Add a beneficiary to a mission in the BeneficiaryMission table
      * @param missionId : id of the mission
      * @param beneficiaryId : login of the beneficiary
+     * @param importance : importance of the beneficiary in the mission
      * @throws AlreadyExistsException if the beneficiary is already linked to the mission
      * @throws SQLException if the database could not be reached
      * @post the beneficiary is linked to the mission in the database
      */
-    public void addBeneficiaryToMission(int missionId, String beneficiaryId) throws SQLException, AlreadyExistsException {
+    public void addBeneficiaryToMission(int missionId, String beneficiaryId, int importance) throws SQLException, AlreadyExistsException {
         String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
-        String insertQuery = "INSERT INTO BeneficiaryMission(mission, beneficiary) VALUES(?, ?)";
+        String insertQuery = "INSERT INTO BeneficiaryMission(mission, beneficiary, importance) VALUES(?, ?, ?)";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
@@ -276,6 +277,7 @@ public class DAOMission implements DAO<Mission> {
             statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
             statement.setInt(1, missionId);
             statement.setString(2, beneficiaryId);
+            statement.setInt(3, importance);
             statement.executeUpdate();
         }
         finally {
