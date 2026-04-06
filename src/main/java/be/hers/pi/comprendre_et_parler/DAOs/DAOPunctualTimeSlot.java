@@ -14,6 +14,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
+    protected static final String TABLE_TIMESLOT_ID = "id";
+    protected static final String TABLE_TIMESLOT = "TimeSlot";
+    protected static final String FIELD_START_TIME = "startTime";
+    protected static final String FIELD_END_TIME = "endTime";
+    protected static final String TABLE_AVAILABILITY = "Availability";
+    protected static final String FIELD_INTERPRETER = "interpreter";
+    protected static final String FIELD_TIMELSLOT = "timeSlot";
 
     /**
      *

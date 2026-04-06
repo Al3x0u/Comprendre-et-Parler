@@ -6,6 +6,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import javax.xml.crypto.Data;
 import java.sql.*;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     @Override
     public void delete(BaseTimeSlot objectToDelete)
             throws NoSuchElementException, SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         String query = "DELETE TimeSlot WHERE id = ?";
 
         PreparedStatement stmt = null;
@@ -75,7 +76,9 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
                 throw new NoSuchElementException();
             }
         }finally {
-            DatabaseConnector.closeStmt(null, stmt);
+            if(stmt != null){
+                stmt.close();
+            }
         }
 
     }
@@ -91,7 +94,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     }
 
     public static List<BaseTimeSlot> findByDay(int day) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         List<BaseTimeSlot> baseTimeSlots = new ArrayList<>();
         String query = "SELECT t.*, a.* FROM TimeSlot t, Availability a WHERE t.id = a.timeSlot AND t.day = ?";
 
@@ -108,12 +111,17 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
                         rs.getInt("id"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
-                        rs.getInt("day")
-                );
+                        DayOfWeek.of(rs.getInt("day")
+                ));
                 baseTimeSlots.add(baseTimeSlot);
             }
         }finally{
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return baseTimeSlots;
     }

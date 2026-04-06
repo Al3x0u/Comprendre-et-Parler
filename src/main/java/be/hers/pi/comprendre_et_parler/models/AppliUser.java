@@ -1,18 +1,21 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public abstract class AppliUser {
+    private int id;
     private String login;
     private String firstName;
     private String lastName;
-    private LocalDate birthday;
-    private String password;
-    private String mail;
-    private String phone;
+    private LocalDate birthDate;
+    private String hashedPassword;
+    private String email;
+    private String phoneNumber;
 
     /**
      Constructor of a AppliUser
+     @param id represent the id
      @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
@@ -21,14 +24,38 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
-        birthday = birthDate;
-        password = hashedPassword;
-        mail = email;
-        phone = phoneNumber;
+        this.birthDate = birthDate;
+        this.hashedPassword = hashedPassword;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDate getBirthDate() {
+        return this.birthDate;
+    }
+
+    public String getHashedPassword() {
+        return this.hashedPassword;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+
+    /**
+     * @return this.id
+     */
+    public int getId() {
+        return id;
     }
 
     /**
@@ -52,32 +79,81 @@ public abstract class AppliUser {
         return lastName;
     }
 
+
+
     /**
-     * @return this.birthDate
+     * @param id represent the new id
      */
-    public LocalDate getBirthday() {
-        return birthday;
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
-     * @return this.hashedPassword
+     * @param login represent the new login
      */
-    public String getPassword() {
-        return password;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     /**
-     * @return this.email
+     * @param firstName represent the new first name
      */
-    public String getMail() {
-        return mail;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     /**
-     * @return this.phoneNumber
+     * @param lastName represent the new last name
      */
-    public String getPhone() {
-        return phone;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
+    /**
+     * @param birthDate represent the new birth date
+     */
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    /**
+     * @param hashedPassword represent the new hashed password
+     */
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
+
+    /**
+     * @param email represent the new email
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * @param phoneNumber represent the new phone number
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * Compare this AppliUser with another AppliUser for equality
+     * @param other the AppliUser object to compare with
+     * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
+     */
+    public boolean equals(AppliUser other) {
+        return (login == other.login && firstName == other.firstName && lastName == other.lastName &&
+                birthDate == other.birthDate && hashedPassword == other.hashedPassword &&
+                email == other.email && phoneNumber == other.phoneNumber);
+    }
+
+    /**
+     * Return a String representation of the AppliUser containing all fields
+     * @return formatted string with login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

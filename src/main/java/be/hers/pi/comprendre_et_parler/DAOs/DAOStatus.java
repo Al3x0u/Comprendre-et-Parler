@@ -20,7 +20,7 @@ public class DAOStatus implements DAO<Status> {
     public final static String table = "Status";
     public final static String field_id = "id";
     public final static String field_designation = "designation";
-    public final static  String field_hourQuota = "hourQuota";
+    public final static String field_hourQuota = "hourQuota";
 
     /**
      * @param id the primary key of the object to find in database
