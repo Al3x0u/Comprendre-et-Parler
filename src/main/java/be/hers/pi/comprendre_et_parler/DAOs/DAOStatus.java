@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOStatus implements DAO<Status> {
-    public final String table = "Status";
-    public final String field_id = "id";
-    public final String field_designation = "designation";
-    public final String field_hourQuota = "hourQuota";
+    public final static String table = "Status";
+    public final static String field_id = "id";
+    public final static String field_designation = "designation";
+    public final static  String field_hourQuota = "hourQuota";
 
     /**
      * @param id the primary key of the object to find in database
@@ -180,10 +180,11 @@ public class DAOStatus implements DAO<Status> {
      * @return the Status identified by idStatus, or null if none was found
      * @throws SQLException if the database could not be reached
      */
-    public static Status findById(int id) throws SQLException, NoSuchElementException {
+    public Status findById(int id) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getConnection();
         Status status;
-        String query = "SELECT * FROM Status WHERE id = ?";
+        String query = "SELECT %s FROM %s WHERE %s = ?";
+        query = String.format(query, table, field_id, field_designation, field_hourQuota);
 
         PreparedStatement stmt = null;
         ResultSet rs = null;

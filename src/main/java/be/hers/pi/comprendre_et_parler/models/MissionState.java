@@ -12,7 +12,6 @@ public enum MissionState {
     REGULAR;
 
     public static MissionState toMissionState(String character)throws NoSuchElementException {
-
          return switch(character) {
              case "A" -> ACCEPTED;
 
@@ -27,7 +26,6 @@ public enum MissionState {
     }
 
     public String toSting(){
-
         return switch (this){
             case PENDING -> "H";
 
