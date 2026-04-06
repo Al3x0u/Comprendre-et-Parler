@@ -1,9 +1,10 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 public class BaseTimeSlot extends TimeSlot{
-    private int day;
+    private DayOfWeek day;
 
     /**
      Constructor of a BaseTimeSlot which extends TimeSlot
@@ -12,7 +13,7 @@ public class BaseTimeSlot extends TimeSlot{
      @param endHourTime represent the hour at which finish
      @param day represent the day of the week
      */
-    public BaseTimeSlot(int id, LocalTime startHourTime, LocalTime endHourTime, int day) {
+    public BaseTimeSlot(int id, LocalTime startHourTime, LocalTime endHourTime, DayOfWeek day) {
         super(id, startHourTime, endHourTime);
         this.day = day;
     }
@@ -20,14 +21,14 @@ public class BaseTimeSlot extends TimeSlot{
     /**
      @return this.day
      */
-    public int getDay() {
+    public DayOfWeek getDay() {
         return day;
     }
 
     /**
      * @param newDay    represent the new day
      */
-    public void setDay(int newDay){
+    public void setDay(DayOfWeek newDay){
         this.day = newDay;
     }
 
