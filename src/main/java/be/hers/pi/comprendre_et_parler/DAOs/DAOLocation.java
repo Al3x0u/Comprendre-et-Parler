@@ -63,16 +63,13 @@ public class DAOLocation implements DAO<Location> {
      * Insert a Location Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if the given id already used in the database
      * @throws SQLException if we couldn't connect to the database
      */
     @Override
-    public void create(Location objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(Location objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid Location
         List<Location> locations = findAll();
         for (Location line : locations) {
-            if (line.getId() == objectToInsert.getId())
-                throw new DuplicatePrimaryKeyException("Id " + objectToInsert.getId() + " is already used in database");
             if (line.getDesignation().equals(objectToInsert.getDesignation())
                     && line.getCity().equals(objectToInsert.getCity())
                     && line.getStreet().equals(objectToInsert.getStreet())
@@ -172,7 +169,7 @@ public class DAOLocation implements DAO<Location> {
 
     /**
      * Return all line of Location table in the database in Location Object in a List
-     * @return a List who contains Location Objects, or an empty list if none was found
+     * @return a List who contains Location Objects, if database is empty, an empty list
      * @throws SQLException if the database could not be reached
      */
     @Override

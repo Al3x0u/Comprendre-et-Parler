@@ -22,6 +22,7 @@ public class DAOMission implements DAO<Mission> {
     public final String fieldAcademicSkill = "academicSkill";
 
     /**
+     * Search for a Mission in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object Mission identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -65,17 +66,14 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Insert a Mission object in the database
      * @param objectToInsert an object of type Mission to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(Mission objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
         List<Mission> missions = findAll();
         for (Mission line : missions) {
-            if (line.getId() == objectToInsert.getId())
-                throw new DuplicatePrimaryKeyException("Id " + objectToInsert.getId() + " is already used in database");
             if (line.getSubject().equals(objectToInsert.getSubject())
                     && line.getStateOfMission().equals(objectToInsert.getStateOfMission())
                     && line.getCommentary().equals(objectToInsert.getCommentary())
@@ -175,7 +173,7 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Return all line of Mission table in the database in a List
-     * @return every object of Mission present in database, or an empty list if none was found
+     * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
     @Override
@@ -248,6 +246,40 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         return missions;
+    }
+
+    /**
+     * Return the importance of a Mission for a Beneficiary
+     * @param missionId : id of the mission
+     * @param beneficiaryId : id of the beneficiary
+     * @throws NoSuchElementException if the given idMission or idBeneficiary doesn't correspond to an existent id
+     * @throws SQLException if the database could not be reached
+     * @return the importance of the Mission
+     */
+    public int getImportanceForBeneficiary(int missionId, int beneficiaryId) throws NoSuchElementException, SQLException {
+        String query = "SELECT importance FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        int importance = 0;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            statement.setInt(2, beneficiaryId);
+            result = statement.executeQuery();
+
+            if (result.next())
+                importance = result.getInt("importance");
+            else
+                throw new NoSuchElementException("No mission " + missionId + " found for beneficiary " + beneficiaryId);
+        }finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+        return importance;
     }
 
     /**
