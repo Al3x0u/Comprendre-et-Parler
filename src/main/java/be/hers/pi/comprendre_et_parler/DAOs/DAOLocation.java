@@ -39,7 +39,7 @@ public class DAOLocation implements DAO<Location> {
             result = statement.executeQuery();
             if (result.next()) {
                 location = new Location(
-                        result.getInt(fieldID),
+                        id,
                         result.getString(fieldDesignation),
                         new DAOCity().find(result.getInt(fieldCity)),
                         result.getString(fieldStreet),
@@ -131,8 +131,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setString(4, objectToUpdate.getStreetNumber());
             statement.setInt(5, objectToUpdate.getBox());
             statement.setInt(6, objectToUpdate.getId());
-            int nbImpactedLines = statement.executeUpdate();
-            if (nbImpactedLines == 0)
+            if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Location " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
@@ -161,8 +160,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setString(4, objectToDelete.getStreet());
             statement.setString(5, objectToDelete.getStreetNumber());
             statement.setInt(6, objectToDelete.getBox());
-            int nbLignesImpactees = statement.executeUpdate();
-            if (nbLignesImpactees == 0)
+            if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Location " + objectToDelete.getDesignation() + " was not found in database");
         }
         finally {
@@ -223,7 +221,7 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(1, missionId);
             result = statement.executeQuery();
             if (result.next())
-                return new DAOLocation().find(result.getInt("location"));
+                return find(result.getInt("location"));
         }
         finally {
             if (result != null) {

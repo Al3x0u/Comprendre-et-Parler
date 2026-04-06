@@ -22,9 +22,9 @@ public class City {
      * @param city
      */
     public City(City city) {
-        if(city.id > 0) this.id = city.id;
+        this.id = city.id;
         this.designation = city.designation;
-        if(city.postalCode >= 1000 && city.postalCode <= 10000) this.postalCode = city.postalCode;
+        this.postalCode = city.postalCode;
     }
 
     /**

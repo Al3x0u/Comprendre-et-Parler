@@ -54,7 +54,7 @@ public class Mission {
      * @param mission
      */
     public Mission(Mission mission) {
-        if(mission.id > 0) this.id = mission.id;
+        this.id = mission.id;
         this.subject = mission.subject;
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;

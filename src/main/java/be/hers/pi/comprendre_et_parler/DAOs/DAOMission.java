@@ -37,18 +37,17 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                int missionId = result.getInt(fieldID);
                 mission = new Mission(
-                        missionId,
+                        id,
                         result.getString(fieldSubject),
                         MissionState.valueOf(result.getString(fieldState)),
                         result.getString(fieldCommentary),
-                        new DAOTimeSlot().find(String.valueOf(result.getInt(fieldTimeSlot))),
-                        new DAOBeneficiary().getMissionBeneficiaries(missionId),
-                        new DAOInterpreters().getMissionInterpreters(missionId),
-                        new DAOLocation().getMissionLocation(missionId),
-                        new DAOJobSkill().find(String.valueOf(result.getInt(fieldJobSkill))),
-                        new DAOAcademicSkill().find(String.valueOf(result.getInt(fieldAcademicSkill)))
+                        new DAOTimeSlot().find(result.getInt(fieldTimeSlot)),
+                        new DAOBeneficiary().getMissionBeneficiaries(id),
+                        new DAOInterpreters().getMissionInterpreters(id),
+                        new DAOLocation().getMissionLocation(id),
+                        new DAOJobSkill().find(result.getInt(fieldJobSkill)),
+                        new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill))
                 );
             }
         }
@@ -139,8 +138,7 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(5, objectToUpdate.getJobSkill().getId());
             statement.setInt(6, objectToUpdate.getAcademicSkill().getId());
             statement.setInt(7, objectToUpdate.getId());
-            int nbImpactedLines = statement.executeUpdate();
-            if (nbImpactedLines == 0)
+            if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
@@ -165,8 +163,7 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, objectToDelete.getId());
-            int nbImpactedLines = statement.executeUpdate();
-            if (nbImpactedLines == 0)
+            if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Mission " + objectToDelete.getSubject() + " was not found in database");
         }
         finally {

@@ -32,12 +32,12 @@ public class Location {
      * @param l
      */
     public Location(Location l){
-        if(l.id > 0) this.id = l.id;
+        this.id = l.id;
         this.designation = l.designation;
         this.city = new City(l.city);
         this.street = l.street;
         this.streetNumber = l.streetNumber;
-        if(l.box > 0) this.box = l.box;
+        this.box = l.box;
     }
 
     /**

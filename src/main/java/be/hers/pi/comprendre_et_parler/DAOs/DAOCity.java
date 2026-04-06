@@ -36,7 +36,7 @@ public class DAOCity implements DAO<City> {
             result = statement.executeQuery();
             if (result.next()) {
                 city = new City(
-                        result.getInt(fieldID),
+                        id,
                         result.getString(fieldDesignation),
                         result.getInt(fieldPostalCode)
                 );
@@ -111,8 +111,7 @@ public class DAOCity implements DAO<City> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getPostalCode());
             statement.setInt(3, objectToUpdate.getId());
-            int nbLignesImpactees = statement.executeUpdate();
-            if (nbLignesImpactees == 0)
+            if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("City " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
@@ -138,8 +137,7 @@ public class DAOCity implements DAO<City> {
             statement.setInt(1, objectToDelete.getId());
             statement.setString(2, objectToDelete.getDesignation());
             statement.setInt(3, objectToDelete.getPostalCode());
-            int nbLignesImpactees = statement.executeUpdate();
-            if (nbLignesImpactees == 0)
+            if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("City " + objectToDelete.getDesignation() + " was not found in database");
         }
         finally {
