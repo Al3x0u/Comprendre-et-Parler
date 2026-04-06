@@ -70,7 +70,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      * @throws SQLException if the database could not be reached
      */
     public static AcademicSkill findById(int id) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         AcademicSkill academicSkill;
         String query = "SELECT * FROM AcademicSkill  WHERE id = ?";
 
@@ -91,7 +91,12 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
                 throw new NoSuchElementException();
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return academicSkill;
     }
@@ -102,7 +107,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      * @throws SQLException if the database could not be reached
      */
     public static List<AcademicSkill> findAllByInterpreterLogin(String login) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         List<AcademicSkill> academicSkills = new ArrayList<>();
         String query = "SELECT a.* FROM AcademicSkillInterpreter asi JOIN AcademicSkill a  ON a.id = asi.skill WHERE asi.interpreter = ?";
 
@@ -122,7 +127,12 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
                 academicSkills.add(academicSkil);
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return academicSkills;
     }

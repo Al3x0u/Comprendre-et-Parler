@@ -4,7 +4,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.*;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
-import be.hers.pi.comprendre_et_parler.model.Status;
+import be.hers.pi.comprendre_et_parler.models.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,7 +28,7 @@ public class DAOStatus implements DAO<Status> {
      * @throws SQLException if the database could not be reached
      */
     public Status find(String id) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         String query = "SELECT * FROM " + table + " WHERE " + field_id + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -77,7 +77,7 @@ public class DAOStatus implements DAO<Status> {
         query = String.format(query, table, field_designation, field_hourQuota);
         PreparedStatement statement = null;
         try {
-            statement = DatabaseConnector.getConnection().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getHourQuota());
             statement.executeUpdate();
@@ -91,7 +91,7 @@ public class DAOStatus implements DAO<Status> {
 
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         // Manage invalid states
         List<Status> allLines = findAll();
         if (allLines.contains(objectToUpdate))
@@ -129,7 +129,7 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public void delete(Status objectToDelete) throws NoSuchElementException, SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
 
         if (find(String.valueOf(objectToDelete.getId())) == null)
             throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
@@ -157,7 +157,7 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public List<Status> findAll() throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         String query = "SELECT * FROM " + table;
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -188,10 +188,10 @@ public class DAOStatus implements DAO<Status> {
      * @throws SQLException if the database could not be reached
      */
     public Status findById(int id) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         Status status;
-        String query = "SELECT %s FROM %s WHERE %s = ?";
-        query = String.format(query, table, field_id, field_designation, field_hourQuota);
+        String query = "SELECT * FROM %s WHERE %s = ?";
+        query = String.format(query, table, field_id);
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -211,7 +211,12 @@ public class DAOStatus implements DAO<Status> {
                 throw new NoSuchElementException();
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return status;
     }

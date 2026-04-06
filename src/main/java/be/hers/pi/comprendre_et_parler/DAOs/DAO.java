@@ -27,7 +27,7 @@ public interface DAO<T> {
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
      */
-    void create(T objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, ConnectionException;
+    void create(T objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException;
 
     /**
      *

@@ -28,7 +28,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     @Override
     public void create(Beneficiary objectToInsert)
             throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         String query = "INSERT INTO Beneficiary"
 
 
@@ -68,7 +68,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      */
     @Override
     public List<Beneficiary> findAll() throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         List<Beneficiary> beneficiaries = new ArrayList<>();
         String query = "SELECT login FROM Beneficiary";
 
@@ -83,7 +83,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 beneficiaries.add(findByLogin(rs.getString("login")));
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return beneficiaries;
     }
@@ -95,7 +100,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws SQLException
      */
     public List<Beneficiary> getByStatus(int idStatus) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         List<Beneficiary> beneficiaries = new ArrayList<>();
         String query = "SELECT * FROM Beneficiary WHERE status = ?";
 
@@ -111,7 +116,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 beneficiaries.add(findByLogin(rs.getString("login")));
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return beneficiaries;
     }
@@ -127,7 +137,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                     rs.getString("password"),
                     rs.getString("mail"),
                     rs.getString("phone"),
-                    DAOStatus.findById(rs.getInt("status")),
+                    new DAOStatus().find(rs.getInt("status")),
                     DAOInterpreter.findByLogin(rs.getString("referenceInterpreter"))
             );
         } else {
@@ -137,7 +147,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     public static Beneficiary findByLogin(String login) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         Beneficiary beneficiary;
         String query = "SELECT a.*, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE a.login = ?";
 
@@ -151,7 +161,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
 
             beneficiary = getBeneficiary(rs);
         } finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return beneficiary;
     }
@@ -162,7 +177,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     public static List<Beneficiary> findAllReferenceInterpreter(String loginInterpreter) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         List<Beneficiary> beneficiaries = new ArrayList<>();
         String query = "SELECT *, b.status, b.referenceInterpreter FROM AppliUser a JOIN Beneficiary b ON a.login = b.login WHERE b.referenceInterpreter = ?";
 
@@ -178,13 +193,18 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 beneficiaries.add(findByLogin(rs.getString("beneficiary")));
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return beneficiaries;
     }
 
     public static List<Beneficiary> findByIdBeneficiariesMission(int missionId)throws SQLException{
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         String query = "SELECT beneficiary FROM BeneficiaryMission WHERE mission = ?";
         List<Beneficiary> list = new ArrayList<>();
 
@@ -200,7 +220,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                list.add(findByLogin(rs.getString("beneficiary")));
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return list;
     }
