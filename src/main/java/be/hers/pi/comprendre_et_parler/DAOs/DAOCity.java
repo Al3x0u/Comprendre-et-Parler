@@ -57,16 +57,13 @@ public class DAOCity implements DAO<City> {
      * Insert a City Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public void create(City objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(City objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid city
         List<City> cities = findAll();
         for (City line : cities) {
-            if (line.getId() == objectToInsert.getId())
-                throw new DuplicatePrimaryKeyException("Id " + objectToInsert.getId() + " is already used in database");
             if (line.getDesignation().equals(objectToInsert.getDesignation()) && line.getPostalCode() == objectToInsert.getPostalCode())
                 throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
         }
