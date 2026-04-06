@@ -52,13 +52,12 @@ public class DAOStatus implements DAO<Status> {
     /**
      * Insert a Status object in the database
      * @param objectToInsert an object of type Status to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(Status objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
         Status alreadyPresent = find(objectToInsert.getId());
         if (alreadyPresent != null) {
