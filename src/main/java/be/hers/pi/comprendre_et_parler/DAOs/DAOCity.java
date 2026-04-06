@@ -25,12 +25,11 @@ public class DAOCity implements DAO<City> {
      * Insert a City Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws SQLException if the database could not be reached
      */
     @Override
     public void create(City objectToInsert)
-            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+            throws AlreadyExistsException, SQLException {
 
     }
 

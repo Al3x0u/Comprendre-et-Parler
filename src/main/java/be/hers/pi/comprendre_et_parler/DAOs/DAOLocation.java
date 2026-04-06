@@ -25,12 +25,11 @@ public class DAOLocation implements DAO<Location> {
      * Insert a Location Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if the given id already used in the database
      * @throws SQLException if we couldn't connect to the database
      */
     @Override
     public void create(Location objectToInsert)
-            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+            throws AlreadyExistsException, SQLException {
     }
 
     /**

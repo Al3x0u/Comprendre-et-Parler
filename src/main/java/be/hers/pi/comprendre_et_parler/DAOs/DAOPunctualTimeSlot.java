@@ -25,13 +25,12 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     /**
      * Insert a PunctualTimeSlot object in the database
      * @param objectToInsert an object of PunctualTimeSlot to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
      * @throws SQLException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
 
     }
 

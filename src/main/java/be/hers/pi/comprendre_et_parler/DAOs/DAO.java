@@ -20,10 +20,9 @@ public interface DAO<T> {
      * @param objectToInsert an object of type T to add to the database
      * @post objectToInsert has been added to the database, and the change was commited
      * @throws AlreadyExistsException if objectToInsert is already present in database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws SQLException if the insertion failed for any other reason
      */
-    void create(T objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException;
+    void create(T objectToInsert) throws AlreadyExistsException, SQLException;
 
     /**
      * @param objectToUpdate the object to edit in the database

@@ -28,12 +28,11 @@ public class DAOJobSkill implements DAO<JobSkill> {
      * Insert a JobSkill Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if the given id already used in the database
      * @throws SQLException if we couldn't connect to the database
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(JobSkill objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(JobSkill objectToInsert) throws AlreadyExistsException, SQLException {
 
     }
 

@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class TimeSlot {
+public abstract class TimeSlot {
     private int id;
     private LocalTime startTime;
     private LocalTime endTime;
