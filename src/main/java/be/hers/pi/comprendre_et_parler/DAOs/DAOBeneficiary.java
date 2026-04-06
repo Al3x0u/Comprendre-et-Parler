@@ -28,6 +28,9 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     @Override
     public void create(Beneficiary objectToInsert)
             throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+        Connection connection = DatabaseConnector.getConnection();
+        new DAOAppliUser().create();
+
 
     }
 
