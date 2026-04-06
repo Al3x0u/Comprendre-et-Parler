@@ -293,7 +293,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
     public List<Interpreter> findAll() throws SQLException {
         Connection connection = DatabaseConnector.getConnection();
         List<Interpreter> interpreters = new ArrayList<>();
-        String query = "SELECT a.*, i.* FROM AppliUser a JOIN Interpreter i ON a.id = i.id";
+        String query = "SELECT login FROM Interpreter";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -303,28 +303,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             rs = stmt.executeQuery();
 
             while(rs.next()){
-                int idTransportation = rs.getInt("transportation");
-                String interpreterLogin = rs.getString("id");
-                Interpreter interpreter = new Interpreter(
-                        interpreterLogin,
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        rs.getInt("hourQuotaWeek"),
-                        rs.getInt("hourQuotaYear"),
-                        DAOTransportation.findById(idTransportation),
-                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
-                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
-                        DAOLocation.findById(rs.getInt("location")),
-                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
-                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
-                );
-                interpreters.add(interpreter);
+                interpreters.add(findByLogin(rs.getString("login")));
             }
         }finally {
             DatabaseConnector.closeStmt(rs, stmt);
@@ -335,7 +314,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
     public static List<Interpreter> findAllByMissionId(int id) throws SQLException{
         Connection connection = DatabaseConnector.getConnection();
         List<Interpreter> list = new ArrayList<>();
-        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN Interpreter i ON a.login = i.login JOIN InterpreterMission im ON a.login = im.interpreter WHERE im.mission = ?";
+        String query = "SELECT i.login FROM Interpreter i JOIN InterpreterMission im ON i.login = im.interpreter WHERE im.mission = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -346,28 +325,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             rs = stmt.executeQuery();
 
             while(rs.next()){
-                String interpreterLogin = rs.getString("login");
-                int idTransportation = rs.getInt("transportMode");
-                Interpreter interpreter = new Interpreter(
-                        interpreterLogin,
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        rs.getInt("hourQuotaWeek"),
-                        rs.getInt("hourQuotaYear"),
-                        DAOTransportation.findById(idTransportation),
-                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
-                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
-                        DAOLocation.findById(rs.getInt("location")),
-                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
-                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
-                );
-                list.add(interpreter);
+                list.add(findByLogin(rs.getString("login")));
             }
         }finally {
             DatabaseConnector.closeStmt(rs, stmt);
@@ -385,7 +343,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
     public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date)throws SQLException {
         Connection connection = DatabaseConnector.getConnection();
         List<Interpreter> interpreters = new ArrayList<>();
-        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN Interpreter i ON a.login = i.login JOIN Availability av ON a.login = av.interpreter JOIN TimeSlot t ON av.timeSlot = t.id WHERE t.startTime = ? AND t.endTime = ? AND TRUNC(t.startTime) = ?";
+        String query = "SELECT i.login FROM Interpreter i JOIN Availability av ON i.login = av.interpreter JOIN TimeSlot t ON av.timeSlot = t.id WHERE t.startTime = ? AND t.endTime = ? AND TRUNC(t.startTime) = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -398,27 +356,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             rs = stmt.executeQuery();
 
             while(rs.next()){
-                String interpreterLogin = rs.getString("login");
-                int idTransportation = rs.getInt("transportMode");
-                interpreters.add(new Interpreter(
-                        rs.getString("login"),
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        rs.getInt("hourQuotaWeek"),
-                        rs.getInt("hourQuotaYear"),
-                        DAOTransportation.findById(idTransportation),
-                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
-                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
-                        DAOLocation.findById(rs.getInt("location")),
-                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
-                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
-                ));
+                interpreters.add(findByLogin(rs.getString("login")));
             }
         }finally {
             DatabaseConnector.closeStmt(rs, stmt);
@@ -434,7 +372,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             throws SQLException {
         Connection connection = DatabaseConnector.getConnection();
         List<Interpreter> list = new ArrayList<>();
-        String query = "SELECT a.*, i.weekHourlyQuota, i.yearHourlyQuota, i.transportMode, i.location FROM AppliUser a JOIN Interpreter i ON a.login = i.login JOIN AcademicSkillInterpreter ai ON a.login = ai.interpreter WHERE ai.skill = ?";
+        String query = "SELECT i.login FROM Interpreter i ON JOIN AcademicSkillInterpreter ai ON i.login = ai.interpreter WHERE ai.skill = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -445,28 +383,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             rs = stmt.executeQuery();
 
             while(rs.next()){
-                String interpreterLogin = rs.getString("login");
-                int idTransportation = rs.getInt("transportMode");
-                Interpreter interpreter = new Interpreter(
-                        interpreterLogin,
-                        rs.getString("lastName"),
-                        rs.getString("firstName"),
-                        rs.getDate("birthday").toLocalDate(),
-                        rs.getString("hashPassword"),
-                        rs.getString("mail"),
-                        rs.getString("phone"),
-                        rs.getInt("hourQuotaWeek"),
-                        rs.getInt("hourQuotaYear"),
-                        DAOTransportation.findById(idTransportation),
-                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOJobSkill.findAllByInterpreterLogin(interpreterLogin),
-                        DAOBeneficiary.findAllReferenceInterpreter(interpreterLogin),
-                        DAOMission.findAllByInterpreterLogin(interpreterLogin),
-                        DAOLocation.findById(rs.getInt("location")),
-                        DAOPunctualTimeSlot.findAllByInterpreterLogin(interpreterLogin),
-                        DAOExceptionalUnavailability.findByInterpreterLogin(interpreterLogin)
-                );
-                list.add(interpreter);
+                list.add(findByLogin(rs.getString("login")));
             }
         }finally {
             DatabaseConnector.closeStmt(rs,stmt);
