@@ -162,7 +162,7 @@ ALTER TABLE TimeSlot ADD CONSTRAINT DateOrder CHECK (startTime < endTime);
 ALTER TABLE TimeSlot ADD CONSTRAINT TypeOfTimeSlot CHECK (day IS NULL OR day BETWEEN 0 AND 6);
 ALTER TABLE TimeSlot ADD CONSTRAINT TimeSlotUnique UNIQUE (startTime, endTime, day);
 
-ALTER TABLE Mission ADD CONSTRAINT StateOfMissionValue CHECK (stateOfMission IN ('A', 'R', 'D', 'H'));
+ALTER TABLE Mission ADD CONSTRAINT StateOfMissionValue CHECK (stateOfMission IN ('A', 'R', 'D', 'P', 'W'));
 ALTER TABLE Mission ADD CONSTRAINT SkillsNeeded CHECK ((jobSkill IS NULL AND academicSkill IS NULL) OR (jobSkill IS NOT NULL AND academicSkill IS NOT NULL));
 
 ALTER TABLE BeneficiaryMission ADD CONSTRAINT ImportanceValue CHECK (importance < 2);
