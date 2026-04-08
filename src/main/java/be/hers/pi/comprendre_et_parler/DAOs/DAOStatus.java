@@ -11,10 +11,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class DAOStatus implements DAO<Status> {
-    public final String table = "status";
-    public final String field_id = "id";
-    public final String field_designation = "designation";
-    public final String field_hourQuota = "hourquota";
+    public static final String TABLE = "status";
+    public static final String FIELD_ID = "id";
+    public static final String FIELD_DESIGNATION = "designation";
+    public static final String FIELD_HOUR_QUOTA = "hourquota";
 
     /**
      * Search for a Status in the database with the int parameter
@@ -24,7 +24,7 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public Status find(int id) throws SQLException {
-        String query = "SELECT * FROM " + table + " WHERE " + field_id + " = ?";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Status ret = null;
@@ -34,9 +34,9 @@ public class DAOStatus implements DAO<Status> {
             result = statement.executeQuery();
             if (result.next()) {
                 ret = new Status(
-                        result.getInt(field_id),
-                        result.getString(field_designation),
-                        result.getInt(field_hourQuota)
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION),
+                        result.getInt(FIELD_HOUR_QUOTA)
                 );
             }
         }
@@ -69,7 +69,7 @@ public class DAOStatus implements DAO<Status> {
 
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
-        query = String.format(query, table, field_designation, field_hourQuota);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -107,7 +107,7 @@ public class DAOStatus implements DAO<Status> {
 
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, table, field_designation, field_hourQuota, field_id);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -136,7 +136,7 @@ public class DAOStatus implements DAO<Status> {
             throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
 
         String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, table, field_id, field_designation, field_hourQuota);
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -159,7 +159,7 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public List<Status> findAll() throws SQLException {
-        String query = "SELECT * FROM " + table;
+        String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
         List<Status> ret = null;
@@ -168,9 +168,9 @@ public class DAOStatus implements DAO<Status> {
             result = statement.executeQuery();
             while (result.next()) {
                 ret.add(new Status(
-                        result.getInt(field_id),
-                        result.getString(field_designation),
-                        result.getInt(field_hourQuota)
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION),
+                        result.getInt(FIELD_HOUR_QUOTA)
                 ));
             }
         }

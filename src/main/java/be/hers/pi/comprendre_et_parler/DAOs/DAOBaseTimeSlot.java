@@ -12,11 +12,12 @@ import java.sql.ResultSet;
 
 public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
-    public final String table = "timeslot";
-    public final String field_id = "id";
-    public final String field_startTime = "startTime";
-    public final String field_endTime = "endTime";
-    public final String field_day = "day";
+    protected static final String TABLE = "timeslot";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_START_TIME = "startTime";
+    protected static final String FIELD_END_TIME = "endTime";
+    protected static final String FIELD_DAY = "day";
+
     /**
      * Search for a BaseTimeSlot in the database with the String parameter
      * @param id the primary key of the object to find in database
@@ -25,7 +26,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
      */
     @Override
     public BaseTimeSlot find(int id) throws SQLException {
-        String query = "SELECT * FROM " + table + " WHERE " + field_day + " IS NOT NULL AND " + field_id + " = ?";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NOT NULL AND " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         BaseTimeSlot ret = null;
@@ -34,12 +35,12 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                java.sql.Date startTime = result.getDate(field_startTime);
+                java.sql.Date startTime = result.getDate(FIELD_START_TIME);
                 ret = new BaseTimeSlot(
-                        result.getInt(field_id),
-                        result.getTime(field_startTime).toLocalTime(),
-                        result.getTime(field_endTime).toLocalTime(),
-                        result.getDate(field_startTime).toLocalDate().getDayOfWeek()
+                        result.getInt(FIELD_ID),
+                        result.getTime(FIELD_START_TIME).toLocalTime(),
+                        result.getTime(FIELD_END_TIME).toLocalTime(),
+                        result.getDate(FIELD_START_TIME).toLocalDate().getDayOfWeek()
                 );
             }
         }
