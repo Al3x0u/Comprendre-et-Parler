@@ -78,7 +78,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
 
         PreparedStatement statement = null;
         ResultSet result = null;
-        Beneficiary beneficiary;
+        Beneficiary beneficiary = null;
         try{
             statement = connection.prepareStatement(query);
             statement.setString(1, FIELD_LOGIN);
@@ -97,8 +97,6 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                         new DAOStatus().findById(result.getInt(FIELD_STATUS)),
                         null
                 );
-            }else{
-                throw new NoSuchElementException();
             }
         }finally {
             if(result != null){
