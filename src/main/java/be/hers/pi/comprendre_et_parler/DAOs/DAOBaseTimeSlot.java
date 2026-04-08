@@ -4,8 +4,6 @@ import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
@@ -16,8 +14,8 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
     public final String table = "timeslot";
     public final String field_id = "id";
-    public final String field_startTime = "startHourTime";
-    public final String field_endTime = "endHourTime";
+    public final String field_startTime = "startTime";
+    public final String field_endTime = "endTime";
     public final String field_day = "day";
     /**
      * Search for a BaseTimeSlot in the database with the String parameter
@@ -27,7 +25,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
      */
     @Override
     public BaseTimeSlot find(int id) throws SQLException {
-        String query = "SELECT * FROM " + table + " WHERE " + field_day + " NOT NULL AND " + field_id + " = ?";
+        String query = "SELECT * FROM " + table + " WHERE " + field_day + " IS NOT NULL AND " + field_id + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         BaseTimeSlot ret = null;
@@ -37,12 +35,11 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
             result = statement.executeQuery();
             if (result.next()) {
                 java.sql.Date startTime = result.getDate(field_startTime);
-                java.sql.Date endTime = result.getDate(field_endTime);
                 ret = new BaseTimeSlot(
                         result.getInt(field_id),
-                        LocalDateTime.ofEpochSecond(startTime.getTime(), 0, ZoneOffset.ofHours(1)).toLocalTime(), // Hardcoded as GMT+1
-                        LocalDateTime.ofEpochSecond(endTime.getTime(), 0, ZoneOffset.ofHours(1)).toLocalTime(),
-                        startTime.toLocalDate().getDayOfWeek()
+                        result.getTime(field_startTime).toLocalTime(),
+                        result.getTime(field_endTime).toLocalTime(),
+                        result.getDate(field_startTime).toLocalDate().getDayOfWeek()
                 );
             }
         }
