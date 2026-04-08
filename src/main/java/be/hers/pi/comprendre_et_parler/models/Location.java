@@ -143,8 +143,7 @@ public class Location {
     public boolean equals(Location location) {
         if (this == location) return true;
         if (location == null) return false;
-        return location.id == this.id
-                && location.designation.equals(this.designation)
+        return location.designation.equals(this.designation)
                 && location.city.equals(this.city)
                 && location.street.equals(this.street)
                 && location.streetNumber.equals(this.streetNumber)

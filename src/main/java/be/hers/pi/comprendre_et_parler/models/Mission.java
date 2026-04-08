@@ -274,8 +274,7 @@ public class Mission {
     public boolean equals(Mission other) {
         if (this == other) return true;
         if (other == null) return false;
-        return other.id == this.id
-                && other.subject.equals(this.subject)
+        return other.subject.equals(this.subject)
                 && other.stateOfMission.equals(this.stateOfMission)
                 && other.commentary.equals(this.commentary)
                 && other.timeSlot.equals(this.timeSlot)

@@ -89,8 +89,7 @@ public class City {
     public boolean equals(City city) {
         if (this == city) return true;
         if (city == null) return false;
-        return city.id == this.id
-                && city.designation.equals(this.designation)
+        return city.designation.equals(this.designation)
                 && city.postalCode == this.postalCode;
     }
 
