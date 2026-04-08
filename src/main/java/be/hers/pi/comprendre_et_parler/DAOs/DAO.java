@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
@@ -46,6 +47,4 @@ public interface DAO<T> {
      * @throws SQLException if the database could not be reached
      */
     List<T> findAll() throws SQLException;
-
 }
-
