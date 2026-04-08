@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.JobSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public abstract class TimeSlot {

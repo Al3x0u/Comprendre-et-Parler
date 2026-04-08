@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.models;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 
 public class Mission {

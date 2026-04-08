@@ -1,8 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public class ExceptionalUnavailability  {
     private int id;
     private String reason;
