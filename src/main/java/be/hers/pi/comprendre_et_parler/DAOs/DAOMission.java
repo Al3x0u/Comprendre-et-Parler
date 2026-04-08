@@ -215,16 +215,19 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * Return the schedule of the user with the given id
+     * Return the schedule of the user with the given id for a specific week
      * @param idUser represent the id of the user which we want the schedule
-     * @return a list of Mission which compose the schedule of the idUser, or an empty List if the user has no Mission
+     * @param week represent the week number (0-6)
+     * @return a list of Mission which compose the schedule of the idUser for the given week, or an empty List if none was found
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getSchedule(int idUser) throws SQLException {
+    public List<Mission> getScheduleForWeek(int idUser, int week) throws SQLException {
         List<Mission> missions = new ArrayList<>();
-        String query = "SELECT mission FROM InterpreterMission WHERE interpreter = ? " +
-                       "UNION " +
-                       "SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?";
+        String query = "SELECT m.id FROM " + table + " m " +
+                "JOIN TimeSlot ts ON m." + fieldTimeSlot + " = ts.id " +
+                "WHERE ts.day IS NOT NULL " +
+                "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
+                "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
@@ -233,7 +236,46 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(2, idUser);
             result = statement.executeQuery();
             while (result.next()) {
-                Mission mission = find(result.getInt("mission"));
+                Mission mission = find(result.getInt("id"));
+                if (mission != null)
+                    missions.add(mission);
+            }
+        }
+        finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+        return missions;
+    }
+
+    /**
+     * Return the schedule of the user with the given id for a specific day
+     * @param idUser represent the id of the user which we want the schedule
+     * @param day represent the day number (0-6)
+     * @return a list of Mission which compose the schedule of the idUser for the given day, or an empty List if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public List<Mission> getScheduleForDay(int idUser, int day) throws SQLException {
+        List<Mission> missions = new ArrayList<>();
+        String query = "SELECT m.id FROM " + table + " m " +
+                "JOIN TimeSlot ts ON m." + fieldTimeSlot + " = ts.id " +
+                "WHERE ts.day = ? " +
+                "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
+                "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, day);
+            statement.setInt(2, idUser);
+            statement.setInt(3, idUser);
+            result = statement.executeQuery();
+            while (result.next()) {
+                Mission mission = find(result.getInt("id"));
                 if (mission != null)
                     missions.add(mission);
             }
