@@ -230,4 +230,32 @@ public class DAOLocation implements DAO<Location> {
         }
         return null;
     }
+
+    /**
+     * Get the room of a mission via MissionLocation table
+     * @param missionId : id of the mission
+     * @return room as String or null if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public String getMissionRoom(int missionId) throws SQLException {
+        String query = "SELECT room FROM MissionLocation WHERE mission = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            result = statement.executeQuery();
+            if (result.next())
+                return result.getString("room");
+        }
+        finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+        return null;
+    }
 }

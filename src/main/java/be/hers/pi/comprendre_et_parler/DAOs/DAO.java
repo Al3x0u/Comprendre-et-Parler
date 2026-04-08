@@ -14,7 +14,7 @@ public interface DAO<T> {
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
-    T find(String id) throws SQLException;
+    T find(int id) throws SQLException;
 
     /**
      *

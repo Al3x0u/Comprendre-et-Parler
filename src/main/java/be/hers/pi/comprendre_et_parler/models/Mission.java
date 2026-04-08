@@ -27,6 +27,35 @@ public class Mission {
      * @param id represent the id of the mission
      * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
+     * @param commentary represent the commentary of the mission
+     * @param timeSlot represent the time slot of the mission
+     * @param location represent the location of the mission
+     * @param jobSkill represent the required business skill
+     * @param academicSkill represent the required academic skill
+     * @param room represent the room of the mission (can be null)
+     */
+    public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
+                   Location location, JobSkill jobSkill, AcademicSkill academicSkill, String room) {
+        this.id = id;
+        this.subject = subject;
+        this.stateOfMission = stateOfMission;
+        this.commentary = commentary;
+        this.timeSlot = timeSlot;
+        this.beneficiaries = new ArrayList<>();
+        this.interpreters = new ArrayList<>();
+        this.location = location;
+        this.jobSkill = jobSkill;
+        this.academicSkill = academicSkill;
+        this.room = room;
+    }
+
+    /**
+     * Constructor of a Mission object with lists
+     * @param id represent the id of the mission
+     * @param subject represent the subject of the mission
+     * @param stateOfMission represent the state of the mission
+     * @param commentary represent the commentary of the mission
+     * @param timeSlot represent the time slot of the mission
      * @param beneficiaries represent the beneficiaries who concern this mission
      * @param interpreters represent the interpreters who work for this mission
      * @param location represent the location of the mission
@@ -41,12 +70,12 @@ public class Mission {
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
-        this.timeSlot = new TimeSlot(timeSlot);
+        this.timeSlot = timeSlot;
         this.beneficiaries = new ArrayList<>(beneficiaries);
         this.interpreters = new ArrayList<>(interpreters);
-        this.location = new Location(location);
-        this.jobSkill = new JobSkill(jobSkill);
-        this.academicSkill = new AcademicSkill(academicSkill);
+        this.location = location;
+        this.jobSkill = jobSkill;
+        this.academicSkill = academicSkill;
         this.room = room;
     }
 
@@ -59,12 +88,12 @@ public class Mission {
         this.subject = mission.subject;
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
-        this.timeSlot = new TimeSlot(mission.timeSlot);
+        this.timeSlot = mission.timeSlot;
         this.beneficiaries = new ArrayList<>(mission.beneficiaries);
         this.interpreters = new ArrayList<>(mission.interpreters);
-        this.location = new Location(mission.location);
-        this.jobSkill = new JobSkill(mission.jobSkill);
-        this.academicSkill = new AcademicSkill(mission.academicSkill);
+        this.location = mission.location;
+        this.jobSkill = mission.jobSkill;
+        this.academicSkill = mission.academicSkill;
         this.room = mission.room;
     }
 
@@ -101,6 +130,7 @@ public class Mission {
      */
     public TimeSlot getTimeSlot() {
         return new TimeSlot(timeSlot);
+        //return timeSlot.copy();
     }
 
     /**
@@ -178,7 +208,8 @@ public class Mission {
      * @param timeSlot represent the time slot of the mission
      */
     public void setTimeSlot(TimeSlot timeSlot){
-        this.timeSlot = new TimeSlot(timeSlot);
+        this.timeSlot = timeSlot;
+        //this.timeSlot = timeSlot.copy()
     }
 
     /**
@@ -225,7 +256,7 @@ public class Mission {
 
     /**
      * Return a String representation of the Mission containing all fields
-     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill, academicSkill and room
+     * @return formatted string with id, subjet, stateOfMission, commentary, timeSlot, beneficiaries, interpreters, location, jobSkill, academicSkill and room
      */
     @Override
     public String toString(){
@@ -238,7 +269,7 @@ public class Mission {
     /**
      * Compare this Mission with another Mission for equality
      * @param other the Mission object to compare with
-     * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
+     * @return true if both Mission objects have identical id, subjet, stateOfMission, commentary, baseTimeSlot, punctualTimeSlot, location, jobSkill, academicSkill and room
      */
     public boolean equals(Mission other) {
         if (this == other) return true;
@@ -256,19 +287,6 @@ public class Mission {
     }
 
     /**
-     * Compare 2 missions based on the time slot
-     * @param mission
-     * @post mission is unchanged
-     * @return 0 if this == mission based on time slot,
-     *         1 if this > mission based on time slot,
-     *         else -1
-     */
-    public int compareTo(Mission mission) {
-        if (this == mission) return 0;
-        return this.timeSlot.compareTo(mission.timeSlot); //en supposant que compareTo soit implémenté dans TimeSlot
-    }
-
-    /**
      * Add a Beneficiary to the beneficiaries List
      * @param beneficiary represent the Beneficiary to add, not null
      * @param importance represent the importance of the beneficiary in the mission
@@ -280,8 +298,10 @@ public class Mission {
         if (beneficiary == null)
             throw new NullPointerException("Beneficiary cannot be null");
 
-        if (beneficiaries.contains(beneficiary))
-            throw new AlreadyExistsException("Beneficiary already exists in this mission");
+        for (Beneficiary b : beneficiaries) {
+            if (b.equals(beneficiary))
+                throw new AlreadyExistsException("Beneficiary already exists in this mission");
+        }
 
         DAOMission daoMission = new DAOMission();
         daoMission.addBeneficiaryToMission(this.getId(), beneficiary.getId(), importance);
@@ -323,8 +343,10 @@ public class Mission {
         if (interpreter == null)
             throw new NullPointerException("Interpreter cannot be null");
 
-        if (interpreters.contains(interpreter))
-            throw new AlreadyExistsException("Interpreter already exists in this mission");
+        for (Interpreter i : interpreters) {
+            if (i.equals(interpreter))
+                throw new AlreadyExistsException("Interpreter already exists in this mission");
+        }
 
         DAOMission daoMission = new DAOMission();
         daoMission.addInterpreterToMission(this.getId(), interpreter.getId());

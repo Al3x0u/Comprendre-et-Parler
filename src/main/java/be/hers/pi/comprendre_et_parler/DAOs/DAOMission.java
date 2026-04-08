@@ -45,10 +45,11 @@ public class DAOMission implements DAO<Mission> {
                         result.getString(fieldCommentary),
                         new DAOTimeSlot().find(result.getInt(fieldTimeSlot)),
                         new DAOBeneficiary().getMissionBeneficiaries(id),
-                        new DAOInterpreters().getMissionInterpreters(id),
+                        new DAOInterpreter().getMissionInterpreters(id),
                         new DAOLocation().getMissionLocation(id),
                         new DAOJobSkill().find(result.getInt(fieldJobSkill)),
-                        new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill))
+                        new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill)),
+                        new DAOLocation().getMissionRoom(id)
                 );
             }
         }
@@ -192,12 +193,13 @@ public class DAOMission implements DAO<Mission> {
                         result.getString(fieldSubject),
                         MissionState.valueOf(result.getString(fieldState)),
                         result.getString(fieldCommentary),
-                        new DAOTimeSlot().find(String.valueOf(result.getInt(fieldTimeSlot))),
+                        new DAOTimeSlot().find(result.getInt(fieldTimeSlot)),
                         new DAOBeneficiary().getMissionBeneficiaries(missionId),
                         new DAOInterpreter().getMissionInterpreters(missionId),
                         new DAOLocation().getMissionLocation(missionId),
-                        new DAOJobSkill().find(String.valueOf(result.getInt(fieldJobSkill))),
-                        new DAOAcademicSkill().find(String.valueOf(result.getInt(fieldAcademicSkill)))
+                        new DAOJobSkill().find(result.getInt(fieldJobSkill)),
+                        new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill)),
+                        new DAOLocation().getMissionRoom(missionId)
                 ));
             }
         }
@@ -216,10 +218,9 @@ public class DAOMission implements DAO<Mission> {
      * Return the schedule of the user with the given id
      * @param idUser represent the id of the user which we want the schedule
      * @return a list of Mission which compose the schedule of the idUser, or an empty List if the user has no Mission
-     * @throws NoSuchElementException if the given idUser doesn't correspond to an existent id
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getSchedule(int idUser) throws NoSuchElementException, SQLException {
+    public List<Mission> getSchedule(int idUser) throws SQLException {
         List<Mission> missions = new ArrayList<>();
         String query = "SELECT mission FROM InterpreterMission WHERE interpreter = ? " +
                        "UNION " +
@@ -232,7 +233,7 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(2, idUser);
             result = statement.executeQuery();
             while (result.next()) {
-                Mission mission = find(String.valueOf(result.getInt("mission")));
+                Mission mission = find(result.getInt("mission"));
                 if (mission != null)
                     missions.add(mission);
             }
