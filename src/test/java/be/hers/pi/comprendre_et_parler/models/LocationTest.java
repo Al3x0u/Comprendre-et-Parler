@@ -17,7 +17,7 @@ class LocationTest {
 
 
     @Test
-    void testSetId() {
+    public void testSetId() {
         l1.setId(-1);
         assertEquals(1, l1.getId());
         l1.setId(2);
@@ -25,7 +25,7 @@ class LocationTest {
     }
 
     @Test
-    void testSetBox() {
+    public void testSetBox() {
         l1.setBox(-1);
         assertEquals(1, l1.getBox());
         l1.setBox(2);
@@ -33,20 +33,20 @@ class LocationTest {
     }
 
     @Test
-    void testSetCity() {
+    public void testSetCity() {
         c1.setPostalCode(6900);
         assertFalse(c1.equals(l1.getCity()));
     }
 
     @Test
-    void testGetCity() {
+    public void testGetCity() {
         City c2 = l1.getCity();
         c2.setPostalCode(7800);
         assertTrue(c1.equals(l1.getCity()));
     }
 
     @Test
-    void testEquals() {
+    public void testEquals() {
         Location l2 = new Location(l1);
         Location l3 = new Location(10, "test", c1, "test", "test", 1);
 
