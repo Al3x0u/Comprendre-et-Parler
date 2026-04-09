@@ -9,8 +9,8 @@ class CityTest {
     private static City c1;
 
     @BeforeAll
-    public void init() {
-        City c1 = new City(1, "Libramont", 6800);
+    public static void init() {
+        c1 = new City(1, "Libramont", 6800);
     }
 
     @Test
