@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 *.bak*
 lib/
+src/out/
 
 ### STS ###
 .apt_generated
