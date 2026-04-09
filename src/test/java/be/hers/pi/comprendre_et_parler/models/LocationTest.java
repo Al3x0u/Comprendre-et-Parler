@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -51,9 +50,9 @@ class LocationTest {
         Location l2 = new Location(l1);
         Location l3 = new Location(10, "test", c1, "test", "test", 1);
 
-        Assertions.assertFalse(l1.equals(null));
-        Assertions.assertTrue(l1.equals(l1));
-        Assertions.assertTrue(l1.equals(l2));
-        Assertions.assertFalse(l2.equals(l3));
+        assertFalse(l1.equals(null));
+        assertTrue(l1.equals(l1));
+        assertTrue(l1.equals(l2));
+        assertFalse(l2.equals(l3));
     }
 }

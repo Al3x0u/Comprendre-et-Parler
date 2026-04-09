@@ -1,7 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.time.LocalDate;
@@ -112,9 +111,9 @@ class MissionTest {
                 "test",
                 "test");
 
-        Assertions.assertNotEquals(null, m1);
-        Assertions.assertEquals(m1, m1);
-        Assertions.assertEquals(m1, m2);
-        Assertions.assertEquals(m2, m3);
+        assertNotEquals(null, m1);
+        assertEquals(m1, m1);
+        assertEquals(m1, m2);
+        assertEquals(m2, m3);
     }
 }

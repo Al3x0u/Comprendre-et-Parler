@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,9 +36,9 @@ class CityTest {
         City c2 = new City(c1);
         City c3 = new City(10, "Libramont", 6800);
 
-        Assertions.assertFalse(c1.equals(null));
-        Assertions.assertTrue(c1.equals(c1));
-        Assertions.assertTrue(c1.equals(c2));
-        Assertions.assertFalse(c2.equals(c3));
+        assertFalse(c1.equals(null));
+        assertTrue(c1.equals(c1));
+        assertTrue(c1.equals(c2));
+        assertFalse(c2.equals(c3));
     }
 }
