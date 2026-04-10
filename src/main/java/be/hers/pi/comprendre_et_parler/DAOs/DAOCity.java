@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -146,7 +145,7 @@ public class DAOCity implements DAO<City> {
 
     /**
      * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Object, if database is empty, an empty list
+     * @return a List who contains City Objects, or an empty list if none was found
      * @throws SQLException if the database could not be reached
      */
     @Override

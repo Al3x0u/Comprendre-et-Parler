@@ -73,9 +73,9 @@ public class Mission {
         this.timeSlot = timeSlot;
         this.beneficiaries = new ArrayList<>(beneficiaries);
         this.interpreters = new ArrayList<>(interpreters);
-        this.location = location;
-        this.jobSkill = jobSkill;
-        this.academicSkill = academicSkill;
+        this.location = new Location(location);
+        this.jobSkill = new JobSkill(jobSkill);
+        this.academicSkill = new AcademicSkill(academicSkill);
         this.room = room;
     }
 

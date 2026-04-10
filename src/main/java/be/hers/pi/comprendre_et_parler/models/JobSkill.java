@@ -1,7 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.util.Objects;
-
 public class JobSkill {
     private int id;
     private String designation;

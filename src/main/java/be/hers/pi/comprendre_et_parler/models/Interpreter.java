@@ -1,7 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class Interpreter extends AppliUser{
     private int hourQuotaWeek;
