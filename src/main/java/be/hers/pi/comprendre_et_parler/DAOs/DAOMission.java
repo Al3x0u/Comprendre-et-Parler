@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class DAOMission implements DAO<Mission> {
@@ -88,7 +89,7 @@ public class DAOMission implements DAO<Mission> {
         query = String.format(query, table, fieldSubject, fieldState, fieldCommentary, fieldTimeSlot, fieldJobSkill, fieldAcademicSkill);
         PreparedStatement statement = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{fieldID});
             statement.setString(1, objectToInsert.getSubject());
             statement.setString(2, objectToInsert.getStateOfMission().toString());
             statement.setString(3, objectToInsert.getCommentary());
@@ -96,6 +97,16 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(5, objectToInsert.getJobSkill().getId());
             statement.setInt(6, objectToInsert.getAcademicSkill().getId());
             statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+
+            for (Interpreter interpreter : objectToInsert.getInterpreters())
+                addInterpreterToMission(objectToInsert.getId(), interpreter.getId());
+
+            for (Map.Entry<Beneficiary, Integer> entry : objectToInsert.getBeneficiaries().entrySet())
+                addBeneficiaryToMission(objectToInsert.getId(), entry.getKey().getId(), entry.getValue());
         }
         finally {
             if (statement != null) {

@@ -1,10 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
@@ -15,7 +12,7 @@ public class Mission {
     private MissionState stateOfMission;
     private String commentary;
     private TimeSlot timeSlot;
-    private List<Beneficiary> beneficiaries;
+    private Map<Beneficiary, Integer> beneficiaries;
     private List<Interpreter> interpreters;
     private Location location;
     private JobSkill jobSkill;
@@ -41,7 +38,7 @@ public class Mission {
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
         this.timeSlot = timeSlot.clone();
-        this.beneficiaries = new ArrayList<>();
+        this.beneficiaries = new HashMap<>();
         this.interpreters = new ArrayList<>();
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
@@ -64,14 +61,14 @@ public class Mission {
      * @param room represent the room of the mission (can be null)
      */
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location,
+                   Map<Beneficiary, Integer> beneficiaries, List<Interpreter> interpreters, Location location,
                    JobSkill jobSkill, AcademicSkill academicSkill, String room) {
         if(id > 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
         this.timeSlot = timeSlot;
-        this.beneficiaries = new ArrayList<>(beneficiaries);
+        this.beneficiaries = new HashMap<>(beneficiaries);
         this.interpreters = new ArrayList<>(interpreters);
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
@@ -89,7 +86,7 @@ public class Mission {
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
         this.timeSlot = mission.timeSlot.clone();
-        this.beneficiaries = new ArrayList<>(mission.beneficiaries);
+        this.beneficiaries = new HashMap<>(mission.beneficiaries);
         this.interpreters = new ArrayList<>(mission.interpreters);
         this.location = new Location(mission.location);
         this.jobSkill = new JobSkill(mission.jobSkill);
@@ -126,43 +123,42 @@ public class Mission {
     }
 
     /**
-     * @return this.timeSlot
+     * @return a copy of this.timeSlot
      */
     public TimeSlot getTimeSlot() {
-        return new TimeSlot(timeSlot);
-        //return timeSlot.copy();
+        return timeSlot.copy();
     }
 
     /**
-     * @return this.beneficiaries
+     * @return a copy of this.beneficiaries
      */
-    public List<Beneficiary> getBeneficiaries() {
-        return new ArrayList<>(beneficiaries);
+    public Map<Beneficiary, Integer> getBeneficiaries() {
+        return new HashMap<>(beneficiaries);
     }
 
     /**
-     * @return this.interpreters
+     * @return a copy this.interpreters
      */
     public List<Interpreter> getInterpreters() {
         return new ArrayList<>(interpreters);
     }
 
     /**
-     * @return this.location
+     * @return a copy of this.location
      */
     public Location getLocation() {
         return new Location(location);
     }
 
     /**
-     * @return this.jobSkill
+     * @return a copy of this.jobSkill
      */
     public JobSkill getJobSkill() {
         return new JobSkill(jobSkill);
     }
 
     /**
-     * @return this.academicSkill
+     * @return a copy of this.academicSkill
      */
     public AcademicSkill getAcademicSkill() {
         return new AcademicSkill(academicSkill);
@@ -208,15 +204,14 @@ public class Mission {
      * @param timeSlot represent the time slot of the mission
      */
     public void setTimeSlot(TimeSlot timeSlot){
-        this.timeSlot = timeSlot;
-        //this.timeSlot = timeSlot.copy()
+        this.timeSlot = timeSlot.copy();
     }
 
     /**
-     * @param beneficiaries represent the beneficiaries of the mission
+     * @param beneficiaries represent the beneficiaries and their importance
      */
-    public void setBeneficiaries(List<Beneficiary> beneficiaries) {
-        this.beneficiaries = new ArrayList<>(beneficiaries);
+    public void setBeneficiaries(Map<Beneficiary, Integer> beneficiaries) {
+        this.beneficiaries = new HashMap<>(beneficiaries);
     }
 
     /**
@@ -298,37 +293,41 @@ public class Mission {
         if (beneficiary == null)
             throw new NullPointerException("Beneficiary cannot be null");
 
-        for (Beneficiary b : beneficiaries) {
+        for (Beneficiary b : beneficiaries.keySet()) {
             if (b.equals(beneficiary))
                 throw new AlreadyExistsException("Beneficiary already exists in this mission");
         }
 
         DAOMission daoMission = new DAOMission();
         daoMission.addBeneficiaryToMission(this.getId(), beneficiary.getId(), importance);
-        beneficiaries.add(beneficiary);
+        beneficiaries.put(beneficiary, importance);
     }
 
     /**
      * Remove a Beneficiary from the beneficiaries List by login
-     * @param login represent the id of the Beneficiary to remove
+     * @param id represent the id of the Beneficiary to remove
      * @throws NoSuchElementException if no beneficiary with the given login exists in the list
      * @throws SQLException if the database could not be reached
      */
-    public void deleteBeneficiary(int login) throws NoSuchElementException, SQLException {
-        int i = 0;
+    public void deleteBeneficiary(int id) throws NoSuchElementException, SQLException {
+        Beneficiary toRemove = null;
         boolean found = false;
-        while (!found && i < beneficiaries.size()) {
-            if (beneficiaries.get(i).getLogin() == login) {
+        List<Beneficiary> keys = new ArrayList<>(beneficiaries.keySet());
+        int i = 0;
+        while (!found && i < keys.size()) {
+            if (keys.get(i).getId() == id) {
+                toRemove = keys.get(i);
                 found = true;
             } else {
                 i++;
             }
         }
-        if (!found) throw new NoSuchElementException("No beneficiary with login: " + login);
+        if (!found)
+            throw new NoSuchElementException("No beneficiary with id: " + id);
 
         DAOMission daoMission = new DAOMission();
-        daoMission.removeBeneficiaryFromMission(this.getId(), beneficiaries.get(i).getId());
-        beneficiaries.remove(i);
+        daoMission.removeBeneficiaryFromMission(this.getId(), toRemove.getId());
+        beneficiaries.remove(toRemove);
     }
 
 
