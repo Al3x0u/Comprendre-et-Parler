@@ -63,7 +63,7 @@ public class DAOCity implements DAO<City> {
         // Manage invalid city
         List<City> cities = findAll();
         for (City line : cities) {
-            if (line.getDesignation().equals(objectToInsert.getDesignation()) && line.getPostalCode() == objectToInsert.getPostalCode())
+            if (line.equals(objectToInsert))
                 throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
         }
 
@@ -95,7 +95,7 @@ public class DAOCity implements DAO<City> {
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         List<City> cities = findAll();
         for (City line : cities) {
-            if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getPostalCode() == objectToUpdate.getPostalCode())
+            if (line.equals(objectToUpdate))
                 throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         }
 

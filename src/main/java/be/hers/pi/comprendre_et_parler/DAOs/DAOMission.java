@@ -74,12 +74,7 @@ public class DAOMission implements DAO<Mission> {
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
         List<Mission> missions = findAll();
         for (Mission line : missions) {
-            if (line.getSubject().equals(objectToInsert.getSubject())
-                    && line.getStateOfMission().equals(objectToInsert.getStateOfMission())
-                    && line.getCommentary().equals(objectToInsert.getCommentary())
-                    && line.getTimeSlot().equals(objectToInsert.getTimeSlot())
-                    && line.getJobSkill().equals(objectToInsert.getJobSkill())
-                    && line.getAcademicSkill().equals(objectToInsert.getAcademicSkill()))
+            if (line.equals(objectToInsert))
                 throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
         }
 
@@ -115,12 +110,7 @@ public class DAOMission implements DAO<Mission> {
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         List<Mission> missions = findAll();
         for (Mission line : missions) {
-            if (line.getSubject().equals(objectToUpdate.getSubject())
-                    && line.getStateOfMission().equals(objectToUpdate.getStateOfMission())
-                    && line.getCommentary().equals(objectToUpdate.getCommentary())
-                    && line.getTimeSlot().equals(objectToUpdate.getTimeSlot())
-                    && line.getJobSkill().equals(objectToUpdate.getJobSkill())
-                    && line.getAcademicSkill().equals(objectToUpdate.getAcademicSkill()))
+            if (line.equals(objectToUpdate))
                 throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
         }
 

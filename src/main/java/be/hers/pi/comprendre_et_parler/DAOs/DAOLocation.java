@@ -69,11 +69,7 @@ public class DAOLocation implements DAO<Location> {
         // Manage invalid Location
         List<Location> locations = findAll();
         for (Location line : locations) {
-            if (line.getDesignation().equals(objectToInsert.getDesignation())
-                    && line.getCity().equals(objectToInsert.getCity())
-                    && line.getStreet().equals(objectToInsert.getStreet())
-                    && line.getStreetNumber().equals(objectToInsert.getStreetNumber())
-                    && line.getBox() == objectToInsert.getBox())
+            if (line.equals(objectToInsert))
                 throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
         }
 
@@ -108,11 +104,7 @@ public class DAOLocation implements DAO<Location> {
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         List<Location> locations = findAll();
         for (Location line : locations) {
-            if (line.getDesignation().equals(objectToUpdate.getDesignation())
-                    && line.getCity().equals(objectToUpdate.getCity())
-                    && line.getStreet().equals(objectToUpdate.getStreet())
-                    && line.getStreetNumber().equals(objectToUpdate.getStreetNumber())
-                    && line.getBox() == objectToUpdate.getBox())
+            if (line.equals(objectToUpdate))
                 throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         }
 
