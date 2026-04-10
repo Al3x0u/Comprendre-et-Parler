@@ -37,12 +37,19 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
+                MissionState state = MissionState.valueOf(result.getString(fieldState));
+                TimeSlot timeSlot;
+                if (state == MissionState.REGULAR) {
+                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(fieldTimeSlot));
+                } else {
+                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(fieldTimeSlot));
+                }
                 mission = new Mission(
                         id,
                         result.getString(fieldSubject),
-                        MissionState.valueOf(result.getString(fieldState)),
+                        state,
                         result.getString(fieldCommentary),
-                        new DAOTimeSlot().find(result.getInt(fieldTimeSlot)),
+                        timeSlot,
                         new DAOLocation().getMissionLocation(id),
                         new DAOJobSkill().find(result.getInt(fieldJobSkill)),
                         new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill)),
@@ -175,12 +182,19 @@ public class DAOMission implements DAO<Mission> {
             result = statement.executeQuery();
             while (result.next()) {
                 int missionId = result.getInt(fieldID);
+                MissionState state = MissionState.valueOf(result.getString(fieldState));
+                TimeSlot timeSlot;
+                if (state == MissionState.REGULAR) {
+                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(fieldTimeSlot));
+                } else {
+                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(fieldTimeSlot));
+                }
                 missions.add(new Mission(
                         missionId,
                         result.getString(fieldSubject),
-                        MissionState.valueOf(result.getString(fieldState)),
+                        state,
                         result.getString(fieldCommentary),
-                        new DAOTimeSlot().find(result.getInt(fieldTimeSlot)),
+                        timeSlot,
                         new DAOLocation().getMissionLocation(missionId),
                         new DAOJobSkill().find(result.getInt(fieldJobSkill)),
                         new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill)),
@@ -391,26 +405,16 @@ public class DAOMission implements DAO<Mission> {
      * @post the beneficiary is no longer linked to the mission in the database
      */
     public void removeBeneficiaryFromMission(int missionId, int beneficiaryId) throws SQLException, NoSuchElementException {
-        String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         String deleteQuery = "DELETE FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
         PreparedStatement statement = null;
-        ResultSet result = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
-            statement.setInt(1, missionId);
-            statement.setInt(2, beneficiaryId);
-            result = statement.executeQuery();
-            if (!result.next()) throw new NoSuchElementException("This beneficiary is not linked to the mission");
-
             statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
             statement.setInt(1, missionId);
             statement.setInt(2, beneficiaryId);
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("This beneficiary is not linked to the mission");
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
             if (statement != null) {
                 try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
@@ -426,26 +430,16 @@ public class DAOMission implements DAO<Mission> {
      * @post the interpreter is no longer linked to the mission in the database
      */
     public void removeInterpreterFromMission(int missionId, int interpreterId) throws SQLException, NoSuchElementException {
-        String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         String deleteQuery = "DELETE FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
         PreparedStatement statement = null;
-        ResultSet result = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
-            statement.setInt(1, missionId);
-            statement.setInt(2, interpreterId);
-            result = statement.executeQuery();
-            if (!result.next()) throw new NoSuchElementException("This interpreter is not linked to the mission");
-
             statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
             statement.setInt(1, missionId);
             statement.setInt(2, interpreterId);
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("This interpreter is not linked to the mission");
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
             if (statement != null) {
                 try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
