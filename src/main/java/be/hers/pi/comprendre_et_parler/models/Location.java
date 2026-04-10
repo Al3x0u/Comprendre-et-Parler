@@ -1,12 +1,14 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Location {
-    private int id;
+    private int id=0;
     private String designation;
     private City city;
     private String street;
     private String streetNumber;
-    private int box;
+    private int box=0;
 
     /**
      Constructor of a Location Object
@@ -17,77 +19,153 @@ public class Location {
      @param sN : represent the street number
      @param box : represent the new box
      */
-    public Location(int id, String d, City c, String s, String sN, int box){
-        this.id = id;
+    public Location(int id,String d, City c, String s, String sN, int box){
+        if(id > 0) this.id = id;
         this.designation = d;
-        this.city = c;
+        this.city = new City(c);
         this.street = s;
         this.streetNumber = sN;
-        this.box = box;
+        if(box > 0) this.box = box;
     }
 
     /**
-     @return a City which contains the city of the Location
+     * Copy constructor of a Location Object
+     * @param l
      */
-    public City getCity() {
-        return city;
+    public Location(Location l){
+        this.id = l.id;
+        this.designation = l.designation;
+        this.city = new City(l.city);
+        this.street = l.street;
+        this.streetNumber = l.streetNumber;
+        this.box = l.box;
     }
 
     /**
-     * @param city represent the new City object
+     * @return this.id
      */
-    public void setCity(City city) {
-        this.city = city;
+    public int getId() {
+        return id;
     }
 
     /**
-     @return a String which contains the designation of the Location
+     * @return a String which contains the designation of the Location
      */
     public String getDesignation() {
         return designation;
     }
 
     /**
-     * @param designation represent the new designation
+     * @return a String which contains the city of the Location
      */
-    public void setDesignation(String designation) {
-        this.designation = designation;
+    public City getCity() {
+        return new City(city);
     }
 
     /**
-     @return a String which contains the street number of the Location
-     */
-    public String getStreetNumber() {
-        return streetNumber;
-    }
-
-    /**
-     * @param streetNumber represent the new street number
-     */
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
-    }
-
-    /**
-     @return a String which contains the street of the Location
+     * @return a String which contains the street of the Location
      */
     public String getStreet() {
         return street;
     }
 
     /**
-     * @param street represent the new street
+     * @return a String which contains the street number of the Location
+     */
+    public String getStreetNumber() {
+        return streetNumber;
+    }
+
+    /**
+     * @return a String which contains the box of the Location
+     */
+    public int getBox() {
+        return box;
+    }
+
+    /**
+     * @param id : location id
+     * @post if id >= 0, id is affected to this.id
+     */
+    public void setId(int id) {
+        if(id >= 0) this.id = id;
+    }
+
+    /**
+     * @param designation : location designation
+     */
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    /**
+     * @param city : location city
+     */
+    public void setCity(City city) {
+        this.city = new City(city);
+    }
+
+    /**
+     * @param street : location street
      */
     public void setStreet(String street) {
         this.street = street;
     }
 
     /**
-     @return this.id
+     * @param streetNumber : location street number
      */
-    public int getId() {
-        return id;
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
     }
+
+    /**
+     * @param box : location box
+     * @post if box >= 0, box is affected to this.box
+     */
+    public void setBox(int box) {
+        if(box >= 0) this.box = box;
+    }
+
+    /**
+     * @return location information in a string
+     */
+    public String toString(){
+        return "Location{id=" + id + ", designation=" + designation + ", city=" + city + ", street=" + street +
+                ", streetNumber=" + streetNumber + ", box=" + box + "}";
+    }
+
+    /**
+     * Compare if two locations are the same
+     * @param location
+     * @post location is unchanged
+     * @return true if location and this are the same, else false
+     */
+    public boolean equals(Location location) {
+        if (this == location) return true;
+        if (location == null) return false;
+        return location.id == this.id
+                && location.designation.equals(this.designation)
+                && location.city.equals(this.city)
+                && location.street.equals(this.street)
+                && location.streetNumber.equals(this.streetNumber)
+                &&  location.box == this.box;
+    }
+
+    /**
+     * Compare 2 locations based on the city
+     * @param l
+     * @post l is unchanged
+     * @return 0 if this == l based on city,
+     *         1 if this > l based on city,
+     *         else -1
+     */
+    public int compareTo(Location l) {
+        if (this == l) return 0;
+        return this.city.compareTo(l.city);
+    }
+
+}
 
     /**
      * @param id represent the new id
