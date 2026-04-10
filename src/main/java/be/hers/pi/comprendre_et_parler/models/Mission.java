@@ -40,12 +40,12 @@ public class Mission {
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
-        this.timeSlot = timeSlot;
+        this.timeSlot = timeSlot.clone();
         this.beneficiaries = new ArrayList<>();
         this.interpreters = new ArrayList<>();
-        this.location = location;
-        this.jobSkill = jobSkill;
-        this.academicSkill = academicSkill;
+        this.location = new Location(location);
+        this.jobSkill = new JobSkill(jobSkill);
+        this.academicSkill = new AcademicSkill(academicSkill);
         this.room = room;
     }
 
@@ -88,12 +88,12 @@ public class Mission {
         this.subject = mission.subject;
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
-        this.timeSlot = mission.timeSlot;
+        this.timeSlot = mission.timeSlot.clone();
         this.beneficiaries = new ArrayList<>(mission.beneficiaries);
         this.interpreters = new ArrayList<>(mission.interpreters);
-        this.location = mission.location;
-        this.jobSkill = mission.jobSkill;
-        this.academicSkill = mission.academicSkill;
+        this.location = new Location(mission.location);
+        this.jobSkill = new JobSkill(mission.jobSkill);
+        this.academicSkill = new AcademicSkill(mission.academicSkill);
         this.room = mission.room;
     }
 
