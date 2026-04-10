@@ -111,10 +111,48 @@ public class Mission {
     }
 
     /**
+     * Add a Beneficiary to the beneficiaries List
+     * @param beneficiary represent the Beneficiary to add, not null
+     * @throws AlreadyExistsException if the beneficiary is already in the list
+     * @throws NullPointerException if beneficiary is null
+     */
+    public void addBeneficiary(Beneficiary beneficiary) throws AlreadyExistsException, NullPointerException {
+
+    }
+
+    /**
+     * Remove a Beneficiary from the beneficiaries List by login
+     * @param login represent the login of the Beneficiary to remove
+     * @throws NoSuchElementException if no beneficiary with the given login exists in the list
+     */
+    public void deleteBeneficiary(String login) throws NoSuchElementException {
+
+    }
+
+    /**
      * @return this.interpreters
      */
     public List<Interpreter> getInterpreters() {
         return new ArrayList<>(interpreters);
+    }
+
+    /**
+     * Add an Interpreter to the interpreters List
+     * @param interpreter represent the Interpreter to add, not null
+     * @throws AlreadyExistsException if the interpreter is already in the list
+     * @throws NullPointerException if interpreter is null
+     */
+    public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException {
+
+    }
+
+    /**
+     * Remove an Interpreter from the interpreters List by login
+     * @param login represent the login of the Interpreter to remove
+     * @throws NoSuchElementException if no interpreter with the given login exists in the list
+     */
+    public void deleteInterpreter(String login) throws NoSuchElementException {
+
     }
 
     /**
@@ -352,5 +390,38 @@ public class Mission {
         DAOMission daoMission = new DAOMission();
         daoMission.removeInterpreterFromMission(this.getId(), interpreters.get(i).getId());
         interpreters.remove(i);
+    }
+
+    /**
+     * @return this.room (can be null)
+     */
+    public String getRoom() {
+        return room;
+    }
+
+    /**
+     * @param room represent the room of the mission (can be null)
+     */
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    /**
+     * Compare this Mission with another Mission for equality
+     * @param other the Mission object to compare with
+     * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
+     */
+    public boolean equals(Mission other) {
+        return (id == other.id && subjet.equals(other.subjet) && stateOfMission == other.stateOfMission &&
+                location == other.location && jobSkill == other.jobSkill &&
+                academicSkill == other.academicSkill && room.equals(other.room) && commentary.equals(other.commentary));
+    }
+
+    /**
+     * Return a String representation of the Mission containing all fields
+     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill, academicSkill and room
+     */
+    public String toString(){
+        return null;
     }
 }

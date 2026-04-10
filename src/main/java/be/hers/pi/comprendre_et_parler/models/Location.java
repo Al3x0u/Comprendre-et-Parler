@@ -11,12 +11,13 @@ public class Location {
     private int box=0;
 
     /**
-        Constructor of a Location Object
-        @param id : represent id
-        @param d : represent designation
-        @param c : represent the city name
-        @param s : represent the street name
-        @param sN : represent the street number
+     Constructor of a Location Object
+     @param id : represent id
+     @param d : represent designation
+     @param c : represent the City object
+     @param s : represent the street name
+     @param sN : represent the street number
+     @param box : represent the new box
      */
     public Location(int id,String d, City c, String s, String sN, int box){
         if(id > 0) this.id = id;
@@ -166,3 +167,42 @@ public class Location {
 
 }
 
+    /**
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    /**
+     * @return an int which contains the box of the Location (can be null)
+     */
+    public int getBox() {
+        return box;
+    }
+
+    /**
+     * @param box a new String which contains the box of the Location (can be null)
+     */
+    public void setBox(int box) {
+        this.box = box;
+    }
+
+    /**
+     * Compare this Location with another Location for equality
+     * @param other the Location object to compare with
+     * @return true if both Location objects have identical id, designation, city, street, streetNumber and box
+     */
+    public boolean equals(Location other) {
+        return (id == other.id && designation == other.designation && city == other.city &&
+                street == other.street && streetNumber == other.streetNumber && box == other.box);
+    }
+    /**
+     * Return a String representation of the Location containing all fields
+     * @return formatted string with id, designation, city, street, streetNumber and box
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
+}
