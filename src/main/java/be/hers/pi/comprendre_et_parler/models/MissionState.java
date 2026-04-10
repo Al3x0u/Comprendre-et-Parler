@@ -7,5 +7,6 @@ public enum MissionState {
     PENDING,
     ACCEPTED,
     DENIED,
+    PROGRESSING,
     REGULAR
 }

@@ -1,7 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.util.Objects;
-
 public class Location {
     private int id=0;
     private String designation;
@@ -11,14 +9,15 @@ public class Location {
     private int box=0;
 
     /**
-        Constructor of a Location Object
-        @param id : represent id
-        @param d : represent designation
-        @param c : represent the city name
-        @param s : represent the street name
-        @param sN : represent the street number
+     Constructor of a Location Object
+     @param id : represent id
+     @param d : represent designation
+     @param c : represent the City object
+     @param s : represent the street name
+     @param sN : represent the street number
+     @param box : represent the new box
      */
-    public Location(int id,String d, City c, String s, String sN, int box){
+    public Location(int id, String d, City c, String s, String sN, int box){
         if(id > 0) this.id = id;
         this.designation = d;
         this.city = new City(c);
@@ -127,7 +126,8 @@ public class Location {
     }
 
     /**
-     * @return location information in a string
+     * Return a String representation of the Location containing all fields
+     * @return formatted string with id, designation, city, street, streetNumber and box
      */
     public String toString(){
         return "Location{id=" + id + ", designation=" + designation + ", city=" + city + ", street=" + street +

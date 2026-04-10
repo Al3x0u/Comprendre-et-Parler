@@ -1,70 +1,81 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
+import be.hers.pi.comprendre_et_parler.models.AppliUser;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
-import java.util.List;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
+public class DAOAppliUser implements DAO<AppliUser> {
 
     /**
-     * Search for a PunctualTimeSlot in the database with the int parameter
+     * Search for a AppliUser in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public PunctualTimeSlot find(int id) throws SQLException {
+    public AppliUser find(int id) throws SQLException {
         return null;
     }
 
     /**
-     * Insert a PunctualTimeSlot object in the database
-     * @param objectToInsert an object of PunctualTimeSlot to add to the database
+     * Search for a AppliUser in the database with the String parameter
+     * @param login the login of the object to find in database
+     * @return the object identified by login in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
+    public AppliUser find(String login) throws SQLException {
+        return null;
+    }
+
+    /**
+     * Insert a AppliUser object in the database
+     * @param objectToInsert an object of type AppliUser to add to the database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
      * @throws SQLException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
+    public void create(AppliUser objectToInsert) throws AlreadyExistsException ,SQLException {
 
     }
 
     /**
-     * Update a PunctualTimeSlot line who already exist in the database
+     * Update a AppliUser line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException    if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
-    public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+    public void update(AppliUser objectToUpdate)
+            throws AlreadyExistsException, NoSuchElementException, SQLException {
 
     }
 
     /**
-     * Delete a PunctualTimeSlot line in the table in the database
+     * Delete a AppliUser line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException    if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(PunctualTimeSlot objectToDelete) throws NoSuchElementException, SQLException {
+    public void delete(AppliUser objectToDelete)
+            throws NoSuchElementException, SQLException {
 
     }
 
     /**
-     * Return all line of PunctualTimeSlot table in the database in a List
+     * Return all line of AppliUser table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<PunctualTimeSlot> findAll() throws SQLException {
+    public List<AppliUser> findAll() throws SQLException {
         return List.of();
     }
 }

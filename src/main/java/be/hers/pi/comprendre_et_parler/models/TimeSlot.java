@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class TimeSlot {
+public abstract class TimeSlot {
     private int id;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -25,6 +25,13 @@ public class TimeSlot {
      */
     public int getId() {
         return id;
+    }
+
+    /**
+     * @param id represent the new startTime
+     */
+    public void setId(int id){
+        this.id = id;
     }
 
     /**
@@ -55,5 +62,21 @@ public class TimeSlot {
         return endTime;
     }
 
+    /**
+     * Compare this TimeSlot with another TimeSlot for equality
+     * @param other the TimeSlot object to compare with
+     * @return true if both TimeSlot objects have identical id, startTime and endTime
+     */
+    public boolean equals(TimeSlot other) {
+        return (id == other.id && startTime == other.startTime && endTime == other.endTime);
+    }
 
+    /**
+     * Return a String representation of the TimeSlot containing all fields
+     * @return formatted string with id, startTime and endTime
+     */
+    @Override
+    public String toString() {
+        return null;
+    }
 }

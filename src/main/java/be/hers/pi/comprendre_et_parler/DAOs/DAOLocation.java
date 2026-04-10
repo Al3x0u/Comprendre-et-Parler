@@ -22,7 +22,7 @@ public class DAOLocation implements DAO<Location> {
     public final String fieldBox = "box";
 
     /**
-     * Search for a location in the database with the String parameter
+     * Search for a location in the database with the int parameter
      * @param id : identification of the location
      * @return Location object who correspond to the given id else null
      * @throws SQLException if the database could not be reached
@@ -169,7 +169,7 @@ public class DAOLocation implements DAO<Location> {
 
     /**
      * Return all line of Location table in the database in Location Object in a List
-     * @return a List who contains Location Objects, if database is empty, an empty list
+     * @return a List who contains Location Object, if database is empty, an empty list
      * @throws SQLException if the database could not be reached
      */
     @Override

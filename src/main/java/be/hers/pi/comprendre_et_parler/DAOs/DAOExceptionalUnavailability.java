@@ -11,31 +11,30 @@ import java.util.NoSuchElementException;
 public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailability> {
 
     /**
-     *
+     * Search for a ExceptionalUnavailability in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public ExceptionalUnavailability find(String id) throws SQLException {
+    public ExceptionalUnavailability find(int id) throws SQLException {
         return null;
     }
 
     /**
-     *
-     * @param objectToInsert an object of type T to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
+     * Insert a ExceptionalUnavailability object in the database
+     * @param objectToInsert an object of type ExceptionalUnavailability to add to the database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
      * @throws SQLException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
     public void create(ExceptionalUnavailability objectToInsert)
-            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+            throws AlreadyExistsException, SQLException {
     }
 
     /**
-     *
+     * Update a ExceptionalUnavailability line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException    if the database could not be reached
@@ -47,7 +46,7 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     }
 
     /**
-     *
+     * Delete a ExceptionalUnavailability line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException    if the database could not be reached
@@ -59,7 +58,7 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     }
 
     /**
-     *
+     * Return all line of ExceptionalUnavailability table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
@@ -69,10 +68,10 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     }
 
     /**
-     *
+     * Return all ExceptionalUnavailability of an Interpreter with the given id
      * @param idInterpreter the id of an Interpreter
-     * @return a List of ExceptionalUnavailability which contains the ExceptionalUnavailability of an Interpreter
-     * @throws NoSuchElementException if there are not a Interpreter with the given id
+     * @return a list of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty list if none exist
+     * @throws NoSuchElementException if there are not an Interpreter with the given id
      */
     public List<ExceptionalUnavailability> findForInterpreter(String idInterpreter)
             throws NoSuchElementException {

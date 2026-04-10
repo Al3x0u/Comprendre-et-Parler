@@ -11,32 +11,30 @@ import java.util.NoSuchElementException;
 public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
     /**
-     *
+     * Search for a BaseTimeSlot in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public BaseTimeSlot find(String id) throws SQLException {
+    public BaseTimeSlot find(int id) throws SQLException {
         return null;
     }
 
     /**
-     *
-     * @param objectToInsert an object of type T to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
+     * Insert a BaseTimeSlot object in the database
+     * @param objectToInsert an object of type BaseTimeSlot to add to the database
      * @throws AlreadyExistsException       if objectToInsert is already present in database
      * @throws SQLException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(BaseTimeSlot objectToInsert)
-            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
 
     }
 
     /**
-     *
+     * Update a BaseTimeSlot line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException    if the database could not be reached
@@ -49,7 +47,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     }
 
     /**
-     *
+     * Delete a BaseTimeSlot line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException    if the database could not be reached
@@ -62,7 +60,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     }
 
     /**
-     *
+     * Return all line of BaseTimeSlot table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */

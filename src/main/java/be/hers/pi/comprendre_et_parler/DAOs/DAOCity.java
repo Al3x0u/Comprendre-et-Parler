@@ -19,7 +19,7 @@ public class DAOCity implements DAO<City> {
 
 
     /**
-     * Search for a City in the database with the String parameter
+     * Search for a City in the database with the int parameter
      * @param id : identification of the city
      * @return City object who correspond to the given id else null
      * @throws SQLException if the database couldn't be reached
@@ -146,7 +146,7 @@ public class DAOCity implements DAO<City> {
 
     /**
      * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Objects, or an empty list if none was found
+     * @return a List who contains City Object, if database is empty, an empty list
      * @throws SQLException if the database could not be reached
      */
     @Override

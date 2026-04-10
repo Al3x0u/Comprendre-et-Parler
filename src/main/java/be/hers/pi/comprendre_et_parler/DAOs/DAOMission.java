@@ -24,7 +24,7 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Search for a Mission in the database with the int parameter
      * @param id the primary key of the object to find in database
-     * @return the object Mission identified by id in database, or null if none was present
+     * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
     @Override
