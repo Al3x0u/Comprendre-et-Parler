@@ -1,58 +1,79 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 public class Mission {
-    private int id;
-    private String subjet;
+    private int id=0;
+    private String subject;
     private MissionState stateOfMission;
     private String commentary;
-    private List<Importance> importance;
+    private TimeSlot timeSlot;
+    private List<Beneficiary> beneficiaries;
     private List<Interpreter> interpreters;
-    private PunctualTimeSlot punctualTime;
     private Location location;
     private JobSkill jobSkill;
     private AcademicSkill academicSkill;
+    private String room;
 
     /**
      * Constructor of a Mission object
      *
-     * @param subjet represent the subject of the mission
+     * @param id represent the id of the mission
+     * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
-     * @param beneficiaries represent the beneficiaries who concern this mission
-     * @param interpreters represent the interpreters who work for this mission
      * @param location represent the location of the mission
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
+     * @param room represent the room of the mission (can be null)
      */
-    public Mission(int id, String subjet, MissionState stateOfMission, String comment, List<Importance> importance, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, PunctualTimeSlot time, Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
-        this.subjet = subjet;
+    public Mission(int id, String subject, MissionState stateOfMission, Location location, JobSkill jobSkill, AcademicSkill academicSkill, String room) {
+        this.id = id;
+        this.subject = subject;
         this.stateOfMission = stateOfMission;
-        commentary = comment;
-        this.interpreters = interpreters;
-        punctualTime = time;
+        this.beneficiaries = null;
+        this.interpreters = null;
         this.location = location;
         this.jobSkill = jobSkill;
         this.academicSkill = academicSkill;
+        this.room = room;
     }
 
-    public int getId() {
-        return this.id;
+    public String getSubject() {
+        return this.subject;
+    }
+
+    public String getCommentary() {
+        return this.commentary;
+    }
+
+    public void setCommentary(final String commentary) {
+        this.commentary = commentary;
+    }
+
+    public TimeSlot getTimeSlot() {
+        return this.timeSlot;
+    }
+
+    public void setTimeSlot(final TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
     }
 
     /**
-     * @return this.subject
+     * @return this.subjet
      */
     public String getSubjet() {
-        return subjet;
+        return subject;
     }
 
     /**
      * @param subject represent the subject of Mission
      */
     public void setSubject(String subject){
-        this.subjet = subject;
+        this.subject = subject;
     }
 
     /**
@@ -69,27 +90,51 @@ public class Mission {
         this.stateOfMission = state;
     }
 
-    public String getCommentary() {
-        return this.commentary;
-    }
-
-    public void setCommentary(String commentary) {
-        this.commentary = commentary;
-    }
-
-    public List<Importance> getImportance() {
-        return this.importance;
-    }
-
-    public void setImportance(List<Importance> importance) {
-        this.importance = importance;
+    /**
+     * @return this.id
+     */
+    public int getId() {
+        return id;
     }
 
     /**
-     * @return a String which contains all information about the mission
+     * @param newId represent the new id
      */
-    public String toString(){
-        return null;
+    public void setId(int newId){
+        this.id = newId;
+    }
+
+    /**
+     * @return this.beneficiaries
+     */
+    public List<Beneficiary> getBeneficiaries() {
+        return beneficiaries;
+    }
+
+    /**
+     * @param beneficiaries represent the beneficiaries of the mission
+     */
+    public void setBeneficiaries(List<Beneficiary> beneficiaries) {
+        this.beneficiaries = beneficiaries;
+    }
+
+    /**
+     * Add a Beneficiary to the beneficiaries List
+     * @param beneficiary represent the Beneficiary to add, not null
+     * @throws AlreadyExistsException if the beneficiary is already in the list
+     * @throws NullPointerException if beneficiary is null
+     */
+    public void addBeneficiary(Beneficiary beneficiary) throws AlreadyExistsException, NullPointerException {
+
+    }
+
+    /**
+     * Remove a Beneficiary from the beneficiaries List by login
+     * @param login represent the login of the Beneficiary to remove
+     * @throws NoSuchElementException if no beneficiary with the given login exists in the list
+     */
+    public void deleteBeneficiary(String login) throws NoSuchElementException {
+
     }
 
     /**
@@ -104,6 +149,25 @@ public class Mission {
      */
     public void setInterpreters(List<Interpreter> interpreters) {
         this.interpreters = interpreters;
+    }
+
+    /**
+     * Add an Interpreter to the interpreters List
+     * @param interpreter represent the Interpreter to add, not null
+     * @throws AlreadyExistsException if the interpreter is already in the list
+     * @throws NullPointerException if interpreter is null
+     */
+    public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException {
+
+    }
+
+    /**
+     * Remove an Interpreter from the interpreters List by login
+     * @param login represent the login of the Interpreter to remove
+     * @throws NoSuchElementException if no interpreter with the given login exists in the list
+     */
+    public void deleteInterpreter(String login) throws NoSuchElementException {
+
     }
 
     /**
@@ -148,15 +212,36 @@ public class Mission {
         this.academicSkill = academicSkill;
     }
 
-    public void setSubjet(final String subjet) {
-        this.subjet = subjet;
+    /**
+     * @return this.room (can be null)
+     */
+    public String getRoom() {
+        return room;
     }
 
-    public PunctualTimeSlot getPunctualTime() {
-        return this.punctualTime;
+    /**
+     * @param room represent the room of the mission (can be null)
+     */
+    public void setRoom(String room) {
+        this.room = room;
     }
 
-    public void setPunctualTime(final PunctualTimeSlot punctualTime) {
-        this.punctualTime = punctualTime;
+    /**
+     * Compare this Mission with another Mission for equality
+     * @param other the Mission object to compare with
+     * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
+     */
+    public boolean equals(Mission other) {
+        return (id == other.id && subject == other.subject && stateOfMission == other.stateOfMission &&
+                location == other.location && jobSkill == other.jobSkill &&
+                academicSkill == other.academicSkill && room == other.room);
+    }
+
+    /**
+     * Return a String representation of the Mission containing all fields
+     * @return formatted string with id, subjet, state, beneficiaries, interpreters, location, jobSkill, academicSkill and room
+     */
+    public String toString(){
+        return null;
     }
 }

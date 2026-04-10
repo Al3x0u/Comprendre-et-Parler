@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOStatus implements DAO<Status> {
-    public final static String table = "Status";
-    public final static String field_id = "id";
-    public final static String field_designation = "designation";
-    public final static String field_hourQuota = "hourQuota";
+    public final static String TABLE = "Status";
+    public final static String FIELD_ID = "id";
+    public final static String FIELD_DESIGNATION = "designation";
+    public final static String FIELD_HOUR_QUOTA = "hourQuota";
 
     /**
      * @param id the primary key of the object to find in database
@@ -29,7 +29,7 @@ public class DAOStatus implements DAO<Status> {
      */
     public Status find(String id) throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        String query = "SELECT * FROM " + table + " WHERE " + field_id + " = ?";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Status status = null;
@@ -39,9 +39,9 @@ public class DAOStatus implements DAO<Status> {
             result = statement.executeQuery();
             if (result.next()) {
                 status = new Status(
-                        result.getInt(field_id),
-                        result.getString(field_designation),
-                        result.getInt(field_hourQuota)
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION),
+                        result.getInt(FIELD_HOUR_QUOTA)
                 );
             }
         }
@@ -74,7 +74,7 @@ public class DAOStatus implements DAO<Status> {
 
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
-        query = String.format(query, table, field_designation, field_hourQuota);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -105,7 +105,7 @@ public class DAOStatus implements DAO<Status> {
 
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, table, field_designation, field_hourQuota, field_id);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(query);
@@ -135,7 +135,7 @@ public class DAOStatus implements DAO<Status> {
             throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
 
         String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, table, field_id, field_designation, field_hourQuota);
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(query);
@@ -158,7 +158,7 @@ public class DAOStatus implements DAO<Status> {
     @Override
     public List<Status> findAll() throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        String query = "SELECT * FROM " + table;
+        String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
         List<Status> ret = null;
@@ -167,9 +167,9 @@ public class DAOStatus implements DAO<Status> {
             result = statement.executeQuery();
             while (result.next()) {
                 ret.add(new Status(
-                        result.getInt(field_id),
-                        result.getString(field_designation),
-                        result.getInt(field_hourQuota)
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION),
+                        result.getInt(FIELD_HOUR_QUOTA)
                 ));
             }
         }
@@ -191,7 +191,7 @@ public class DAOStatus implements DAO<Status> {
         Connection connection = DatabaseConnector.getInstance();
         Status status;
         String query = "SELECT * FROM %s WHERE %s = ?";
-        query = String.format(query, table, field_id);
+        query = String.format(query, TABLE, FIELD_ID);
 
         PreparedStatement stmt = null;
         ResultSet rs = null;

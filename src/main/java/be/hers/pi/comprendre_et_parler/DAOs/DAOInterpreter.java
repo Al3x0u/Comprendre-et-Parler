@@ -56,10 +56,37 @@ public class DAOInterpreter implements DAO<Interpreter> {
      */
     @Override
     public Interpreter find(int id) throws SQLException {
-        return null;
+        Connection connection = DatabaseConnector.getInstance();
+        String query = "SELECT " + FIELD_LOGIN + " FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
+        Interpreter interpreter = null;
+
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+
+            if(result.next()){
+               interpreter = find(result.getString(FIELD_LOGIN));
+            }
+        }finally{
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
+        }
+        return interpreter;
     }
 
-    
+    /*int id, String login, String firstName, String lastName,
+    LocalDate birthDate, String hashedPassword, String email,
+    String phoneNumber, int hQW, int hQY, Transportation transportMode,
+    List<AcademicSkill> academic, List<JobSkill> job, List<Beneficiary> beneficiaries,
+    List<Mission> missions, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability*/
     public Interpreter find(String login) throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
         Interpreter interpreter = null;
@@ -79,6 +106,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 int idTransportation = result.getInt(FIELD_TRANSPORT_MODE);
                 String interpreterId = result.getString(FIELD_ID);
                 interpreter = new Interpreter(
+                        result.getInt(FIELD_ID),
                         login,
                         result.getString(FIELD_FIRST_NAME),
                         result.getString(FIELD_LAST_NAME),
@@ -91,11 +119,9 @@ public class DAOInterpreter implements DAO<Interpreter> {
                         DAOTransportation.findById(idTransportation),
                         DAOAcademicSkill.findAllByInterpreterLogin(interpreterId),
                         DAOJobSkill.findAllByInterpreterLogin(login),
-                        new DAOBeneficiary().findReferencedBeneficiaries(interpreterId),
-                        DAOMission.findAllByInterpreterLogin(login),
                         DAOLocation.findById(result.getInt(FIELD_LOCATION)),
                         DAOPunctualTimeSlot.findAllByInterpreterLogin(login),
-                        DAOExceptionalUnavailability.findByInterpreterLogin(login)
+                        new DAOExceptionalUnavailability().findByInterpreterLogin(result.getInt(FIELD_ID))
                 );
             }
         }finally {
@@ -224,13 +250,16 @@ public class DAOInterpreter implements DAO<Interpreter> {
             throws AlreadyExistsException, NoSuchElementException, SQLException {
         Connection connection = DatabaseConnector.getInstance();
 
-        String queryUser = "UPDATE " + TABLE_APPLIUSER + " SET "+ FIELD_LAST_NAME + " = ?, "
+        String queryUser = "UPDATE " + TABLE_APPLIUSER + " SET "+ FIELD_LOGIN + " = ?, " + FIELD_LAST_NAME + " = ?, "
                             + FIELD_FIRST_NAME + " = ?, "+ FIELD_BIRTH_DATE + " = ?, "
                             + FIELD_HASHED_PASSWORD + " = ?, " + FIELD_EMAIL + " = ?, "
                             + FIELD_PHONE_NUMBER + " = ? WHERE "+ FIELD_ID + " = ?";
-        String queryInterpreter = "UPDATE " + TABLE + " SET " + FIELD_ID + " = ?, " + FIELD_WEEK_QUOTA + " = ?, " + FIELD_YEAR_QUOTA + " = ?, " + FIELD_TRANSPORT_MODE + " = ? WHERE " + FIELD_ID + " = ?";
+        String queryInterpreter = "UPDATE " + TABLE + " SET " + FIELD_ID + " = ?, "
+                + FIELD_WEEK_QUOTA + " = ?, " + FIELD_YEAR_QUOTA + " = ?, "
+                + FIELD_TRANSPORT_MODE + " = ? WHERE " + FIELD_ID + " = ?";
         String queryDeleteAcademicSkill = "DELETE FROM " + TABLE_ACADEMIC_SKILL_INTERPRETER + "  WHERE interpreter = ?";
-        String queryInsertAcademicSkill = "INSERT INTO " + TABLE_ACADEMIC_SKILL_INTERPRETER + " (" + FIELD_INTERPRETER + ", " + DAOAcademicSkill.FIELD_SKILL + ") VALUES(?, ?)";
+        String queryInsertAcademicSkill = "INSERT INTO " + TABLE_ACADEMIC_SKILL_INTERPRETER + " (" + FIELD_INTERPRETER
+                + ", " + DAOAcademicSkill.FIELD_SKILL + ") VALUES(?, ?)";
         String queryDeleteJobSkill = "DELETE FROM " + TABLE_JOB_SKILL_INTERPRETER + "  WHERE " + FIELD_INTERPRETER + " = ?";
         String queryInsertJobSkill = "INSERT INTO " + TABLE_JOB_SKILL_INTERPRETER + " (" + FIELD_INTERPRETER + ", " + DAOJobSkill.FIELD_SKILL + ") VALUES(?, ?)";
 
@@ -471,18 +500,20 @@ public class DAOInterpreter implements DAO<Interpreter> {
             throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
         List<Interpreter> list = new ArrayList<>();
-        String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE + " i ON JOIN " + TABLE_ACADEMIC_SKILL_INTERPRETER + " ai ON i." + FIELD_LOGIN + " = ai." + FIELD_INTERPRETER + " WHERE ai." + DAOAcademicSkill.FIELD_SKILL + " = ?";
+        String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE
+                + " i ON JOIN " + TABLE_ACADEMIC_SKILL_INTERPRETER
+                + " ai ON i." + FIELD_LOGIN + " = ai." + FIELD_INTERPRETER
+                + " WHERE ai." + DAOAcademicSkill.FIELD_SKILL + " = ?";
 
         PreparedStatement statement = null;
         ResultSet result = null;
-
         try{
             statement = connection.prepareStatement(query);
             statement.setInt(1, idAcademicSkills);
             result = statement.executeQuery();
 
             while(result.next()){
-                list.add(find(result.getString("login")));
+                list.add(find(result.getString(FIELD_LOGIN)));
             }
         }finally {
             if(result != null){
@@ -501,8 +532,29 @@ public class DAOInterpreter implements DAO<Interpreter> {
      * @return a List of Interpreter who have the JobSkill having the idJobSkills, or an empty List if no Interpreter have this JobSkill
      * @throws NoSuchElementException if idJobSkills doesn't correspond to the id of any JobSkill
      */
-    public List<Interpreter> findByJobSkills(int idJobSkills)
-            throws NoSuchElementException {
-        return null;
+    public List<Interpreter> findByJobSkills(int idJobSkills) throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        List<Interpreter> interpreters = null;
+        String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE + "i ON JOIN " + TABLE_JOB_SKILL_INTERPRETER + " ai ON i." + FIELD_LOGIN + " = ai." + FIELD_INTERPRETER + " WHERE ai." + DAOJobSkill.FIELD_SKILL + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, idJobSkills);
+            result = statement.executeQuery();
+
+            while(result.next()){
+                interpreters.add(find(result.getString(FIELD_LOGIN)));
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
+        }
+        return interpreters;
     }
 }

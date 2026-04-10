@@ -4,9 +4,9 @@ import tools.jackson.core.ObjectReadContext;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class Interpreter extends AppliUser{
-    private int id;
     private int hourQuotaWeek;
     private int hourQuotaYear;
     private Transportation transportMode;
@@ -34,8 +34,6 @@ public class Interpreter extends AppliUser{
      * @param transportMode      represent the transport mode of the interpreter
      * @param academic           represent the list of academic skills of the interpreter
      * @param job                represent the list of job skills of the interpreter
-     * @param beneficiaries      represent the list of beneficiaries of the interpreter
-     * @param missions           represent the list of missions of the interpreter
      * @param location           represent the location of the interpreter
      * @param time               represent the list of punctual time slots of the interpreter
      * @param unavailability     represent the list of exceptional unavailabilities of the interpreter
@@ -44,32 +42,21 @@ public class Interpreter extends AppliUser{
     public Interpreter(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, Transportation transportMode,
-                       List<AcademicSkill> academic, List<JobSkill> job, List<Beneficiary> beneficiaries,
-                       List<Mission> missions, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+                       List<AcademicSkill> academic, List<JobSkill> job, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
         }
-        this.hourQuotaWeek = hQW;
-        this.hourQuotaYear = hQY;
+        hourQuotaWeek = hQW;
+        hourQuotaYear = hQY;
         this.transportMode = transportMode;
         jobSkills = job;
         academicSkills = academic;
-        this.beneficiaries = beneficiaries;
-        this.missions = missions;
-        this.punctualTime = time;
+        beneficiaries = null;
+        missions = null;
+        punctualTime = time;
         this.location = location;
         this.unavailability = unavailability;
-    }
-
-    @Override
-    public int getId() {
-        return this.id;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
     }
 
     public int getHourQuotaYear() {
@@ -104,6 +91,7 @@ public class Interpreter extends AppliUser{
         this.location = location;
     }
 
+    //TODO: Le responsable est la classe Mission qui ne prend pas de PuncTualTimeSlot mais une TimeSlot
     public List<PunctualTimeSlot> getPunctualTime() {
         return this.punctualTime;
     }
@@ -193,9 +181,25 @@ public class Interpreter extends AppliUser{
      * @param other the Interpreter object to compare with
      * @return true if both Interpreter objects have identical hourQuotaWeek, hourQuotaYear, transportMode and AppliUser fields
      */
-    public boolean equals(Interpreter other) {
-        return (super.equals(other) && hourQuotaWeek == other.hourQuotaWeek &&
-                hourQuotaYear == other.hourQuotaYear && transportMode == other.transportMode);
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Interpreter)) return false;
+        Interpreter o = (Interpreter) other;
+        return fieldAreEquals(o);
+    }
+
+    //TODO : Suivre cette logique pour les equals des autres classes si elles ont plus de 3 attributs
+    private boolean fieldAreEquals(Interpreter o) {
+        return super.equals(o) &&
+                hourQuotaWeek == o.hourQuotaWeek &&
+                hourQuotaYear == o.hourQuotaYear &&
+                Objects.equals(transportMode, o.transportMode) &&
+                Objects.equals(academicSkills, o.academicSkills) &&
+                Objects.equals(jobSkills, o.jobSkills) &&
+                Objects.equals(location, o.location) &&
+                Objects.equals(punctualTime, o.punctualTime) &&
+                Objects.equals(unavailability, o.unavailability);
     }
 
     /**
