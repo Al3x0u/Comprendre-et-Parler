@@ -269,7 +269,8 @@ public class Mission {
     /**
      * Compare this Mission with another Mission for equality
      * @param other the Mission object to compare with
-     * @return true if both Mission objects have identical id, subjet, stateOfMission, commentary, baseTimeSlot, punctualTimeSlot, location, jobSkill, academicSkill and room
+     * @return true if both Mission objects have identical subjet, stateOfMission, commentary, baseTimeSlot, punctualTimeSlot,
+     * location, jobSkill, academicSkill and room (id isn't compare), else false
      */
     public boolean equals(Mission other) {
         if (this == other) return true;

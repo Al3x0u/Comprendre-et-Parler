@@ -84,7 +84,7 @@ public class City {
      * Compare if two cities are the same
      * @param city
      * @post city is unchanged
-     * @return true if city and this are the same, else false
+     * @return true if city and this are the same (id isn't compare), else false
      */
     public boolean equals(City city) {
         if (this == city) return true;

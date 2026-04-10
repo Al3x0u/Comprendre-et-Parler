@@ -138,7 +138,7 @@ public class Location {
      * Compare if two locations are the same
      * @param location
      * @post location is unchanged
-     * @return true if location and this are the same, else false
+     * @return true if location and this are the same (id isn't compare), else false
      */
     public boolean equals(Location location) {
         if (this == location) return true;
