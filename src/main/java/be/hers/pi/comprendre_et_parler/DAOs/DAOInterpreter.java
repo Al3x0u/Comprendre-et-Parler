@@ -226,7 +226,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             statement.setString(1, objectToInsert.getLogin());
             statement.setInt(2, objectToInsert.getHourQuotaWeek());
             statement.setInt(3, objectToInsert.getHourQuotayear());
-            statement.setInt(4, objectToInsert.getTransportation().getId());
+            statement.setInt(4, objectToInsert.getTransportMode().getId());
             rowsAffected = statement.executeUpdate();
 
             insertAcademicSkillInterpreter(objectToInsert, connection);
@@ -293,7 +293,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             statement.setString(1, objectToUpdate.getLogin());
             statement.setInt(2, objectToUpdate.getHourQuotaWeek());
             statement.setInt(3, objectToUpdate.getHourQuotayear());
-            statement.setInt(4, objectToUpdate.getTransportation().getId());
+            statement.setInt(4, objectToUpdate.getTransportMode().getId());
             statement.setString(5, objectToUpdate.getLogin());
             rowsAffectedBeneficiary = statement.executeUpdate();
 

@@ -49,11 +49,6 @@ public class Beneficiary extends AppliUser {
      * @return this.interpreterRef
      */
     public Interpreter getInterpreterRef() {
-        try {
-            setInterpreterRef(new DAOInterpreter().find(this.getId()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         return interpreterRef;
     }
 
@@ -69,8 +64,11 @@ public class Beneficiary extends AppliUser {
      * @param other the Beneficiary object to compare with
      * @return true if both Beneficiary objects have identical status, interpreterRef and AppliUser fields
      */
-    public boolean equals(Beneficiary other) {
-        return (super.equals(other) && status == other.status && interpreterRef == other.interpreterRef);
+    public boolean equals(Object other) {
+        if(this == other) return true;
+        if(!(other instanceof Beneficiary)) return false;
+        Beneficiary beneficiary = (Beneficiary) other;
+        return (super.equals(other) && status == beneficiary.status && interpreterRef == beneficiary.interpreterRef);
     }
 
     /**

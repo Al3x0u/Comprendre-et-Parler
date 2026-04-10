@@ -15,13 +15,13 @@ import java.util.NoSuchElementException;
 public class DAOLocation implements DAO<Location> {
 
     /**
-     * Search for a location in the database with the String parameter
+     * Search for a location in the database with the int parameter
      * @param id : identification of the location
      * @return Location object who correspond to the given id else null
      * @throws SQLException if the database could not be reached
      */
-
-    public Location find(String id) throws SQLException {
+    @Override
+    public Location find(int id) throws SQLException {
         return null;
     }
 
@@ -29,12 +29,11 @@ public class DAOLocation implements DAO<Location> {
      * Insert a Location Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if the given id already used in the database
      * @throws SQLException if we couldn't connect to the database
      */
     @Override
     public void create(Location objectToInsert)
-            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+            throws AlreadyExistsException, SQLException {
     }
 
     /**
@@ -62,7 +61,7 @@ public class DAOLocation implements DAO<Location> {
 
     /**
      * Return all line of Location table in the database in Location Object in a List
-     * @return a List who contains Location Object
+     * @return a List who contains Location Object, if database is empty, an empty list
      * @throws SQLException if the database could not be reached
      */
     @Override
@@ -70,38 +69,44 @@ public class DAOLocation implements DAO<Location> {
         return List.of();
     }
 
-    /*
-    * String designation, String city, String street,
-    * String streetNum, int box
-    */
-    public static Location findById(int id)throws SQLException, NoSuchElementException{
-        Connection connection = DatabaseConnector.getConnection();
+    public static Location findById(int id) throws SQLException, NoSuchElementException {
+        Connection connection = DatabaseConnector.getInstance();
         Location location = null;
-        String query = "SELECT l.*, ml.room FROM Location l JOIN MissionLocation ml ON ml.location = l.id WHERE l.id = ?";
+        String query = "SELECT l.*, c.id as cityId, c.designation as cityDesignation, c.postalCode"
+                + " FROM Location l JOIN City c ON l.city = c.id WHERE l.id = ?";
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        try{
+        try {
             stmt = connection.prepareStatement(query);
             stmt.setInt(1, id);
             rs = stmt.executeQuery();
 
-            if(rs.next()){
-                location = new Location(
+            if (rs.next()) {
+                be.hers.pi.comprendre_et_parler.models.City city = new be.hers.pi.comprendre_et_parler.models.City(
+                        rs.getInt("cityId"),
+                        rs.getString("cityDesignation"),
+                        rs.getInt("postalCode")
+                );
+                location = new be.hers.pi.comprendre_et_parler.models.Location(
                         rs.getInt("id"),
                         rs.getString("designation"),
-                        rs.getString("city"),
+                        city,
                         rs.getString("street"),
-                        rs.getString("room"),
                         rs.getString("streetNumber"),
                         rs.getInt("box")
                 );
-            }else{
+            } else {
                 throw new NoSuchElementException();
             }
-        }finally {
-            DatabaseConnector.closeStmt(rs,stmt);
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
         }
         return location;
     }

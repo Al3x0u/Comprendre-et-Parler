@@ -18,6 +18,7 @@ public class Mission {
     private JobSkill jobSkill;
     private AcademicSkill academicSkill;
     private String room;
+    private List<Importance> importance;
 
     /**
      * Constructor of a Mission object
@@ -42,8 +43,61 @@ public class Mission {
         this.room = room;
     }
 
+    /**
+     * Constructor of a Mission object with all fields
+     *
+     * @param id represent the id of the mission
+     * @param subject represent the subject of the mission
+     * @param stateOfMission represent the state of the mission
+     * @param commentary represent the commentary of the mission
+     * @param importance represent the list of importance objects (beneficiary + importance level)
+     * @param beneficiaries represent the list of beneficiaries of the mission
+     * @param interpreters represent the list of interpreters of the mission
+     * @param timeSlot represent the time slot of the mission
+     * @param location represent the location of the mission
+     * @param jobSkill represent the required business skill
+     * @param academicSkill represent the required academic skill
+     */
+    public Mission(int id, String subject, MissionState stateOfMission, String commentary,
+                   List<Importance> importance, List<Beneficiary> beneficiaries,
+                   List<Interpreter> interpreters, PunctualTimeSlot timeSlot,
+                   Location location, JobSkill jobSkill, AcademicSkill academicSkill) {
+        this.id = id;
+        this.subject = subject;
+        this.stateOfMission = stateOfMission;
+        this.commentary = commentary;
+        this.importance = importance;
+        this.beneficiaries = beneficiaries;
+        this.interpreters = interpreters;
+        this.timeSlot = timeSlot;
+        this.location = location;
+        this.jobSkill = jobSkill;
+        this.academicSkill = academicSkill;
+    }
+
     public String getSubject() {
         return this.subject;
+    }
+
+    /**
+     * @return this.importance (can be null)
+     */
+    public List<Importance> getImportance() {
+        return importance;
+    }
+
+    /**
+     * @param importance represent the new importance list
+     */
+    public void setImportance(List<Importance> importance) {
+        this.importance = importance;
+    }
+
+    /**
+     * @return this.timeSlot cast as PunctualTimeSlot (can be null)
+     */
+    public PunctualTimeSlot getPunctualTime() {
+        return (PunctualTimeSlot) this.timeSlot;
     }
 
     public String getCommentary() {

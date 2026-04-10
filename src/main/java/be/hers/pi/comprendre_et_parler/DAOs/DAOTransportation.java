@@ -51,6 +51,17 @@ public class DAOTransportation implements DAO<Transportation> {
     }
 
     /**
+     * Search for a Transportation in the database with the int parameter
+     * @param id the primary key of the object to find in database
+     * @return the object identified by id in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    public Transportation find(int id) throws SQLException {
+        return findById(id);
+    }
+
+    /**
      *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
@@ -66,7 +77,7 @@ public class DAOTransportation implements DAO<Transportation> {
      * @throws SQLException if the database could not be reached
      */
     public static Transportation findById(int id)throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         Transportation transportation = null;
         String query = "SELECT * FROM transportation WHERE id = ?";
 
@@ -85,7 +96,12 @@ public class DAOTransportation implements DAO<Transportation> {
                 );
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return transportation;
     }

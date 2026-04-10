@@ -34,21 +34,31 @@ public abstract class AppliUser {
         this.email = email;
         this.phoneNumber = phoneNumber;
     }
-
+    /**
+     * @return this.birthDate
+     */
     public LocalDate getBirthDate() {
-        return this.birthDate;
+        return birthDate;
     }
-
+    /**
+     * @return this.hashedPassword
+     */
     public String getHashedPassword() {
-        return this.hashedPassword;
+        return hashedPassword;
     }
 
+    /**
+     * @return this.email
+     */
     public String getEmail() {
-        return this.email;
+        return email;
     }
 
+    /**
+     * @return this.phoneNumber
+     */
     public String getPhoneNumber() {
-        return this.phoneNumber;
+        return phoneNumber;
     }
 
     /**
@@ -77,15 +87,6 @@ public abstract class AppliUser {
      */
     public String getLastName() {
         return lastName;
-    }
-
-
-
-    /**
-     * @param id represent the new id
-     */
-    public void setId(int id) {
-        this.id = id;
     }
 
     /**

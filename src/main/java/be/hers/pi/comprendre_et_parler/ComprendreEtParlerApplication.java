@@ -41,7 +41,10 @@ public class ComprendreEtParlerApplication {
 
         List<Beneficiary> beneficiaries = new ArrayList<>();
 
-        Interpreter interpreter = new Interpreter("b0000000", "Juni", "Samou", LocalDate.now(), "qwertzuiop", "samoujuni@gmail.com", "0489/13.44.40", 5,60, transport, academicSkills, jobSkills, beneficiaries);
+        Interpreter interpreter = new Interpreter(1, "Juni", "Samou",
+                "Patrick", LocalDate.now(), "qwertzuiop",
+                "samoujuni@gmail.com", "0489/13.44.40", 5, 60,
+                transport, academicSkills, jobSkills, null, new ArrayList<>(), new ArrayList<>());
         try {
             DAOInterpreter.create(interpreter);
         }catch(AlreadyExistsException e){

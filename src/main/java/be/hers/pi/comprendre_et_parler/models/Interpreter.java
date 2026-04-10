@@ -1,7 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import tools.jackson.core.ObjectReadContext;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +18,8 @@ public class Interpreter extends AppliUser{
 
 
     /**
-     * Constructor of an Interpreter object
+     * Constructor of an Interpreter object,
+     * beneficiaries and missions are initialized with null
      * @param id                 represent the id
      * @param login              represent the login
      * @param firstName          represent the firstname of the interpreter
@@ -42,7 +41,8 @@ public class Interpreter extends AppliUser{
     public Interpreter(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, Transportation transportMode,
-                       List<AcademicSkill> academic, List<JobSkill> job, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+                       List<AcademicSkill> academic, List<JobSkill> job, Location location,
+                       List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
@@ -58,52 +58,86 @@ public class Interpreter extends AppliUser{
         this.location = location;
         this.unavailability = unavailability;
     }
-
+    /**
+     * @return this.hourQuotaYear
+     */
     public int getHourQuotaYear() {
-        return this.hourQuotaYear;
+        return hourQuotaYear;
     }
 
+    /**
+     * @return this.transportMode
+     */
     public Transportation getTransportMode() {
-        return this.transportMode;
+        return transportMode;
     }
 
+    /**
+     * @param transportMode the new transport mode
+     */
     public void setTransportMode(Transportation transportMode) {
         this.transportMode = transportMode;
     }
 
+    /**
+     * @return this.jobskills
+     */
     public List<JobSkill> getJobSkills() {
-        return this.jobSkills;
+        return jobSkills;
     }
 
+    /**
+     * @return this.missions
+     */
     public List<Mission> getMissions() {
-        return this.missions;
+        return missions;
     }
 
+    /**
+     * @param missions the new list of missions
+     */
     public void setMissions(List<Mission> missions) {
         this.missions = missions;
     }
 
+    /**
+     * @return this.location
+     */
     public Location getLocation() {
-        return this.location;
+        return location;
     }
 
+    /**
+     * @param location the new location
+     */
     public void setLocation(Location location) {
         this.location = location;
     }
 
-    //TODO: Le responsable est la classe Mission qui ne prend pas de PuncTualTimeSlot mais une TimeSlot
+    /**
+     * @return this.punctualTime
+     */
     public List<PunctualTimeSlot> getPunctualTime() {
-        return this.punctualTime;
+        return punctualTime;
     }
 
+    /**
+     * @param punctualTime the new timeSlot
+     */
     public void setPunctualTime(List<PunctualTimeSlot> punctualTime) {
         this.punctualTime = punctualTime;
     }
 
+    /**
+     * @return this.unavavailability
+     */
     public List<ExceptionalUnavailability> getUnavailability() {
         return this.unavailability;
     }
 
+    /**
+     * @param unavailability the new unavailability
+     */
     public void setUnavailability(List<ExceptionalUnavailability> unavailability) {
         this.unavailability = unavailability;
     }
@@ -137,18 +171,16 @@ public class Interpreter extends AppliUser{
         this.hourQuotaYear = hourQuotayear;
     }
 
-    public Transportation getTransportation() {
-        return this.transportMode;
-    }
-
-    public void setTransportation(Transportation transportation) {
-        this.transportMode = transportation;
-    }
-
+    /**
+     * @return this.academicSkills
+     */
     public List<AcademicSkill> getAcademicSkills() {
-        return this.academicSkills;
+        return academicSkills;
     }
 
+    /**
+     * @param academicSkills the new list of academic Skills
+     */
     public void setAcademicSkills(List<AcademicSkill> academicSkills) {
         this.academicSkills = academicSkills;
     }
@@ -164,14 +196,23 @@ public class Interpreter extends AppliUser{
         this.hourQuotaYear = newHourQuotaYear;
     }
 
+    /**
+     * @param jobSkills the new list of job skills
+     */
     public void setJobSkills(List<JobSkill> jobSkills) {
         this.jobSkills = jobSkills;
     }
 
+    /**
+     * @return this.beneficiaries
+     */
     public List<Beneficiary> getBeneficiaries() {
-        return this.beneficiaries;
+        return beneficiaries;
     }
 
+    /**
+     * @param beneficiaries the new list of beneficiaries
+     */
     public void setBeneficiaries(List<Beneficiary> beneficiaries) {
         this.beneficiaries = beneficiaries;
     }
@@ -185,21 +226,21 @@ public class Interpreter extends AppliUser{
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof Interpreter)) return false;
-        Interpreter o = (Interpreter) other;
-        return fieldAreEquals(o);
+        Interpreter interpreter = (Interpreter) other;
+        return fieldAreEquals(interpreter);
     }
 
     //TODO : Suivre cette logique pour les equals des autres classes si elles ont plus de 3 attributs
-    private boolean fieldAreEquals(Interpreter o) {
-        return super.equals(o) &&
-                hourQuotaWeek == o.hourQuotaWeek &&
-                hourQuotaYear == o.hourQuotaYear &&
-                Objects.equals(transportMode, o.transportMode) &&
-                Objects.equals(academicSkills, o.academicSkills) &&
-                Objects.equals(jobSkills, o.jobSkills) &&
-                Objects.equals(location, o.location) &&
-                Objects.equals(punctualTime, o.punctualTime) &&
-                Objects.equals(unavailability, o.unavailability);
+    private boolean fieldAreEquals(Interpreter interpreter) {
+        return super.equals(interpreter) &&
+                hourQuotaWeek == interpreter.hourQuotaWeek &&
+                hourQuotaYear == interpreter.hourQuotaYear &&
+                Objects.equals(transportMode, interpreter.transportMode) &&
+                Objects.equals(academicSkills, interpreter.academicSkills) &&
+                Objects.equals(jobSkills, interpreter.jobSkills) &&
+                Objects.equals(location, interpreter.location) &&
+                Objects.equals(punctualTime, interpreter.punctualTime) &&
+                Objects.equals(unavailability, interpreter.unavailability);
     }
 
     /**

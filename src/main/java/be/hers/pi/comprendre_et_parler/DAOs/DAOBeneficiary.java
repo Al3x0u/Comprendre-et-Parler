@@ -295,6 +295,39 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
+     * Return all Beneficiary linked to the given mission id
+     * @param missionId represent the id of the mission
+     * @return a List of Beneficiary linked to the mission, empty if none
+     * @throws SQLException if the database could not be reached
+     */
+    public static List<Beneficiary> findByIdBeneficiariesMission(int missionId) throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        List<Beneficiary> beneficiaries = new ArrayList<>();
+        String query = "SELECT b." + FIELD_LOGIN + " FROM " + TABLE + " b JOIN BeneficiaryMission bm ON b."
+                + FIELD_ID + " = bm.beneficiary WHERE bm.mission = ?";
+
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, missionId);
+            result = statement.executeQuery();
+
+            while (result.next()) {
+                beneficiaries.add(new DAOBeneficiary().find(result.getString(FIELD_LOGIN)));
+            }
+        } finally {
+            if (result != null) {
+                result.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
+        }
+        return beneficiaries;
+    }
+
+    /**
      * Return all Beneficiary referenced by the interpreter with the given id
      * @param idInterpreter represent the id of the interpreter which we want the beneficiary
      * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter, or null if no beneficiaries

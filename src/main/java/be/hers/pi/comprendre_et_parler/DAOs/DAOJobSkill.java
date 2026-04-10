@@ -83,7 +83,7 @@ public class DAOJobSkill implements DAO<JobSkill> {
      * @throws SQLException if the database could not be reached
      */
     public static List<JobSkill> findAllByInterpreterLogin(String login) throws SQLException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         List<JobSkill> jobSkills = new ArrayList<>();
         String query = "SELECT j.id, j.designation FROM JobSkillInterpreter jsi JOIN JobSkill j ON j.id = jsi.skill WHERE jsi.interpreter = ?";
 
@@ -103,7 +103,12 @@ public class DAOJobSkill implements DAO<JobSkill> {
                 jobSkills.add(jobSkill);
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return jobSkills;
     }
@@ -114,7 +119,7 @@ public class DAOJobSkill implements DAO<JobSkill> {
      * @throws SQLException if the database could not be reached
      */
     public static JobSkill findById(int id) throws SQLException,NoSuchElementException {
-        Connection connection = DatabaseConnector.getConnection();
+        Connection connection = DatabaseConnector.getInstance();
         JobSkill jobSkill;
         String query = "SELECT * FROM JobSkill WHERE id = ?";
 
@@ -135,7 +140,12 @@ public class DAOJobSkill implements DAO<JobSkill> {
                 throw new NoSuchElementException();
             }
         }finally {
-            DatabaseConnector.closeStmt(rs, stmt);
+            if(rs != null){
+                rs.close();
+            }
+            if(stmt != null){
+                stmt.close();
+            }
         }
         return jobSkill;
     }

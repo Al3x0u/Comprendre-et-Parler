@@ -150,7 +150,6 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             while(rs.next()){
                 PunctualTimeSlot punctualTimeSlot = new PunctualTimeSlot(
                         rs.getInt("id"),
-                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         date
@@ -179,7 +178,6 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             if(rs.next()){
                 time = new PunctualTimeSlot(
                         rs.getInt("id"),
-                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getDate("startHourTime").toLocalDate()
@@ -210,7 +208,6 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             while(rs.next()){
                 PunctualTimeSlot time = new PunctualTimeSlot(
                         rs.getInt("id"),
-                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getDate("startHourTime").toLocalDate()
@@ -239,7 +236,6 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             while(rs.next()){
                 PunctualTimeSlot time = new PunctualTimeSlot(
                         rs.getInt("id"),
-                        rs.getString("interpreter"),
                         rs.getTime("startHourTime").toLocalTime(),
                         rs.getTime("endHourTime").toLocalTime(),
                         rs.getDate("startHourTime").toLocalDate()
