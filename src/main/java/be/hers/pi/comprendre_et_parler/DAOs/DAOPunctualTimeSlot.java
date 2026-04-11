@@ -2,8 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.util.List;
 import java.sql.SQLException;

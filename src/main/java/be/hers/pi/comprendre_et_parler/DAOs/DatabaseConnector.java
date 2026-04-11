@@ -10,8 +10,8 @@ import java.util.Scanner;
 import java.io.Console;
 
 public class DatabaseConnector {
-    private final static String url = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
-    private static Connection connection = null;
+    static final String URL = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
+    static Connection connection = null;
 
     private DatabaseConnector() {}
 
@@ -25,7 +25,7 @@ public class DatabaseConnector {
     public static void initialize(String login, String password) throws ConnectionException {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
-            connection = DriverManager.getConnection(url, login, password);
+            connection = DriverManager.getConnection(URL, login, password);
         }
         catch( ClassNotFoundException e) {
             throw new ConnectionException("Failed to load oracle.jdbc.driver.OracleDriver: " + e);

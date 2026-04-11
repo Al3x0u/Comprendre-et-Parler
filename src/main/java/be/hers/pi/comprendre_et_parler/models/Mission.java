@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.models;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 
 public class Mission {
@@ -16,6 +15,7 @@ public class Mission {
     private JobSkill jobSkill;
     private AcademicSkill academicSkill;
     private String room;
+    private String commentary;
 
     /**
      * Constructor of a Mission object
@@ -29,8 +29,9 @@ public class Mission {
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      * @param room represent the room of the mission (can be null)
+     * @param commentary represent the commentary of the mission (can be null)
      */
-    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill, String room) {
+    public Mission(int id, String subjet, MissionState stateOfMission, List<Beneficiary> beneficiaries, List<Interpreter> interpreters, Location location, JobSkill jobSkill, AcademicSkill academicSkill, String room, String commentary) {
         this.id = id;
         this.subjet = subjet;
         this.stateOfMission = stateOfMission;
@@ -40,6 +41,7 @@ public class Mission {
         this.jobSkill = jobSkill;
         this.academicSkill = academicSkill;
         this.room = room;
+        this.commentary = commentary;
     }
 
     /**
@@ -54,6 +56,20 @@ public class Mission {
      */
     public void setSubject(String subject){
         this.subjet = subject;
+    }
+
+    /**
+     * @return this.commentary
+     */
+    public String getCommentary() {
+        return commentary;
+    }
+
+    /**
+     * @param commentary represent the commentary of Mission
+     */
+    public void setCommentary(String commentary){
+        this.commentary = commentary;
     }
 
     /**
@@ -212,9 +228,9 @@ public class Mission {
      * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
      */
     public boolean equals(Mission other) {
-        return (id == other.id && subjet == other.subjet && stateOfMission == other.stateOfMission &&
+        return (id == other.id && subjet.equals(other.subjet) && stateOfMission == other.stateOfMission &&
                 location == other.location && jobSkill == other.jobSkill &&
-                academicSkill == other.academicSkill && room == other.room);
+                academicSkill == other.academicSkill && room.equals(other.room) && commentary.equals(other.commentary));
     }
 
     /**

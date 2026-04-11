@@ -1,4 +1,4 @@
-package be.hers.pi.entendre_et_parler;
+package be.hers.pi.comprendre_et_parler;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
