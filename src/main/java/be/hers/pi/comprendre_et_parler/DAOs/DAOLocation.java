@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOLocation implements DAO<Location> {
-    public final String table = "location";
-    public final String fieldID = "id";
-    public final String fieldDesignation = "designation";
-    public final String fieldCity = "city";
-    public final String fieldStreet = "street";
-    public final String fieldStreetNumber = "streetNumber";
-    public final String fieldBox = "box";
+    public final String TABLE = "location";
+    public final String FIELD_ID = "id";
+    public final String FIELD_DESIGNATION = "designation";
+    public final String FIELD_CITY = "city";
+    public final String FIELD_STREET = "street";
+    public final String FIELD_STREET_NUMBER = "streetNumber";
+    public final String FIELD_BOX = "box";
 
     /**
      * Search for a location in the database with the int parameter
@@ -28,7 +28,7 @@ public class DAOLocation implements DAO<Location> {
      */
     @Override
     public Location find(int id) throws SQLException {
-        String query = "SELECT * FROM " + table + " WHERE " + fieldID + " = ?";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Location location = null;
@@ -39,11 +39,11 @@ public class DAOLocation implements DAO<Location> {
             if (result.next()) {
                 location = new Location(
                         id,
-                        result.getString(fieldDesignation),
-                        new DAOCity().find(result.getInt(fieldCity)),
-                        result.getString(fieldStreet),
-                        result.getString(fieldStreetNumber),
-                        result.getInt(fieldBox)
+                        result.getString(FIELD_DESIGNATION),
+                        new DAOCity().find(result.getInt(FIELD_CITY)),
+                        result.getString(FIELD_STREET),
+                        result.getString(FIELD_STREET_NUMBER),
+                        result.getInt(FIELD_BOX)
                 );
             }
         }
@@ -75,7 +75,7 @@ public class DAOLocation implements DAO<Location> {
 
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)";
-        query = String.format(query, table, fieldDesignation, fieldCity, fieldStreet, fieldStreetNumber, fieldBox);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -109,7 +109,7 @@ public class DAOLocation implements DAO<Location> {
         }
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, table, fieldDesignation, fieldCity, fieldStreet, fieldStreetNumber, fieldBox, fieldID);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -138,7 +138,7 @@ public class DAOLocation implements DAO<Location> {
     @Override
     public void delete(Location objectToDelete) throws NoSuchElementException, SQLException {
         String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, table, fieldID, fieldDesignation, fieldCity, fieldStreet, fieldStreetNumber, fieldBox);
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -165,7 +165,7 @@ public class DAOLocation implements DAO<Location> {
      */
     @Override
     public List<Location> findAll() throws SQLException {
-        String query = "SELECT * FROM " + table;
+        String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
         List<Location> locations = new ArrayList<>();
@@ -174,12 +174,12 @@ public class DAOLocation implements DAO<Location> {
             result = statement.executeQuery();
             while (result.next()) {
                 locations.add(new Location(
-                        result.getInt(fieldID),
-                        result.getString(fieldDesignation),
-                        new DAOCity().find(result.getInt(fieldCity)),
-                        result.getString(fieldStreet),
-                        result.getString(fieldStreetNumber),
-                        result.getInt(fieldBox)
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION),
+                        new DAOCity().find(result.getInt(FIELD_CITY)),
+                        result.getString(FIELD_STREET),
+                        result.getString(FIELD_STREET_NUMBER),
+                        result.getInt(FIELD_BOX)
                 ));
             }
         }

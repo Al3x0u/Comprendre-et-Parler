@@ -12,14 +12,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class DAOMission implements DAO<Mission> {
-    public final String table = "mission";
-    public final String fieldID = "id";
-    public final String fieldSubject = "subject";
-    public final String fieldState = "stateOfMission";
-    public final String fieldCommentary = "commentary";
-    public final String fieldTimeSlot = "timeSlot";
-    public final String fieldJobSkill = "jobSkill";
-    public final String fieldAcademicSkill = "academicSkill";
+    public static final String TABLE = "mission";
+    public static final String FIELD_ID = "id";
+    public static final String FIELD_SUBJECT = "subject";
+    public static final String FIELD_STATE = "stateOfMission";
+    public static final String FIELD_COMMENTARY = "commentary";
+    public static final String FIELD_TIME_SLOT = "timeSlot";
+    public static final String FIELD_JOB_SKILL = "jobSkill";
+    public static final String FIELD_ACADEMIC_SKILL = "academicSkill";
 
     /**
      * Search for a Mission in the database with the int parameter
@@ -29,7 +29,7 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public Mission find(int id) throws SQLException {
-        String query = "SELECT * FROM " + table + " WHERE " + fieldID + " = ?";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Mission mission = null;
@@ -38,22 +38,22 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                MissionState state = MissionState.valueOf(result.getString(fieldState));
+                MissionState state = MissionState.valueOf(result.getString(FIELD_STATE));
                 TimeSlot timeSlot;
                 if (state == MissionState.REGULAR) {
-                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(fieldTimeSlot));
+                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
                 } else {
-                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(fieldTimeSlot));
+                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
                 }
                 mission = new Mission(
                         id,
-                        result.getString(fieldSubject),
+                        result.getString(FIELD_SUBJECT),
                         state,
-                        result.getString(fieldCommentary),
+                        result.getString(FIELD_COMMENTARY),
                         timeSlot,
                         new DAOLocation().getMissionLocation(id),
-                        new DAOJobSkill().find(result.getInt(fieldJobSkill)),
-                        new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill)),
+                        new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
+                        new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
                         new DAOLocation().getMissionRoom(id)
                 );
             }
@@ -86,10 +86,10 @@ public class DAOMission implements DAO<Mission> {
 
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?)";
-        query = String.format(query, table, fieldSubject, fieldState, fieldCommentary, fieldTimeSlot, fieldJobSkill, fieldAcademicSkill);
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL);
         PreparedStatement statement = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{fieldID});
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getSubject());
             statement.setString(2, objectToInsert.getStateOfMission().toString());
             statement.setString(3, objectToInsert.getCommentary());
@@ -131,7 +131,7 @@ public class DAOMission implements DAO<Mission> {
         }
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, table, fieldSubject, fieldState, fieldCommentary, fieldTimeSlot, fieldJobSkill, fieldAcademicSkill, fieldID);
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -162,7 +162,7 @@ public class DAOMission implements DAO<Mission> {
     @Override
     public void delete(Mission objectToDelete) throws NoSuchElementException, SQLException {
         String query = "DELETE FROM %s WHERE %s = ?";
-        query = String.format(query, table, fieldID);
+        query = String.format(query, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -184,7 +184,7 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public List<Mission> findAll() throws SQLException {
-        String query = "SELECT * FROM " + table;
+        String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
         List<Mission> missions = new ArrayList<>();
@@ -192,23 +192,23 @@ public class DAOMission implements DAO<Mission> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                int missionId = result.getInt(fieldID);
-                MissionState state = MissionState.valueOf(result.getString(fieldState));
+                int missionId = result.getInt(FIELD_ID);
+                MissionState state = MissionState.valueOf(result.getString(FIELD_STATE));
                 TimeSlot timeSlot;
                 if (state == MissionState.REGULAR) {
-                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(fieldTimeSlot));
+                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
                 } else {
-                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(fieldTimeSlot));
+                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
                 }
                 missions.add(new Mission(
                         missionId,
-                        result.getString(fieldSubject),
+                        result.getString(FIELD_SUBJECT),
                         state,
-                        result.getString(fieldCommentary),
+                        result.getString(FIELD_COMMENTARY),
                         timeSlot,
                         new DAOLocation().getMissionLocation(missionId),
-                        new DAOJobSkill().find(result.getInt(fieldJobSkill)),
-                        new DAOAcademicSkill().find(result.getInt(fieldAcademicSkill)),
+                        new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
+                        new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
                         new DAOLocation().getMissionRoom(missionId)
                 ));
             }
@@ -233,8 +233,8 @@ public class DAOMission implements DAO<Mission> {
      */
     public List<Mission> getScheduleForWeek(int idUser, int week) throws SQLException {
         List<Mission> missions = new ArrayList<>();
-        String query = "SELECT m.id FROM " + table + " m " +
-                "JOIN TimeSlot ts ON m." + fieldTimeSlot + " = ts.id " +
+        String query = "SELECT m.id FROM " + TABLE + " m " +
+                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE ts.day IS NOT NULL " +
                 "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
                 "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
@@ -271,8 +271,8 @@ public class DAOMission implements DAO<Mission> {
      */
     public List<Mission> getScheduleForDay(int idUser, int day) throws SQLException {
         List<Mission> missions = new ArrayList<>();
-        String query = "SELECT m.id FROM " + table + " m " +
-                "JOIN TimeSlot ts ON m." + fieldTimeSlot + " = ts.id " +
+        String query = "SELECT m.id FROM " + TABLE + " m " +
+                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE ts.day = ? " +
                 "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
                 "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
