@@ -209,15 +209,29 @@ public class Mission {
 
     /**
      * @param beneficiaries represent the beneficiaries and their importance
+     * @throws AlreadyExistsException if two beneficiaries have the same id or are equal
      */
-    public void setBeneficiaries(Map<Beneficiary, Integer> beneficiaries) {
+    public void setBeneficiaries(Map<Beneficiary, Integer> beneficiaries) throws AlreadyExistsException {
+        for (Beneficiary b1 : beneficiaries.keySet()) {
+            for (Beneficiary b2 : beneficiaries.keySet()) {
+                if (b1 != b2 && (b1.getId() == b2.getId() || b1.equals(b2)))
+                    throw new AlreadyExistsException("Two beneficiaries have the same id or are equal");
+            }
+        }
         this.beneficiaries = new HashMap<>(beneficiaries);
     }
 
     /**
      * @param interpreters represent the interpreters of the mission
+     * @throws AlreadyExistsException if two interpreters have the same id or are equal
      */
-    public void setInterpreters(List<Interpreter> interpreters) {
+    public void setInterpreters(List<Interpreter> interpreters) throws AlreadyExistsException {
+        for (int i = 0; i < interpreters.size(); i++) {
+            for (int j = i + 1; j < interpreters.size(); j++) {
+                if (interpreters.get(i).getId() == interpreters.get(j).getId() || interpreters.get(i).equals(interpreters.get(j)))
+                    throw new AlreadyExistsException("Two interpreters have the same id or are equal");
+            }
+        }
         this.interpreters = new ArrayList<>(interpreters);
     }
 
