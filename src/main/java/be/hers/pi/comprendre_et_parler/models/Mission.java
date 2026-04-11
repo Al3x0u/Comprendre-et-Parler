@@ -67,7 +67,7 @@ public class Mission {
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
-        this.timeSlot = timeSlot;
+        this.timeSlot = timeSlot.clone();
         this.beneficiaries = new HashMap<>(beneficiaries);
         this.interpreters = new ArrayList<>(interpreters);
         this.location = new Location(location);
