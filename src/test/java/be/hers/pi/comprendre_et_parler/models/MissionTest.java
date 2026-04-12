@@ -77,8 +77,10 @@ class MissionTest {
 
     @Test
     public void testGetBeneficiaries() {
-        List<Beneficiary> b3 = m1.getBeneficiaries();
-        b3.add(new Beneficiary(5, "5", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null));
+        Map<Beneficiary, Integer> b3 = m1.getBeneficiaries();
+        assertEquals(b3, m1.getBeneficiaries(), "Must obtain an exact copy of the object.");
+
+        b3.put(new Beneficiary(5, "5", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 1);
         assertNotEquals(b3, m1.getBeneficiaries(), "The original object has to remain itself.");
     }
 
@@ -115,6 +117,8 @@ class MissionTest {
     @Test
     public void testGetInterpreters() {
         List<Interpreter> i3 = m1.getInterpreters();
+        assertEquals(i3, m1.getInterpreters(), "Must obtain an exact copy of the object.");
+
         i3.add(new Interpreter(74, 105, 9, "9", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         assertNotEquals(m1.getInterpreters(), i3, "The original object has to remain itself.");
     }

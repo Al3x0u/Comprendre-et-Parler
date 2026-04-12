@@ -37,12 +37,14 @@ class LocationTest {
         City c2 = new City(c1);
         l1.setCity(c2);
         c2.setPostalCode(6900);
-        assertFalse(c2.equals(l1.getCity()));
+        assertFalse(c2.equals(l1.getCity()), "Modifications effected on the obtained object cannot change the original object.");
     }
 
     @Test
     public void testGetCity() {
         City c2 = l1.getCity();
+        assertEquals(c2, l1.getCity(), "Must obtain an exact copy of the object.");
+
         c2.setPostalCode(7800);
         assertFalse(c2.equals(l1.getCity()), "The original object has to remain itself.");
     }
