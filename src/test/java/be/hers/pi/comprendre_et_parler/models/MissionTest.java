@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -46,11 +47,32 @@ class MissionTest {
 
     @Test
     public void testSetBeneficiaries() {
+        assertThrows(NullPointerException.class, () -> {
+            m1.setBeneficiaries(null);
+        });
+
         Map<Beneficiary, Integer> b2 = new HashMap<Beneficiary, Integer>();
         b2.put(new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 1);
         m1.setBeneficiaries(b2);
-        b2.put(new Beneficiary(4, "4", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 0);
+        assertEquals(m1.getBeneficiaries(), b2);
+
+        Beneficiary b3 = new Beneficiary(4, "4", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
+        b2.put(b3, 0);
         assertNotEquals(m1.getBeneficiaries(), b2);
+
+        b3.setLogin("8");
+        b2.put(b3, 0);
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.setBeneficiaries(b2);
+        });
+
+        b2.remove(b3);
+        b3.setLogin("4");
+        b3.setId(3);
+        b2.put(b3, 2);
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.setBeneficiaries(b2);
+        });
     }
 
     @Test
@@ -75,11 +97,32 @@ class MissionTest {
 
     @Test
     public void testSetInterpreters() {
+        assertThrows(NullPointerException.class, () -> {
+            m1.setInterpreters(null);
+        });
+
         List<Interpreter> i2 = new ArrayList<Interpreter>();
         i2.add(new Interpreter(74, 105, 7, "7", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         m1.setInterpreters(i2);
-        i2.add(new Interpreter(10, 40, 8, "8", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
+        assertEquals(m1.getInterpreters(), i2);
+
+        Interpreter i3 = new Interpreter(74, 105, 8, "8", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
+        i2.add(i3);
         assertNotEquals(m1.getInterpreters(), i2);
+
+        i3.setLogin("9");
+        i2.add(i3);
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.setInterpreters(i2);
+        });
+
+        i2.remove(i3);
+        i3.setLogin("8");
+        i3.setId(20);
+        i2.add(i3);
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.setInterpreters(i2);
+        });
     }
 
     @Test
