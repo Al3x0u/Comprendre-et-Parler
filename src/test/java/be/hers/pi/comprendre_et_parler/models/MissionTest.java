@@ -2,24 +2,27 @@ package be.hers.pi.comprendre_et_parler.models;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
+import java.util.ArrayList;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MissionTest {
-    private static List<Beneficiary> beneficiaries;
+    private static Map<Beneficiary, Integer> beneficiaries;
     private static List<Interpreter> interpreters;
     private static Beneficiary b1;
     private static Interpreter i1;
-    private static List<Beneficiary> b2;
-    private static List<Interpreter> i2;
     private static Mission m1;
 
     @BeforeAll
     public static void init() {
         i1 = new Interpreter(20, 30, 1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Transportation(1, "test"));
         b1 = new Beneficiary(2, "2", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
-        beneficiaries.add(b1);
+        beneficiaries.put(b1, 4);
         interpreters.add(i1);
         m1 = new Mission(1,
                 "test",
@@ -43,9 +46,10 @@ class MissionTest {
 
     @Test
     public void testSetBeneficiaries() {
-        b2.add(new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null));
+        Map<Beneficiary, Integer> b2 = new HashMap<Beneficiary, Integer>();
+        b2.put(new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 1);
         m1.setBeneficiaries(b2);
-        b2.add(new Beneficiary(4, "4", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null));
+        b2.put(new Beneficiary(4, "4", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 0);
         assertNotEquals(m1.getBeneficiaries(), b2);
     }
 
@@ -71,6 +75,7 @@ class MissionTest {
 
     @Test
     public void testSetInterpreters() {
+        List<Interpreter> i2 = new ArrayList<Interpreter>();
         i2.add(new Interpreter(74, 105, 7, "7", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         m1.setInterpreters(i2);
         i2.add(new Interpreter(10, 40, 8, "8", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
