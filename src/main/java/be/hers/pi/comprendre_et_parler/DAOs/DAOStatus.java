@@ -14,7 +14,7 @@ public class DAOStatus implements DAO<Status> {
     static final String FIELD_HOURQUOTA = "hourquota";
 
     /**
-     * Search for a Transportation in the database with the int parameter
+     * Search for a Status in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -25,7 +25,7 @@ public class DAOStatus implements DAO<Status> {
     }
 
     /**
-     * Insert a Transportation Object in the database
+     * Insert a Status Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws SQLException if we couldn't connect to the database
@@ -36,7 +36,7 @@ public class DAOStatus implements DAO<Status> {
     }
 
     /**
-     * Update a Transportation line who already exist in the database
+     * Update a Status line who already exist in the database
      * @param objectToUpdate : object with the news information
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws NoSuchElementException if there are not the element to update in the database
@@ -48,9 +48,9 @@ public class DAOStatus implements DAO<Status> {
     }
 
     /**
-     * Delete a Transportation line in the table in the database
+     * Delete a Status line in the table in the database
      * @param objectToDelete : object with the information of the line who need to be deleted
-     * @throws NoSuchElementException if we couldn't find the Transportation object in the database
+     * @throws NoSuchElementException if we couldn't find the Status object in the database
      * @throws SQLException if we couldn't connect to the database
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
@@ -59,7 +59,7 @@ public class DAOStatus implements DAO<Status> {
     }
 
     /**
-     * Return all line of Transportation table in the database in a List
+     * Return all line of Status table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
