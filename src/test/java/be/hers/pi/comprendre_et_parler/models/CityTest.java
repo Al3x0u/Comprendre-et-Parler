@@ -39,6 +39,9 @@ class CityTest {
         City c2 = new City(c1);
         assertTrue(c1.equals(c2));
 
+        c1.setId(20);
+        assertTrue(c2.equals(c1));
+
         c2.setDesignation("Dernier test");
         assertFalse(c2.equals(c1));
     }

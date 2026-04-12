@@ -53,6 +53,9 @@ class LocationTest {
         Location l2 = new Location(l1);
         assertTrue(l1.equals(l2));
 
+        l1.setId(20);
+        assertTrue(l2.equals(l1));
+
         l2.setDesignation("Dernier test");
         assertFalse(l2.equals(l1));
     }

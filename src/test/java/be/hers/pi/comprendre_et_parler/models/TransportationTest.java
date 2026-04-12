@@ -29,6 +29,9 @@ class TransportationTest {
         Transportation t2 = new Transportation(t1);
         assertTrue(t1.equals(t2));
 
+        t1.setId(20);
+        assertTrue(t2.equals(t1));
+
         t2.setDesignation("Dernier test");
         assertFalse(t2.equals(t1));
     }

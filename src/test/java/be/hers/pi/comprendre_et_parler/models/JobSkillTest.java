@@ -29,6 +29,9 @@ class JobSkillTest {
         JobSkill j2 = new JobSkill(j1);
         assertTrue(j1.equals(j2));
 
+        j1.setId(20);
+        assertTrue(j2.equals(j1));
+
         j2.setDesignation("Dernier test");
         assertFalse(j2.equals(j1));
     }

@@ -105,6 +105,9 @@ class MissionTest {
         Mission m2 = new Mission(m1);
         assertTrue(m1.equals(m2));
 
+        m1.setId(20);
+        assertTrue(m2.equals(m1));
+
         m2.setCommentary("Dernier test");
         assertFalse(m2.equals(m1));
     }

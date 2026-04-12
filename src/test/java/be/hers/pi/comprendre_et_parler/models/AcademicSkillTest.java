@@ -29,6 +29,9 @@ class AcademicSkillTest {
         AcademicSkill a2 = new AcademicSkill(a1);
         assertTrue(a1.equals(a2));
 
+        a1.setId(20);
+        assertTrue(a2.equals(a1));
+
         a2.setDesignation("Dernier test");
         assertFalse(a2.equals(a1));
     }

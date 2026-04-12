@@ -37,6 +37,9 @@ class StatusTest {
         Status s2 = new Status(s1);
         assertTrue(s1.equals(s2));
 
+        s1.setId(20);
+        assertTrue(s2.equals(s1));
+
         s2.setDesignation("Dernier test");
         assertFalse(s2.equals(s1));
     }
