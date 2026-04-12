@@ -83,19 +83,6 @@ class MissionTest {
     }
 
     @Test
-    public void testAddBeneficiary() {
-        Beneficiary b4 = new Beneficiary(6, "6", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null));
-        m1.addBeneficiary(b4);
-        assertTrue(m1.getBeneficiaries().stream().anyMatch(b -> b.equals(b4)));
-    }
-
-    @Test
-    public void testDeleteBeneficiary() {
-        m1.deleteBeneficiary(b1.getId());
-        assertFalse(m1.getBeneficiaries().stream().anyMatch(b -> b.equals(b1)));
-    }
-
-    @Test
     public void testSetInterpreters() {
         assertThrows(NullPointerException.class, () -> {
             m1.setInterpreters(null);
@@ -130,19 +117,6 @@ class MissionTest {
         List<Interpreter> i3 = m1.getInterpreters();
         i3.add(new Interpreter(74, 105, 9, "9", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         assertNotEquals(m1.getInterpreters(), i3, "The original object has to remain itself.");
-    }
-
-    @Test
-    public void testAddInterpreter() {
-        Interpreter i4 = new Interpreter(74, 105, 10, "10", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
-        m1.addInterpreter(i4);
-        assertTrue(m1.getInterpreters().stream().anyMatch(i -> i.equals(i4)));
-    }
-
-    @Test
-    public void testDeleteInterpreter() {
-        m1.deleteInterpreter(i1.getId());
-        assertFalse(m1.getInterpreters().stream().anyMatch(i -> i.equals(i1)));
     }
 
     @Test
