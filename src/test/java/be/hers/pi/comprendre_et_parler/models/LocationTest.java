@@ -34,8 +34,10 @@ class LocationTest {
 
     @Test
     public void testSetCity() {
-        c1.setPostalCode(6900);
-        assertFalse(c1.equals(l1.getCity()));
+        City c2 = new City(c1);
+        l1.setCity(c2);
+        c2.setPostalCode(6900);
+        assertFalse(c2.equals(l1.getCity()));
     }
 
     @Test
