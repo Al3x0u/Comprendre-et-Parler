@@ -99,13 +99,13 @@ class MissionTest {
 
     @Test
     public void testEquals() {
-        assertNotEquals(null, m1);
-        assertEquals(m1, m1);
+        assertFalse(m1.equals(null));
+        assertTrue(m1.equals(m1));
 
         Mission m2 = new Mission(m1);
-        assertEquals(m1, m2);
+        assertTrue(m1.equals(m2));
 
         m2.setCommentary("Dernier test");
-        assertNotEquals(m2, m1);
+        assertFalse(m2.equals(m1));
     }
 }
