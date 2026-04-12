@@ -49,22 +49,22 @@ class MissionTest {
     public void testSetBeneficiaries() {
         assertThrows(NullPointerException.class, () -> {
             m1.setBeneficiaries(null);
-        });
+        }, "The Map cannot be null.");
 
         Map<Beneficiary, Integer> b2 = new HashMap<Beneficiary, Integer>();
         b2.put(new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 1);
         m1.setBeneficiaries(b2);
-        assertEquals(m1.getBeneficiaries(), b2);
+        assertEquals(m1.getBeneficiaries(), b2, "Must have copied the object.");
 
         Beneficiary b3 = new Beneficiary(4, "4", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
         b2.put(b3, 0);
-        assertNotEquals(m1.getBeneficiaries(), b2);
+        assertNotEquals(m1.getBeneficiaries(), b2, "Modifications effected on the obtained object cannot change the original object.");
 
         b3.setLogin("8");
         b2.put(b3, 0);
         assertThrows(AlreadyExistsException.class, () -> {
             m1.setBeneficiaries(b2);
-        });
+        }, "The Map cannot have two objects with the same id.");
 
         b2.remove(b3);
         b3.setLogin("4");
@@ -72,7 +72,7 @@ class MissionTest {
         b2.put(b3, 2);
         assertThrows(AlreadyExistsException.class, () -> {
             m1.setBeneficiaries(b2);
-        });
+        }, "The Map cannot have two equal objects.");
     }
 
     @Test
@@ -88,22 +88,22 @@ class MissionTest {
     public void testSetInterpreters() {
         assertThrows(NullPointerException.class, () -> {
             m1.setInterpreters(null);
-        });
+        }, "The List cannot be null.");
 
         List<Interpreter> i2 = new ArrayList<Interpreter>();
         i2.add(new Interpreter(74, 105, 7, "7", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         m1.setInterpreters(i2);
-        assertEquals(m1.getInterpreters(), i2);
+        assertEquals(m1.getInterpreters(), i2, "Must have copied the object.");
 
         Interpreter i3 = new Interpreter(74, 105, 8, "8", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
         i2.add(i3);
-        assertNotEquals(m1.getInterpreters(), i2);
+        assertNotEquals(m1.getInterpreters(), i2, "Modifications effected on the obtained object cannot change the original object.");
 
         i3.setLogin("9");
         i2.add(i3);
         assertThrows(AlreadyExistsException.class, () -> {
             m1.setInterpreters(i2);
-        });
+        }, "The List cannot have two objects with the same id.");
 
         i2.remove(i3);
         i3.setLogin("8");
@@ -111,7 +111,7 @@ class MissionTest {
         i2.add(i3);
         assertThrows(AlreadyExistsException.class, () -> {
             m1.setInterpreters(i2);
-        });
+        }, "The List cannot have two equal objects.");
     }
 
     @Test
