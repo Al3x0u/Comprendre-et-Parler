@@ -19,17 +19,17 @@ class LocationTest {
     @Test
     public void testSetId() {
         l1.setId(-1);
-        assertEquals(1, l1.getId());
+        assertEquals(1, l1.getId(), "id cannot be negative.");
         l1.setId(2);
-        assertEquals(2, l1.getId());
+        assertEquals(2, l1.getId(), "id has to change.");
     }
 
     @Test
     public void testSetBox() {
         l1.setBox(-1);
-        assertEquals(1, l1.getBox());
+        assertEquals(1, l1.getBox(), "box cannot be negative.");
         l1.setBox(2);
-        assertEquals(2, l1.getBox());
+        assertEquals(2, l1.getBox(), "box has to change.");
     }
 
     @Test
@@ -42,21 +42,21 @@ class LocationTest {
     public void testGetCity() {
         City c2 = l1.getCity();
         c2.setPostalCode(7800);
-        assertTrue(c1.equals(l1.getCity()));
+        assertFalse(c2.equals(l1.getCity()), "The original object has to remain itself.");
     }
 
     @Test
     public void testEquals() {
-        assertFalse(l1.equals(null));
-        assertTrue(l1.equals(l1));
+        assertFalse(l1.equals(null), "The second object is null.");
+        assertTrue(l1.equals(l1), "The second object is the same as the first one.");
 
         Location l2 = new Location(l1);
-        assertTrue(l1.equals(l2));
+        assertTrue(l1.equals(l2), "The second object is a copy of the first one.");
 
         l1.setId(20);
-        assertTrue(l2.equals(l1));
+        assertTrue(l2.equals(l1), "The second object has its id changed.");
 
         l2.setDesignation("Dernier test");
-        assertFalse(l2.equals(l1));
+        assertFalse(l2.equals(l1), "The second object has one of its attributes other than its id changed.");
     }
 }

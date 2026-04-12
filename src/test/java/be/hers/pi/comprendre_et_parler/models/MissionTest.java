@@ -36,9 +36,9 @@ class MissionTest {
     @Test
     public void testSetId() {
         m1.setId(-1);
-        assertEquals(1, m1.getId());
+        assertEquals(1, m1.getId(), "id cannot be negative.");
         m1.setId(2);
-        assertEquals(2, m1.getId());
+        assertEquals(2, m1.getId(), "id has to change.");
     }
 
     @Test
@@ -53,7 +53,7 @@ class MissionTest {
     public void testGetBeneficiaries() {
         List<Beneficiary> b3 = m1.getBeneficiaries();
         b3.add(new Beneficiary(5, "5", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null));
-        assertNotEquals(m1.getBeneficiaries(), b3);
+        assertNotEquals(b3, m1.getBeneficiaries(), "The original object has to remain itself.");
     }
 
     @Test
@@ -81,7 +81,7 @@ class MissionTest {
     public void testGetInterpreters() {
         List<Interpreter> i3 = m1.getInterpreters();
         i3.add(new Interpreter(74, 105, 9, "9", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
-        assertNotEquals(m1.getInterpreters(), i3);
+        assertNotEquals(m1.getInterpreters(), i3, "The original object has to remain itself.");
     }
 
     @Test
@@ -99,16 +99,16 @@ class MissionTest {
 
     @Test
     public void testEquals() {
-        assertFalse(m1.equals(null));
-        assertTrue(m1.equals(m1));
+        assertFalse(m1.equals(null), "The second object is null.");
+        assertTrue(m1.equals(m1), "The second object is the same as the first one.");
 
         Mission m2 = new Mission(m1);
-        assertTrue(m1.equals(m2));
+        assertTrue(m1.equals(m2), "The second object is a copy of the first one.");
 
         m1.setId(20);
-        assertTrue(m2.equals(m1));
+        assertTrue(m2.equals(m1), "The second object has its id changed.");
 
         m2.setCommentary("Dernier test");
-        assertFalse(m2.equals(m1));
+        assertFalse(m2.equals(m1), "The second object has one of its attributes other than its id changed.");
     }
 }

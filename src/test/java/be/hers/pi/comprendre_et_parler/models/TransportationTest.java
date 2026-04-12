@@ -16,23 +16,23 @@ class TransportationTest {
     @Test
     public void testSetId() {
         t1.setId(-1);
-        assertEquals(1, t1.getId());
+        assertEquals(1, t1.getId(), "id cannot be negative.");
         t1.setId(2);
-        assertEquals(2, t1.getId());
+        assertEquals(2, t1.getId(), "id has to change.");
     }
 
     @Test
     public void testEquals() {
-        assertFalse(t1.equals(null));
-        assertTrue(t1.equals(t1));
+        assertFalse(t1.equals(null), "The second object is null.");
+        assertTrue(t1.equals(t1), "The second object is the same as the first one.");
 
         Transportation t2 = new Transportation(t1);
-        assertTrue(t1.equals(t2));
+        assertTrue(t1.equals(t2), "The second object is a copy of the first one.");
 
         t1.setId(20);
-        assertTrue(t2.equals(t1));
+        assertTrue(t2.equals(t1), "The second object has its id changed.");
 
         t2.setDesignation("Dernier test");
-        assertFalse(t2.equals(t1));
+        assertFalse(t2.equals(t1), "The second object has one of its attributes other than its id changed.");
     }
 }
