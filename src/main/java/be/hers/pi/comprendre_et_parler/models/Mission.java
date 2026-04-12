@@ -303,17 +303,12 @@ public class Mission {
      * @throws NullPointerException if beneficiary is null
      * @throws SQLException if the database could not be reached
      */
-    public void addBeneficiary(Beneficiary beneficiary, int importance) throws AlreadyExistsException, NullPointerException, SQLException {
+    public void addBeneficiary(Beneficiary beneficiary, int importance) throws AlreadyExistsException, NullPointerException {
         if (beneficiary == null)
             throw new NullPointerException("Beneficiary cannot be null");
-
         for (Beneficiary b : beneficiaries.keySet()) {
-            if (b.equals(beneficiary))
-                throw new AlreadyExistsException("Beneficiary already exists in this mission");
+            if (b.equals(beneficiary)) throw new AlreadyExistsException("Beneficiary already exists in this mission");
         }
-
-        DAOMission daoMission = new DAOMission();
-        daoMission.addBeneficiaryToMission(this.getId(), beneficiary.getId(), importance);
         beneficiaries.put(beneficiary, importance);
     }
 
@@ -336,11 +331,7 @@ public class Mission {
                 i++;
             }
         }
-        if (!found)
-            throw new NoSuchElementException("No beneficiary with id: " + id);
-
-        DAOMission daoMission = new DAOMission();
-        daoMission.removeBeneficiaryFromMission(this.getId(), toRemove.getId());
+        if (!found) throw new NoSuchElementException("No beneficiary with id: " + id);
         beneficiaries.remove(toRemove);
     }
 
@@ -357,12 +348,8 @@ public class Mission {
             throw new NullPointerException("Interpreter cannot be null");
 
         for (Interpreter i : interpreters) {
-            if (i.equals(interpreter))
-                throw new AlreadyExistsException("Interpreter already exists in this mission");
+            if (i.equals(interpreter)) throw new AlreadyExistsException("Interpreter already exists in this mission");
         }
-
-        DAOMission daoMission = new DAOMission();
-        daoMission.addInterpreterToMission(this.getId(), interpreter.getId());
         interpreters.add(interpreter);
     }
 
@@ -383,9 +370,6 @@ public class Mission {
             }
         }
         if (!found) throw new NoSuchElementException("No interpreter with login: " + login);
-
-        DAOMission daoMission = new DAOMission();
-        daoMission.removeInterpreterFromMission(this.getId(), interpreters.get(i).getId());
         interpreters.remove(i);
     }
 }
