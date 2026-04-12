@@ -23,12 +23,13 @@ class TransportationTest {
 
     @Test
     public void testEquals() {
-        Transportation t2 = new Transportation(t1);
-        Transportation t3 = new Transportation(10, "test");
-
         assertFalse(t1.equals(null));
         assertTrue(t1.equals(t1));
+
+        Transportation t2 = new Transportation(t1);
         assertTrue(t1.equals(t2));
-        assertFalse(t2.equals(t3));
+
+        t2.setDesignation("Dernier test");
+        assertFalse(t2.equals(t1));
     }
 }

@@ -99,21 +99,13 @@ class MissionTest {
 
     @Test
     public void testEquals() {
-        Mission m2 = new Mission(m1);
-        Mission m3 =new Mission(2,
-                "test",
-                MissionState.PENDING,
-                beneficiaries,
-                interpreters,
-                new Location(1, "test", new City(1, "Libramont", 6800), "test", "test", 20),
-                new JobSkill(2, "test"),
-                new AcademicSkill(1, "test"),
-                "test",
-                "test");
-
         assertNotEquals(null, m1);
         assertEquals(m1, m1);
+
+        Mission m2 = new Mission(m1);
         assertEquals(m1, m2);
-        assertEquals(m2, m3);
+
+        m2.setCommentary("Dernier test");
+        assertNotEquals(m2, m1);
     }
 }

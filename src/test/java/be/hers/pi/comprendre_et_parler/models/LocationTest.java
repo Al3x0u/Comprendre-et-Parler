@@ -47,12 +47,13 @@ class LocationTest {
 
     @Test
     public void testEquals() {
-        Location l2 = new Location(l1);
-        Location l3 = new Location(10, "test", c1, "test", "test", 1);
-
         assertFalse(l1.equals(null));
         assertTrue(l1.equals(l1));
+
+        Location l2 = new Location(l1);
         assertTrue(l1.equals(l2));
-        assertFalse(l2.equals(l3));
+
+        l2.setDesignation("Dernier test");
+        assertFalse(l2.equals(l1));
     }
 }

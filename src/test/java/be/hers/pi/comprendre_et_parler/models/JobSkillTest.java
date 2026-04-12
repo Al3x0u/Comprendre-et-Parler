@@ -23,12 +23,13 @@ class JobSkillTest {
 
     @Test
     public void testEquals() {
-        JobSkill j2 = new JobSkill(j1);
-        JobSkill j3 = new JobSkill(10, "test");
-
         assertFalse(j1.equals(null));
         assertTrue(j1.equals(j1));
+
+        JobSkill j2 = new JobSkill(j1);
         assertTrue(j1.equals(j2));
-        assertFalse(j2.equals(j3));
+
+        j2.setDesignation("Dernier test");
+        assertFalse(j2.equals(j1));
     }
 }

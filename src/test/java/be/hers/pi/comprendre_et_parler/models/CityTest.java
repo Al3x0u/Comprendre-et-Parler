@@ -33,12 +33,13 @@ class CityTest {
 
     @Test
     public void testEquals() {
-        City c2 = new City(c1);
-        City c3 = new City(10, "Libramont", 6800);
-
         assertFalse(c1.equals(null));
         assertTrue(c1.equals(c1));
+
+        City c2 = new City(c1);
         assertTrue(c1.equals(c2));
-        assertFalse(c2.equals(c3));
+
+        c2.setDesignation("Dernier test");
+        assertFalse(c2.equals(c1));
     }
 }

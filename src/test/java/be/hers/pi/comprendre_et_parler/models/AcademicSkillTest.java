@@ -23,12 +23,13 @@ class AcademicSkillTest {
 
     @Test
     public void testEquals() {
-        AcademicSkill a2 = new AcademicSkill(a1);
-        AcademicSkill a3 = new AcademicSkill(10, "test");
-
         assertFalse(a1.equals(null));
         assertTrue(a1.equals(a1));
+
+        AcademicSkill a2 = new AcademicSkill(a1);
         assertTrue(a1.equals(a2));
-        assertFalse(a2.equals(a3));
+
+        a2.setDesignation("Dernier test");
+        assertFalse(a2.equals(a1));
     }
 }

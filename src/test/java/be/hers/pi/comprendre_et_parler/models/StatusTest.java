@@ -31,12 +31,13 @@ class StatusTest {
 
     @Test
     public void testEquals() {
-        Status s2 = new Status(s1);
-        Status s3 = new Status(10, "test", 30);
-
         assertFalse(s1.equals(null));
         assertTrue(s1.equals(s1));
+
+        Status s2 = new Status(s1);
         assertTrue(s1.equals(s2));
-        assertFalse(s2.equals(s3));
+
+        s2.setDesignation("Dernier test");
+        assertFalse(s2.equals(s1));
     }
 }
