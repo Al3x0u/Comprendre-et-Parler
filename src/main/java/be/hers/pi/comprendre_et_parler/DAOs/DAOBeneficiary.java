@@ -10,11 +10,20 @@ import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.thymeleaf.standard.processor.StandardAttrprependTagProcessor;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.sql.Date;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class DAOBeneficiary implements DAO<Beneficiary> {
     protected static final String TABLE = "Beneficiary";
@@ -108,6 +117,13 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         return beneficiary;
     }
 
+    /**
+     * Utility method to Insert a AppliUser object in the database
+     * @param objectToInsert the Beneficiary object that contains the information for the AppliUser table in database
+     * @param connection the connection object to connect to the database
+     * @return the id of the AppliUser user inserted
+     * @throws SQLException if the database could not be reached
+     */
     private int insertAppliUser(Beneficiary objectToInsert, Connection connection) throws SQLException{
         String query = "INSERT INTO " + TABLE_APPLIUSER + " (" + FIELD_LOGIN + ", "
                 + FIELD_LAST_NAME + ", " + FIELD_FIRST_NAME + ", "
@@ -138,9 +154,6 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         }
     }
 
-    /**
-     * TODO : avant le bloc try catch de create affecter des éléments dans les attributs de l'interprete à insérer qui sont instanciés à null afin d'éviter un NullPointerException lors du get
-     * Ces attributs sont instanciés à null pour casser les dependances circulaires
     /**
      * Insert a Beneficiary object in the database
      * @param objectToInsert an object of type Beneficiary to add to the database
@@ -178,6 +191,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         }
     }
 
+    /**
+     * Utility method to Update a column in the AppliUser table in database
+     * @param objectToUpdate the Beneficiary object that contains the information for the AppliUser table in database
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
     private void updateAppliUser(Beneficiary objectToUpdate, Connection connection) throws SQLException, NoSuchElementException{
         String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_LOGIN
                 + " = ?, " + FIELD_FIRST_NAME + " = ?, " + FIELD_LAST_NAME + " = ?, "
@@ -280,7 +299,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             statement = connection.prepareStatement(query);
             result = statement.executeQuery();
 
-            if(result.next()){
+            while(result.next()){
                 beneficiaries.add(find(result.getInt(FIELD_ID)));
             }
         }finally {
@@ -288,10 +307,10 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 result.close();
             }
             if(statement != null){
-                result.close();
+                statement.close();
             }
         }
-        return List.of();
+        return beneficiaries;
     }
 
     /**
@@ -333,15 +352,16 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter, or null if no beneficiaries
      * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
      */
-    public List<Beneficiary> findReferencedBeneficiaries(String idInterpreter) throws SQLException, NoSuchElementException {
+    public List<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();
         List<Beneficiary> beneficiaries = new ArrayList<>();
-        String query = "SELECT " + FIELD_LOGIN + " FROM " + TABLE;
+        String query = "SELECT " + FIELD_LOGIN + " FROM " + TABLE + " WHERE " + FIELD_INTERPRETER_REFERENCE + " = ?";
 
         PreparedStatement statement = null;
         ResultSet result = null;
         try{
             statement = connection.prepareStatement(query);
+            statement.setInt(1, idInterpreter);
             result = statement.executeQuery();
 
             while(result.next()){
@@ -367,9 +387,9 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      */
     public List<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Beneficiary> beneficiaries = null;
+        List<Beneficiary> beneficiaries = new ArrayList<>();
         String query = "SELECT b." + FIELD_ID + " FROM " + TABLE + " b JOIN "
-                +  DAOStatus.TABLE + "s ON b." + FIELD_ID + " = s"
+                +  DAOStatus.TABLE + "s ON b." + FIELD_ID + " = s."
                 + DAOStatus.FIELD_ID + " WHERE b." + FIELD_STATUS + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -388,6 +408,35 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             }
             if(statement != null){
                 statement.close();
+            }
+        }
+        return beneficiaries;
+    }
+
+    /**
+     * Get the beneficiaries and their importance for a mission via BeneficiaryMission table
+     * @param missionId : id of the mission
+     * @return Map of Beneficiary and their importance, or an empty Map if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Map<Beneficiary, Integer> getMissionBeneficiaries(int missionId) throws SQLException {
+        String query = "SELECT beneficiary, importance FROM BeneficiaryMission WHERE mission = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Map<Beneficiary, Integer> beneficiaries = new HashMap<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            result = statement.executeQuery();
+            while (result.next())
+                beneficiaries.put(find(result.getInt("beneficiary")), result.getInt("importance"));
+        }
+        finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
         return beneficiaries;

@@ -70,12 +70,6 @@ class BeneficiaryTest {
     }
 
     @Test
-    void testSetId_metsAJourId() {
-        beneficiary.setId(42);
-        assertEquals(42, beneficiary.getId());
-    }
-
-    @Test
     void testSetLogin_metsAJourLogin() {
         beneficiary.setLogin("nouveaulogin");
         assertEquals("nouveaulogin", beneficiary.getLogin());

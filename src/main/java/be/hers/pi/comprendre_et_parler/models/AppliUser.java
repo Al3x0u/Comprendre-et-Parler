@@ -144,9 +144,11 @@ public abstract class AppliUser {
      * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
      */
     public boolean equals(AppliUser other) {
-        return (login == other.login && firstName == other.firstName && lastName == other.lastName &&
-                birthDate == other.birthDate && hashedPassword == other.hashedPassword &&
-                email == other.email && phoneNumber == other.phoneNumber);
+        if (this == other) return true;
+        if(other == null ) return false;
+        return (login.equals(other.login) && firstName.equals(other.firstName) && lastName.equals(other.lastName) &&
+                birthDate.equals(other.birthDate) && hashedPassword.equals(other.hashedPassword) &&
+                email.equals(other.email) && phoneNumber.equals(other.phoneNumber));
     }
 
     /**
@@ -154,7 +156,11 @@ public abstract class AppliUser {
      * @return formatted string with login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
      */
     @Override
-    public String toString() {
-        return null;
+    public String toString(){
+        return "Utilisateur {id = " + id + ", login = " + login
+                + ", first name = " + firstName + ", lastName  = "
+                + lastName + ", birthday date = " + birthDate
+                + ", hash Password = " + hashedPassword + ", email = " + email
+                + ", phone number = " + phoneNumber;
     }
 }

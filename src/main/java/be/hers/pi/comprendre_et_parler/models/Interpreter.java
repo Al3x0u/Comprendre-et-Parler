@@ -230,17 +230,21 @@ public class Interpreter extends AppliUser{
         return fieldAreEquals(interpreter);
     }
 
-    //TODO : Suivre cette logique pour les equals des autres classes si elles ont plus de 3 attributs
-    private boolean fieldAreEquals(Interpreter interpreter) {
-        return super.equals(interpreter) &&
-                hourQuotaWeek == interpreter.hourQuotaWeek &&
-                hourQuotaYear == interpreter.hourQuotaYear &&
-                Objects.equals(transportMode, interpreter.transportMode) &&
-                Objects.equals(academicSkills, interpreter.academicSkills) &&
-                Objects.equals(jobSkills, interpreter.jobSkills) &&
-                Objects.equals(location, interpreter.location) &&
-                Objects.equals(punctualTime, interpreter.punctualTime) &&
-                Objects.equals(unavailability, interpreter.unavailability);
+    /**
+     * Utility method to check if all the object attributes are equals
+     * @param other the other interpreter object to compare if it is equal to this
+     * @return true if all the class object attributes are equals
+     */
+    private boolean fieldAreEquals(Interpreter other) {
+        return super.equals(other) &&
+                hourQuotaWeek == other.hourQuotaWeek &&
+                hourQuotaYear == other.hourQuotaYear &&
+                Objects.equals(transportMode, other.transportMode) &&
+                Objects.equals(academicSkills, other.academicSkills) &&
+                Objects.equals(jobSkills, other.jobSkills) &&
+                Objects.equals(location, other.location) &&
+                Objects.equals(punctualTime, other.punctualTime) &&
+                Objects.equals(unavailability, other.unavailability);
     }
 
     /**
@@ -249,6 +253,7 @@ public class Interpreter extends AppliUser{
      */
     @Override
     public String toString() {
-        return null;
+        return super.toString();
+
     }
 }

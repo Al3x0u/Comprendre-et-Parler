@@ -91,8 +91,10 @@ public class DAOInterpreter implements DAO<Interpreter> {
         Connection connection = DatabaseConnector.getInstance();
         Interpreter interpreter = null;
 
-        String query = "SELECT a.*, i.%s, i.%s, i.%s, i.%s FROM %s a JOIN %s i ON a.%s = i.%s WHERE a.%s = ?";
-        query = String.format(query, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA, FIELD_TRANSPORT_MODE, FIELD_LOCATION, TABLE_APPLIUSER, FIELD_LOGIN, FIELD_LOGIN, FIELD_LOGIN);
+        String query = "SELECT a.*, i.%s, i.%s, i.%s, i.%s FROM %s a JOIN %s i " +
+                "ON a.%s = i.%s WHERE a.%s = ?";
+        query = String.format(query, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA, FIELD_TRANSPORT_MODE,
+                FIELD_LOCATION, TABLE_APPLIUSER, TABLE, FIELD_ID, FIELD_ID, FIELD_LOGIN);
 
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -134,7 +136,14 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
         return interpreter;
     }
-    
+
+    /**
+     * Utility method to Insert a AppliUser object in the database
+     * @param objectToInsert the Beneficiary object that contains the information for the AppliUser table in database
+     * @param connection the connection object to connect to the database
+     * @return the id of the AppliUser user inserted
+     * @throws SQLException if the database could not be reached
+     */
     private void insertAppliUser(Interpreter objectToInsert, Connection connection) throws SQLException{
         String query = "INSERT INTO " + TABLE_APPLIUSER + " (" + FIELD_LOGIN + ", "
                 + FIELD_LAST_NAME + ", " + FIELD_FIRST_NAME + ", "
@@ -160,6 +169,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
+    /**
+     * Utility method to Insert a ligne in the table that link Interpreter and academicSkill in database
+     * @param objectToInsert the Beneficiary object that contains the information for table in database
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
     private void insertAcademicSkillInterpreter(Interpreter objectToInsert, Connection connection)throws SQLException{
         String query = "INSERT INTO " +  TABLE_ACADEMIC_SKILL_INTERPRETER +" ("
                 + FIELD_ID + ", " + DAOAcademicSkill.FIELD_ID + ") VALUES(?, ?)";
@@ -180,6 +195,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
+    /**
+     * Utility method to Insert a ligne in the table that link Interpreter and jobSkill in database
+     * @param objectToInsert the Beneficiary object that contains the information for table in database
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
     private void insertJobSkillInterpreter(Interpreter objectToInsert, Connection connection)throws SQLException{
         String query = "INSERT INTO " + TABLE_JOB_SKILL_INTERPRETER + " ("+ FIELD_LOGIN
                 + ", " + DAOJobSkill.FIELD_ID + ") VALUES(?, ?)";
@@ -238,6 +259,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
+    //TODO : diviser la méthode en méthode utilistaire private comme avec la méthode create tout en respectant l'ordre des delete et des insert, comme fait avec update de DAOBeneficiary
     /**
      * Update an Interpreter line who already exist in the database
      * @param objectToUpdate the object to edit in the database
@@ -333,6 +355,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
+    //TODO : diviser la méthode en méthode utilistaire private comme avec la méthode create
     /**
      * Delete an Interpreter line in the table in the database
      * @param objectToDelete the object to delete in the database
@@ -418,7 +441,13 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return interpreters;
     }
 
-    public List<Interpreter> findAllByMissionId(int id) throws SQLException{
+    /**
+     * finds all the interpreter who have the same mission
+     * @param idMission the id of the Mission
+     * @return the list of the interpreter who have the mission with the idMission for id
+     * @throws SQLException if the database could not be reached
+     */
+    public List<Interpreter> findAllByMissionId(int idMission) throws SQLException{
         Connection connection = DatabaseConnector.getInstance();
         List<Interpreter> list = new ArrayList<>();
         String query = "SELECT i." + FIELD_ID + " FROM " + TABLE + " i JOIN " + TABLE_INTERPRETER_MISSION + " im ON i." + FIELD_ID + " = im." + FIELD_INTERPRETER + " WHERE im." + FIELD_MISSION + " = ?";
@@ -428,7 +457,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
 
         try{
             statement = connection.prepareStatement(query);
-            statement.setInt(1, id);
+            statement.setInt(1, idMission);
             result = statement.executeQuery();
 
             while(result.next()){

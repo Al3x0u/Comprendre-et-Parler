@@ -77,6 +77,7 @@ public class Beneficiary extends AppliUser {
      */
     @Override
     public String toString() {
-        return null;
+        return super.toString() + ", status = ?" + status.getDesignation()
+                + ", reference Interpreter login = " + interpreterRef.getLogin() + "}";
     }
 }
