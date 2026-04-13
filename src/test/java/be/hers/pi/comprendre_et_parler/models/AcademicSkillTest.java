@@ -16,19 +16,23 @@ class AcademicSkillTest {
     @Test
     public void testSetId() {
         a1.setId(-1);
-        assertEquals(1, a1.getId());
+        assertEquals(1, a1.getId(), "id cannot be negative.");
         a1.setId(2);
-        assertEquals(2, a1.getId());
+        assertEquals(2, a1.getId(), "id has to change.");
     }
 
     @Test
     public void testEquals() {
-        AcademicSkill a2 = new AcademicSkill(a1);
-        AcademicSkill a3 = new AcademicSkill(10, "test");
+        assertFalse(a1.equals(null), "The second object is null.");
+        assertTrue(a1.equals(a1), "The second object is the same as the first one.");
 
-        assertFalse(a1.equals(null));
-        assertTrue(a1.equals(a1));
-        assertTrue(a1.equals(a2));
-        assertFalse(a2.equals(a3));
+        AcademicSkill a2 = new AcademicSkill(a1);
+        assertTrue(a1.equals(a2), "The second object is a copy of the first one.");
+
+        a1.setId(20);
+        assertTrue(a2.equals(a1), "The second object has its id changed.");
+
+        a2.setDesignation("Dernier test");
+        assertFalse(a2.equals(a1), "The second object has one of its attributes other than its id changed.");
     }
 }
