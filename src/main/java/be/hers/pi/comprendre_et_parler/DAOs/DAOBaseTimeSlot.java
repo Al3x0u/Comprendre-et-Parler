@@ -6,6 +6,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 import be.hers.pi.comprendre_et_parler.models.Status;
 
 import java.sql.Time;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,7 +44,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
                         result.getInt(FIELD_ID),
                         result.getTime(FIELD_START_TIME).toLocalTime(),
                         result.getTime(FIELD_END_TIME).toLocalTime(),
-                        result.getDate(FIELD_START_TIME).toLocalDate().getDayOfWeek()
+                        DayOfWeek.of(result.getInt(FIELD_DAY))
                 );
             }
         }
@@ -138,7 +139,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
                         result.getInt(FIELD_ID),
                         result.getTime(FIELD_START_TIME).toLocalTime(),
                         result.getTime(FIELD_END_TIME).toLocalTime(),
-                        result.getDate(FIELD_START_TIME).toLocalDate().getDayOfWeek()
+                        DayOfWeek.of(result.getInt(FIELD_DAY))
                 ));
             }
         } finally {
