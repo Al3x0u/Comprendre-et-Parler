@@ -12,15 +12,16 @@ public class Mission {
     private MissionState stateOfMission;
     private String commentary;
     private TimeSlot timeSlot;
-    private Map<Beneficiary, Integer> beneficiaries;
+    private Beneficiary beneficiary;
     private List<Interpreter> interpreters;
     private Location location;
     private JobSkill jobSkill;
     private AcademicSkill academicSkill;
     private String room;
+    private int importance=0;
 
     /**
-     * Constructor of a Mission object
+     * Constructor of a Mission object without beneficiary
      * @param id represent the id of the mission
      * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
@@ -30,52 +31,53 @@ public class Mission {
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      * @param room represent the room of the mission (can be null)
+     * @param importance represent the importance of the mission
      */
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   Location location, JobSkill jobSkill, AcademicSkill academicSkill, String room) {
+                   Location location, List<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
+                   String room, int importance) {
         this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
         this.timeSlot = timeSlot.clone();
-        this.beneficiaries = null;
-        this.interpreters = null;
+        this.beneficiary = null;
+        this.interpreters = interpreters.stream().distinct().toList();
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
         this.room = room;
+        this.importance = importance;
     }
 
     /**
-     * Constructor of a Mission object with lists
+     * Constructor of a Mission object with beneficiary and no interpreters
      * @param id represent the id of the mission
      * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
      * @param commentary represent the commentary of the mission
      * @param timeSlot represent the time slot of the mission
-     * @param beneficiaries represent the beneficiaries who concern this mission
-     * @param interpreters represent the interpreters who work for this mission
+     * @param beneficiary represent the beneficiary who concern this mission
      * @param location represent the location of the mission
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
      * @param room represent the room of the mission (can be null)
      */
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   Map<Beneficiary, Integer> beneficiaries, List<Interpreter> interpreters, Location location,
-                   JobSkill jobSkill, AcademicSkill academicSkill, String room) {
+                   Beneficiary beneficiary, Location location,
+                   JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
         if(id > 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
         this.timeSlot = timeSlot.clone();
-        this.beneficiaries = new HashMap<>(beneficiaries);
-        this.interpreters = interpreters.stream()
-                                        .distinct()
-                                        .toList();
+        this.beneficiary = new Beneficiary(beneficiary);
+        this.interpreters = null;
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
         this.room = room;
+        this.importance = importance;
     }
 
     /**
@@ -88,12 +90,13 @@ public class Mission {
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
         this.timeSlot = mission.timeSlot.clone();
-        this.beneficiaries = new HashMap<>(mission.beneficiaries);
+        this.beneficiary = mission.beneficiary;
         this.interpreters = new ArrayList<>(mission.interpreters);
         this.location = new Location(mission.location);
         this.jobSkill = new JobSkill(mission.jobSkill);
         this.academicSkill = new AcademicSkill(mission.academicSkill);
         this.room = mission.room;
+        this.importance = mission.importance;
     }
 
     /**
@@ -132,10 +135,10 @@ public class Mission {
     }
 
     /**
-     * @return a copy of this.beneficiaries
+     * @return a copy of this.beneficiary
      */
-    public Map<Beneficiary, Integer> getBeneficiaries() {
-        return new HashMap<>(beneficiaries);
+    public Beneficiary getBeneficiary() {
+        return new Beneficiary(beneficiary);
     }
 
     /**
@@ -171,6 +174,13 @@ public class Mission {
      */
     public String getRoom() {
         return room;
+    }
+
+    /**
+     * @return this.importance
+     */
+    public int getImportance() {
+        return importance;
     }
 
     /**
@@ -210,17 +220,10 @@ public class Mission {
     }
 
     /**
-     * @param beneficiaries represent the beneficiaries and their importance
-     * @throws AlreadyExistsException if two beneficiaries have the same id or are equal
+     * @param beneficiary represent the beneficiary of the mission
      */
-    public void setBeneficiaries(Map<Beneficiary, Integer> beneficiaries) throws AlreadyExistsException {
-        for (Beneficiary b1 : beneficiaries.keySet()) {
-            for (Beneficiary b2 : beneficiaries.keySet()) {
-                if (b1 != b2 && (b1.getId() == b2.getId() || b1.equals(b2)))
-                    throw new AlreadyExistsException("Two beneficiaries have the same id or are equal");
-            }
-        }
-        this.beneficiaries = new HashMap<>(beneficiaries);
+    public void setBeneficiary(Beneficiary beneficiary) {
+        this.beneficiary = new Beneficiary(beneficiary);
     }
 
     /**
@@ -266,23 +269,32 @@ public class Mission {
     }
 
     /**
+     * @param importance represent the importance of the mission
+     * @post if 0 >= importance <= 3, importance is affected to this.importance
+     */
+    public void setImportance(int importance) {
+        if (importance >= 0 && importance <= 3) this.importance = importance;
+    }
+
+    /**
      * Return a String representation of the Mission containing all fields
-     * @return formatted string with id, subjet, stateOfMission, commentary, timeSlot, beneficiaries, interpreters, location, jobSkill, academicSkill and room
+     * @return formatted string with id, subjet, stateOfMission, commentary, timeSlot, beneficiary, interpreters,
+     * location, jobSkill, academicSkill, room and importance
      */
     @Override
     public String toString(){
         return "Mission{id=" + id + ", subject=" + subject + ", stateOfMission=" + stateOfMission +
-                ", commentary=" + commentary + ", timeSlot=" + timeSlot + ", beneficiaries=" + beneficiaries +
+                ", commentary=" + commentary + ", timeSlot=" + timeSlot + ", beneficiary=" + beneficiary +
                 ", interpreters=" + interpreters + ", location=" + location + ", jobSkill=" + jobSkill +
-                ", academicSkill=" + academicSkill + "}";
+                ", academicSkill=" + academicSkill + ", room=" + room + ", importance=" + importance + "}";
     }
 
     /**
      * Compare this Mission with another Mission for equality
      * @param o the Mission object to compare with
      * @return true if both Mission objects have identical subject, stateOfMission,
-     * commentary, timeSlot, beneficiaries, interpreters, location, jobSkill,
-     * academicSkill and room (id is not compared), else false
+     * commentary, timeSlot, beneficiary, interpreters, location, jobSkill,
+     * academicSkill, room and importance (id is not compared), else false
      */
     @Override
     public boolean equals(Object o) {
@@ -291,74 +303,28 @@ public class Mission {
 
         Mission other = (Mission) o;
         return Objects.equals(subject, other.subject)
-                && Objects.equals(stateOfMission, other.stateOfMission)
-                && Objects.equals(commentary, other.commentary)
-                && Objects.equals(timeSlot, other.timeSlot)
-                && Objects.equals(beneficiaries, other.beneficiaries)
-                && Objects.equals(interpreters, other.interpreters)
-                && Objects.equals(location, other.location)
-                && Objects.equals(jobSkill, other.jobSkill)
-                && Objects.equals(academicSkill, other.academicSkill)
-                && Objects.equals(room, other.room);
+                && stateOfMission.equals(other.stateOfMission)
+                && commentary.equals(other.commentary)
+                && timeSlot.equals(other.timeSlot)
+                && beneficiary.equals(other.beneficiary)
+                && interpreters.equals(other.interpreters)
+                && location.equals(other.location)
+                && jobSkill.equals(other.jobSkill)
+                && academicSkill.equals(other.academicSkill)
+                && room.equals(other.room)
+                && importance == other.importance;
     }
 
     /**
      * Computes the hash code of this Mission.
      * @return an integer hash code value based on subject, stateOfMission,
-     * commentary, timeSlot, beneficiaries, interpreters, location, jobSkill,
-     * academicSkill and room (id is not taken into account)
+     * commentary, timeSlot, beneficiary, interpreters, location, jobSkill,
+     * academicSkill, room and importance (id is not taken into account)
      */
     @Override public int hashCode() {
-        return Objects.hash(subject, stateOfMission, commentary, timeSlot, beneficiaries, interpreters, location,
-                jobSkill, academicSkill, room
+        return Objects.hash(subject, stateOfMission, commentary, timeSlot, beneficiary, interpreters, location,
+                jobSkill, academicSkill, room, importance
         );
-    }
-
-    /**
-     * Add a Beneficiary to the beneficiaries List
-     * @param beneficiary represent the Beneficiary to add, not null
-     * @param importance represent the importance of the beneficiary in the mission
-     * @throws AlreadyExistsException if the beneficiary is already in the list
-     * @throws NullPointerException if beneficiary is null
-     * @throws SQLException if the database could not be reached
-     */
-    public void addBeneficiary(Beneficiary beneficiary, int importance) throws AlreadyExistsException, NullPointerException {
-        if (beneficiary == null)
-            throw new NullPointerException("Beneficiary cannot be null");
-
-        if (beneficiaries == null)
-            beneficiaries = new HashMap<>();
-
-        for (Beneficiary b : beneficiaries.keySet()) {
-            if (b.equals(beneficiary)) throw new AlreadyExistsException("Beneficiary already exists in this mission");
-        }
-        beneficiaries.put(beneficiary, importance);
-    }
-
-    /**
-     * Remove a Beneficiary from the beneficiaries List by login
-     * @param id represent the id of the Beneficiary to remove
-     * @throws NoSuchElementException if no beneficiary with the given login exists in the list
-     * @throws SQLException if the database could not be reached
-     */
-    public void deleteBeneficiary(int id) throws NoSuchElementException, SQLException {
-        if (beneficiaries == null)
-            return;
-
-        Beneficiary toRemove = null;
-        boolean found = false;
-        List<Beneficiary> keys = new ArrayList<>(beneficiaries.keySet());
-        int i = 0;
-        while (!found && i < keys.size()) {
-            if (keys.get(i).getId() == id) {
-                toRemove = keys.get(i);
-                found = true;
-            } else {
-                i++;
-            }
-        }
-        if (!found) throw new NoSuchElementException("No beneficiary with id: " + id);
-        beneficiaries.remove(toRemove);
     }
 
     /**
