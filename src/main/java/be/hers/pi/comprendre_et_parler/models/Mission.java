@@ -38,8 +38,8 @@ public class Mission {
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
         this.timeSlot = timeSlot.clone();
-        this.beneficiaries = new HashMap<>();
-        this.interpreters = new ArrayList<>();
+        this.beneficiaries = null;
+        this.interpreters = null;
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
@@ -69,7 +69,9 @@ public class Mission {
         this.commentary = commentary;
         this.timeSlot = timeSlot.clone();
         this.beneficiaries = new HashMap<>(beneficiaries);
-        this.interpreters = new ArrayList<>(interpreters);
+        this.interpreters = interpreters.stream()
+                                        .distinct()
+                                        .toList();
         this.location = new Location(location);
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
@@ -277,22 +279,39 @@ public class Mission {
 
     /**
      * Compare this Mission with another Mission for equality
-     * @param other the Mission object to compare with
-     * @return true if both Mission objects have identical subjet, stateOfMission, commentary, baseTimeSlot, punctualTimeSlot,
-     * location, jobSkill, academicSkill and room (id isn't compare), else false
+     * @param o the Mission object to compare with
+     * @return true if both Mission objects have identical subject, stateOfMission,
+     * commentary, timeSlot, beneficiaries, interpreters, location, jobSkill,
+     * academicSkill and room (id is not compared), else false
      */
-    public boolean equals(Mission other) {
-        if (this == other) return true;
-        if (other == null) return false;
-        return other.subject.equals(this.subject)
-                && other.stateOfMission.equals(this.stateOfMission)
-                && other.commentary.equals(this.commentary)
-                && other.timeSlot.equals(this.timeSlot)
-                && other.beneficiaries.equals(this.beneficiaries)
-                && other.interpreters.equals(this.interpreters)
-                && other.location.equals(this.location)
-                && other.jobSkill.equals(this.jobSkill)
-                && other.academicSkill.equals(this.academicSkill);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Mission)) return false;
+
+        Mission other = (Mission) o;
+        return Objects.equals(subject, other.subject)
+                && Objects.equals(stateOfMission, other.stateOfMission)
+                && Objects.equals(commentary, other.commentary)
+                && Objects.equals(timeSlot, other.timeSlot)
+                && Objects.equals(beneficiaries, other.beneficiaries)
+                && Objects.equals(interpreters, other.interpreters)
+                && Objects.equals(location, other.location)
+                && Objects.equals(jobSkill, other.jobSkill)
+                && Objects.equals(academicSkill, other.academicSkill)
+                && Objects.equals(room, other.room);
+    }
+
+    /**
+     * Computes the hash code of this Mission.
+     * @return an integer hash code value based on subject, stateOfMission,
+     * commentary, timeSlot, beneficiaries, interpreters, location, jobSkill,
+     * academicSkill and room (id is not taken into account)
+     */
+    @Override public int hashCode() {
+        return Objects.hash(subject, stateOfMission, commentary, timeSlot, beneficiaries, interpreters, location,
+                jobSkill, academicSkill, room
+        );
     }
 
     /**
@@ -306,6 +325,10 @@ public class Mission {
     public void addBeneficiary(Beneficiary beneficiary, int importance) throws AlreadyExistsException, NullPointerException {
         if (beneficiary == null)
             throw new NullPointerException("Beneficiary cannot be null");
+
+        if (beneficiaries == null)
+            beneficiaries = new HashMap<>();
+
         for (Beneficiary b : beneficiaries.keySet()) {
             if (b.equals(beneficiary)) throw new AlreadyExistsException("Beneficiary already exists in this mission");
         }
@@ -319,6 +342,9 @@ public class Mission {
      * @throws SQLException if the database could not be reached
      */
     public void deleteBeneficiary(int id) throws NoSuchElementException, SQLException {
+        if (beneficiaries == null)
+            return;
+
         Beneficiary toRemove = null;
         boolean found = false;
         List<Beneficiary> keys = new ArrayList<>(beneficiaries.keySet());
@@ -335,7 +361,6 @@ public class Mission {
         beneficiaries.remove(toRemove);
     }
 
-
     /**
      * Add an Interpreter to the interpreters List
      * @param interpreter represent the Interpreter to add, not null
@@ -347,6 +372,9 @@ public class Mission {
         if (interpreter == null)
             throw new NullPointerException("Interpreter cannot be null");
 
+        if (interpreters == null)
+            interpreters = new ArrayList<>();
+
         for (Interpreter i : interpreters) {
             if (i.equals(interpreter)) throw new AlreadyExistsException("Interpreter already exists in this mission");
         }
@@ -354,22 +382,25 @@ public class Mission {
     }
 
     /**
-     * Remove an Interpreter from the interpreters List by login
-     * @param login represent the login of the Interpreter to remove
-     * @throws NoSuchElementException if no interpreter with the given login exists in the list
+     * Remove an Interpreter from the interpreters List by id
+     * @param id represent the id of the Interpreter to remove
+     * @throws NoSuchElementException if no interpreter with the given id exists in the list
      * @throws SQLException if the database could not be reached
      */
-    public void deleteInterpreter(int login) throws NoSuchElementException, SQLException {
+    public void deleteInterpreter(int id) throws NoSuchElementException, SQLException {
+        if (interpreters == null)
+            return;
+
         int i = 0;
         boolean found = false;
         while (!found && i < interpreters.size()) {
-            if (interpreters.get(i).getLogin() == login) {
+            if (interpreters.get(i).getId() == id) {
                 found = true;
             } else {
                 i++;
             }
         }
-        if (!found) throw new NoSuchElementException("No interpreter with login: " + login);
+        if (!found) throw new NoSuchElementException("No interpreter with id: " + id);
         interpreters.remove(i);
     }
 }
