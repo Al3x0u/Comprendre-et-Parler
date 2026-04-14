@@ -3,7 +3,9 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
+import be.hers.pi.comprendre_et_parler.models.Status;
 
+import java.sql.Time;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
@@ -62,9 +64,33 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
-    public void create(BaseTimeSlot objectToInsert)
-            throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+        // Manage invalid states
+        BaseTimeSlot objectInDB = find(objectToInsert.getId());
+        if (objectInDB != null) {
+            if (objectInDB.equals(objectToInsert))
+                throw new AlreadyExistsException("Object already exists in database");
+            else
+                throw new DuplicatePrimaryKeyException("Object is already present in database under a different primary key");
+        }
 
+        // Attempt insertion
+        String query = "INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)";
+        query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            //statement.setInt(1, objectToInsert.getId());
+            statement.setTime(1, Time.valueOf(objectToInsert.getStartTime()));
+            statement.setTime(2, Time.valueOf(objectToInsert.getEndTime()));
+            statement.setInt(3, objectToInsert.getDay().getValue());
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 
     /**
@@ -75,8 +101,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
-    public void update(BaseTimeSlot objectToUpdate)
-            throws AlreadyExistsException, NoSuchElementException, SQLException {
+    public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
 
     }
 
