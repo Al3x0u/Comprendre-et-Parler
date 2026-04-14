@@ -162,6 +162,4 @@ public class Location {
         if (this == l) return 0;
         return this.city.compareTo(l.city);
     }
-
 }
-
