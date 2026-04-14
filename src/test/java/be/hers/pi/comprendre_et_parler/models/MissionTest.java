@@ -13,7 +13,6 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MissionTest {
-    private static Map<Beneficiary, Integer> beneficiaries;
     private static List<Interpreter> interpreters;
     private static Beneficiary b1;
     private static Interpreter i1;
@@ -23,12 +22,11 @@ class MissionTest {
     public static void init() {
         i1 = new Interpreter(20, 30, 1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Transportation(1, "test"));
         b1 = new Beneficiary(2, "2", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
-        beneficiaries.put(b1, 4);
         interpreters.add(i1);
         m1 = new Mission(1,
                 "test",
                 MissionState.PENDING,
-                beneficiaries,
+                b1,
                 interpreters,
                 new Location(1, "test", new City(1, "Libramont", 6800), "test", "test", 15),
                 new JobSkill(2, "test"),
@@ -46,50 +44,25 @@ class MissionTest {
     }
 
     @Test
-    public void testSetBeneficiaries() {
-        assertThrows(NullPointerException.class, () -> {
-            m1.setBeneficiaries(null);
-        }, "The Map cannot be null.");
+    public void testSetBeneficiary() {
+        Beneficiary b2 = new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
+        m1.setBeneficiary(b2);
+        assertEquals(m1.getBeneficiary(), b2, "Must have copied the object.");
 
-        Map<Beneficiary, Integer> b2 = new HashMap<Beneficiary, Integer>();
-        b2.put(new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 1);
-        m1.setBeneficiaries(b2);
-        assertEquals(m1.getBeneficiaries(), b2, "Must have copied the object.");
-
-        Beneficiary b3 = new Beneficiary(4, "4", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
-        b2.put(b3, 0);
-        assertNotEquals(m1.getBeneficiaries(), b2, "Modifications effected on the obtained object cannot change the original object.");
-
-        b3.setLogin("8");
-        b2.put(b3, 0);
-        assertThrows(AlreadyExistsException.class, () -> {
-            m1.setBeneficiaries(b2);
-        }, "The Map cannot have two objects with the same id.");
-
-        b2.remove(b3);
-        b3.setLogin("4");
-        b3.setId(3);
-        b2.put(b3, 2);
-        assertThrows(AlreadyExistsException.class, () -> {
-            m1.setBeneficiaries(b2);
-        }, "The Map cannot have two equal objects.");
+        b2.setFirstName("Autre test");
+        assertNotEquals(m1.getBeneficiary(), b2, "Modifications effected on the obtained object cannot change the original object.");
     }
 
     @Test
-    public void testGetBeneficiaries() {
-        Map<Beneficiary, Integer> b3 = m1.getBeneficiaries();
-        assertEquals(b3, m1.getBeneficiaries(), "Must obtain an exact copy of the object.");
+    public void testGetBeneficiary() {
+        Beneficiary b3 = m1.getBeneficiary();
 
-        b3.put(new Beneficiary(5, "5", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null), 1);
-        assertNotEquals(b3, m1.getBeneficiaries(), "The original object has to remain itself.");
+        b3.setFirstName("Autre test");
+        assertNotEquals(b3, m1.getBeneficiary(), "The original object has to remain itself.");
     }
 
     @Test
     public void testSetInterpreters() {
-        assertThrows(NullPointerException.class, () -> {
-            m1.setInterpreters(null);
-        }, "The List cannot be null.");
-
         List<Interpreter> i2 = new ArrayList<Interpreter>();
         i2.add(new Interpreter(74, 105, 7, "7", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         m1.setInterpreters(i2);
