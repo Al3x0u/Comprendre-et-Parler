@@ -4,11 +4,8 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,6 +91,39 @@ class MissionTest {
 
         i3.add(new Interpreter(74, 105, 9, "9", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
         assertNotEquals(m1.getInterpreters(), i3, "The original object has to remain itself.");
+    }
+
+    @Test
+    public void testAddInterpreter() {
+        assertThrows(NullPointerException.class, () -> {
+            m1.addInterpreter(null);
+        }, "An exception must occur when the object is null.");
+
+        Interpreter i4 = new Interpreter(74, 105, 10, "10", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
+        m1.addInterpreter(i4);
+        assertTrue(m1.getInterpreters().contains(i4), "The object is added to the list.");
+
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.addInterpreter(i4);
+        }, "The object has already been added to the list.");
+    }
+
+    @Test
+    public void testDeleteInterpreter() {
+        assertDoesNotThrow(() -> {
+            m1.deleteInterpreter(null);
+        }, "No exception should occur when the object is null.");
+
+        Interpreter i5 = new Interpreter(74, 105, 11, "11", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
+        m1.addInterpreter(i5);
+        assertDoesNotThrow(() -> {
+            m1.deleteInterpreter(11);
+        }, "Delete an object from the list.");
+        assertFalse(m1.getInterpreters().contains(i5), "The object has been deleted from the list.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            m1.deleteInterpreter(11);
+        }, "The object is not present in the list.");
     }
 
     @Test
