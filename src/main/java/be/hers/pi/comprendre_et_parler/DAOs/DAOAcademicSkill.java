@@ -26,8 +26,8 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     /**
      * Insert an AcademicSkill object in the database
      * @param objectToInsert : Object that we gonna insert
-     * @throws AlreadyExistsException       if there are already a line with there information
-     * @throws SQLException                 if we couldn't connect to the database
+     * @throws AlreadyExistsException if there are already a line with there information
+     * @throws SQLException if we couldn't connect to the database
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
@@ -40,7 +40,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      * @param objectToUpdate : object with the news information
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws NoSuchElementException if there are not the element to update in the database
-     * @throws SQLException           if there are an error during the connection to the database
+     * @throws SQLException if there are an error during the connection to the database
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
@@ -52,7 +52,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      * Delete an AcademicSkill line in the table in the database
      * @param objectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the AcademicSkill object in the database
-     * @throws SQLException           if we couldn't connect to the database
+     * @throws SQLException if we couldn't connect to the database
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
