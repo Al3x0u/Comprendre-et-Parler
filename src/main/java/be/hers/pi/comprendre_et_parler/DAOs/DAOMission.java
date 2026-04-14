@@ -2,13 +2,11 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class DAOMission implements DAO<Mission> {
@@ -17,9 +15,11 @@ public class DAOMission implements DAO<Mission> {
     public static final String FIELD_SUBJECT = "subject";
     public static final String FIELD_STATE = "stateOfMission";
     public static final String FIELD_COMMENTARY = "commentary";
+    public static final String FIELD_BENEFICIARY = "beneficiary";
     public static final String FIELD_TIME_SLOT = "timeSlot";
     public static final String FIELD_JOB_SKILL = "jobSkill";
     public static final String FIELD_ACADEMIC_SKILL = "academicSkill";
+    public static final String FIELD_IMPORTANCE = "importance";
 
     /**
      * Search for a Mission in the database with the int parameter
@@ -51,10 +51,12 @@ public class DAOMission implements DAO<Mission> {
                         state,
                         result.getString(FIELD_COMMENTARY),
                         timeSlot,
+                        result.getObject(FIELD_BENEFICIARY, Beneficiary.class),
                         new DAOLocation().getMissionLocation(id),
                         new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
                         new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        new DAOLocation().getMissionRoom(id)
+                        new DAOLocation().getMissionRoom(id),
+                        result.getInt(FIELD_IMPORTANCE)
                 );
             }
         }
@@ -84,9 +86,8 @@ public class DAOMission implements DAO<Mission> {
                 throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
         }
 
-
-        String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?)";
-        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL);
+        String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %S) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_BENEFICIARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
@@ -94,8 +95,10 @@ public class DAOMission implements DAO<Mission> {
             statement.setString(2, objectToInsert.getStateOfMission().toString());
             statement.setString(3, objectToInsert.getCommentary());
             statement.setInt(4, objectToInsert.getTimeSlot().getId());
-            statement.setInt(5, objectToInsert.getJobSkill().getId());
-            statement.setInt(6, objectToInsert.getAcademicSkill().getId());
+            statement.setInt(5, objectToInsert.getBeneficiary().getId());
+            statement.setInt(6, objectToInsert.getJobSkill().getId());
+            statement.setInt(7, objectToInsert.getAcademicSkill().getId());
+            statement.setInt(8, objectToInsert.getImportance());
             statement.executeUpdate();
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -104,9 +107,6 @@ public class DAOMission implements DAO<Mission> {
 
             for (Interpreter interpreter : objectToInsert.getInterpreters())
                 addInterpreterToMission(objectToInsert.getId(), interpreter.getId());
-
-            for (Map.Entry<Beneficiary, Integer> entry : objectToInsert.getBeneficiaries().entrySet())
-                addBeneficiaryToMission(objectToInsert.getId(), entry.getKey().getId(), entry.getValue());
         }
         finally {
             if (statement != null) {
@@ -130,8 +130,8 @@ public class DAOMission implements DAO<Mission> {
                 throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
         }
 
-        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_ID);
+        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -141,7 +141,8 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(4, objectToUpdate.getTimeSlot().getId());
             statement.setInt(5, objectToUpdate.getJobSkill().getId());
             statement.setInt(6, objectToUpdate.getAcademicSkill().getId());
-            statement.setInt(7, objectToUpdate.getId());
+            statement.setInt(7, objectToUpdate.getImportance());
+            statement.setInt(8, objectToUpdate.getId());
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
@@ -206,10 +207,12 @@ public class DAOMission implements DAO<Mission> {
                         state,
                         result.getString(FIELD_COMMENTARY),
                         timeSlot,
+                        result.getObject(FIELD_BENEFICIARY, Beneficiary.class),
                         new DAOLocation().getMissionLocation(missionId),
                         new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
                         new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        new DAOLocation().getMissionRoom(missionId)
+                        new DAOLocation().getMissionRoom(missionId),
+                        result.getInt(FIELD_IMPORTANCE)
                 ));
             }
         }
@@ -234,9 +237,7 @@ public class DAOMission implements DAO<Mission> {
     public List<Mission> getScheduleForWeek(int idUser, int week) throws SQLException {
         List<Mission> missions = new ArrayList<>();
         String query = "SELECT m.id FROM " + TABLE + " m " +
-                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "WHERE ts.day IS NOT NULL " +
-                "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
+                "WHERE (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ? AND ) " +
                 "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -302,77 +303,6 @@ public class DAOMission implements DAO<Mission> {
     }
 
     /**
-     * Return the importance of a Mission for a Beneficiary
-     * @param missionId : id of the mission
-     * @param beneficiaryId : id of the beneficiary
-     * @throws NoSuchElementException if the given idMission or idBeneficiary doesn't correspond to an existent id
-     * @throws SQLException if the database could not be reached
-     * @return the importance of the Mission
-     */
-    public int getImportanceForBeneficiary(int missionId, int beneficiaryId) throws NoSuchElementException, SQLException {
-        String query = "SELECT importance FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        int importance = 0;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            statement.setInt(2, beneficiaryId);
-            result = statement.executeQuery();
-
-            if (result.next())
-                importance = result.getInt("importance");
-            else
-                throw new NoSuchElementException("No mission " + missionId + " found for beneficiary " + beneficiaryId);
-        }finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-        }
-        return importance;
-    }
-
-    /**
-     * Add a beneficiary to a mission in the BeneficiaryMission table
-     * @param missionId : id of the mission
-     * @param beneficiaryId : id of the beneficiary
-     * @param importance : importance of the beneficiary in the mission
-     * @throws AlreadyExistsException if the beneficiary is already linked to the mission
-     * @throws SQLException if the database could not be reached
-     * @post the beneficiary is linked to the mission in the database
-     */
-    public void addBeneficiaryToMission(int missionId, int beneficiaryId, int importance) throws SQLException, AlreadyExistsException {
-        String checkQuery = "SELECT * FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
-        String insertQuery = "INSERT INTO BeneficiaryMission(mission, beneficiary, importance) VALUES(?, ?, ?)";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(checkQuery);
-            statement.setInt(1, missionId);
-            statement.setInt(2, beneficiaryId);
-            result = statement.executeQuery();
-            if (result.next()) throw new AlreadyExistsException("This beneficiary is already linked to the mission");
-
-            statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
-            statement.setInt(1, missionId);
-            statement.setInt(2, beneficiaryId);
-            statement.setInt(3, importance);
-            statement.executeUpdate();
-        }
-        finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-        }
-    }
-
-    /**
      * Add an interpreter to a mission in the InterpreterMission table
      * @param missionId : id of the mission
      * @param interpreterId : id of the interpreter
@@ -401,31 +331,6 @@ public class DAOMission implements DAO<Mission> {
             if (result != null) {
                 try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-        }
-    }
-
-    /**
-     * Remove a beneficiary from a mission in the BeneficiaryMission table
-     * @param missionId : id of the mission
-     * @param beneficiaryId : id of the beneficiary
-     * @throws NoSuchElementException if the beneficiary is not linked to the mission
-     * @throws SQLException if the database could not be reached
-     * @post the beneficiary is no longer linked to the mission in the database
-     */
-    public void removeBeneficiaryFromMission(int missionId, int beneficiaryId) throws SQLException, NoSuchElementException {
-        String deleteQuery = "DELETE FROM BeneficiaryMission WHERE mission = ? AND beneficiary = ?";
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
-            statement.setInt(1, missionId);
-            statement.setInt(2, beneficiaryId);
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("This beneficiary is not linked to the mission");
-        }
-        finally {
             if (statement != null) {
                 try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
