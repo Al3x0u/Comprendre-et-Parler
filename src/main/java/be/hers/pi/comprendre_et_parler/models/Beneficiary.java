@@ -68,7 +68,7 @@ public class Beneficiary extends AppliUser {
         if(this == other) return true;
         if(!(other instanceof Beneficiary)) return false;
         Beneficiary beneficiary = (Beneficiary) other;
-        return (super.equals(other) && status == beneficiary.status && interpreterRef == beneficiary.interpreterRef);
+        return (super.equals(other) && status.equals(beneficiary.status) && interpreterRef.equals(beneficiary.interpreterRef));
     }
 
     /**

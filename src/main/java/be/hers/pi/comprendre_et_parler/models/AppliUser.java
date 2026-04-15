@@ -143,12 +143,14 @@ public abstract class AppliUser {
      * @param other the AppliUser object to compare with
      * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
      */
-    public boolean equals(AppliUser other) {
+    @Override
+    public boolean equals(Object other) {
         if (this == other) return true;
-        if(other == null ) return false;
-        return (login.equals(other.login) && firstName.equals(other.firstName) && lastName.equals(other.lastName) &&
-                birthDate.equals(other.birthDate) && hashedPassword.equals(other.hashedPassword) &&
-                email.equals(other.email) && phoneNumber.equals(other.phoneNumber));
+        if(!(other instanceof AppliUser) ) return false;
+        AppliUser user = (AppliUser) other;
+        return (login.equals(user.login) && firstName.equals(user.firstName) && lastName.equals(user.lastName) &&
+                birthDate.equals(user.birthDate) && hashedPassword.equals(user.hashedPassword) &&
+                email.equals(user.email) && phoneNumber.equals(user.phoneNumber));
     }
 
     /**

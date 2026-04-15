@@ -259,7 +259,41 @@ public class DAOInterpreter implements DAO<Interpreter> {
         }
     }
 
-    //TODO : diviser la méthode en méthode utilistaire private comme avec la méthode create tout en respectant l'ordre des delete et des insert, comme fait avec update de DAOBeneficiary
+    /**
+     * Utility method to update the AppliUser part of an Interpreter in the database
+     * @param objectToUpdate the Interpreter object that contains the information for the AppliUser table
+     * @param connection the connection object to connect to the database
+     * @throws NoSuchElementException if no user with objectToUpdate's id exists in the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void updateAppliUser(Interpreter objectToUpdate, Connection connection) throws NoSuchElementException, SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_LOGIN + " = ?, "
+                + FIELD_LAST_NAME + " = ?, " + FIELD_FIRST_NAME + " = ?, "
+                + FIELD_BIRTH_DATE + " = ?, " + FIELD_HASHED_PASSWORD + " = ?, "
+                + FIELD_EMAIL + " = ?, " + FIELD_PHONE_NUMBER + " = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            if (find(objectToUpdate.getId()) == null) {
+                throw new NoSuchElementException("[ERREUR] Aucun interprète n'a l'identifiant " + objectToUpdate.getId() + ".");
+            }
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToUpdate.getLogin());
+            statement.setString(2, objectToUpdate.getLastName());
+            statement.setString(3, objectToUpdate.getFirstName());
+            statement.setDate(4, Date.valueOf(objectToUpdate.getBirthDate()));
+            statement.setString(5, objectToUpdate.getHashedPassword());
+            statement.setString(6, objectToUpdate.getEmail());
+            statement.setString(7, objectToUpdate.getPhoneNumber());
+            statement.setInt(8, objectToUpdate.getId());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
     /**
      * Update an Interpreter line who already exist in the database
      * @param objectToUpdate the object to edit in the database
@@ -271,91 +305,117 @@ public class DAOInterpreter implements DAO<Interpreter> {
     public void update(Interpreter objectToUpdate)
             throws AlreadyExistsException, NoSuchElementException, SQLException {
         Connection connection = DatabaseConnector.getInstance();
-
-        String queryUser = "UPDATE " + TABLE_APPLIUSER + " SET "+ FIELD_LOGIN + " = ?, " + FIELD_LAST_NAME + " = ?, "
-                            + FIELD_FIRST_NAME + " = ?, "+ FIELD_BIRTH_DATE + " = ?, "
-                            + FIELD_HASHED_PASSWORD + " = ?, " + FIELD_EMAIL + " = ?, "
-                            + FIELD_PHONE_NUMBER + " = ? WHERE "+ FIELD_ID + " = ?";
-        String queryInterpreter = "UPDATE " + TABLE + " SET " + FIELD_ID + " = ?, "
+        String queryInterpreter = "UPDATE " + TABLE + " SET " + FIELD_LOGIN + " = ?, "
                 + FIELD_WEEK_QUOTA + " = ?, " + FIELD_YEAR_QUOTA + " = ?, "
                 + FIELD_TRANSPORT_MODE + " = ? WHERE " + FIELD_ID + " = ?";
-        String queryDeleteAcademicSkill = "DELETE FROM " + TABLE_ACADEMIC_SKILL_INTERPRETER + "  WHERE interpreter = ?";
-        String queryInsertAcademicSkill = "INSERT INTO " + TABLE_ACADEMIC_SKILL_INTERPRETER + " (" + FIELD_INTERPRETER
-                + ", " + DAOAcademicSkill.FIELD_SKILL + ") VALUES(?, ?)";
-        String queryDeleteJobSkill = "DELETE FROM " + TABLE_JOB_SKILL_INTERPRETER + "  WHERE " + FIELD_INTERPRETER + " = ?";
-        String queryInsertJobSkill = "INSERT INTO " + TABLE_JOB_SKILL_INTERPRETER + " (" + FIELD_INTERPRETER + ", " + DAOJobSkill.FIELD_SKILL + ") VALUES(?, ?)";
-
         PreparedStatement statement = null;
 
-        int rowsAffectedUser = 0;
-        int rowsAffectedBeneficiary = 0;
-        int rowsAffectedDeleteAcademicSkill = 0;
-        int rowsAffectedInsertAcademicSkill = 0;
-        int rowsAffectedDeleteJobSkill = 0;
-        int rowsAffectedInsertJobSkill = 0;
+        try {
+            updateAppliUser(objectToUpdate, connection);
 
-        try{
-            try {
-                find(objectToUpdate.getLogin());
-                throw new AlreadyExistsException();
-            } catch (NoSuchElementException e) {
-                //only to continue
-            }
-            statement = connection.prepareStatement(queryUser);
-            statement.setString(1, objectToUpdate.getLastName());
-            statement.setString(2, objectToUpdate.getFirstName());
-            statement.setDate(3, Date.valueOf(objectToUpdate.getBirthDate()));
-            statement.setString(4, objectToUpdate.getHashedPassword());
-            statement.setString(5, objectToUpdate.getEmail());
-            statement.setString(6, objectToUpdate.getPhoneNumber());
-            statement.setString(7, objectToUpdate.getLogin());
-            rowsAffectedUser = statement.executeUpdate();
-
-            statement =  connection.prepareStatement(queryInterpreter);
+            statement = connection.prepareStatement(queryInterpreter);
             statement.setString(1, objectToUpdate.getLogin());
             statement.setInt(2, objectToUpdate.getHourQuotaWeek());
             statement.setInt(3, objectToUpdate.getHourQuotayear());
             statement.setInt(4, objectToUpdate.getTransportMode().getId());
-            statement.setString(5, objectToUpdate.getLogin());
-            rowsAffectedBeneficiary = statement.executeUpdate();
+            statement.setInt(5, objectToUpdate.getId());
+            statement.executeUpdate();
 
-            statement = connection.prepareStatement(queryDeleteAcademicSkill);
-            statement.setString(1, objectToUpdate.getLogin());
-            rowsAffectedDeleteAcademicSkill = statement.executeUpdate();
-
-            statement = connection.prepareStatement(queryInsertAcademicSkill);
-            statement.setString(1, objectToUpdate.getLogin());
-            for(AcademicSkill element : objectToUpdate.getAcademicSkills()){
-                statement.setInt(2, element.getId());
-                rowsAffectedInsertAcademicSkill = statement.executeUpdate();
-            }
-
-            statement = connection.prepareStatement(queryDeleteJobSkill);
-            statement.setString(1, objectToUpdate.getLogin());
-            rowsAffectedDeleteJobSkill = statement.executeUpdate();
-
-            statement = connection.prepareStatement(queryInsertJobSkill);
-            statement.setString(1, objectToUpdate.getLogin());
-            for(JobSkill element : objectToUpdate.getJobSkills()){
-                statement.setInt(2, element.getId());
-                rowsAffectedInsertJobSkill = statement.executeUpdate();
-            }
-        }finally {
-            if(statement != null){
+            deleteAcademicSkillInterpreter(objectToUpdate, connection);
+            insertAcademicSkillInterpreter(objectToUpdate, connection);
+            deleteJobSkillInterpreter(objectToUpdate, connection);
+            insertJobSkillInterpreter(objectToUpdate, connection);
+        } finally {
+            if (statement != null) {
                 statement.close();
             }
         }
+    }
 
-        if(rowsAffectedUser > 0 && rowsAffectedBeneficiary > 0 &&
-                rowsAffectedInsertJobSkill > 0 && rowsAffectedDeleteJobSkill > 0 &&
-                rowsAffectedDeleteAcademicSkill > 0 && rowsAffectedInsertAcademicSkill > 0){
-            System.out.println("Interprète mis à jour avec succès");
-        }else{
-            System.out.println("Erreur lors de la mis à jour de l'interprète");
+    /**
+     * Utility method to delete the AcademicSkillInterpreter links from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteAcademicSkillInterpreter(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE_ACADEMIC_SKILL_INTERPRETER + " WHERE " + FIELD_INTERPRETER + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToDelete.getLogin());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
-    //TODO : diviser la méthode en méthode utilistaire private comme avec la méthode create
+    /**
+     * Utility method to delete the JobSkillInterpreter links from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteJobSkillInterpreter(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE_JOB_SKILL_INTERPRETER + " WHERE " + FIELD_INTERPRETER + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToDelete.getLogin());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
+    /**
+     * Utility method to delete the Interpreter row from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteInterpreter(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, objectToDelete.getId());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
+    /**
+     * Utility method to delete the AppliUser row from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteAppliUser(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, objectToDelete.getId());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
     /**
      * Delete an Interpreter line in the table in the database
      * @param objectToDelete the object to delete in the database
@@ -367,46 +427,11 @@ public class DAOInterpreter implements DAO<Interpreter> {
     public void delete(Interpreter objectToDelete)
             throws NoSuchElementException, SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        String queryUser = "DELETE FROM " + TABLE_APPLIUSER + "  WHERE " + FIELD_ID + " = ?";
-        String queryInterpreter = "DELETE FROM " + TABLE + "  WHERE " + FIELD_ID + " = ?";
-        String queryJobSkill = "DELETE FROM " + TABLE_JOB_SKILL_INTERPRETER + "  WHERE " + FIELD_INTERPRETER + " = ?";
-        String queryAcademicSkill = "DELETE FROM " + TABLE_ACADEMIC_SKILL_INTERPRETER + "  WHERE " + FIELD_INTERPRETER + " = ?";
 
-        PreparedStatement statement = null;
-
-        int rowsAffectedUser = 0;
-        int rowsAffectedBeneficiary = 0;
-        int rowsAffectedJobSkill = 0;
-        int rowsAffectedAcademicSkill = 0;
-
-        try{
-            statement = connection.prepareStatement(queryAcademicSkill);
-            statement.setString(1, objectToDelete.getLogin());
-            rowsAffectedAcademicSkill = statement.executeUpdate();
-
-            statement = connection.prepareStatement(queryJobSkill);
-            statement.setString(1, objectToDelete.getLogin());
-            rowsAffectedJobSkill = statement.executeUpdate();
-
-            statement = connection.prepareStatement(queryInterpreter);
-            statement.setString(1, objectToDelete.getLogin());
-            rowsAffectedBeneficiary = statement.executeUpdate();
-
-            statement = connection.prepareStatement(queryUser);
-            statement.setString(1, objectToDelete.getLogin());
-            rowsAffectedUser = statement.executeUpdate();
-
-            if(rowsAffectedUser > 0 && rowsAffectedBeneficiary > 0 &&
-                    rowsAffectedAcademicSkill > 0 && rowsAffectedJobSkill > 0){
-                System.out.println("Suppression de l'interprète avec succès.");
-            }else{
-                System.out.println("Erreur lors de la suppression de l'interprète");
-            }
-        }finally {
-            if(statement != null){
-                statement.close();
-            }
-        }
+        deleteAcademicSkillInterpreter(objectToDelete, connection);
+        deleteJobSkillInterpreter(objectToDelete, connection);
+        deleteInterpreter(objectToDelete, connection);
+        deleteAppliUser(objectToDelete, connection);
     }
 
     /**
