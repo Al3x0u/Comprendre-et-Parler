@@ -207,7 +207,7 @@ class DAOBeneficiaryTest {
             when(mockRs.next()).thenReturn(false);
 
             DAOBeneficiary dao = new DAOBeneficiary();
-            List<Beneficiary> result = dao.findReferencedBeneficiaries("1");
+            List<Beneficiary> result = dao.findReferencedBeneficiaries(1);
             assertNotNull(result);
             assertTrue(result.isEmpty());
         }
