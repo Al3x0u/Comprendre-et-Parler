@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import java.sql.SQLException;
 
 public interface DAO<T> {
 
