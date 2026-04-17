@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 
 public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
+    // TODO : update specs (delete PrimaryKeyException)
+
     protected static final String TABLE = "timeslot";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_START_TIME = "startTime";
@@ -82,7 +84,6 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            //statement.setInt(1, objectToInsert.getId());
             statement.setTime(1, Time.valueOf(objectToInsert.getStartTime()));
             statement.setTime(2, Time.valueOf(objectToInsert.getEndTime()));
             statement.setInt(3, objectToInsert.getDay().getValue());
@@ -96,15 +97,53 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     }
 
     /**
-     * Update a BaseTimeSlot line who already exist in the database
      * @param objectToUpdate the object to edit in the database
-     * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws SQLException    if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
+     * @throws AlreadyExistsException if an object with a different id but otherwise identical fields already exists in database
+     * @throws SQLException if the update failed for any other reason
      */
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        // Manage invalid states
+        List<BaseTimeSlot> allLines = findAll();
+        if (allLines == null)
+            throw new NoSuchElementException("No object of type BaseTimeSlot could be found in database");
+        boolean idFound = false;
+        for(BaseTimeSlot line : allLines) {
+            if (line.getId() == objectToUpdate.getId()) {
+                idFound = true;
+            }
+            if (line.getStartTime().equals(objectToUpdate.getStartTime())
+                    && line.getEndTime().equals(objectToUpdate.getEndTime())
+                    && line.getDay() == objectToUpdate.getDay()) {
+                if (line.getId() == objectToUpdate.getId()) {
+                    return; // DB is up to date, nothing to do.
+                } else {
+                    throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + line.getId());
+                }
+            }
+        }
+        if (!idFound)
+            throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
 
+        // Attempt update
+        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY, FIELD_ID);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setTime(1, Time.valueOf(objectToUpdate.getStartTime()));
+            statement.setTime(2, Time.valueOf(objectToUpdate.getEndTime()));
+            statement.setInt(3, objectToUpdate.getDay().getValue());
+            statement.setInt(4, objectToUpdate.getId());
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 
     /**
