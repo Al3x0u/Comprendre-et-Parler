@@ -5,6 +5,9 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -76,7 +79,7 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToInsert an object of type Mission to add to the database
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
-     * @post objectToInsert has been added to the database, and the change was commited
+     * @post objectToInsert has been added to the database, and the id was updated with auto generated id
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
@@ -86,7 +89,7 @@ public class DAOMission implements DAO<Mission> {
                 throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
         }
 
-        String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %S) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_BENEFICIARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
         PreparedStatement statement = null;
         try {
@@ -230,35 +233,18 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Return the schedule of the user with the given id for a specific week
      * @param idUser represent the id of the user which we want the schedule
-     * @param week represent the week number (0-6)
+     * @param year represent the year of the week
+     * @param weekNumber represent the week number in the year (1-52)
      * @return a list of Mission which compose the schedule of the idUser for the given week, or an empty List if none was found
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getScheduleForWeek(int idUser, int week) throws SQLException {
+    public List<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
+        LocalDate date = LocalDate.ofYearDay(year, 1)
+                .with(WeekFields.ISO.weekOfYear(), weekNumber)
+                .with(DayOfWeek.MONDAY);
         List<Mission> missions = new ArrayList<>();
-        String query = "SELECT m.id FROM " + TABLE + " m " +
-                "WHERE (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ? AND ) " +
-                "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idUser);
-            statement.setInt(2, idUser);
-            result = statement.executeQuery();
-            while (result.next()) {
-                Mission mission = find(result.getInt("id"));
-                if (mission != null)
-                    missions.add(mission);
-            }
-        }
-        finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+        for (int i = 0; i < 7; i++) {
+            missions.addAll(getScheduleForDay(idUser, date.plusDays(i)));
         }
         return missions;
     }
@@ -266,24 +252,26 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Return the schedule of the user with the given id for a specific day
      * @param idUser represent the id of the user which we want the schedule
-     * @param day represent the day number (0-6)
+     * @param date represent the specific day
      * @return a list of Mission which compose the schedule of the idUser for the given day, or an empty List if none was found
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getScheduleForDay(int idUser, int day) throws SQLException {
+    public List<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
         List<Mission> missions = new ArrayList<>();
         String query = "SELECT m.id FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "WHERE ts.day = ? " +
+                "WHERE (ts.day = ? " +
+                "OR (ts.day IS NULL AND TRUNC(ts.startTime) = ?)) " +
                 "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
                 "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, day);
-            statement.setInt(2, idUser);
+            statement.setInt(1, date.getDayOfWeek().getValue() - 1);
+            statement.setDate(2, java.sql.Date.valueOf(date));
             statement.setInt(3, idUser);
+            statement.setInt(4, idUser);
             result = statement.executeQuery();
             while (result.next()) {
                 Mission mission = find(result.getInt("id"));
