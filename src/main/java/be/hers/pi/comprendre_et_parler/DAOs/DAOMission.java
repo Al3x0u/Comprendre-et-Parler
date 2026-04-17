@@ -54,7 +54,7 @@ public class DAOMission implements DAO<Mission> {
                         state,
                         result.getString(FIELD_COMMENTARY),
                         timeSlot,
-                        result.getObject(FIELD_BENEFICIARY, Beneficiary.class),
+                        new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
                         new DAOLocation().getMissionLocation(id),
                         new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
                         new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
@@ -90,7 +90,7 @@ public class DAOMission implements DAO<Mission> {
         }
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_BENEFICIARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
@@ -210,7 +210,7 @@ public class DAOMission implements DAO<Mission> {
                         state,
                         result.getString(FIELD_COMMENTARY),
                         timeSlot,
-                        result.getObject(FIELD_BENEFICIARY, Beneficiary.class),
+                        new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
                         new DAOLocation().getMissionLocation(missionId),
                         new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
                         new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
@@ -263,7 +263,7 @@ public class DAOMission implements DAO<Mission> {
                 "WHERE (ts.day = ? " +
                 "OR (ts.day IS NULL AND TRUNC(ts.startTime) = ?)) " +
                 "AND (m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter = ?) " +
-                "OR m.id IN (SELECT mission FROM BeneficiaryMission WHERE beneficiary = ?))";
+                "OR m." + FIELD_BENEFICIARY + " = ?)";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
