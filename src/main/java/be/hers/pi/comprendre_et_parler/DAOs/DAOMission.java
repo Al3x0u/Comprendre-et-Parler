@@ -19,6 +19,8 @@ public class DAOMission implements DAO<Mission> {
     public static final String FIELD_STATE = "stateOfMission";
     public static final String FIELD_COMMENTARY = "commentary";
     public static final String FIELD_BENEFICIARY = "beneficiary";
+    public static final String FIELD_LOCATION = "location";
+    public static final String FIELD_ROOM = "room";
     public static final String FIELD_TIME_SLOT = "timeSlot";
     public static final String FIELD_JOB_SKILL = "jobSkill";
     public static final String FIELD_ACADEMIC_SKILL = "academicSkill";
@@ -55,10 +57,10 @@ public class DAOMission implements DAO<Mission> {
                         result.getString(FIELD_COMMENTARY),
                         timeSlot,
                         new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
-                        new DAOLocation().getMissionLocation(id),
+                        new DAOLocation().find(result.getInt(FIELD_LOCATION)),
                         new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
                         new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        new DAOLocation().getMissionRoom(id),
+                        result.getString(FIELD_ROOM),
                         result.getInt(FIELD_IMPORTANCE)
                 );
             }
@@ -89,8 +91,9 @@ public class DAOMission implements DAO<Mission> {
                 throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
         }
 
-        String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
+        String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
+                FIELD_LOCATION, FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
@@ -99,16 +102,16 @@ public class DAOMission implements DAO<Mission> {
             statement.setString(3, objectToInsert.getCommentary());
             statement.setInt(4, objectToInsert.getTimeSlot().getId());
             statement.setInt(5, objectToInsert.getBeneficiary().getId());
-            statement.setInt(6, objectToInsert.getJobSkill().getId());
-            statement.setInt(7, objectToInsert.getAcademicSkill().getId());
-            statement.setInt(8, objectToInsert.getImportance());
+            statement.setInt(6, objectToInsert.getLocation().getId());
+            statement.setString(7, objectToInsert.getRoom());
+            statement.setInt(8, objectToInsert.getJobSkill().getId());
+            statement.setInt(9, objectToInsert.getAcademicSkill().getId());
+            statement.setInt(10, objectToInsert.getImportance());
             statement.executeUpdate();
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
-
-            insertMissionLocation(objectToInsert.getId(), objectToInsert.getLocation().getId(), objectToInsert.getRoom());
 
             if (objectToInsert.getInterpreters() != null) {
                 for (Interpreter interpreter : objectToInsert.getInterpreters())
@@ -137,8 +140,9 @@ public class DAOMission implements DAO<Mission> {
                 throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
         }
 
-        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID);
+        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
+                FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -146,14 +150,14 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(2, objectToUpdate.getStateOfMission().getValue());
             statement.setString(3, objectToUpdate.getCommentary());
             statement.setInt(4, objectToUpdate.getTimeSlot().getId());
-            statement.setInt(5, objectToUpdate.getJobSkill().getId());
-            statement.setInt(6, objectToUpdate.getAcademicSkill().getId());
-            statement.setInt(7, objectToUpdate.getImportance());
-            statement.setInt(8, objectToUpdate.getId());
+            statement.setInt(5, objectToUpdate.getLocation().getId());
+            statement.setString(6, objectToUpdate.getRoom());
+            statement.setInt(7, objectToUpdate.getJobSkill().getId());
+            statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
+            statement.setInt(9, objectToUpdate.getImportance());
+            statement.setInt(10, objectToUpdate.getId());
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
-
-            updateMissionLocation(objectToUpdate.getId(), objectToUpdate.getLocation().getId(), objectToUpdate.getRoom());
 
             if (objectToUpdate.getInterpreters() != null) {
                 deleteAllInterpretersFromMission(objectToUpdate.getId());
@@ -223,10 +227,10 @@ public class DAOMission implements DAO<Mission> {
                         result.getString(FIELD_COMMENTARY),
                         timeSlot,
                         new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
-                        new DAOLocation().getMissionLocation(missionId),
+                        new DAOLocation().find(result.getInt(FIELD_LOCATION)),
                         new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
                         new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        new DAOLocation().getMissionRoom(missionId),
+                        result.getString(FIELD_ROOM),
                         result.getInt(FIELD_IMPORTANCE)
                 ));
             }
@@ -354,56 +358,6 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(2, interpreterId);
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("This interpreter is not linked to the mission");
-        }
-        finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-        }
-    }
-
-    /**
-     * Insert a MissionLocation in the database
-     * @param missionId : id of the mission
-     * @param locationId : id of the location
-     * @param room : room of the mission (can be null)
-     * @throws SQLException if the database could not be reached
-     * @post the MissionLocation has been added to the database
-     */
-    private void insertMissionLocation(int missionId, int locationId, String room) throws SQLException {
-        String query = "INSERT INTO MissionLocation(mission, location, room) VALUES(?, ?, ?)";
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            statement.setInt(2, locationId);
-            statement.setString(3, room);
-            statement.executeUpdate();
-        }
-        finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-        }
-    }
-
-    /**
-     * Update the MissionLocation in the database
-     * @param missionId : id of the mission
-     * @param locationId : id of the location
-     * @param room : room of the mission (can be null)
-     * @throws SQLException if the database could not be reached
-     * @post the MissionLocation has been updated in the database
-     */
-    private void updateMissionLocation(int missionId, int locationId, String room) throws SQLException {
-        String query = "UPDATE MissionLocation SET location = ?, room = ? WHERE mission = ?";
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, locationId);
-            statement.setString(2, room);
-            statement.setInt(3, missionId);
-            statement.executeUpdate();
         }
         finally {
             if (statement != null) {
