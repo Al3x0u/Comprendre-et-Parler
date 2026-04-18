@@ -51,12 +51,22 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     @Override
     public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
-        List<PunctualTimeSlot> allLines = findAll();
-        if (allLines.contains(objectToInsert))
-            throw new AlreadyExistsException("Object already exists in database");
+        String query = "SELECT * FROM %s WHERE %s IS NULL AND %s = ? AND %s = ?";
+        query = String.format(query, TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
+            LocalDateTime beginning = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getStartTime());
+            LocalDateTime end = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getEndTime());
+            statement.setTimestamp(1, Timestamp.valueOf(beginning));
+            statement.setTimestamp(2, Timestamp.valueOf(end));
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    throw new AlreadyExistsException("Object already exists in database");
+                }
+            }
+        }
 
         // Attempt insertion
-        String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
+        query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
             LocalDateTime beginning = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getStartTime());
