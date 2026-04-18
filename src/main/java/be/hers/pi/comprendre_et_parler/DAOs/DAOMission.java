@@ -108,6 +108,8 @@ public class DAOMission implements DAO<Mission> {
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
 
+            insertMissionLocation(objectToInsert.getId(), objectToInsert.getLocation().getId(), objectToInsert.getRoom());
+
             if (objectToInsert.getInterpreters() != null) {
                 for (Interpreter interpreter : objectToInsert.getInterpreters())
                     addInterpreterToMission(objectToInsert.getId(), interpreter.getId());
@@ -150,6 +152,14 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(8, objectToUpdate.getId());
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
+            updateMissionLocation(objectToUpdate.getId(), objectToUpdate.getLocation().getId(), objectToUpdate.getRoom());
+
+            deleteAllInterpretersFromMission(objectToUpdate.getId());
+            if (objectToUpdate.getInterpreters() != null) {
+                for (Interpreter interpreter : objectToUpdate.getInterpreters())
+                    addInterpreterToMission(objectToUpdate.getId(), interpreter.getId());
+            }
         }
         finally {
             if (statement != null) {
@@ -344,6 +354,77 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(2, interpreterId);
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("This interpreter is not linked to the mission");
+        }
+        finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Insert a MissionLocation in the database
+     * @param missionId : id of the mission
+     * @param locationId : id of the location
+     * @param room : room of the mission (can be null)
+     * @throws SQLException if the database could not be reached
+     * @post the MissionLocation has been added to the database
+     */
+    private void insertMissionLocation(int missionId, int locationId, String room) throws SQLException {
+        String query = "INSERT INTO MissionLocation(mission, location, room) VALUES(?, ?, ?)";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            statement.setInt(2, locationId);
+            statement.setString(3, room);
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Update the MissionLocation in the database
+     * @param missionId : id of the mission
+     * @param locationId : id of the location
+     * @param room : room of the mission (can be null)
+     * @throws SQLException if the database could not be reached
+     * @post the MissionLocation has been updated in the database
+     */
+    private void updateMissionLocation(int missionId, int locationId, String room) throws SQLException {
+        String query = "UPDATE MissionLocation SET location = ?, room = ? WHERE mission = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, locationId);
+            statement.setString(2, room);
+            statement.setInt(3, missionId);
+            statement.executeUpdate();
+        }
+        finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+    }
+
+    /**
+     * Delete all interpreters linked to a mission in the InterpreterMission table
+     * @param missionId : id of the mission
+     * @throws SQLException if the database could not be reached
+     * @post all interpreters linked to the mission have been deleted from the database
+     */
+    private void deleteAllInterpretersFromMission(int missionId) throws SQLException {
+        String query = "DELETE FROM InterpreterMission WHERE mission = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            statement.executeUpdate();
         }
         finally {
             if (statement != null) {
