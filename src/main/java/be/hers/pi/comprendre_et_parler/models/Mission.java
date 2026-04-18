@@ -90,8 +90,13 @@ public class Mission {
         this.stateOfMission = mission.stateOfMission;
         this.commentary = mission.commentary;
         this.timeSlot = mission.timeSlot.clone();
-        this.beneficiary = mission.beneficiary;
-        this.interpreters = new ArrayList<>(mission.interpreters);
+
+        if (mission.beneficiary != null) this.beneficiary = new Beneficiary(mission.beneficiary);
+        else this.beneficiary = null;
+
+        if (mission.interpreters != null) this.interpreters = new ArrayList<>(mission.interpreters);
+        else this.interpreters = null;
+
         this.location = new Location(mission.location);
         this.jobSkill = new JobSkill(mission.jobSkill);
         this.academicSkill = new AcademicSkill(mission.academicSkill);
@@ -138,14 +143,22 @@ public class Mission {
      * @return a copy of this.beneficiary
      */
     public Beneficiary getBeneficiary() {
-        return new Beneficiary(beneficiary);
+        if (beneficiary != null) {
+            return new Beneficiary(beneficiary);
+        } else {
+            return null;
+        }
     }
 
     /**
      * @return a copy this.interpreters
      */
     public List<Interpreter> getInterpreters() {
-        return new ArrayList<>(interpreters);
+        if (interpreters != null) {
+            return new ArrayList<>(interpreters);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -270,7 +283,7 @@ public class Mission {
 
     /**
      * @param importance represent the importance of the mission
-     * @post if 0 >= importance <= 3, importance is affected to this.importance
+     * @post if 0 <= importance <= 3, importance is affected to this.importance
      */
     public void setImportance(int importance) {
         if (importance >= 0 && importance <= 3) this.importance = importance;
@@ -306,12 +319,12 @@ public class Mission {
                 && stateOfMission.equals(other.stateOfMission)
                 && commentary.equals(other.commentary)
                 && timeSlot.equals(other.timeSlot)
-                && beneficiary.equals(other.beneficiary)
-                && interpreters.equals(other.interpreters)
+                && (beneficiary == null ? other.beneficiary == null : beneficiary.equals(other.beneficiary))
+                && (interpreters == null ? other.interpreters == null : interpreters.equals(other.interpreters))
                 && location.equals(other.location)
                 && jobSkill.equals(other.jobSkill)
                 && academicSkill.equals(other.academicSkill)
-                && room.equals(other.room)
+                && (room == null ? other.room == null : room.equals(other.room))
                 && importance == other.importance;
     }
 
