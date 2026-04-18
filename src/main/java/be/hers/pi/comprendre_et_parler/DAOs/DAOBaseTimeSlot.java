@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
-import java.sql.Time;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Time;
 
 public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
