@@ -10,6 +10,7 @@ import be.hers.pi.comprendre_et_parler.models.Status;
 import java.sql.*;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -122,6 +123,27 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      */
     @Override
     public List<PunctualTimeSlot> findAll() throws SQLException {
-        return List.of();
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NULL";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        List<PunctualTimeSlot> ret = new ArrayList<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            while (result.next()) {
+                ret.add(new PunctualTimeSlot(
+                        result.getInt(FIELD_ID),
+                        result.getTime(FIELD_START_TIME).toLocalTime(),
+                        result.getTime(FIELD_END_TIME).toLocalTime(),
+                        result.getDate(FIELD_START_TIME).toLocalDate()
+                ));
+            }
+        } finally {
+            try { if (statement != null) statement.close(); }
+                catch (Exception e) { e.printStackTrace(); }
+            try { if (result != null) result.close(); }
+                catch (Exception e) { e.printStackTrace(); }
+        }
+        return ret;
     }
 }
