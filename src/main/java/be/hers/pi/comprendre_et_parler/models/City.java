@@ -1,9 +1,9 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 public class City {
-    private int id;
+    private int id=0;
     private String designation;
-    private int postalCode;
+    private int postalCode=1000;
 
     /**
         Constructor of a City Object
@@ -11,69 +11,106 @@ public class City {
         @param d : represent the designation
         @param pC : represent the postal code
      */
-    public City(int id, String d, int pC ){
-        this.id = id;
+    public City(int id,String d, int pC ){
+        if(id > 0) this.id = id;
         this.designation = d;
-        this.postalCode = pC;
+        if(pC >= 1000 && pC <= 10000) this.postalCode = pC;
     }
 
     /**
-        @return this.postalCode
+     * Copy constructor of a City Object
+     * @param city
      */
-    public int getPostalCode() {
-        return postalCode;
+    public City(City city) {
+        this.id = city.id;
+        this.designation = city.designation;
+        this.postalCode = city.postalCode;
     }
 
     /**
-        @return this.designation
-     */
-    public String getDesignation() {
-        return designation;
-    }
-
-    /**
-        @return this.id
+     * @return this.id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * @param postalCode represent the new postal code
+     * @return this.designation
      */
-    public void setPostalCode(int postalCode) {
-        this.postalCode = postalCode;
+    public String getDesignation() {
+        return designation;
     }
 
     /**
-     * @param designation represent the new designation
+     * @return this.postalCode
+     */
+    public int getPostalCode() {
+        return postalCode;
+    }
+
+
+    /**
+     * @param id : city id
+     * @post if id >= 0, id is affected to this.id
+     */
+    public void setId(int id) {
+       if(id >= 0) this.id = id;
+    }
+
+    /**
+     * @param designation : city name
      */
     public void setDesignation(String designation) {
         this.designation = designation;
     }
 
     /**
-     * @param id represent the new id
+     * @param postalCode : city postal code
+     * @post if 1000 <= postalCode <= 10000, postalCode is affected to this.postalCode
      */
-    public void setId(int id) {
-        this.id = id;
+    public void setPostalCode(int postalCode) {
+        if(postalCode >= 1000 && postalCode <= 10000) this.postalCode = postalCode;
     }
 
     /**
-     * Compare this City with another City for equality
-     * @param other the City object to compare with
-     * @return true if both City objects have identical id, designation and postalCode
-     */
-    public boolean equals(City other) {
-        return (id == other.id && designation == other.designation && postalCode == other.postalCode);
-    }
-
-    /**
-     * Return a String representation of the City containing all fields
-     * @return formatted string with id, designation and postalCode
+     * @return city information in a string
      */
     @Override
     public String toString() {
-        return null;
+        return "City{id=" + id + ", designation=" + designation + ", postalCode=" + postalCode + "}";
     }
+
+    /**
+     * Compare if two cities are the same
+     * @param city
+     * @post city is unchanged
+     * @return true if city and this are the same, else false
+     */
+    public boolean equals(City city) {
+        if (this == city) return true;
+        if (city == null) return false;
+        return city.id == this.id
+                && city.designation.equals(this.designation)
+                && city.postalCode == this.postalCode;
+    }
+
+    /**
+     * Compare 2 cities based on the postal code and the city name
+     * @param city
+     * @post city is unchanged
+     * @return 0 if this == city based on postal code and city name,
+     *         1 if this > city based on postal code and city name,
+     *         else -1
+     */
+    public int compareTo(City city) {
+        if (this == city) return 0;
+
+        int postalCodeComparison = Integer.compare(this.postalCode, city.postalCode);
+        if (postalCodeComparison != 0) {
+            return postalCodeComparison;
+        }
+        return this.designation.compareTo(city.designation);
+    }
+
+
 }

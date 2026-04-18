@@ -52,7 +52,7 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
      * @throws SQLException if the insertion failed for any other reason
      */
     @Override
-    public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, DuplicatePrimaryKeyException, SQLException {
+    public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
         String query = "SELECT * FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?";
         query = String.format(query, TABLE, FIELD_DAY, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
