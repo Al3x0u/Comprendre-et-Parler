@@ -79,13 +79,17 @@ public class DAOLocation implements DAO<Location> {
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
         PreparedStatement statement = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getCity().getId());
             statement.setString(3, objectToInsert.getStreet());
             statement.setString(4, objectToInsert.getStreetNumber());
             statement.setInt(5, objectToInsert.getBox());
             statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
             if (statement != null) {

@@ -73,10 +73,14 @@ public class DAOCity implements DAO<City> {
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
         PreparedStatement statement = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getPostalCode());
             statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
             if (statement != null) {
