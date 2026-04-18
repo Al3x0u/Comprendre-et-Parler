@@ -41,7 +41,7 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                MissionState state = MissionState.valueOf(result.getString(FIELD_STATE));
+                MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
                 TimeSlot timeSlot;
                 if (state == MissionState.REGULAR) {
                     timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
@@ -95,7 +95,7 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getSubject());
-            statement.setString(2, objectToInsert.getStateOfMission().toString());
+            statement.setInt(2, objectToInsert.getStateOfMission().getValue());
             statement.setString(3, objectToInsert.getCommentary());
             statement.setInt(4, objectToInsert.getTimeSlot().getId());
             statement.setInt(5, objectToInsert.getBeneficiary().getId());
@@ -139,7 +139,7 @@ public class DAOMission implements DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getSubject());
-            statement.setString(2, objectToUpdate.getStateOfMission().toString());
+            statement.setInt(2, objectToUpdate.getStateOfMission().getValue());
             statement.setString(3, objectToUpdate.getCommentary());
             statement.setInt(4, objectToUpdate.getTimeSlot().getId());
             statement.setInt(5, objectToUpdate.getJobSkill().getId());
@@ -197,7 +197,7 @@ public class DAOMission implements DAO<Mission> {
             result = statement.executeQuery();
             while (result.next()) {
                 int missionId = result.getInt(FIELD_ID);
-                MissionState state = MissionState.valueOf(result.getString(FIELD_STATE));
+                MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
                 TimeSlot timeSlot;
                 if (state == MissionState.REGULAR) {
                     timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
