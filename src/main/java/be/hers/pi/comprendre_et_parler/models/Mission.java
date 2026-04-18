@@ -36,7 +36,7 @@ public class Mission {
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                    Location location, List<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                    String room, int importance) {
-        this.id = id;
+        if(id > 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
@@ -47,7 +47,7 @@ public class Mission {
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
         this.room = room;
-        this.importance = importance;
+        if(importance >= 0 && importance <= 3) this.importance = importance;
     }
 
     /**
@@ -77,7 +77,7 @@ public class Mission {
         this.jobSkill = new JobSkill(jobSkill);
         this.academicSkill = new AcademicSkill(academicSkill);
         this.room = room;
-        this.importance = importance;
+        if(importance >= 0 && importance <= 3) this.importance = importance;
     }
 
     /**
