@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class City {
     private int id=0;
     private String designation;
@@ -81,16 +83,29 @@ public class City {
     }
 
     /**
-     * Compare if two cities are the same
-     * @param city
-     * @post city is unchanged
-     * @return true if city and this are the same (id isn't compare), else false
+     * Compare this City with another City for equality
+     * @param o the City object to compare with
+     * @return true if both City objects have identical designation and postalCode
+     * (id is not compared), else false
      */
-    public boolean equals(City city) {
-        if (this == city) return true;
-        if (city == null) return false;
-        return city.designation.equals(this.designation)
-                && city.postalCode == this.postalCode;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof City)) return false;
+
+        City other = (City) o;
+        return designation.equals(other.designation)
+                && postalCode == other.postalCode;
+    }
+
+    /**
+     * Computes the hash code of this City.
+     * @return an integer hash code value based on designation and postalCode
+     * (id is not taken into account)
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, postalCode);
     }
 
     /**

@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Location {
     private int id=0;
     private String designation;
@@ -135,19 +137,32 @@ public class Location {
     }
 
     /**
-     * Compare if two locations are the same
-     * @param location
-     * @post location is unchanged
-     * @return true if location and this are the same (id isn't compare), else false
+     * Compare this Location with another Location for equality
+     * @param o the Location object to compare with
+     * @return true if both Location objects have identical designation, city, street, streetNumber and box
+     * (id is not compared), else false
      */
-    public boolean equals(Location location) {
-        if (this == location) return true;
-        if (location == null) return false;
-        return location.designation.equals(this.designation)
-                && location.city.equals(this.city)
-                && location.street.equals(this.street)
-                && location.streetNumber.equals(this.streetNumber)
-                &&  location.box == this.box;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Location)) return false;
+
+        Location other = (Location) o;
+        return designation.equals(other.designation)
+                && city.equals(other.city)
+                && street.equals(other.street)
+                && streetNumber.equals(other.streetNumber)
+                && box == other.box;
+    }
+
+    /**
+     * Computes the hash code of this Location.
+     * @return an integer hash code value based on designation, city, street, streetNumber and box
+     * (id is not taken into account)
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, city, street, streetNumber, box);
     }
 
     /**
