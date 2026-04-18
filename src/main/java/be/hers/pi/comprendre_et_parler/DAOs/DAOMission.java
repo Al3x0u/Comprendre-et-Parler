@@ -108,8 +108,10 @@ public class DAOMission implements DAO<Mission> {
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
 
-            for (Interpreter interpreter : objectToInsert.getInterpreters())
-                addInterpreterToMission(objectToInsert.getId(), interpreter.getId());
+            if (objectToInsert.getInterpreters() != null) {
+                for (Interpreter interpreter : objectToInsert.getInterpreters())
+                    addInterpreterToMission(objectToInsert.getId(), interpreter.getId());
+            }
         }
         finally {
             if (statement != null) {
