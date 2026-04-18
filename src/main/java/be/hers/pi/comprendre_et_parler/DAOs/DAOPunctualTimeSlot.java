@@ -1,14 +1,9 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
-import be.hers.pi.comprendre_et_parler.models.Status;
 
 import java.sql.*;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +81,39 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      */
     @Override
     public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        // Manage invalid states
+        List<PunctualTimeSlot> allLines = findAll();
+        if (allLines == null)
+            throw new NoSuchElementException("No object of type BaseTimeSlot could be found in database");
+        boolean idFound = false;
+        for(PunctualTimeSlot line : allLines) {
+            if (line.getId() == objectToUpdate.getId()) {
+                idFound = true;
+            }
+            if (line.getStartTime().equals(objectToUpdate.getStartTime())
+                    && line.getEndTime().equals(objectToUpdate.getEndTime())
+                    && line.getDate().equals(objectToUpdate.getDate())) {
+                if (line.getId() == objectToUpdate.getId()) {
+                    return; // DB is up to date, nothing to do.
+                } else {
+                    throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + line.getId());
+                }
+            }
+        }
+        if (!idFound)
+            throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
 
+        // Attempt update
+        String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID);
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
+            LocalDateTime beginning = LocalDateTime.of(objectToUpdate.getDate(), objectToUpdate.getStartTime());
+            LocalDateTime end = LocalDateTime.of(objectToUpdate.getDate(), objectToUpdate.getEndTime());
+            statement.setTimestamp(1, Timestamp.valueOf(beginning));
+            statement.setTimestamp(2, Timestamp.valueOf(end));
+            statement.setInt(3, objectToUpdate.getId());
+            statement.executeUpdate();
+        }
     }
 
     /**
@@ -97,7 +124,18 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      */
     @Override
     public void delete(PunctualTimeSlot objectToDelete) throws NoSuchElementException, SQLException {
+        PunctualTimeSlot objectInDB = find(objectToDelete.getId());
+        if (objectInDB == null)
+            throw new NoSuchElementException("No object of id " + objectToDelete.getId() + " could be found in database");
+        if (!objectInDB.equals(objectToDelete))
+            throw new NoSuchElementException("An object of id " + objectToDelete.getId() + " was found in database, but its attributes do not match those of objectToDelete");
 
+        String query = "DELETE FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_ID);;
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+            statement.setInt(1, objectToDelete.getId());
+            statement.executeUpdate();
+        }
     }
 
     /**
