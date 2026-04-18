@@ -46,6 +46,11 @@ public class Status {
     }
 
     /**
+     * @param id the new id
+     */
+    public void setId(int id) { this.id = id; }
+
+    /**
      * @param hourQuota the new associated hour quota
      */
     public void setHourQuota(int hourQuota) {
