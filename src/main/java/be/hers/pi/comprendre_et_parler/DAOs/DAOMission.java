@@ -155,8 +155,8 @@ public class DAOMission implements DAO<Mission> {
 
             updateMissionLocation(objectToUpdate.getId(), objectToUpdate.getLocation().getId(), objectToUpdate.getRoom());
 
-            deleteAllInterpretersFromMission(objectToUpdate.getId());
             if (objectToUpdate.getInterpreters() != null) {
+                deleteAllInterpretersFromMission(objectToUpdate.getId());
                 for (Interpreter interpreter : objectToUpdate.getInterpreters())
                     addInterpreterToMission(objectToUpdate.getId(), interpreter.getId());
             }
