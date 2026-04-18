@@ -19,7 +19,7 @@ public class Manager extends Interpreter {
      * @param transportMode  represent the transport mode of the Manager
      */
     public Manager(int hQW, int hQY, int id, String login, String firstName, String lastName,
-                       LocalDate birthDate, String hashedPassword, String email, String phoneNumber, String transportMode) {
+                       LocalDate birthDate, String hashedPassword, String email, String phoneNumber, Transportation transportMode) {
         super(hQW, hQY, id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, transportMode);
     }
 
@@ -29,7 +29,7 @@ public class Manager extends Interpreter {
      * @return true if both Manager objects have Interpreter fields
      */
     public boolean equals(Manager other) {
-        return false;
+        return super.equals(other);
     }
 
     /**
