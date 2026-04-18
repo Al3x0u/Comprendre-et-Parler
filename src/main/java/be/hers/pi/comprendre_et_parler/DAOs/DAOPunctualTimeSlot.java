@@ -16,8 +16,6 @@ import java.util.NoSuchElementException;
 
 public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
 
-    // TODO : fix resultSets cleanup
-
     protected static final String TABLE = "timeslot";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_START_TIME = "startTime";
@@ -32,27 +30,19 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     @Override
     public PunctualTimeSlot find(int id) throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NULL AND " + FIELD_ID + " = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
         PunctualTimeSlot ret = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query);) {
             statement.setInt(1, id);
-            result = statement.executeQuery();
-            if (result.next()) {
-                ret = new PunctualTimeSlot(
-                        result.getInt(FIELD_ID),
-                        result.getTime(FIELD_START_TIME).toLocalTime(),
-                        result.getTime(FIELD_END_TIME).toLocalTime(),
-                        result.getDate(FIELD_START_TIME).toLocalDate()
-                );
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    ret = new PunctualTimeSlot(
+                            result.getInt(FIELD_ID),
+                            result.getTime(FIELD_START_TIME).toLocalTime(),
+                            result.getTime(FIELD_END_TIME).toLocalTime(),
+                            result.getDate(FIELD_START_TIME).toLocalDate()
+                    );
+                }
             }
-        }
-        finally {
-            if (statement != null)
-                statement.close();
-            if (result != null)
-                result.close();
         }
         return ret;
     }
@@ -73,9 +63,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME);
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
             LocalDateTime beginning = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getStartTime());
             LocalDateTime end = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getEndTime());
             statement.setTimestamp(1, Timestamp.valueOf(beginning));
@@ -85,11 +73,6 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 objectToInsert.setId(generatedKeys.getInt(1));
-            }
-        }
-        finally {
-            if (statement != null) {
-                statement.close();
             }
         }
     }
@@ -124,25 +107,18 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     @Override
     public List<PunctualTimeSlot> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NULL";
-        PreparedStatement statement = null;
-        ResultSet result = null;
         List<PunctualTimeSlot> ret = new ArrayList<>();
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            result = statement.executeQuery();
-            while (result.next()) {
-                ret.add(new PunctualTimeSlot(
-                        result.getInt(FIELD_ID),
-                        result.getTime(FIELD_START_TIME).toLocalTime(),
-                        result.getTime(FIELD_END_TIME).toLocalTime(),
-                        result.getDate(FIELD_START_TIME).toLocalDate()
-                ));
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    ret.add(new PunctualTimeSlot(
+                            result.getInt(FIELD_ID),
+                            result.getTime(FIELD_START_TIME).toLocalTime(),
+                            result.getTime(FIELD_END_TIME).toLocalTime(),
+                            result.getDate(FIELD_START_TIME).toLocalDate()
+                    ));
+                }
             }
-        } finally {
-            try { if (statement != null) statement.close(); }
-                catch (Exception e) { e.printStackTrace(); }
-            try { if (result != null) result.close(); }
-                catch (Exception e) { e.printStackTrace(); }
         }
         return ret;
     }
