@@ -49,20 +49,11 @@ public class DAOStatus implements DAO<Status> {
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
-        String query = "SELECT * FROM %s WHERE %s = ? AND %s = ? ";
-        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
-            statement.setString(1, objectToInsert.getDesignation());
-            statement.setInt(2, objectToInsert.getHourQuota());
-            statement.executeUpdate();
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next())
-                    throw new AlreadyExistsException("Object already exists in database");
-            }
-        }
+        if (findDuplicate(objectToInsert) >= 0)
+            throw new AlreadyExistsException("Object already exists in database");
 
         // Attempt insertion
-        query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
+        String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
             statement.setString(1, objectToInsert.getDesignation());
@@ -86,25 +77,9 @@ public class DAOStatus implements DAO<Status> {
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
         // Manage invalid states
-        List<Status> allLines = findAll();
-        if (allLines == null)
-            throw new NoSuchElementException("No object of type BaseTimeSlot could be found in database");
-        boolean idFound = false;
-        for(Status line : allLines) {
-            if (line.getId() == objectToUpdate.getId()) {
-                idFound = true;
-            }
-            if (line.getDesignation().equals(objectToUpdate.getDesignation())
-                    && line.getHourQuota() == objectToUpdate.getHourQuota()) {
-                if (line.getId() == objectToUpdate.getId()) {
-                    return; // DB is up to date, nothing to do.
-                } else {
-                    throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + line.getId());
-                }
-            }
-        }
-        if (!idFound)
-            throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
+        int duplicateId = findDuplicate(objectToUpdate);
+        if (duplicateId >= 0)
+            throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + duplicateId);
 
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
@@ -113,7 +88,8 @@ public class DAOStatus implements DAO<Status> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getHourQuota());
             statement.setInt(3, objectToUpdate.getId());
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
         }
     }
 
@@ -161,5 +137,27 @@ public class DAOStatus implements DAO<Status> {
             }
         }
         return ret;
+    }
+
+    /**
+     *
+     * @param obj the object to find in database
+     * @return the id of an identical object in database, or -1 if none was found
+     * @throws SQLException if a database error occured
+     */
+    private int findDuplicate(Status obj) throws SQLException {
+        String query = "SELECT * FROM %s WHERE %s = ? AND %s = ? ";
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
+            statement.setString(1, obj.getDesignation());
+            statement.setInt(2, obj.getHourQuota());
+            statement.executeUpdate();
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return result.getInt(FIELD_ID);
+                }
+            }
+        }
+        return -1;
     }
 }

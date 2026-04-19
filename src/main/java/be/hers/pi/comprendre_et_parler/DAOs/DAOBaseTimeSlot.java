@@ -3,14 +3,14 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Time;
 
 public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
 
@@ -54,21 +54,11 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     @Override
     public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
-        String query = "SELECT * FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_DAY, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            statement.setInt(1, objectToInsert.getDay().getValue());
-            statement.setTime(2, Time.valueOf(objectToInsert.getStartTime()));
-            statement.setTime(3, Time.valueOf(objectToInsert.getEndTime()));
-            try (ResultSet result = statement.executeQuery()) {
-                 if (result.next()) {
-                     throw new AlreadyExistsException("Object already exists in database");
-                 }
-            }
-        }
+        if (findDuplicate(objectToInsert) >= 0)
+            throw new AlreadyExistsException("Object already exists in database");
 
         // Attempt insertion
-        query = "INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)";
+        String query = "INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
             statement.setTime(1, Time.valueOf(objectToInsert.getStartTime()));
@@ -93,26 +83,9 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         // Manage invalid states
-        List<BaseTimeSlot> allLines = findAll();
-        if (allLines == null)
-            throw new NoSuchElementException("No object of type BaseTimeSlot could be found in database");
-        boolean idFound = false;
-        for(BaseTimeSlot line : allLines) {
-            if (line.getId() == objectToUpdate.getId()) {
-                idFound = true;
-            }
-            if (line.getStartTime().equals(objectToUpdate.getStartTime())
-                    && line.getEndTime().equals(objectToUpdate.getEndTime())
-                    && line.getDay() == objectToUpdate.getDay()) {
-                if (line.getId() == objectToUpdate.getId()) {
-                    return; // DB is up to date, nothing to do.
-                } else {
-                    throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + line.getId());
-                }
-            }
-        }
-        if (!idFound)
-            throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
+        int duplicateId = findDuplicate(objectToUpdate);
+        if (duplicateId >= 0)
+            throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + duplicateId);
 
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?";
@@ -122,7 +95,8 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
             statement.setTime(2, Time.valueOf(objectToUpdate.getEndTime()));
             statement.setInt(3, objectToUpdate.getDay().getValue());
             statement.setInt(4, objectToUpdate.getId());
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
         }
     }
 
@@ -169,5 +143,27 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
             }
         }
         return ret;
+    }
+
+    /**
+     *
+     * @param obj the object to find in database
+     * @return the id of an identical object in database, or -1 if none was found
+     * @throws SQLException if a database error occured
+     */
+    private int findDuplicate(BaseTimeSlot obj) throws SQLException {
+        String query = "SELECT * FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?";
+        query = String.format(query, TABLE, FIELD_DAY, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
+            statement.setInt(1, obj.getDay().getValue());
+            statement.setTime(2, Time.valueOf(obj.getStartTime()));
+            statement.setTime(3, Time.valueOf(obj.getEndTime()));
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return result.getInt(FIELD_ID);
+                }
+            }
+        }
+        return -1;
     }
 }
