@@ -9,17 +9,27 @@ public class Status {
 
     /**
      * Constructor of a Status object
-     * @param id the unique identifier of the status
      * @param designation the name or description of the status
-     * @param hourQuota the associated hour quota
+     * @param hourQuota the associated hour quota (will be 0 if negative)
      */
-    public Status(int id, String designation, int hourQuota) {
-        this.id = id;
+    public Status(String designation, int hourQuota) {
         this.designation = designation;
-        this.hourQuota = hourQuota;
+        setHourQuota(hourQuota);
     }
 
     /**
+     * Constructor of a Status object
+     * @param id the unique identifier of the status
+     * @param designation the name or description of the status
+     * @param hourQuota the associated hour quota (will be 0 if negative)
+     */
+    public Status(int id, String designation, int hourQuota) {
+        this(designation, hourQuota);
+        this.id = id;
+    }
+
+    /**
+     * Copy constructor of a Status object
      * @param other the object to copy
      */
     public Status(Status other) {
@@ -59,13 +69,13 @@ public class Status {
     /**
      * @param id the new id
      */
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) { this.id = (id < 0 ? 0 : id); }
 
     /**
      * @param hourQuota the new associated hour quota
      */
     public void setHourQuota(int hourQuota) {
-        this.hourQuota = hourQuota;
+        this.hourQuota = (hourQuota < 0 ? 0 : hourQuota);
     }
 
     /**
@@ -73,6 +83,7 @@ public class Status {
      * @param other the Status object to compare with
      * @return true if both objects are of type Status and have identical attributes except for id
      */
+    @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof Mission)) return false;
@@ -81,11 +92,19 @@ public class Status {
     }
 
     /**
+     * Computes the hash code of this Mission.
+     * @return an integer hash code value based on designation and hourQuota
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, hourQuota);
+    }
+    /**
      * Return a String representation of the Status containing all fields
      * @return formatted string with id, designation and hourQuota
      */
     @Override
     public String toString() {
-        return "Status \"" + designation + "\" (id: " + id + ", hourQuota : " + hourQuota + ")";
+        return "Status{id=" + id + ", designation=" + designation + ", hourQuota:" + hourQuota +"}";
     }
 }
