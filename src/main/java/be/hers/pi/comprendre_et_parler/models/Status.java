@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Status {
     private int id;
     private String designation;
@@ -15,6 +17,15 @@ public class Status {
         this.id = id;
         this.designation = designation;
         this.hourQuota = hourQuota;
+    }
+
+    /**
+     * @param other the object to copy
+     */
+    public Status(Status other) {
+        this.id = other.getId();
+        this.designation = other.getDesignation();
+        this.hourQuota = other.getHourQuota();
     }
 
     /**
@@ -60,10 +71,13 @@ public class Status {
     /**
      * Compare this Status with another Status for equality
      * @param other the Status object to compare with
-     * @return true if both Status objects have identical id, designation and hourQuota
+     * @return true if both objects are of type Status and have identical attributes except for id
      */
-    public boolean equals(Status other) {
-        return (id == other.id && designation == other.designation && hourQuota == other.hourQuota);
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Mission)) return false;
+        Status o = (Status) other;
+        return (designation.equals(o.getDesignation()) && Objects.equals(hourQuota, o.getHourQuota()));
     }
 
     /**
@@ -72,6 +86,6 @@ public class Status {
      */
     @Override
     public String toString() {
-        return null;
+        return "Status \"" + designation + "\" (id: " + id + ", hourQuota : " + hourQuota + ")";
     }
 }
