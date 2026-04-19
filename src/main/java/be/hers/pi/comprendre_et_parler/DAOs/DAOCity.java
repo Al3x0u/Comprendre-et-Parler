@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOCity implements DAO<City> {
-    public final String table = "city";
-    public final String fieldID = "id";
-    public final String fieldDesignation = "designation";
-    public final String fieldPostalCode = "postalCode";
+    public final String TABLE = "city";
+    public final String FIELD_ID = "id";
+    public final String FIELD_DESIGNATION = "designation";
+    public final String FIELD_POSTAL_CODE = "postalCode";
 
 
     /**
@@ -25,7 +25,7 @@ public class DAOCity implements DAO<City> {
      */
     @Override
     public City find(int id) throws SQLException {
-        String query = "SELECT * FROM " + table + " WHERE " + fieldID + " = ?";
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         City city = null;
@@ -36,8 +36,8 @@ public class DAOCity implements DAO<City> {
             if (result.next()) {
                 city = new City(
                         id,
-                        result.getString(fieldDesignation),
-                        result.getInt(fieldPostalCode)
+                        result.getString(FIELD_DESIGNATION),
+                        result.getInt(FIELD_POSTAL_CODE)
                 );
             }
         }
@@ -64,19 +64,23 @@ public class DAOCity implements DAO<City> {
         // Manage invalid city
         List<City> cities = findAll();
         for (City line : cities) {
-            if (line.getDesignation().equals(objectToInsert.getDesignation()) && line.getPostalCode() == objectToInsert.getPostalCode())
+            if (line.equals(objectToInsert))
                 throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
         }
 
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
-        query = String.format(query, table, fieldDesignation, fieldPostalCode);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
         PreparedStatement statement = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getPostalCode());
             statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
             if (statement != null) {
@@ -97,12 +101,12 @@ public class DAOCity implements DAO<City> {
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         List<City> cities = findAll();
         for (City line : cities) {
-            if (line.getDesignation().equals(objectToUpdate.getDesignation()) && line.getPostalCode() == objectToUpdate.getPostalCode())
+            if (line.equals(objectToUpdate))
                 throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
         }
 
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, table, fieldDesignation, fieldPostalCode, fieldID);
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -129,7 +133,7 @@ public class DAOCity implements DAO<City> {
     @Override
     public void delete(City objectToDelete) throws NoSuchElementException, SQLException {
         String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, table, fieldID, fieldDesignation, fieldPostalCode);
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -153,7 +157,7 @@ public class DAOCity implements DAO<City> {
      */
     @Override
     public List<City> findAll() throws SQLException {
-        String query = "SELECT * FROM " + table;
+        String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
         List<City> cities = new ArrayList<>();
@@ -162,9 +166,9 @@ public class DAOCity implements DAO<City> {
             result = statement.executeQuery();
             while (result.next()) {
                 cities.add(new City(
-                        result.getInt(fieldID),
-                        result.getString(fieldDesignation),
-                        result.getInt(fieldPostalCode)
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION),
+                        result.getInt(FIELD_POSTAL_CODE)
                 ));
             }
         }

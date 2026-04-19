@@ -3,33 +3,31 @@ package be.hers.pi.comprendre_et_parler.models;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MissionTest {
-    private static List<Interpreter> interpreters;
     private static Beneficiary b1;
-    private static Interpreter i1;
     private static Mission m1;
 
     @BeforeAll
     public static void init() {
-        i1 = new Interpreter(20, 30, 1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Transportation(1, "test"));
+        Interpreter i1 = new Interpreter(20, 30, 1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Transportation(1, "test"));
         b1 = new Beneficiary(2, "2", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
-        interpreters.add(i1);
         m1 = new Mission(1,
                 "test",
                 MissionState.PENDING,
+                "test",
+                new PunctualTimeSlot(1, LocalTime.NOON, LocalTime.MIDNIGHT, LocalDate.now()),
                 b1,
-                interpreters,
                 new Location(1, "test", new City(1, "Libramont", 6800), "test", "test", 15),
                 new JobSkill(2, "test"),
                 new AcademicSkill(1, "test"),
                 "test",
-                "test");
+                0);
     }
 
     @Test
