@@ -20,42 +20,7 @@ import java.util.List;
 public class ComprendreEtParlerApplication {
 
     public static void main(String[] args) {
-        try {
-            DatabaseConnector.initialize();
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
         SpringApplication.run(ComprendreEtParlerApplication.class, args);
 
-        DAOInterpreter DAOInterpreter = new DAOInterpreter();
-
-        Transportation transport = new Transportation(1, "Voiture");
-
-        List<AcademicSkill> academicSkills = new ArrayList<>();
-        AcademicSkill academicSkill = new AcademicSkill(1, "Médical");
-        academicSkills.add(academicSkill);
-
-        List<JobSkill> jobSkills = new ArrayList<>();
-        JobSkill jobSkill = new JobSkill(1, "Traduction");
-        jobSkills.add(jobSkill);
-
-        List<Beneficiary> beneficiaries = new ArrayList<>();
-
-        Interpreter interpreter = new Interpreter(1, "Juni", "Samou",
-                "Patrick", LocalDate.now(), "qwertzuiop",
-                "samoujuni@gmail.com", "0489/13.44.40", 5, 60,
-                transport, academicSkills, jobSkills, null, new ArrayList<>(), new ArrayList<>());
-        try {
-            DAOInterpreter.create(interpreter);
-        }catch(AlreadyExistsException e){
-            System.out.println("L#interprète " + interpreter.getLogin() + " existe déjà dans la BD");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
-    @GetMapping("/")
-    public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return String.format("<html><body><h1>Hello %s!</h1></body></html>", name);
-    }
-
 }
