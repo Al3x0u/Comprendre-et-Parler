@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOLocation implements DAO<Location> {
-    public final String TABLE = "location";
-    public final String FIELD_ID = "id";
-    public final String FIELD_DESIGNATION = "designation";
-    public final String FIELD_CITY = "city";
-    public final String FIELD_STREET = "street";
-    public final String FIELD_STREET_NUMBER = "streetNumber";
-    public final String FIELD_BOX = "box";
+    protected static final String TABLE = "location";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_DESIGNATION = "designation";
+    protected static final String FIELD_CITY = "city";
+    protected static final String FIELD_STREET = "street";
+    protected static final String FIELD_STREET_NUMBER = "streetNumber";
+    protected static final String FIELD_BOX = "box";
 
     /**
      * Search for a location in the database with the int parameter

@@ -13,18 +13,18 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOMission implements DAO<Mission> {
-    public static final String TABLE = "mission";
-    public static final String FIELD_ID = "id";
-    public static final String FIELD_SUBJECT = "subject";
-    public static final String FIELD_STATE = "stateOfMission";
-    public static final String FIELD_COMMENTARY = "commentary";
-    public static final String FIELD_BENEFICIARY = "beneficiary";
-    public static final String FIELD_LOCATION = "location";
-    public static final String FIELD_ROOM = "room";
-    public static final String FIELD_TIME_SLOT = "timeSlot";
-    public static final String FIELD_JOB_SKILL = "jobSkill";
-    public static final String FIELD_ACADEMIC_SKILL = "academicSkill";
-    public static final String FIELD_IMPORTANCE = "importance";
+    protected static final String TABLE = "mission";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_SUBJECT = "subject";
+    protected static final String FIELD_STATE = "stateOfMission";
+    protected static final String FIELD_COMMENTARY = "commentary";
+    protected static final String FIELD_BENEFICIARY = "beneficiary";
+    protected static final String FIELD_LOCATION = "location";
+    protected static final String FIELD_ROOM = "room";
+    protected static final String FIELD_TIME_SLOT = "timeSlot";
+    protected static final String FIELD_JOB_SKILL = "jobSkill";
+    protected static final String FIELD_ACADEMIC_SKILL = "academicSkill";
+    protected static final String FIELD_IMPORTANCE = "importance";
 
     /**
      * Search for a Mission in the database with the int parameter

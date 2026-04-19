@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOCity implements DAO<City> {
-    public final String TABLE = "city";
-    public final String FIELD_ID = "id";
-    public final String FIELD_DESIGNATION = "designation";
-    public final String FIELD_POSTAL_CODE = "postalCode";
+    protected static final String TABLE = "city";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_DESIGNATION = "designation";
+    protected static final String FIELD_POSTAL_CODE = "postalCode";
 
 
     /**
