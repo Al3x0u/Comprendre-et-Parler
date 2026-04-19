@@ -27,6 +27,8 @@ public class Mission {
      * @param id represent the id of the mission
      * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission
+     * @param beneficiaries represent the beneficiaries who concern this mission
+     * @param interpreters represent the interpreters who work for this mission
      * @param location represent the location of the mission
      * @param jobSkill represent the required business skill
      * @param academicSkill represent the required academic skill
@@ -410,9 +412,9 @@ public class Mission {
      * @return true if both Mission objects have identical id, subjet, stateOfMission, location, jobSkill, academicSkill and room
      */
     public boolean equals(Mission other) {
-        return (id == other.id && subject == other.subject && stateOfMission == other.stateOfMission &&
+        return (id == other.id && subjet.equals(other.subjet) && stateOfMission == other.stateOfMission &&
                 location == other.location && jobSkill == other.jobSkill &&
-                academicSkill == other.academicSkill && room == other.room);
+                academicSkill == other.academicSkill && room.equals(other.room) && commentary.equals(other.commentary));
     }
 
     /**

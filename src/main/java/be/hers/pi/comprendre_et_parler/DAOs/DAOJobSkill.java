@@ -2,21 +2,15 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.JobSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOJobSkill implements DAO<JobSkill> {
-    protected final static String TABLE = "JobSkill";
-    protected final static String FIELD_ID = "id";
-    protected static final String FIELD_SKILL = "skill";
-    protected final static String FIELD_DESIGNATION = "designation";
+    public final String table = "jobskill";
+    public final String field_id = "id";
+    public final String field_designation = "designation";
 
     /**
      * Search for a JobSkill in the database with the int parameter
@@ -33,7 +27,6 @@ public class DAOJobSkill implements DAO<JobSkill> {
      * Insert a JobSkill Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if the given id already used in the database
      * @throws SQLException if we couldn't connect to the database
      * @post objectToInsert has been added to the database, and the change was commited
      */
@@ -75,78 +68,5 @@ public class DAOJobSkill implements DAO<JobSkill> {
     @Override
     public List<JobSkill> findAll() throws SQLException {
         return null;
-    }
-
-    /**
-     * @param login the id of the Interpreter
-     * @return the list of job skills of the interpreter, empty if none
-     * @throws SQLException if the database could not be reached
-     */
-    public static List<JobSkill> findAllByInterpreterLogin(String login) throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        List<JobSkill> jobSkills = new ArrayList<>();
-        String query = "SELECT j.id, j.designation FROM JobSkillInterpreter jsi JOIN JobSkill j ON j.id = jsi.skill WHERE jsi.interpreter = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, login);
-            rs = stmt.executeQuery();
-
-            while(rs.next()){
-                JobSkill jobSkill = new JobSkill(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-                jobSkills.add(jobSkill);
-            }
-        }finally {
-            if(rs != null){
-                rs.close();
-            }
-            if(stmt != null){
-                stmt.close();
-            }
-        }
-        return jobSkills;
-    }
-
-    /**
-     * @param id the id of the job skill
-     * @return the job skill with that id
-     * @throws SQLException if the database could not be reached
-     */
-    public static JobSkill findById(int id) throws SQLException,NoSuchElementException {
-        Connection connection = DatabaseConnector.getInstance();
-        JobSkill jobSkill;
-        String query = "SELECT * FROM JobSkill WHERE id = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-
-            if(rs.next()){
-                jobSkill = new JobSkill(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-            }else{
-                throw new NoSuchElementException();
-            }
-        }finally {
-            if(rs != null){
-                rs.close();
-            }
-            if(stmt != null){
-                stmt.close();
-            }
-        }
-        return jobSkill;
     }
 }

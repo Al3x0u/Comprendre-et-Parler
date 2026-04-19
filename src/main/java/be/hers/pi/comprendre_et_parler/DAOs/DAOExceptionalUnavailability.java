@@ -1,22 +1,13 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.models.ExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
-import be.hers.pi.comprendre_et_parler.models.*;
-import be.hers.pi.comprendre_et_parler.DAOs.*;
-import org.thymeleaf.standard.processor.StandardAttrprependTagProcessor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailability> {
-    protected static final String TABLE = "Unavailability";
-
-    public DAOExceptionalUnavailability (){}
 
     /**
      * Search for a ExceptionalUnavailability in the database with the int parameter
@@ -84,31 +75,5 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     public List<ExceptionalUnavailability> findForInterpreter(String idInterpreter)
             throws NoSuchElementException {
         return null;
-    }
-
-    public List<ExceptionalUnavailability> findByInterpreterLogin(int interpreterId)throws SQLException{
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "SELECT " + DAOPunctualTimeSlot.FIELD_TIMELSLOT + " FROM " + TABLE + " WHERE " + DAOPunctualTimeSlot.FIELD_INTERPRETER + " = ?";
-        List<ExceptionalUnavailability> exceptionalUnavailabilities = null;
-        PreparedStatement statement = null;
-        ResultSet result = null;
-
-        try{
-            statement = connection.prepareStatement(query);
-            statement.setInt(1, interpreterId);
-            result = statement.executeQuery();
-
-            while(result.next()){
-                exceptionalUnavailabilities.add(find(result.getInt(DAOPunctualTimeSlot.FIELD_TIMELSLOT)));
-            }
-        }finally {
-            if(statement != null){
-                statement.close();
-            }
-            if(result != null){
-                result.close();
-            }
-        }
-        return exceptionalUnavailabilities;
     }
 }

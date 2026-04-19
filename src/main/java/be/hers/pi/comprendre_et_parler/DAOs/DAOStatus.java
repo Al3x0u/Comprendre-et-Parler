@@ -1,47 +1,41 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
-import be.hers.pi.comprendre_et_parler.models.*;
-import be.hers.pi.comprendre_et_parler.exceptions.*;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
-import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.models.Status;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 public class DAOStatus implements DAO<Status> {
-    public final static String TABLE = "Status";
-    public final static String FIELD_ID = "id";
-    public final static String FIELD_DESIGNATION = "designation";
-    public final static String FIELD_HOUR_QUOTA = "hourQuota";
+    public final String table = "status";
+    public final String field_id = "id";
+    public final String field_designation = "designation";
+    public final String field_hourQuota = "hourquota";
 
     /**
+     * Search for a Status in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
+    @Override
     public Status find(String id) throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
+        String query = "SELECT * FROM " + table + " WHERE " + field_id + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
-        Status status = null;
+        Status ret = null;
         try {
-            statement = connection.prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, Integer.parseInt(id));
             result = statement.executeQuery();
             if (result.next()) {
-                status = new Status(
-                        result.getInt(FIELD_ID),
-                        result.getString(FIELD_DESIGNATION),
-                        result.getInt(FIELD_HOUR_QUOTA)
+                ret = new Status(
+                        result.getInt(field_id),
+                        result.getString(field_designation),
+                        result.getInt(field_hourQuota)
                 );
             }
         }
@@ -51,14 +45,14 @@ public class DAOStatus implements DAO<Status> {
             if (result != null)
                 result.close();
         }
-        return status;
+        return ret;
     }
 
     /**
-     * @param objectToInsert an object of type T to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
-     * @throws AlreadyExistsException if objectToInsert is already present in database
-     * @throws SQLException if the database could not be reached
+     * Insert a Status Object in the database
+     * @param objectToInsert : Object that we gonna insert
+     * @throws AlreadyExistsException if there are already a line with there information
+     * @throws SQLException if we couldn't connect to the database
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
@@ -72,9 +66,8 @@ public class DAOStatus implements DAO<Status> {
                 throw new DuplicatePrimaryKeyException("Object is already present in database under a different primary key");
         }
 
-        // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
-        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
+        query = String.format(query, table, field_designation, field_hourQuota);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -112,10 +105,10 @@ public class DAOStatus implements DAO<Status> {
 
         // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
-        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA, FIELD_ID);
+        query = String.format(query, table, field_designation, field_hourQuota, field_id);
         PreparedStatement statement = null;
         try {
-            statement = connection.prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getHourQuota());
             statement.setInt(3, objectToUpdate.getId());
@@ -137,47 +130,45 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public void delete(Status objectToDelete) throws NoSuchElementException, SQLException {
-        Connection connection = DatabaseConnector.getInstance();
+            if (find(String.valueOf(objectToDelete.getId())) == null)
+                throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
 
-        if (find(String.valueOf(objectToDelete.getId())) == null)
-            throw new NoSuchElementException("Object " + objectToDelete.getDesignation() + " was not found in database");
-
-        String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(query);
-            statement.setInt(1, objectToDelete.getId());
-            statement.setString(2, objectToDelete.getDesignation());
-            statement.setInt(3, objectToDelete.getHourQuota());
-            statement.executeUpdate();
-        }
-        finally {
-            if (statement != null) {
-                statement.close();
+            String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
+            query = String.format(query, table, field_id, field_designation, field_hourQuota);
+            PreparedStatement statement = null;
+            try {
+                statement = DatabaseConnector.getInstance().prepareStatement(query);
+                statement.setInt(1, objectToDelete.getId());
+                statement.setString(2, objectToDelete.getDesignation());
+                statement.setInt(3, objectToDelete.getHourQuota());
+                statement.executeUpdate();
+            }
+            finally {
+                if (statement != null) {
+                    statement.close();
+                }
             }
         }
-    }
 
     /**
+     * Return all line of Status table in the database in a List
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
     @Override
     public List<Status> findAll() throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "SELECT * FROM " + TABLE;
+        String query = "SELECT * FROM " + table;
         PreparedStatement statement = null;
         ResultSet result = null;
         List<Status> ret = null;
         try {
-            statement = connection.prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
                 ret.add(new Status(
-                        result.getInt(FIELD_ID),
-                        result.getString(FIELD_DESIGNATION),
-                        result.getInt(FIELD_HOUR_QUOTA)
+                        result.getInt(field_id),
+                        result.getString(field_designation),
+                        result.getInt(field_hourQuota)
                 ));
             }
         }
@@ -189,44 +180,4 @@ public class DAOStatus implements DAO<Status> {
         }
         return ret;
     }
-
-    /**
-     * @param id the id of the status in database
-     * @return the Status identified by idStatus, or null if none was found
-     * @throws SQLException if the database could not be reached
-     */
-    public Status findById(int id) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getInstance();
-        Status status;
-        String query = "SELECT * FROM %s WHERE %s = ?";
-        query = String.format(query, TABLE, FIELD_ID);
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-
-            if(rs.next()){
-                status = new Status(
-                        rs.getInt("id"),
-                        rs.getString("designation"),
-                        rs.getInt("hourQuota")
-                );
-            }else{
-                throw new NoSuchElementException();
-            }
-        }finally {
-            if(rs != null){
-                rs.close();
-            }
-            if(stmt != null){
-                stmt.close();
-            }
-        }
-        return status;
-    }
-
 }

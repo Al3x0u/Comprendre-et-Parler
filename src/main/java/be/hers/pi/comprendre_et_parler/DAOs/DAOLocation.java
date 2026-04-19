@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -232,47 +231,5 @@ public class DAOLocation implements DAO<Location> {
             }
         }
         return null;
-    }
-
-    public static Location findById(int id) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getInstance();
-        Location location = null;
-        String query = "SELECT l.*, c.id as cityId, c.designation as cityDesignation, c.postalCode"
-                + " FROM Location l JOIN City c ON l.city = c.id WHERE l.id = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try {
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                be.hers.pi.comprendre_et_parler.models.City city = new be.hers.pi.comprendre_et_parler.models.City(
-                        rs.getInt("cityId"),
-                        rs.getString("cityDesignation"),
-                        rs.getInt("postalCode")
-                );
-                location = new be.hers.pi.comprendre_et_parler.models.Location(
-                        rs.getInt("id"),
-                        rs.getString("designation"),
-                        city,
-                        rs.getString("street"),
-                        rs.getString("streetNumber"),
-                        rs.getInt("box")
-                );
-            } else {
-                throw new NoSuchElementException();
-            }
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-        }
-        return location;
     }
 }

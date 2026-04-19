@@ -1,7 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 public abstract class AppliUser {
     private int id;
@@ -15,6 +14,7 @@ public abstract class AppliUser {
 
     /**
      Constructor of a AppliUser
+     @param id represent the id
      @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
@@ -23,8 +23,8 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
-        id = 0;
+    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -32,40 +32,6 @@ public abstract class AppliUser {
         this.hashedPassword = hashedPassword;
         this.email = email;
         this.phoneNumber = phoneNumber;
-    }
-
-    /**
-     * @param id represent the new id
-     */
-    public void setId(final int id) {
-        this.id = id;
-    }
-
-    /**
-     * @return this.birthDate
-     */
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-    /**
-     * @return this.hashedPassword
-     */
-    public String getHashedPassword() {
-        return hashedPassword;
-    }
-
-    /**
-     * @return this.email
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * @return this.phoneNumber
-     */
-    public String getPhoneNumber() {
-        return phoneNumber;
     }
 
     /**
@@ -94,6 +60,41 @@ public abstract class AppliUser {
      */
     public String getLastName() {
         return lastName;
+    }
+
+    /**
+     * @return this.birthDate
+     */
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    /**
+     * @return this.hashedPassword
+     */
+    public String getHashedPassword() {
+        return hashedPassword;
+    }
+
+    /**
+     * @return this.email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @return this.phoneNumber
+     */
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    /**
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
@@ -150,14 +151,10 @@ public abstract class AppliUser {
      * @param other the AppliUser object to compare with
      * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
      */
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if(!(other instanceof AppliUser) ) return false;
-        AppliUser user = (AppliUser) other;
-        return (login.equals(user.login) && firstName.equals(user.firstName) && lastName.equals(user.lastName) &&
-                birthDate.equals(user.birthDate) && hashedPassword.equals(user.hashedPassword) &&
-                email.equals(user.email) && phoneNumber.equals(user.phoneNumber));
+    public boolean equals(AppliUser other) {
+        return (login == other.login && firstName == other.firstName && lastName == other.lastName &&
+                birthDate == other.birthDate && hashedPassword == other.hashedPassword &&
+                email == other.email && phoneNumber == other.phoneNumber);
     }
 
     /**
@@ -165,11 +162,7 @@ public abstract class AppliUser {
      * @return formatted string with login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
      */
     @Override
-    public String toString(){
-        return "Utilisateur {id = " + id + ", login = " + login
-                + ", first name = " + firstName + ", lastName  = "
-                + lastName + ", birthday date = " + birthDate
-                + ", hash Password = " + hashedPassword + ", email = " + email
-                + ", phone number = " + phoneNumber;
+    public String toString() {
+        return null;
     }
 }
