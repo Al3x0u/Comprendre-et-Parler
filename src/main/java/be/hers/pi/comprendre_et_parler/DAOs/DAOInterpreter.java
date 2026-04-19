@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,17 +12,15 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOInterpreter extends DAO<Interpreter> {
+public class DAOInterpreter implements DAO<Interpreter> {
     protected static final String TABLE = "Interpreter";
+    protected static final String TABLE_APPLIUSER = "AppliUser";
     protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
     protected static final String TABLE_JOB_SKILL_INTERPRETER = "JobSkillInterpreter";
-    protected static final String TABLE_AVAILABILITY = "Availability";
-    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
-    protected static final String FIELD_SKILL = "skill";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
     protected static final String FIELD_INTERPRETER = "interpreter";
@@ -36,308 +35,516 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String FIELD_TRANSPORT_MODE = "transportMode";
     protected static final String FIELD_LOCATION = "location";
     protected static final String FIELD_MISSION = "mission";
+    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
 
+    /*
+    * constructor for DAOInterpreter object*/
+    public DAOInterpreter() {
+        try{
+            DatabaseConnector.initialize();
+        }catch (SQLException e){
+            e.printStackTrace();//most useful than an Exception
+        }
+    }
+
+
+    /**
+     * Search for an Interpreter in the database with the int parameter
+     * @param id the primary key of the object to find in database
+     * @return the object identified by id in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public Interpreter find(int id) throws SQLException {
-        String query = String.format(
-                "SELECT * FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID
-        );
+        Connection connection = DatabaseConnector.getInstance();
+        String query = "SELECT " + FIELD_LOGIN + " FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         Interpreter interpreter = null;
+
         PreparedStatement statement = null;
         ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, id);
 
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
             result = statement.executeQuery();
-            if(result.next())
-               interpreter = getResult(result);
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+
+            if(result.next()){
+               interpreter = find(result.getString(FIELD_LOGIN));
+            }
+        }finally{
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
+        }
+        return interpreter;
+    }
+
+    /*int id, String login, String firstName, String lastName,
+    LocalDate birthDate, String hashedPassword, String email,
+    String phoneNumber, int hQW, int hQY, Transportation transportMode,
+    List<AcademicSkill> academic, List<JobSkill> job, List<Beneficiary> beneficiaries,
+    List<Mission> missions, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability*/
+    public Interpreter find(String login) throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        Interpreter interpreter = null;
+
+        String query = "SELECT a.*, i.%s, i.%s, i.%s, i.%s FROM %s a JOIN %s i " +
+                "ON a.%s = i.%s WHERE a.%s = ?";
+        query = String.format(query, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA, FIELD_TRANSPORT_MODE,
+                FIELD_LOCATION, TABLE_APPLIUSER, TABLE, FIELD_ID, FIELD_ID, FIELD_LOGIN);
+
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1, login);
+            result = statement.executeQuery();
+
+            if(result.next()){
+                String interpreterId = result.getString(FIELD_ID);
+                interpreter = new Interpreter(
+                        login,
+                        result.getString(FIELD_FIRST_NAME),
+                        result.getString(FIELD_LAST_NAME),
+                        result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
+                        result.getString(FIELD_HASHED_PASSWORD),
+                        result.getString(FIELD_EMAIL),
+                        result.getString(FIELD_PHONE_NUMBER),
+                        result.getInt(FIELD_WEEK_QUOTA),
+                        result.getInt(FIELD_YEAR_QUOTA),
+                        result.getString(FIELD_TRANSPORT_MODE),
+                        DAOAcademicSkill.findAllByInterpreterLogin(interpreterId),
+                        DAOJobSkill.findAllByInterpreterLogin(login),
+                        DAOLocation.findById(result.getInt(FIELD_LOCATION)),
+                        DAOPunctualTimeSlot.findAllByInterpreterLogin(login),
+                        new DAOExceptionalUnavailability().findByInterpreterLogin(result.getInt(FIELD_ID))
+                );
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
         }
         return interpreter;
     }
 
     /**
-     * Search for an Interpreter in the database with the String parameter
-     * @param login the login of the Interpreter to find in database
-     * @return the Interpreter identified by login in database, or null if none was present
+     * Utility method to Insert a AppliUser object in the database
+     * @param objectToInsert the Beneficiary object that contains the information for the AppliUser table in database
+     * @param connection the connection object to connect to the database
+     * @return the id of the AppliUser user inserted
      * @throws SQLException if the database could not be reached
      */
-    public Interpreter find(String login) throws SQLException {
-        String query = String.format(
-                "SELECT * FROM %s WHERE %s = ?",
-                TABLE, FIELD_LOGIN
-        );
-        Interpreter interpreter = null;
+    private void insertAppliUser(Interpreter objectToInsert, Connection connection) throws SQLException{
+        String query = "INSERT INTO " + TABLE_APPLIUSER + " (" + FIELD_LOGIN + ", "
+                + FIELD_LAST_NAME + ", " + FIELD_FIRST_NAME + ", "
+                + FIELD_BIRTH_DATE + ", " + FIELD_HASHED_PASSWORD + ", "
+                + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, login);
+        int rowsAffected = 0;
 
-            result = statement.executeQuery();
-            if (result.next())
-                interpreter = getResult(result);
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToInsert.getLogin());
+            statement.setString(2, objectToInsert.getLastName());
+            statement.setString(3, objectToInsert.getFirstName());
+            statement.setDate(4, Date.valueOf(objectToInsert.getBirthDate()));
+            statement.setString(5, objectToInsert.getHashedPassword());
+            statement.setString(6, objectToInsert.getEmail());
+            statement.setString(7, objectToInsert.getPhoneNumber());
+            rowsAffected = statement.executeUpdate();
+        }finally {
+            if(statement != null){
+                statement.close();
+            }
         }
-        return interpreter;
     }
 
+    /**
+     * Utility method to Insert a ligne in the table that link Interpreter and academicSkill in database
+     * @param objectToInsert the Beneficiary object that contains the information for table in database
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void insertAcademicSkillInterpreter(Interpreter objectToInsert, Connection connection)throws SQLException{
+        String query = "INSERT INTO " +  TABLE_ACADEMIC_SKILL_INTERPRETER +" ("
+                + FIELD_ID + ", " + DAOAcademicSkill.FIELD_ID + ") VALUES(?, ?)";
+        PreparedStatement statement = null;
+        int rowsAffected = 0;
+
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1,objectToInsert.getLogin());
+            for(AcademicSkill element : objectToInsert.getAcademicSkills()){
+                statement.setInt(2, element.getId());
+                rowsAffected= statement.executeUpdate();
+            }
+        }finally {
+            if(statement != null){
+                statement.close();
+            }
+        }
+    }
+
+    /**
+     * Utility method to Insert a ligne in the table that link Interpreter and jobSkill in database
+     * @param objectToInsert the Beneficiary object that contains the information for table in database
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void insertJobSkillInterpreter(Interpreter objectToInsert, Connection connection)throws SQLException{
+        String query = "INSERT INTO " + TABLE_JOB_SKILL_INTERPRETER + " ("+ FIELD_LOGIN
+                + ", " + DAOJobSkill.FIELD_ID + ") VALUES(?, ?)";
+        PreparedStatement statement = null;
+        int rowsAffected = 0;
+
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1,objectToInsert.getLogin());
+            for(JobSkill element : objectToInsert.getJobSkills()){
+                statement.setInt(2, element.getId());
+                rowsAffected = statement.executeUpdate();
+            }
+        }finally {
+            if(statement != null){
+                statement.close();
+            }
+        }
+    }
+
+    //TODO preciser que l'objet est modifié
+    /**
+     * Insert an Interpreter object in the database
+     * @param objectToInsert an object of type Interpreter to add to the database
+     * @throws AlreadyExistsException if objectToInsert is already present in database
+     * @throws SQLException if the database could not be reached
+     * @post objectToInsert has been added to the database, and the change was commited
+     */
     @Override
     public void create(Interpreter objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("The interpreter already exists in the database");
-
-        String query = String.format(
-                "INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                TABLE
-        );
+        Connection connection = DatabaseConnector.getInstance();
+        String query = "INSERT INTO " + TABLE + " (" + FIELD_LOGIN + ", "
+                            + FIELD_WEEK_QUOTA + ", " + FIELD_YEAR_QUOTA + ", "
+                            + FIELD_TRANSPORT_MODE + ") VALUES (?, ?, ?, ?)";
         PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, objectToInsert.getFirstName());
-            statement.setString(2, objectToInsert.getLastName());
-            statement.setDate(3, Date.valueOf(objectToInsert.getBirthDate()));
-            statement.setString(4, objectToInsert.getHashedPassword());
-            statement.setString(5, objectToInsert.getEmail());
-            statement.setString(6, objectToInsert.getPhoneNumber());
-            statement.setInt(7, objectToInsert.getHourQuotaWeek());
-            statement.setInt(8, objectToInsert.getHourQuotaYear());
-            statement.setString(9, objectToInsert.getTransportMode());
-            statement.setInt(10, objectToInsert.getLocation().getId());
+        int rowsAffected = 0;
 
+        try{
+            if (find(objectToInsert.getLogin()) != null){
+                throw new AlreadyExistsException();
+            }
+            insertAppliUser(objectToInsert, connection);
+
+            statement = connection.prepareStatement(query, new String[]{FIELD_ID});
+            statement.setString(1, objectToInsert.getLogin());
+            statement.setInt(2, objectToInsert.getHourQuotaWeek());
+            statement.setInt(3, objectToInsert.getHourQuotayear());
+            statement.setString(4, objectToInsert.getTransportMode());
+            rowsAffected = statement.executeUpdate();
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+
+            insertAcademicSkillInterpreter(objectToInsert, connection);
+            insertJobSkillInterpreter(objectToInsert, connection);
+        }finally {
+            if(statement != null){
+                statement.close();
+            }
+        }
+    }
+
+    //TODO AlreadyExist
+    /**
+     * Utility method to update the AppliUser part of an Interpreter in the database
+     * @param objectToUpdate the Interpreter object that contains the information for the AppliUser table
+     * @param connection the connection object to connect to the database
+     * @throws NoSuchElementException if no user with objectToUpdate's id exists in the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void updateAppliUser(Interpreter objectToUpdate, Connection connection) throws NoSuchElementException, SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_LOGIN + " = ?, "
+                + FIELD_LAST_NAME + " = ?, " + FIELD_FIRST_NAME + " = ?, "
+                + FIELD_BIRTH_DATE + " = ?, " + FIELD_HASHED_PASSWORD + " = ?, "
+                + FIELD_EMAIL + " = ?, " + FIELD_PHONE_NUMBER + " = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            if (find(objectToUpdate.getId()) == null) {
+                throw new NoSuchElementException("[ERREUR] Aucun interprète n'a l'identifiant " + objectToUpdate.getId() + ".");
+            }
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToUpdate.getLogin());
+            statement.setString(2, objectToUpdate.getLastName());
+            statement.setString(3, objectToUpdate.getFirstName());
+            statement.setDate(4, Date.valueOf(objectToUpdate.getBirthDate()));
+            statement.setString(5, objectToUpdate.getHashedPassword());
+            statement.setString(6, objectToUpdate.getEmail());
+            statement.setString(7, objectToUpdate.getPhoneNumber());
+            statement.setInt(8, objectToUpdate.getId());
             statement.executeUpdate();
-            getNewAttributes(objectToInsert);
         } finally {
-            closeStatement(statement);
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
     /**
-     * Update the login and the id of the new object inserted in the database
-     * @param newObject the new object inserted in the database
+     * Update an Interpreter line who already exist in the database
+     * @param objectToUpdate the object to edit in the database
+     * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
+     * @throws SQLException if the database could not be reached
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     */
+    @Override
+    public void update(Interpreter objectToUpdate)
+            throws AlreadyExistsException, NoSuchElementException, SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        String queryInterpreter = "UPDATE " + TABLE + " SET " + FIELD_LOGIN + " = ?, "
+                + FIELD_WEEK_QUOTA + " = ?, " + FIELD_YEAR_QUOTA + " = ?, "
+                + FIELD_TRANSPORT_MODE + " = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            updateAppliUser(objectToUpdate, connection);
+
+            statement = connection.prepareStatement(queryInterpreter);
+            statement.setString(1, objectToUpdate.getLogin());
+            statement.setInt(2, objectToUpdate.getHourQuotaWeek());
+            statement.setInt(3, objectToUpdate.getHourQuotayear());
+            statement.setString(4, objectToUpdate.getTransportMode());
+            statement.setInt(5, objectToUpdate.getId());
+            statement.executeUpdate();
+
+            deleteAcademicSkillInterpreter(objectToUpdate, connection);
+            insertAcademicSkillInterpreter(objectToUpdate, connection);
+            deleteJobSkillInterpreter(objectToUpdate, connection);
+            insertJobSkillInterpreter(objectToUpdate, connection);
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
+    /**
+     * Utility method to delete the AcademicSkillInterpreter links from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
      * @throws SQLException if the database could not be reached
      */
-    private void getNewAttributes(Interpreter newObject) throws SQLException {
-        String query = String.format(
-                "SELECT %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, FIELD_LOGIN, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME,FIELD_BIRTH_DATE,
-                FIELD_HASHED_PASSWORD, FIELD_EMAIL, FIELD_PHONE_NUMBER
-        );
+    private void deleteAcademicSkillInterpreter(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE_ACADEMIC_SKILL_INTERPRETER + " WHERE " + FIELD_INTERPRETER + " = ?";
         PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, newObject.getFirstName());
-            statement.setString(2, newObject.getLastName());
-            statement.setDate(3, Date.valueOf(newObject.getBirthDate()));
-            statement.setString(4, newObject.getHashedPassword());
-            statement.setString(5, newObject.getEmail());
-            statement.setString(6, newObject.getPhoneNumber());
 
-            result = statement.executeQuery();
-            if (result.next()) {
-                newObject.setId(result.getInt(FIELD_ID));
-                newObject.setLogin(result.getString(FIELD_LOGIN));
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToDelete.getLogin());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
             }
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
         }
     }
 
-    @Override
-    public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
-            throw new AlreadyExistsException("The interpreter already exists in database.");
-
-        String query = String.format(
-                "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
-                TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME,FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
-                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA,
-                FIELD_TRANSPORT_MODE, FIELD_LOCATION, FIELD_ID
-        );
+    /**
+     * Utility method to delete the JobSkillInterpreter links from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteJobSkillInterpreter(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE_JOB_SKILL_INTERPRETER + " WHERE " + FIELD_INTERPRETER + " = ?";
         PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, objectToUpdate.getFirstName());
-            statement.setString(2, objectToUpdate.getLastName());
-            statement.setDate(3, Date.valueOf(objectToUpdate.getBirthDate()));
-            statement.setString(4, objectToUpdate.getHashedPassword());
-            statement.setString(5, objectToUpdate.getEmail());
-            statement.setString(6, objectToUpdate.getPhoneNumber());
-            statement.setInt(7, objectToUpdate.getHourQuotaWeek());
-            statement.setInt(8, objectToUpdate.getHourQuotaYear());
-            statement.setString(9, objectToUpdate.getTransportMode());
-            statement.setInt(10, objectToUpdate.getLocation().getId());
-            statement.setInt(11, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToDelete.getLogin());
+            statement.executeUpdate();
         } finally {
-            closeStatement(statement);
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
-    @Override
-    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
-        String query = String.format(
-                "DELETE FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID
-        );
+    /**
+     * Utility method to delete the Interpreter row from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteInterpreter(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idObjectToDelete);
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idObjectToDelete);
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, objectToDelete.getId());
+            statement.executeUpdate();
         } finally {
-            closeStatement(statement);
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
+    /**
+     * Utility method to delete the AppliUser row from the database
+     * @param objectToDelete the Interpreter object
+     * @param connection the connection object to connect to the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void deleteAppliUser(Interpreter objectToDelete, Connection connection) throws SQLException {
+        String query = "DELETE FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, objectToDelete.getId());
+            statement.executeUpdate();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }
+
+    //TODO supp delete acSkill et JOb Skill
+    /**
+     * Delete an Interpreter line in the table in the database
+     * @param objectToDelete the object to delete in the database
+     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @throws SQLException if the database could not be reached
+     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     */
     @Override
-    public Set<Interpreter> findAll() throws SQLException {
-        String query = String.format("SELECT * FROM %s", TABLE);
-        Set<Interpreter> interpreters = new HashSet<>();
+    public void delete(Interpreter objectToDelete)
+            throws NoSuchElementException, SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+
+        deleteAcademicSkillInterpreter(objectToDelete, connection);
+        deleteJobSkillInterpreter(objectToDelete, connection);
+        deleteInterpreter(objectToDelete, connection);
+        deleteAppliUser(objectToDelete, connection);
+    }
+
+    /**
+     * Return all line of Interpreter table in the database in a List
+     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    public List<Interpreter> findAll() throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        List<Interpreter> interpreters = new ArrayList<>();
+        String query = "SELECT " + FIELD_ID + " i FROM " + TABLE + " JOIN " + TABLE_APPLIUSER + " a ON i." + FIELD_ID + " = a." + FIELD_ID;
+
         PreparedStatement statement = null;
         ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+        try{
+            statement = connection.prepareStatement(query);
             result = statement.executeQuery();
 
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+            while(result.next()){
+                interpreters.add(find(result.getString("login")));
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
         }
         return interpreters;
-    }
-
-    @Override
-    protected int checkAlreadyExists(Interpreter objectToCheck) throws SQLException {
-        String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? " +
-                        "AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD, FIELD_EMAIL,
-                FIELD_PHONE_NUMBER, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA, FIELD_TRANSPORT_MODE, FIELD_LOCATION
-        );
-        ResultSet result = null;
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, objectToCheck.getFirstName());
-            statement.setString(2, objectToCheck.getLastName());
-            statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
-            statement.setString(4, objectToCheck.getHashedPassword());
-            statement.setString(5, objectToCheck.getEmail());
-            statement.setString(6, objectToCheck.getPhoneNumber());
-            statement.setInt(7, objectToCheck.getHourQuotaWeek());
-            statement.setInt(8, objectToCheck.getHourQuotaYear());
-            statement.setString(9, objectToCheck.getTransportMode());
-            statement.setInt(10, objectToCheck.getLocation().getId());
-
-            result = statement.executeQuery();
-            if(result.next())
-                return result.getInt(FIELD_ID);
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
-        return -1;
-    }
-
-    @Override
-    public Interpreter getResult(ResultSet result) throws SQLException {
-        return new Interpreter(
-                result.getInt(FIELD_ID),
-                result.getString(FIELD_LOGIN),
-                result.getString(FIELD_FIRST_NAME),
-                result.getString(FIELD_LAST_NAME),
-                result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
-                result.getString(FIELD_HASHED_PASSWORD),
-                result.getString(FIELD_EMAIL),
-                result.getString(FIELD_PHONE_NUMBER),
-                result.getInt(FIELD_WEEK_QUOTA),
-                result.getInt(FIELD_YEAR_QUOTA),
-                result.getString(FIELD_TRANSPORT_MODE),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID))
-        );
     }
 
     /**
      * finds all the interpreter who have the same mission
      * @param idMission the id of the Mission
-     * @return the set of the interpreter who have the mission with the idMission for id or an empty set
+     * @return the list of the interpreter who have the mission with the idMission for id
      * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      */
-    public Set<Interpreter> findAllByMissionId(int idMission) throws SQLException, NoSuchElementException {
-        if (new DAOMission().find(idMission) == null)
-            throw new NoSuchElementException("[ERROR] There is no Mission with the id " + idMission);
+    public List<Interpreter> findAllByMissionId(int idMission) throws SQLException{
+        Connection connection = DatabaseConnector.getInstance();
+        List<Interpreter> list = new ArrayList<>();
+        String query = "SELECT i." + FIELD_ID + " FROM " + TABLE + " i JOIN " + TABLE_INTERPRETER_MISSION + " im ON i." + FIELD_ID + " = im." + FIELD_INTERPRETER + " WHERE im." + FIELD_MISSION + " = ?";
 
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s im ON i.%s = im.%s WHERE im.%s = ?",
-                TABLE, TABLE_INTERPRETER_MISSION, FIELD_ID, FIELD_INTERPRETER, FIELD_MISSION
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
         PreparedStatement statement = null;
         ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idMission);
 
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, idMission);
             result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+
+            while(result.next()){
+                list.add(find(result.getString(FIELD_LOGIN)));
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
         }
-        return interpreters;
+
+        return list;
     }
 
+    //TODO TABLE_AVAILABILITY ici
     /**
      * Return all Interpreter who are available in the given time and date
      * @param start represent the start of the time that we want the availability
      * @param end represent the end of the time that we want the availability
      * @param date represent the date
-     * @throws SQLException if the database could not be reached
-     * @return a set of Interpreter who are available in the given time and date, or an empty set if no Interpreter is available
+     * @return a List of Interpreter who are available in the given time and date or null
+     * @return a List of Interpreter who are available in the given time and date, or an empty List if no Interpreter is available
      */
-    public Set<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) throws SQLException {
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%S " +
-                        "WHERE t.%S = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
-                TABLE, TABLE_AVAILABILITY, FIELD_ID, FIELD_INTERPRETER, DAOBaseTimeSlot.TABLE,
-                DAOBaseTimeSlot.TABLE, DAOBaseTimeSlot.FIELD_ID, DAOPunctualTimeSlot.FIELD_START_TIME,
-                DAOPunctualTimeSlot.FIELD_END_TIME, DAOPunctualTimeSlot.FIELD_START_TIME
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
+    public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date)throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        List<Interpreter> interpreters = new ArrayList<>();
+        String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE + " i JOIN "
+                + DAOPunctualTimeSlot.TABLE_AVAILABILITY + " av ON i." + FIELD_LOGIN
+                + " = av." + DAOPunctualTimeSlot.FIELD_INTERPRETER + " JOIN "
+                + DAOPunctualTimeSlot.TABLE_TIMESLOT + " t ON av." + DAOPunctualTimeSlot.TABLE_TIMESLOT
+                + " = t." + DAOPunctualTimeSlot.TABLE_TIMESLOT_ID + " WHERE t."
+                + DAOPunctualTimeSlot.FIELD_START_TIME + " = ? AND t."
+                + DAOPunctualTimeSlot.FIELD_END_TIME + " = ? AND TRUNC(t."
+                + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?";
+
         PreparedStatement statement = null;
         ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+        try{
+            statement = connection.prepareStatement(query);
             statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(date, start)));
             statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(date, end)));
             statement.setDate(3, Date.valueOf(date));
-
             result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+
+            while(result.next()){
+                interpreters.add(find(result.getString("login")));
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
         }
         return interpreters;
     }
@@ -345,63 +552,68 @@ public class DAOInterpreter extends DAO<Interpreter> {
     /**
      * Return all Interpreter who have the AcademicSkill having the given id
      * @param idAcademicSkills the id of the AcademicSkill
-     * @return a set of Interpreter who have the AcademicSkill having the idAcademicSkills, or an empty set if no Interpreter have this AcademicSkill
-     * @throws SQLException if the database could not be reached
+     * @return a List of Interpreter who have the AcademicSkill having the idAcademicSkills, or an empty List if no Interpreter have this AcademicSkill
      * @throws NoSuchElementException if idAcademicSkills doesn't correspond to the id of any AcademicSkill
      */
-    public Set<Interpreter> findByAcademicSkills(int idAcademicSkills) throws NoSuchElementException, SQLException {
-        if (new DAOMission().find(idAcademicSkills) == null)
-            throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + idAcademicSkills);
+    public List<Interpreter> findByAcademicSkills(int idAcademicSkills)
+            throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        List<Interpreter> list = new ArrayList<>();
+        String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE
+                + " i ON JOIN " + TABLE_ACADEMIC_SKILL_INTERPRETER
+                + " ai ON i." + FIELD_LOGIN + " = ai." + FIELD_INTERPRETER
+                + " WHERE ai." + DAOAcademicSkill.FIELD_SKILL + " = ?";
 
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s ai ON i.%s = ai.%s WHERE ai.%s = ?",
-                TABLE, TABLE_ACADEMIC_SKILL_INTERPRETER, FIELD_ID, FIELD_INTERPRETER, FIELD_SKILL
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
         PreparedStatement statement = null;
         ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+        try{
+            statement = connection.prepareStatement(query);
             statement.setInt(1, idAcademicSkills);
-
             result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+
+            while(result.next()){
+                list.add(find(result.getString(FIELD_LOGIN)));
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
         }
-        return interpreters;
+        return list;
     }
 
     /**
      * Return all Interpreter who have the JobSkill having the given id
      * @param idJobSkills the id of the JobSkill
-     * @return a Set of Interpreter who have the JobSkill having the idJobSkills, or an empty set if no Interpreter have this JobSkill
+     * @return a List of Interpreter who have the JobSkill having the idJobSkills, or an empty List if no Interpreter have this JobSkill
      * @throws NoSuchElementException if idJobSkills doesn't correspond to the id of any JobSkill
-     * @throws SQLException if the database could not be reached
      */
-    public Set<Interpreter> findByJobSkills(int idJobSkills) throws NoSuchElementException, SQLException {
-        if (new DAOMission().find(idJobSkills) == null)
-            throw new NoSuchElementException("[ERROR] There is no JobSkill with the id " + idJobSkills);
-
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s ai ON i.%s = ai.%s WHERE ai.%s = ?",
-                TABLE, TABLE_JOB_SKILL_INTERPRETER, FIELD_ID, FIELD_INTERPRETER, FIELD_SKILL
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
+    public List<Interpreter> findByJobSkills(int idJobSkills) throws SQLException {
+        Connection connection = DatabaseConnector.getInstance();
+        List<Interpreter> interpreters = null;
+        String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE + "i ON JOIN " + TABLE_JOB_SKILL_INTERPRETER
+                + " ai ON i." + FIELD_LOGIN + " = ai." + FIELD_INTERPRETER + " WHERE ai." + DAOJobSkill.FIELD_SKILL + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idJobSkills);
 
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, idJobSkills);
             result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
+
+            while(result.next()){
+                interpreters.add(find(result.getString(FIELD_LOGIN)));
+            }
+        }finally {
+            if(result != null){
+                result.close();
+            }
+            if(statement != null){
+                statement.close();
+            }
         }
         return interpreters;
     }
