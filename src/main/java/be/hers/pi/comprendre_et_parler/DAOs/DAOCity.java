@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +18,7 @@ public class DAOCity implements DAO<City> {
 
 
     /**
-     * Search for a City in the database with the String parameter
+     * Search for a City in the database with the int parameter
      * @param id : identification of the city
      * @return City object who correspond to the given id else null
      * @throws SQLException if the database couldn't be reached
@@ -57,7 +56,6 @@ public class DAOCity implements DAO<City> {
      * Insert a City Object in the database
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
      * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */

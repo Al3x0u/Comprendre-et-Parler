@@ -2,21 +2,15 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOAcademicSkill implements DAO<AcademicSkill> {
-    protected static final String TABLE = "academicskill";
-    protected static final String FIELD_ID = "id";
-    protected static final String FIELD_SKILL = "skill";
-    protected static final String FIELD_DESIGNATION = "designation";
+    public final String table = "academicskill";
+    public final String field_id = "id";
+    public final String field_designation = "designation";
 
     /**
      * Search for an AcademicSkill in the database with the int parameter
@@ -26,35 +20,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      */
     @Override
     public AcademicSkill find(int id) throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        AcademicSkill academicSkill;
-        String query = "SELECT * FROM AcademicSkill  WHERE id = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setInt(1, id);
-            rs = stmt.executeQuery();
-
-            if(rs.next()){
-                academicSkill = new AcademicSkill(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-            }else {
-                throw new NoSuchElementException();
-            }
-        }finally {
-            if(rs != null){
-                rs.close();
-            }
-            if(stmt != null){
-                stmt.close();
-            }
-        }
-        return academicSkill;
+        return null;
     }
 
     /**
@@ -102,41 +68,5 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
     @Override
     public List<AcademicSkill> findAll() throws SQLException {
         return null;
-    }
-
-    /**
-     * @param login the login of the interpreter
-     * @return the list of academic skills of the interpreter, empty if none
-     * @throws SQLException if the database could not be reached
-     */
-    public static List<AcademicSkill> findAllByInterpreterLogin(String login) throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        List<AcademicSkill> academicSkills = new ArrayList<>();
-        String query = "SELECT a.* FROM AcademicSkillInterpreter asi JOIN AcademicSkill a  ON a.id = asi.skill WHERE asi.interpreter = ?";
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try{
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, login);
-            rs = stmt.executeQuery();
-
-            while(rs.next()){
-                AcademicSkill academicSkil = new AcademicSkill(
-                        rs.getInt("id"),
-                        rs.getString("designation")
-                );
-                academicSkills.add(academicSkil);
-            }
-        }finally {
-            if(rs != null){
-                rs.close();
-            }
-            if(stmt != null){
-                stmt.close();
-            }
-        }
-        return academicSkills;
     }
 }

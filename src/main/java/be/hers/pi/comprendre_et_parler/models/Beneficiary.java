@@ -1,10 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
-
-import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List;
 
 public class Beneficiary extends AppliUser {
     private Status status;
@@ -13,6 +9,7 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary extends User
+     * @param id             represent the id
      * @param login          represent the login
      * @param firstName      represent the firstname
      * @param lastName       represent he lastname
@@ -21,13 +18,12 @@ public class Beneficiary extends AppliUser {
      * @param email          represent the email
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
+     * @param interpreterRef represent the referent interpreter
      */
-    public Beneficiary(String login, String firstName, String lastName,
-                       LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber, Status status) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+    public Beneficiary(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber, Status status, Interpreter interpreterRef) {
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
-        this.interpreterRef = null;
+        this.interpreterRef = interpreterRef;
     }
 
     /**
@@ -63,11 +59,8 @@ public class Beneficiary extends AppliUser {
      * @param other the Beneficiary object to compare with
      * @return true if both Beneficiary objects have identical status, interpreterRef and AppliUser fields
      */
-    public boolean equals(Object other) {
-        if(this == other) return true;
-        if(!(other instanceof Beneficiary)) return false;
-        Beneficiary beneficiary = (Beneficiary) other;
-        return (super.equals(other) && status.equals(beneficiary.status) && interpreterRef.equals(beneficiary.interpreterRef));
+    public boolean equals(Beneficiary other) {
+        return (super.equals(other) && status == other.status && interpreterRef == other.interpreterRef);
     }
 
     /**
@@ -76,7 +69,6 @@ public class Beneficiary extends AppliUser {
      */
     @Override
     public String toString() {
-        return super.toString() + ", status = ?" + status.getDesignation()
-                + ", reference Interpreter login = " + interpreterRef.getLogin() + "}";
+        return null;
     }
 }

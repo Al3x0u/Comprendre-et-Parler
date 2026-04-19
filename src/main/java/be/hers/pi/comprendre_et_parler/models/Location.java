@@ -3,19 +3,19 @@ package be.hers.pi.comprendre_et_parler.models;
 public class Location {
     private int id=0;
     private String designation;
-    private String city;
+    private City city;
     private String street;
-    private String room;
     private String streetNumber;
     private int box=0;
 
     /**
-        Constructor of a Location Object
-        @param box : represent the box
-        @param designation : represent designation
-        @param city : represent the city name
-        @param street : represent the street name
-        @param streetNum : represent the street number
+     Constructor of a Location Object
+     @param id : represent id
+     @param d : represent designation
+     @param c : represent the City object
+     @param s : represent the street name
+     @param sN : represent the street number
+     @param box : represent the new box
      */
     public Location(int id,String d, City c, String s, String sN, int box){
         if(id > 0) this.id = id;
@@ -80,7 +80,6 @@ public class Location {
     public int getBox() {
         return box;
     }
-}
 
     /**
      * @param id : location id
