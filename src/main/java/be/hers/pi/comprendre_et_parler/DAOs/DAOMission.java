@@ -2,6 +2,8 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.DuplicatePrimaryKeyException;
+import be.hers.pi.comprendre_et_parler.models.*;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,8 +22,33 @@ public class DAOMission implements DAO<Mission> {
     public final String fieldJobSkill = "jobSkill";
     public final String fieldAcademicSkill = "academicSkill";
 
+    private static void getMissionList(ResultSet rs, List<Mission> list) throws SQLException {
+        while (rs.next()) {
+            int missionId = rs.getInt("id");
+            int jobSkillId = rs.getInt("jobSkill");
+            JobSkill jobSkill = rs.wasNull() ? null : DAOJobSkill.findById(jobSkillId);
+            int academicSkillId = rs.getInt("academicSkill");
+            AcademicSkill academicSkill = rs.wasNull() ? null : new DAOAcademicSkill().find(academicSkillId);
+
+            list.add(new Mission(
+                    rs.getInt("id"),
+                    rs.getString("subject"),
+                    MissionState.toMissionState(rs.getString("status")),
+                    rs.getString("commentary"),
+                    DAOImportance.findByMissionId(missionId),
+                    DAOBeneficiary.findByIdBeneficiariesMission(missionId),
+                    new DAOInterpreter().findAllByMissionId(missionId),
+                    DAOPunctualTimeSlot.findById(rs.getInt("timeSlot")),
+                    DAOLocation.findById(rs.getInt("location")),
+                    jobSkill,
+                    academicSkill
+            ));
+        }
+    }
+
     /**
      * Search for a Mission in the database with the int parameter
+     *
      * @param id the primary key of the object to find in database
      * @return the object Mission identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -64,9 +91,10 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Insert a Mission object in the database
+     *
      * @param objectToInsert an object of type Mission to add to the database
      * @throws AlreadyExistsException if objectToInsert is already present in database
-     * @throws SQLException if the database could not be reached
+     * @throws SQLException           if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
@@ -105,9 +133,10 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Update a Mission line who already exist in the database
+     *
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws SQLException if the database could not be reached
+     * @throws SQLException           if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
@@ -147,9 +176,10 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Delete a Mission line in the table in the database
+     *
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
-     * @throws SQLException if the database could not be reached
+     * @throws SQLException           if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
@@ -172,6 +202,7 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Return all line of Mission table in the database in a List
+     *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
@@ -213,6 +244,7 @@ public class DAOMission implements DAO<Mission> {
 
     /**
      * Return the schedule of the user with the given id
+     *
      * @param idUser represent the id of the user which we want the schedule
      * @return a list of Mission which compose the schedule of the idUser, or an empty List if the user has no Mission
      * @throws NoSuchElementException if the given idUser doesn't correspond to an existent id

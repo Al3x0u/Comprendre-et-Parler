@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class Manager extends Interpreter {
 
@@ -18,9 +19,12 @@ public class Manager extends Interpreter {
      * @param phoneNumber    represent the phone number of the Manager
      * @param transportMode  represent the transport mode of the Manager
      */
-    public Manager(int hQW, int hQY, int id, String login, String firstName, String lastName,
-                       LocalDate birthDate, String hashedPassword, String email, String phoneNumber, Transportation transportMode) {
-        super(hQW, hQY, id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, transportMode);
+    public Manager(int id, String login, String firstName, String lastName, LocalDate birthDate,
+                   String hashedPassword, String email, String phoneNumber, int hQW, int hQY,
+                   Transportation transportMode, List<AcademicSkill> academic, List<JobSkill> job,
+                   Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber,
+                hQW, hQY, transportMode, academic, job, location, time, unavailability);
     }
 
     /**
@@ -29,7 +33,7 @@ public class Manager extends Interpreter {
      * @return true if both Manager objects have Interpreter fields
      */
     public boolean equals(Manager other) {
-        return super.equals(other);
+        return false;
     }
 
     /**
