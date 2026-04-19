@@ -12,7 +12,7 @@ public class Beneficiary extends AppliUser {
 
 
     /**
-     * Constructor of a Beneficiary extends User
+     * Constructor of a Beneficiary extends User without id
      * @param login          represent the login
      * @param firstName      represent the firstname
      * @param lastName       represent he lastname
@@ -22,14 +22,34 @@ public class Beneficiary extends AppliUser {
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
      */
-    //TODO deuxieme constructeurs avec id en paramètre
     public Beneficiary(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber, Status status) {
+                       String phoneNumber, Status status, Interpreter interpreterRef) {
         super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
-        this.interpreterRef = null;
+        this.interpreterRef = interpreterRef;
     }
+
+    /**
+     * Constructor of a Beneficiary extends User with id
+     * @param id             represent the id
+     * @param login          represent the login
+     * @param firstName      represent the firstname
+     * @param lastName       represent he lastname
+     * @param birthDate      represent the birthdate
+     * @param hashedPassword represent the hashed password
+     * @param email          represent the email
+     * @param phoneNumber    represent the phone number
+     * @param status         represent the status
+     */
+    public Beneficiary(int id, String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, Status status, Interpreter interpreterRef) {
+        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        this.status = status;
+        this.interpreterRef = interpreterRef;
+    }
+    //TODO ajouter constructeurs de copie
 
     /**
      * @return this.status
@@ -71,6 +91,7 @@ public class Beneficiary extends AppliUser {
         return (super.equals(other) && status.equals(beneficiary.status) && interpreterRef.equals(beneficiary.interpreterRef));
     }
     //TODO ajouter le hashcode
+
 
     /**
      * Return a String representation of the Beneficiary containing all fields

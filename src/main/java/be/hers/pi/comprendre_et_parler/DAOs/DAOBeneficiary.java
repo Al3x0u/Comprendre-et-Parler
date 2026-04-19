@@ -105,7 +105,8 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                         result.getString(FIELD_HASHED_PASSWORD),
                         result.getString(FIELD_EMAIL),
                         result.getString(FIELD_PHONE_NUMBER),
-                        new DAOStatus().find(result.getInt(FIELD_STATUS))
+                        new DAOStatus().find(result.getInt(FIELD_STATUS)),
+                        new DAOInterpreter().find(result.getString(FIELD_INTERPRETER_REFERENCE))
                 );
             }
         }finally {
