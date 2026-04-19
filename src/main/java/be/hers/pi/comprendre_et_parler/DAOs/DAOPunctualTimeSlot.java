@@ -35,9 +35,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     /**
      *
      * @param objectToInsert an object of PunctualTimeSlot to add to the database
-     * @throws DuplicatePrimaryKeyException if an object matching objectToInsert's id but not all of its attributes is already present in database
-     * @throws AlreadyExistsException       if objectToInsert is already present in database
-     * @throws SQLException          if the database could not be reached
+     * @throws AlreadyExistsException if objectToInsert is already present in database
+     * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
@@ -66,7 +65,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      *
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws SQLException    if the database could not be reached
+     * @throws SQLException if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override

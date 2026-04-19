@@ -154,8 +154,8 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     /**
      * Insert a Beneficiary object in the database
      * @param objectToInsert an object of type Beneficiary to add to the database
-     * @throws AlreadyExistsException       if objectToInsert is already present in database
-     * @throws SQLException          if the database could not be reached
+     * @throws AlreadyExistsException if objectToInsert is already present in database
+     * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
@@ -230,7 +230,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * Update a Beneficiary line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws SQLException    if the database could not be reached
+     * @throws SQLException if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
@@ -258,7 +258,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * Delete a Beneficiary line in the TABLE in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
-     * @throws SQLException    if the database could not be reached
+     * @throws SQLException if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
@@ -350,7 +350,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * Return all Beneficiary referenced by the interpreter with the given id
      * @param idInterpreter represent the id of the interpreter which we want the beneficiary
      * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter, or null if no beneficiaries
-     * @throws NoSuchElementException if the idInterpreter doesn't correspond to a existent interpreter
+     * @throws NoSuchElementException if the idInterpreter doesn't correspond to an existent interpreter
      */
     public List<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();

@@ -65,7 +65,7 @@ CREATE TABLE Interpreter (
 CREATE TABLE Beneficiary (
     login VARCHAR2(8 CHAR) PRIMARY KEY REFERENCES AppliUser(login) ON DELETE CASCADE,
     status INTEGER NOT NULL REFERENCES Status(id),
-    referenceInterpreter VARCHAR2(8 CHAR) NOT NULL REFERENCES Interpreter(login)
+    referenceInterpreter INTEGER NOT NULL REFERENCES Interpreter(id)
 );
 
 CREATE TABLE TimeSlot (

@@ -1,12 +1,10 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
-import be.hers.pi.comprendre_et_parler.models.City;
+import java.sql.SQLException;
 
 public interface DAO<T> {
 
@@ -50,5 +48,5 @@ public interface DAO<T> {
      * @throws SQLException if the database could not be reached
      */
     List<T> findAll() throws SQLException;
-}
 
+}

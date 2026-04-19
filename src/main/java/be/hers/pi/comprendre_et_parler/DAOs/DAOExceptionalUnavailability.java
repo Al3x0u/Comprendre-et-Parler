@@ -32,8 +32,8 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     /**
      * Insert a ExceptionalUnavailability object in the database
      * @param objectToInsert an object of type ExceptionalUnavailability to add to the database
-     * @throws AlreadyExistsException       if objectToInsert is already present in database
-     * @throws SQLException          if the database could not be reached
+     * @throws AlreadyExistsException if objectToInsert is already present in database
+     * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
     @Override
@@ -45,7 +45,7 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
      * Update a ExceptionalUnavailability line who already exist in the database
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws SQLException    if the database could not be reached
+     * @throws SQLException if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     @Override
@@ -57,7 +57,7 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
      * Delete a ExceptionalUnavailability line in the table in the database
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
-     * @throws SQLException    if the database could not be reached
+     * @throws SQLException if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override

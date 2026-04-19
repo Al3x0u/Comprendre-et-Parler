@@ -89,9 +89,16 @@ public class DAOStatus implements DAO<Status> {
         }
     }
 
+    /**
+     * Update a Status line who already exist in the database
+     * @param objectToUpdate : object with the news information
+     * @throws AlreadyExistsException if there are already a line with there information
+     * @throws NoSuchElementException if there are not the element to update in the database
+     * @throws SQLException if there are an error during the connection to the database
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     */
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        Connection connection = DatabaseConnector.getInstance();
         // Manage invalid states
         List<Status> allLines = findAll();
         if (allLines.contains(objectToUpdate))
@@ -122,9 +129,10 @@ public class DAOStatus implements DAO<Status> {
     }
 
     /**
-     * @param objectToDelete the object to delete in the database
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
-     * @throws SQLException if the database could not be reached
+     * Delete a Status line in the table in the database
+     * @param objectToDelete : object with the information of the line who need to be deleted
+     * @throws NoSuchElementException if we couldn't find the Status object in the database
+     * @throws SQLException if we couldn't connect to the database
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
