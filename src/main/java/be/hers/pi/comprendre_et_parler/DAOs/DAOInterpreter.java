@@ -105,7 +105,6 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             if(result.next()){
-                int idTransportation = result.getInt(FIELD_TRANSPORT_MODE);
                 String interpreterId = result.getString(FIELD_ID);
                 interpreter = new Interpreter(
                         login,
@@ -117,7 +116,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
                         result.getString(FIELD_PHONE_NUMBER),
                         result.getInt(FIELD_WEEK_QUOTA),
                         result.getInt(FIELD_YEAR_QUOTA),
-                        DAOTransportation.findById(idTransportation),
+                        result.getString(FIELD_TRANSPORT_MODE),
                         DAOAcademicSkill.findAllByInterpreterLogin(interpreterId),
                         DAOJobSkill.findAllByInterpreterLogin(login),
                         DAOLocation.findById(result.getInt(FIELD_LOCATION)),
@@ -246,7 +245,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             statement.setString(1, objectToInsert.getLogin());
             statement.setInt(2, objectToInsert.getHourQuotaWeek());
             statement.setInt(3, objectToInsert.getHourQuotayear());
-            statement.setInt(4, objectToInsert.getTransportMode().getId());
+            statement.setString(4, objectToInsert.getTransportMode());
             rowsAffected = statement.executeUpdate();
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
@@ -319,7 +318,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             statement.setString(1, objectToUpdate.getLogin());
             statement.setInt(2, objectToUpdate.getHourQuotaWeek());
             statement.setInt(3, objectToUpdate.getHourQuotayear());
-            statement.setInt(4, objectToUpdate.getTransportMode().getId());
+            statement.setString(4, objectToUpdate.getTransportMode());
             statement.setInt(5, objectToUpdate.getId());
             statement.executeUpdate();
 

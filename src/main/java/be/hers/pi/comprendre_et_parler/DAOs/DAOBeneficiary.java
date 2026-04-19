@@ -1,11 +1,9 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.Beneficiary;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
 import com.sun.jdi.request.ClassPrepareRequest;
-import oracle.jdbc.proxy.annotation.Pre;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 import org.thymeleaf.standard.processor.StandardAttrprependTagProcessor;

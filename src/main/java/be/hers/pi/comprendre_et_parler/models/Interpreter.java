@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Interpreter extends AppliUser{
     private int hourQuotaWeek;
     private int hourQuotaYear;
-    private Transportation transportMode;
+    private String transportMode;
     private List<AcademicSkill> academicSkills;
     private List<JobSkill> jobSkills;
     private List<Beneficiary> beneficiaries;
@@ -39,7 +39,7 @@ public class Interpreter extends AppliUser{
      */
     public Interpreter(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber, int hQW, int hQY, Transportation transportMode,
+                       String phoneNumber, int hQW, int hQY, String transportMode,
                        List<AcademicSkill> academic, List<JobSkill> job, Location location,
                        List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
         super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
@@ -68,14 +68,14 @@ public class Interpreter extends AppliUser{
     /**
      * @return this.transportMode
      */
-    public Transportation getTransportMode() {
+    public String getTransportMode() {
         return transportMode;
     }
 
     /**
      * @param transportMode the new transport mode
      */
-    public void setTransportMode(Transportation transportMode) {
+    public void setTransportMode(String transportMode) {
         this.transportMode = transportMode;
     }
 

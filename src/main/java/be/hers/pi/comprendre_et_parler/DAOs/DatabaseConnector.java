@@ -16,13 +16,13 @@ public class DatabaseConnector {
     private DatabaseConnector() {}
 
     /**
-     *
+     * Initialize the connection to the database with the given login and password
      * @param login the login to the database
      * @param password the password to the database
      * @post a connection to the database has been established
      * @throws SQLException if the connection failed
      */
-    public static void initialize(String login, String password) throws ConnectionException {
+    public static void initialize(String login, String password) throws SQLException {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             connection = DriverManager.getConnection(url, login, password);
@@ -36,6 +36,7 @@ public class DatabaseConnector {
     }
 
     /**
+     * Initialize the connection to the database by asking the user for login and password through the console
      * @post the user has been prompted through the console to provide a login and password,
      * and a connection to the database has been established
      * @throws SQLException if the connection failed
@@ -54,7 +55,7 @@ public class DatabaseConnector {
     }
 
     /**
-     *
+     * Return the current connection to the database, and initialize it if necessary
      * @post A connection to the database has been established. If initialized() hadn't been previously called, the user has been prompted to provide a login and password
      * @return an active Connection to the database
      * @throws SQLException if the connection failed
@@ -67,11 +68,12 @@ public class DatabaseConnector {
     }
 
     /**
+     * Close the current connection to the database
      * @post the connection has been closed if it wasn't already
      * @throws SQLException if a database error occurs
      */
     public static void closeInstance() throws SQLException {
         if (connection != null && !connection.isClosed())
-            connection.close();//where is the method ??
+            connection.close();
     }
 }
