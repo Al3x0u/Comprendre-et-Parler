@@ -108,7 +108,6 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 int idTransportation = result.getInt(FIELD_TRANSPORT_MODE);
                 String interpreterId = result.getString(FIELD_ID);
                 interpreter = new Interpreter(
-                        result.getInt(FIELD_ID),
                         login,
                         result.getString(FIELD_FIRST_NAME),
                         result.getString(FIELD_LAST_NAME),
@@ -243,12 +242,15 @@ public class DAOInterpreter implements DAO<Interpreter> {
             }
             insertAppliUser(objectToInsert, connection);
 
-            statement = connection.prepareStatement(query);
+            statement = connection.prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getLogin());
             statement.setInt(2, objectToInsert.getHourQuotaWeek());
             statement.setInt(3, objectToInsert.getHourQuotayear());
             statement.setInt(4, objectToInsert.getTransportMode().getId());
             rowsAffected = statement.executeUpdate();
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
 
             insertAcademicSkillInterpreter(objectToInsert, connection);
             insertJobSkillInterpreter(objectToInsert, connection);

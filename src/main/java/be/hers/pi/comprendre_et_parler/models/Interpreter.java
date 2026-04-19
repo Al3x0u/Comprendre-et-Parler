@@ -20,7 +20,6 @@ public class Interpreter extends AppliUser{
     /**
      * Constructor of an Interpreter object,
      * beneficiaries and missions are initialized with null
-     * @param id                 represent the id
      * @param login              represent the login
      * @param firstName          represent the firstname of the interpreter
      * @param lastName           represent the lastname of the interpreter
@@ -38,12 +37,12 @@ public class Interpreter extends AppliUser{
      * @param unavailability     represent the list of exceptional unavailabilities of the interpreter
      * @throws IllegalArgumentException if hQW or hQY is negative
      */
-    public Interpreter(int id, String login, String firstName, String lastName,
+    public Interpreter(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, Transportation transportMode,
                        List<AcademicSkill> academic, List<JobSkill> job, Location location,
                        List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
-        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
         }
@@ -58,6 +57,7 @@ public class Interpreter extends AppliUser{
         this.location = location;
         this.unavailability = unavailability;
     }
+
     /**
      * @return this.hourQuotaYear
      */

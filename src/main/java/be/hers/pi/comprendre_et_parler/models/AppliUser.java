@@ -15,7 +15,6 @@ public abstract class AppliUser {
 
     /**
      Constructor of a AppliUser
-     @param id represent the id
      @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
@@ -24,8 +23,8 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
-        this.id = id;
+    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        id = 0;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -34,6 +33,14 @@ public abstract class AppliUser {
         this.email = email;
         this.phoneNumber = phoneNumber;
     }
+
+    /**
+     * @param id represent the new id
+     */
+    public void setId(final int id) {
+        this.id = id;
+    }
+
     /**
      * @return this.birthDate
      */

@@ -13,7 +13,6 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary extends User
-     * @param id             represent the id
      * @param login          represent the login
      * @param firstName      represent the firstname
      * @param lastName       represent he lastname
@@ -23,10 +22,10 @@ public class Beneficiary extends AppliUser {
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
      */
-    public Beneficiary(int id, String login, String firstName, String lastName,
+    public Beneficiary(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, Status status) {
-        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
         this.interpreterRef = null;
     }

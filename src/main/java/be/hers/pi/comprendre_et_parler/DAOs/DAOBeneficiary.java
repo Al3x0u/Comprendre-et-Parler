@@ -95,7 +95,6 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
 
             if(result.next()){
                 beneficiary = new Beneficiary(
-                        result.getInt(FIELD_ID),
                         result.getString(FIELD_LOGIN),
                         result.getString(FIELD_FIRST_NAME),
                         result.getString(FIELD_LAST_NAME),
@@ -176,11 +175,14 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             }
 
             int idAppluser = insertAppliUser(objectToInsert, connection);
-            statement = connection.prepareStatement(query);
+            statement = connection.prepareStatement(query, new String[]{FIELD_ID});
             statement.setInt(1, idAppluser);
             statement.setInt(2, objectToInsert.getStatus().getId());
             statement.setInt(3, objectToInsert.getInterpreterRef().getId());
             rowsAffected = statement.executeUpdate();
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
         }finally {
             if(statement != null){
                 statement.close();
