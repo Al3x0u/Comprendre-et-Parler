@@ -54,8 +54,9 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     @Override
     public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
-        if (findDuplicate(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Object already exists in database");
+        int duplicateId = findDuplicate(objectToInsert);
+        if (duplicateId >= 0)
+            throw new AlreadyExistsException("Object already exists in database at id " + duplicateId);
 
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";

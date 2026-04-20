@@ -54,8 +54,9 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     @Override
     public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
         // Manage invalid states
-        if (findDuplicate(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Object already exists in database");
+        int duplicateId = findDuplicate(objectToInsert);
+        if (duplicateId >= 0)
+            throw new AlreadyExistsException("Object already exists in database at id " + duplicateId);
 
         // Attempt insertion
         String query = "INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)";
