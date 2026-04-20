@@ -13,18 +13,18 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOMission implements DAO<Mission> {
-    public static final String TABLE = "mission";
-    public static final String FIELD_ID = "id";
-    public static final String FIELD_SUBJECT = "subject";
-    public static final String FIELD_STATE = "stateOfMission";
-    public static final String FIELD_COMMENTARY = "commentary";
-    public static final String FIELD_BENEFICIARY = "beneficiary";
-    public static final String FIELD_LOCATION = "location";
-    public static final String FIELD_ROOM = "room";
-    public static final String FIELD_TIME_SLOT = "timeSlot";
-    public static final String FIELD_JOB_SKILL = "jobSkill";
-    public static final String FIELD_ACADEMIC_SKILL = "academicSkill";
-    public static final String FIELD_IMPORTANCE = "importance";
+    protected static final String TABLE = "mission";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_SUBJECT = "subject";
+    protected static final String FIELD_STATE = "stateOfMission";
+    protected static final String FIELD_COMMENTARY = "commentary";
+    protected static final String FIELD_BENEFICIARY = "beneficiary";
+    protected static final String FIELD_LOCATION = "location";
+    protected static final String FIELD_ROOM = "room";
+    protected static final String FIELD_TIME_SLOT = "timeSlot";
+    protected static final String FIELD_JOB_SKILL = "jobSkill";
+    protected static final String FIELD_ACADEMIC_SKILL = "academicSkill";
+    protected static final String FIELD_IMPORTANCE = "importance";
 
     /**
      * Search for a Mission in the database with the int parameter
@@ -43,26 +43,7 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
-                TimeSlot timeSlot;
-                if (state == MissionState.REGULAR) {
-                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                } else {
-                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                }
-                mission = new Mission(
-                        id,
-                        result.getString(FIELD_SUBJECT),
-                        state,
-                        result.getString(FIELD_COMMENTARY),
-                        timeSlot,
-                        new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
-                        new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                        new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
-                        new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        result.getString(FIELD_ROOM),
-                        result.getInt(FIELD_IMPORTANCE)
-                );
+                mission = getResult(result);
             }
         }
         finally {
@@ -81,15 +62,13 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToInsert an object of type Mission to add to the database
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
-     * @post objectToInsert has been added to the database, and the id was updated with auto generated id
+     * @post objectToInsert has been added to the database, the object is updated with auto generated id from the database,
+     * and the change was commited
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
-        List<Mission> missions = findAll();
-        for (Mission line : missions) {
-            if (line.equals(objectToInsert))
-                throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists");
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
@@ -130,15 +109,13 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException if the database could not be reached
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes,
+     * and the change was commited
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<Mission> missions = findAll();
-        for (Mission line : missions) {
-            if (line.equals(objectToUpdate))
-                throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
@@ -177,7 +154,8 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the database could not be reached
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * and the change was commited
      */
     @Override
     public void delete(Mission objectToDelete) throws NoSuchElementException, SQLException {
@@ -212,27 +190,7 @@ public class DAOMission implements DAO<Mission> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                int missionId = result.getInt(FIELD_ID);
-                MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
-                TimeSlot timeSlot;
-                if (state == MissionState.REGULAR) {
-                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                } else {
-                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                }
-                missions.add(new Mission(
-                        missionId,
-                        result.getString(FIELD_SUBJECT),
-                        state,
-                        result.getString(FIELD_COMMENTARY),
-                        timeSlot,
-                        new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
-                        new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                        new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
-                        new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        result.getString(FIELD_ROOM),
-                        result.getInt(FIELD_IMPORTANCE)
-                ));
+                missions.add(getResult(result));
             }
         }
         finally {
@@ -385,5 +343,50 @@ public class DAOMission implements DAO<Mission> {
                 try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
         }
+    }
+
+    /**
+     * Check if a Mission already exists in the database
+     * @param mission the mission to check
+     * @return true if the mission already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    private boolean checkAlreadyExists(Mission mission) throws SQLException {
+        List<Mission> missions = findAll();
+        for (Mission line : missions) {
+            if (line.equals(mission))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Build a Mission object from a ResultSet
+     * @param result the ResultSet to read from
+     * @return a Mission object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    private Mission getResult(ResultSet result) throws SQLException {
+        int missionId = result.getInt(FIELD_ID);
+        MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
+        TimeSlot timeSlot;
+        if (state == MissionState.REGULAR) {
+            timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        } else {
+            timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        }
+        return new Mission(
+                missionId,
+                result.getString(FIELD_SUBJECT),
+                state,
+                result.getString(FIELD_COMMENTARY),
+                timeSlot,
+                new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
+                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
+                new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
+                result.getString(FIELD_ROOM),
+                result.getInt(FIELD_IMPORTANCE)
+        );
     }
 }
