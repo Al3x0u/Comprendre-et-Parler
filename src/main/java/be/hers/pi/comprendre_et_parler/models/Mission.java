@@ -51,6 +51,35 @@
         }
 
         /**
+         * Constructor of a Mission object without id and without beneficiary
+         * @param subject represent the subject of the mission
+         * @param stateOfMission represent the state of the mission
+         * @param commentary represent the commentary of the mission
+         * @param timeSlot represent the time slot of the mission
+         * @param location represent the location of the mission
+         * @param jobSkill represent the required business skill
+         * @param academicSkill represent the required academic skill
+         * @param room represent the room of the mission (can be null)
+         * @param importance represent the importance of the mission
+         */
+        public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
+                       Location location, List<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
+                       String room, int importance) {
+            this.id = -1;
+            this.subject = subject;
+            this.stateOfMission = stateOfMission;
+            this.commentary = commentary;
+            this.timeSlot = timeSlot.clone();
+            this.beneficiary = null;
+            this.interpreters = interpreters.stream().distinct().toList();
+            this.location = new Location(location);
+            this.jobSkill = new JobSkill(jobSkill);
+            this.academicSkill = new AcademicSkill(academicSkill);
+            this.room = room;
+            if(importance >= 0 && importance <= 3) this.importance = importance;
+        }
+
+        /**
          * Constructor of a Mission object with beneficiary and no interpreters
          * @param id represent the id of the mission
          * @param subject represent the subject of the mission
@@ -67,6 +96,35 @@
                        Beneficiary beneficiary, Location location,
                        JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
             if(id > 0) this.id = id;
+            this.subject = subject;
+            this.stateOfMission = stateOfMission;
+            this.commentary = commentary;
+            this.timeSlot = timeSlot.clone();
+            this.beneficiary = new Beneficiary(beneficiary);
+            this.interpreters = null;
+            this.location = new Location(location);
+            this.jobSkill = new JobSkill(jobSkill);
+            this.academicSkill = new AcademicSkill(academicSkill);
+            this.room = room;
+            if(importance >= 0 && importance <= 3) this.importance = importance;
+        }
+
+        /**
+         * Constructor of a Mission object without id and without interpreters
+         * @param subject represent the subject of the mission
+         * @param stateOfMission represent the state of the mission
+         * @param commentary represent the commentary of the mission
+         * @param timeSlot represent the time slot of the mission
+         * @param beneficiary represent the beneficiary who concern this mission
+         * @param location represent the location of the mission
+         * @param jobSkill represent the required business skill
+         * @param academicSkill represent the required academic skill
+         * @param room represent the room of the mission (can be null)
+         */
+        public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
+                       Beneficiary beneficiary, Location location,
+                       JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
+            this.id = -1;
             this.subject = subject;
             this.stateOfMission = stateOfMission;
             this.commentary = commentary;

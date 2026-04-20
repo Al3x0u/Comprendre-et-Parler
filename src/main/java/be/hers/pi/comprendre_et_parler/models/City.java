@@ -13,8 +13,19 @@ public class City {
         @param d : represent the designation
         @param pC : represent the postal code
      */
-    public City(int id,String d, int pC ){
+    public City(int id, String d, int pC ){
         if(id > 0) this.id = id;
+        this.designation = d;
+        if(pC >= 1000 && pC <= 10000) this.postalCode = pC;
+    }
+
+    /**
+     Constructor of a City Object
+     @param d : represent the designation
+     @param pC : represent the postal code
+     */
+    public City(String d, int pC ){
+        this.id = -1;
         this.designation = d;
         if(pC >= 1000 && pC <= 10000) this.postalCode = pC;
     }

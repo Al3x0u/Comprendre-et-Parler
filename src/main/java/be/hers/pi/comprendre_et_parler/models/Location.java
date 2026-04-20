@@ -28,6 +28,24 @@ public class Location {
         if(box > 0) this.box = box;
     }
 
+
+    /**
+     Constructor of a Location Object without id
+     @param d : represent designation
+     @param c : represent the City object
+     @param s : represent the street name
+     @param sN : represent the street number
+     @param box : represent the new box
+     */
+    public Location(String d, City c, String s, String sN, int box){
+        this.id = -1;
+        this.designation = d;
+        this.city = new City(c);
+        this.street = s;
+        this.streetNumber = sN;
+        if(box > 0) this.box = box;
+    }
+
     /**
      * Copy constructor of a Location Object
      * @param l
