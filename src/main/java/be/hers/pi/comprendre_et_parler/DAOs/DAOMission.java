@@ -86,11 +86,7 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
-        List<Mission> missions = findAll();
-        for (Mission line : missions) {
-            if (line.equals(objectToInsert))
-                throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists at id " + line.getId());
-        }
+        checkAlreadyExists(objectToInsert);
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
@@ -136,11 +132,7 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<Mission> missions = findAll();
-        for (Mission line : missions) {
-            if (line.equals(objectToUpdate))
-                throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists at id " + line.getId());
-        }
+        checkAlreadyExists(objectToUpdate);
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
@@ -387,6 +379,20 @@ public class DAOMission implements DAO<Mission> {
             if (statement != null) {
                 try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
             }
+        }
+    }
+
+    /**
+     * Check if a Mission already exists in the database
+     * @param mission the mission to check
+     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void checkAlreadyExists(Mission mission) throws AlreadyExistsException, SQLException {
+        List<Mission> missions = findAll();
+        for (Mission line : missions) {
+            if (line.equals(mission))
+                throw new AlreadyExistsException("Mission " + mission.getSubject() + " already exists at id " + line.getId());
         }
     }
 }
