@@ -37,7 +37,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
                             result.getInt(FIELD_ID),
                             result.getTime(FIELD_START_TIME).toLocalTime(),
                             result.getTime(FIELD_END_TIME).toLocalTime(),
-                            result.getDate(FIELD_START_TIME).toLocalDate()
+                            result.getDate(FIELD_START_TIME).toLocalDate(),
+                            result.getDate(FIELD_END_TIME).toLocalDate()
                     );
                 }
             }
@@ -140,7 +141,8 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
                             result.getInt(FIELD_ID),
                             result.getTime(FIELD_START_TIME).toLocalTime(),
                             result.getTime(FIELD_END_TIME).toLocalTime(),
-                            result.getDate(FIELD_START_TIME).toLocalDate()
+                            result.getDate(FIELD_START_TIME).toLocalDate(),
+                            result.getDate(FIELD_END_TIME).toLocalDate()
                     ));
                 }
             }
