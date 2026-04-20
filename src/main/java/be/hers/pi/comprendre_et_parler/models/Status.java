@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class Status {
-    private int id;
+    private int id = -1;
     private String designation;
     private int hourQuota;
 
@@ -69,14 +69,12 @@ public class Status {
     /**
      * @param id the new id
      */
-    public void setId(int id) { this.id = (id < 0 ? 0 : id); }
+    public void setId(int id) { if (id >= 0) this.id = id; }
 
     /**
      * @param hourQuota the new associated hour quota
      */
-    public void setHourQuota(int hourQuota) {
-        this.hourQuota = (hourQuota < 0 ? 0 : hourQuota);
-    }
+    public void setHourQuota(int hourQuota)  { if (hourQuota >= 0) this.hourQuota = hourQuota; }
 
     /**
      * Compare this Status with another Status for equality
