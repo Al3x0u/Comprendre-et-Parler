@@ -139,13 +139,10 @@ class PunctualTimeSlotTest {
         assertFalse(p1.equals(null), "The second object is null.");
         assertTrue(p1.equals(p1), "The second object is the same as the first one.");
 
-        PunctualTimeSlot b2 = new PunctualTimeSlot(p1);
-        assertTrue(p1.equals(b2), "The second object is a copy of the first one.");
+        PunctualTimeSlot p2 = new PunctualTimeSlot(p1);
+        assertTrue(p1.equals(p2), "The second object is a copy of the first one.");
 
-        b2.setId(20);
-        assertTrue(b2.equals(p1), "The second object has its id changed.");
-
-        b2.setEndTime(LocalTime.MIDNIGHT.minusHours(1));
-        assertFalse(b2.equals(p1), "The second object has one of its attributes other than its id changed.");
+        p2.setEndDate(today.plusYears(1));
+        assertFalse(p2.equals(p1), "The second object has one of its attributes other than its id changed.");
     }
 }

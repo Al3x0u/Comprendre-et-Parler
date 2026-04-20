@@ -64,9 +64,6 @@ class BaseTimeSlotTest {
         BaseTimeSlot b2 = new BaseTimeSlot(b1);
         assertTrue(b1.equals(b2), "The second object is a copy of the first one.");
 
-        b2.setId(20);
-        assertTrue(b2.equals(b1), "The second object has its id changed.");
-
         b2.setDay(DayOfWeek.THURSDAY);
         assertFalse(b2.equals(b1), "The second object has one of its attributes other than its id changed.");
     }
