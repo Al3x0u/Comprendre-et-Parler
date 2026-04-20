@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class City {
-    private int id=0;
+    private int id=-1;
     private String designation;
     private int postalCode=1000;
 

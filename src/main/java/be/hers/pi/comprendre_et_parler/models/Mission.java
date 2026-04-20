@@ -7,7 +7,7 @@
     import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
     public class Mission {
-        private int id=0;
+        private int id=-1;
         private String subject;
         private MissionState stateOfMission;
         private String commentary;
