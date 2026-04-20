@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 

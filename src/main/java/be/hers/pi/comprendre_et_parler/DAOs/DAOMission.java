@@ -43,26 +43,7 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
-                TimeSlot timeSlot;
-                if (state == MissionState.REGULAR) {
-                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                } else {
-                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                }
-                mission = new Mission(
-                        id,
-                        result.getString(FIELD_SUBJECT),
-                        state,
-                        result.getString(FIELD_COMMENTARY),
-                        timeSlot,
-                        new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
-                        new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                        new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
-                        new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        result.getString(FIELD_ROOM),
-                        result.getInt(FIELD_IMPORTANCE)
-                );
+                mission = getResult(result);
             }
         }
         finally {
@@ -209,27 +190,7 @@ public class DAOMission implements DAO<Mission> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                int missionId = result.getInt(FIELD_ID);
-                MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
-                TimeSlot timeSlot;
-                if (state == MissionState.REGULAR) {
-                    timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                } else {
-                    timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-                }
-                missions.add(new Mission(
-                        missionId,
-                        result.getString(FIELD_SUBJECT),
-                        state,
-                        result.getString(FIELD_COMMENTARY),
-                        timeSlot,
-                        new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
-                        new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                        new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
-                        new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
-                        result.getString(FIELD_ROOM),
-                        result.getInt(FIELD_IMPORTANCE)
-                ));
+                missions.add(getResult(result));
             }
         }
         finally {
@@ -397,5 +358,35 @@ public class DAOMission implements DAO<Mission> {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Build a Mission object from a ResultSet
+     * @param result the ResultSet to read from
+     * @return a Mission object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    private Mission getResult(ResultSet result) throws SQLException {
+        int missionId = result.getInt(FIELD_ID);
+        MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
+        TimeSlot timeSlot;
+        if (state == MissionState.REGULAR) {
+            timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        } else {
+            timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        }
+        return new Mission(
+                missionId,
+                result.getString(FIELD_SUBJECT),
+                state,
+                result.getString(FIELD_COMMENTARY),
+                timeSlot,
+                new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
+                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
+                new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
+                result.getString(FIELD_ROOM),
+                result.getInt(FIELD_IMPORTANCE)
+        );
     }
 }
