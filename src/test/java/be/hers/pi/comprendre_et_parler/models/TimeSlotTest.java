@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.time.LocalTime;
 import java.time.DayOfWeek;
@@ -10,18 +11,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TimeSlotTest {
-    private static TimeSlot t1;
+    private TimeSlot t1;
     private static LocalTime eight;
     private static LocalTime eleven;
     private static LocalTime thirteen;
     private static LocalTime sixteen;
 
     @BeforeAll
-    public static void init() {
+    public static void initTime() {
         eight = LocalTime.NOON.minusHours(4);
         eleven = LocalTime.NOON.minusHours(1);
         thirteen = LocalTime.NOON.plusHours(1);
         sixteen = LocalTime.NOON.plusHours(4);
+    }
+
+    @BeforeEach
+    public void initTimeSLot() {
         t1 = new BaseTimeSlot(1, eleven, thirteen, DayOfWeek.SUNDAY);
     }
 
@@ -35,10 +40,18 @@ class TimeSlotTest {
 
     @Test
     public void testSetStartTime() {
+        t1.setStartTime(sixteen);
+        assertEquals(eleven, t1.getStartTime(), "startTime cannot be after endTime.");
+        t1.setStartTime(eight);
+        assertEquals(eight, t1.getStartTime(), "startTime has to change.");
     }
 
     @Test
     public void testSetEndTime() {
+        t1.setEndTime(eight);
+        assertEquals(thirteen, t1.getEndTime(), "endTime cannot be before startTime.");
+        t1.setEndTime(sixteen);
+        assertEquals(sixteen, t1.getEndTime(), "endTime has to change.");
     }
 
     @Test
@@ -53,7 +66,10 @@ class TimeSlotTest {
 
     @Test
     public void testClone() {
-
+        TimeSlot t2 = t1.clone();
+        assertTrue(t1.equals(t2), "The second object is a copy of the first one.");
+        t2.setId(50);
+        assertFalse(t1.getId() == t2.getId(), "Changes made to the copy can't impact the original.");
     }
 
     @Test
@@ -61,7 +77,7 @@ class TimeSlotTest {
         assertFalse(t1.equals(null), "The second object is null.");
         assertTrue(t1.equals(t1), "The second object is the same as the first one.");
 
-        BaseTimeSlot t2 = new BaseTimeSlot(t1);
+        TimeSlot t2 = new BaseTimeSlot(t1);
         assertTrue(t1.equals(t2), "The second object is a copy of the first one.");
 
         t1.setId(20);
