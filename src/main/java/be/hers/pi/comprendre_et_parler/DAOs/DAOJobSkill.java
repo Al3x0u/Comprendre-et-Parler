@@ -1,16 +1,21 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.JobSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOJobSkill implements DAO<JobSkill> {
-    public final String table = "jobskill";
-    public final String field_id = "id";
-    public final String field_designation = "designation";
+    protected final String TABLE = "jobskill";
+    protected final String FIELD_ID = "id";
+    protected final String FIELD_DESIGNATION = "designation";
 
     /**
      * Search for a JobSkill in the database with the int parameter
@@ -20,7 +25,30 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public JobSkill find(int id) throws SQLException {
-        return null;
+        String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        JobSkill ret = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            if (result.next()) {
+                ret = new JobSkill(
+                        id,
+                        result.getString(FIELD_DESIGNATION)
+                );
+            }
+        }
+        finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+        return ret;
     }
 
     /**
@@ -32,7 +60,30 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public void create(JobSkill objectToInsert) throws AlreadyExistsException, SQLException {
+        List<JobSkill> skills = findAll();
+        for(JobSkill skill : skills){
+            if (skill.equals(objectToInsert)) {
+                throw new AlreadyExistsException("JobSkill " + objectToInsert.getDesignation() + " already exists at id" + skill.getId() );
+            }
+        }
 
+        String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement.setInt(1, objectToInsert.getId());
+            statement.setString(2, objectToInsert.getDesignation());
+            statement.executeUpdate();
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+        }
+        finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
     }
 
     /**
@@ -45,7 +96,31 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public void update(JobSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        List<JobSkill> skills = findAll();
 
+        for(JobSkill skill : skills){
+            if (skill.equals(objectToUpdate)) {
+                throw new AlreadyExistsException("JobSkill " + objectToUpdate.getDesignation() + " already exists at id" + skill.getId() );
+            }
+        }
+
+        String query = "UPDATE %s SET %s = ? WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_ID);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToUpdate.getDesignation());
+            statement.setInt(2, objectToUpdate.getId());
+            statement.executeUpdate();
+            if(statement.executeUpdate() == 0){
+                throw new NoSuchElementException("JobSkill " + objectToUpdate.getDesignation() + " was not found in database");
+            }
+        }
+        finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
     }
 
     /**
@@ -57,7 +132,22 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public void delete(JobSkill objectToDelete) throws NoSuchElementException, SQLException {
-
+        String query = "DELETE FROM %s WHERE %s = ? AND %s = ?";
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, objectToDelete.getId());
+            statement.setString(2, objectToDelete.getDesignation());
+            if(statement.executeUpdate() == 0){
+                throw new NoSuchElementException("JobSkill " + objectToDelete.getDesignation() + " was not found in database");
+            }
+        }
+        finally {
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
     }
 
     /**
@@ -67,6 +157,69 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public List<JobSkill> findAll() throws SQLException {
-        return null;
+        String query = "SELECT * FROM " + TABLE;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        List<JobSkill> ret = new ArrayList<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            while (result.next()) {
+                ret.add(new JobSkill(
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_DESIGNATION)
+                ));
+            }
+        }
+        finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Return all Job Skill of An Interpreter
+     * @param idInterpreter represent the id of the interpreter that we want the Job Skill
+     * @return  a List who represent the Job Skill of the interpreter
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if the idInterpreter doesn't correspond to an Interpreter
+     */
+    public List<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws SQLException, NoSuchElementException{
+        DAOInterpreter daoInterpreter = new DAOInterpreter();
+        Interpreter interpreter = daoInterpreter.find(idInterpreter);
+        if (interpreter == null) {
+            throw new NoSuchElementException("Interpreter with id " + idInterpreter + " not found");
+        }
+        String query = "SELECT a." + FIELD_ID +", a."+ FIELD_DESIGNATION+" FROM " + TABLE + " a JOIN JobSkillInterpreter asi ON a."+ FIELD_ID+" = asi.idJobSkill WHERE asi.idInterpreter = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        List<JobSkill> ret = new ArrayList<>();
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idInterpreter);
+            result = statement.executeQuery();
+
+            while (result.next()) {
+                ret.add(new JobSkill(
+                        result.getInt("id"),
+                        result.getString("designation")
+                ));
+            }
+        } finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
+
+        return ret;
     }
 }
