@@ -62,11 +62,8 @@ public class DAOCity implements DAO<City> {
      */
     @Override
     public void create(City objectToInsert) throws AlreadyExistsException, SQLException {
-        List<City> cities = findAll();
-        for (City line : cities) {
-            if (line.equals(objectToInsert))
-                throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists");
 
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
@@ -99,11 +96,8 @@ public class DAOCity implements DAO<City> {
      */
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<City> cities = findAll();
-        for (City line : cities) {
-            if (line.equals(objectToUpdate))
-                throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE, FIELD_ID);
@@ -182,5 +176,20 @@ public class DAOCity implements DAO<City> {
             }
         }
         return cities;
+    }
+
+    /**
+     * Check if a City already exists in the database
+     * @param city the city to check
+     * @return true if the city already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    private boolean checkAlreadyExists(City city) throws SQLException {
+        List<City> cities = findAll();
+        for (City line : cities) {
+            if (line.equals(city))
+                return true;
+        }
+        return false;
     }
 }

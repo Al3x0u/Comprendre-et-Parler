@@ -68,11 +68,8 @@ public class DAOLocation implements DAO<Location> {
      */
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, SQLException {
-        List<Location> locations = findAll();
-        for (Location line : locations) {
-            if (line.equals(objectToInsert))
-                throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists");
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
@@ -108,11 +105,8 @@ public class DAOLocation implements DAO<Location> {
      */
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<Location> locations = findAll();
-        for (Location line : locations) {
-            if (line.equals(objectToUpdate))
-                throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX, FIELD_ID);
@@ -200,5 +194,20 @@ public class DAOLocation implements DAO<Location> {
             }
         }
         return locations;
+    }
+
+    /**
+     * Check if a Location already exists in the database
+     * @param location the location to check
+     * @return true if the location already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    private boolean checkAlreadyExists(Location location) throws SQLException {
+        List<Location> locations = findAll();
+        for (Location line : locations) {
+            if (line.equals(location))
+                return true;
+        }
+        return false;
     }
 }

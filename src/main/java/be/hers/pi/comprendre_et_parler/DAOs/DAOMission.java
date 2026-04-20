@@ -86,7 +86,8 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
-        checkAlreadyExists(objectToInsert);
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists");
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
@@ -132,7 +133,8 @@ public class DAOMission implements DAO<Mission> {
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        checkAlreadyExists(objectToUpdate);
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
@@ -385,14 +387,15 @@ public class DAOMission implements DAO<Mission> {
     /**
      * Check if a Mission already exists in the database
      * @param mission the mission to check
-     * @throws AlreadyExistsException if the mission already exists in the database
+     * @return true if the mission already exists, else false
      * @throws SQLException if the database could not be reached
      */
-    private void checkAlreadyExists(Mission mission) throws AlreadyExistsException, SQLException {
+    private boolean checkAlreadyExists(Mission mission) throws SQLException {
         List<Mission> missions = findAll();
         for (Mission line : missions) {
             if (line.equals(mission))
-                throw new AlreadyExistsException("Mission " + mission.getSubject() + " already exists at id " + line.getId());
+                return true;
         }
+        return false;
     }
 }
