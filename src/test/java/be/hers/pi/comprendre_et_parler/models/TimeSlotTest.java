@@ -55,12 +55,35 @@ class TimeSlotTest {
     }
 
     @Test
-    public void testOverlapsCompletely() {
+    public void testOverlaps() {
+        assertTrue(t1.overlaps(t1), "The second object is the same as the first one.");
+        assertTrue(t1.overlaps(null), "The second object is null.");
 
+        TimeSlot t2 = new BaseTimeSlot(t1);
+        assertTrue(t2.overlaps(t1), "The second object is a copy of the first one.");
+
+        t1.setEndTime(sixteen);
+        t2.setStartTime(eight);
+        assertTrue(t2.overlaps(t1), "The first object is partially in the second one.");
+        assertTrue(t1.overlaps(t2), "The second object is partially in the first one.");
+
+        t1.setStartTime(thirteen);
+        t2.setEndTime(eleven);
+        assertFalse(t2.overlaps(t1), "The two objects are totally outside each other.");
+
+        t2.setEndTime(thirteen);
+        t2.setStartTime(eleven);
+        t1.setStartTime(eight);
+        assertTrue(t2.overlaps(t1), "The first object is totally in the second one.");
+        assertTrue(t1.overlaps(t2), "The second object is totally in the first one.");
+
+        t1.setStartTime(thirteen);
+        assertFalse(t2.overlaps(t1), "The second object is just after the first one.");
+        assertFalse(t1.overlaps(t2), "The first object is just after the second one.");
     }
 
     @Test
-    public void testOverlaps() {
+    public void testOverlapsCompletely() {
 
     }
 
