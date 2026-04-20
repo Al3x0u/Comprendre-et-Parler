@@ -57,18 +57,17 @@ public class DAOCity implements DAO<City> {
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws SQLException if the database could not be reached
-     * @post objectToInsert has been added to the database, and the change was commited
+     * @post objectToInsert has been added to the database, the object is updated with auto generated id from the database,
+     * and the change was commited
      */
     @Override
     public void create(City objectToInsert) throws AlreadyExistsException, SQLException {
-        // Manage invalid city
         List<City> cities = findAll();
         for (City line : cities) {
             if (line.equals(objectToInsert))
                 throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
         }
 
-        // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
         PreparedStatement statement = null;
@@ -95,7 +94,8 @@ public class DAOCity implements DAO<City> {
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws NoSuchElementException if there are not the element to update in the database
      * @throws SQLException if there are an error during the connection to the database
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes,
+     * and the change was commited
      */
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
@@ -128,7 +128,8 @@ public class DAOCity implements DAO<City> {
      * @param objectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the City object in the database
      * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * and the change was commited
      */
     @Override
     public void delete(City objectToDelete) throws NoSuchElementException, SQLException {

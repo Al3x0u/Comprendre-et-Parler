@@ -81,7 +81,8 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToInsert an object of type Mission to add to the database
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
-     * @post objectToInsert has been added to the database, and the id was updated with auto generated id
+     * @post objectToInsert has been added to the database, the object is updated with auto generated id from the database,
+     * and the change was commited
      */
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
@@ -130,7 +131,8 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToUpdate the object to edit in the database
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException if the database could not be reached
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes,
+     * and the change was commited
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
@@ -177,7 +179,8 @@ public class DAOMission implements DAO<Mission> {
      * @param objectToDelete the object to delete in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the database could not be reached
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * and the change was commited
      */
     @Override
     public void delete(Mission objectToDelete) throws NoSuchElementException, SQLException {
