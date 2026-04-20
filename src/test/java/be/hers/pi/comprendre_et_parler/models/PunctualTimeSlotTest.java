@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +12,46 @@ import static org.junit.jupiter.api.Assertions.*;
 class PunctualTimeSlotTest {
     private PunctualTimeSlot p1;
     private LocalDate today = LocalDate.now();
+    private static LocalTime eight;
+    private static LocalTime eleven;
+    private static LocalTime thirteen;
+    private static LocalTime sixteen;
+
+    @BeforeAll
+    public static void initTime() {
+        eight = LocalTime.NOON.minusHours(4);
+        eleven = LocalTime.NOON.minusHours(1);
+        thirteen = LocalTime.NOON.plusHours(1);
+        sixteen = LocalTime.NOON.plusHours(4);
+    }
 
     @BeforeEach
-    public void initTime() {
-        p1 = new PunctualTimeSlot(1, LocalTime.NOON, LocalTime.NOON.plusHours(1), today, today);
+    public void init() {
+        p1 = new PunctualTimeSlot(1, eleven, thirteen, today, today);
+    }
+
+    @Test
+    public void testSetStartTime() {
+        p1.setStartTime(sixteen);
+        assertEquals(eleven, p1.getStartTime(), "startTime cannot be after endTime when the dates are the sames.");
+        p1.setStartTime(eight);
+        assertEquals(eight, p1.getStartTime(), "startTime has to change.");
+
+        p1.setEndDate(today.minusWeeks(1));
+        p1.setStartTime(sixteen);
+        assertEquals(sixteen, p1.getStartTime(), "startTime can be after endTime when the dates are not the sames.");
+    }
+
+    @Test
+    public void testSetEndTime() {
+        p1.setEndTime(eight);
+        assertEquals(thirteen, p1.getEndTime(), "endTime cannot be before startTime when the dates are the sames.");
+        p1.setEndTime(sixteen);
+        assertEquals(sixteen, p1.getEndTime(), "endTime has to change.");
+
+        p1.setEndDate(today.plusWeeks(1));
+        p1.setEndTime(eight);
+        assertEquals(eight, p1.getEndTime(), "endTime can be before startTime when the dates are not the sames.");
     }
 
     @Test
