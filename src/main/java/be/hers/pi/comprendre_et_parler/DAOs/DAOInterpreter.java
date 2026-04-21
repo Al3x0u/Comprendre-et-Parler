@@ -49,7 +49,18 @@ public class DAOInterpreter implements DAO<Interpreter> {
             e.printStackTrace();//most useful than an Exception
         }
     }
-    private void getResult(String login, Interpreter interpreter, ResultSet result)throws SQLException{
+
+    /**
+     * Populates an Interpreter object from the current row of the given ResultSet.
+     * Fetches all related data (academic skills, job skills, location, time slots,
+     * unavailabilities) from the database using their respective DAOs.
+     *
+     * @param interpreter the Interpreter object to populate
+     * @param result      the ResultSet positioned on the row to read, must not be null
+     * @throws SQLException if a database access error occurs while reading the ResultSet
+     */
+    private void getResult(Interpreter interpreter, ResultSet result)throws SQLException{
+        interpreter = new Interpreter(
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
                 result.getString(FIELD_LAST_NAME),
@@ -60,11 +71,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 result.getInt(FIELD_WEEK_QUOTA),
                 result.getInt(FIELD_YEAR_QUOTA),
                 result.getString(FIELD_TRANSPORT_MODE),
-                DAOAcademicSkill.findAllByInterpreterLogin(login),
-                DAOJobSkill.findAllByInterpreterLogin(login),
-                DAOLocation.findById(result.getInt(FIELD_LOCATION)),
-                DAOPunctualTimeSlot.findAllByInterpreterLogin(login),
-                new DAOExceptionalUnavailability().findByInterpreterLogin(result.getInt(FIELD_ID));
+                DAOAcademicSkill.getAcademicSkillOfAnInterpreter(result.getString(FIELD_ID)),
+                DAOJobSkill.getJobSkillOfAnInterpreter(result.getString(FIELD_ID)),
+                DAOLocation.find(result.getInt(FIELD_LOCATION)),
+                DAOPunctualTimeSlot.findAllByInterpreterLogin(result.getString(FIELD_ID)),
+                new DAOExceptionalUnavailability().findByInterpreterLogin(result.getInt(FIELD_ID))
+        );
     }
 
     /**
@@ -88,7 +100,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             if(result.next()){
-               interpreter = find(result.getString(FIELD_LOGIN));
+               getResult(interpreter, result);
             }
         }finally{
             try {
@@ -128,7 +140,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             if(result.next()){
-                getResult(login, interpreter, result);
+                getResult(interpreter, result);
             }
         }finally {
             try {
@@ -143,42 +155,6 @@ public class DAOInterpreter implements DAO<Interpreter> {
             }
         }
         return interpreter;
-    }
-
-    /**
-     * Utility method to Insert a AppliUser object in the database
-     * @param objectToInsert the Beneficiary object that contains the information for the AppliUser table in database
-     * @param connection the connection object to connect to the database
-     * @return the id of the AppliUser user inserted
-     * @throws SQLException if the database could not be reached
-     */
-    private void insertAppliUser(Interpreter objectToInsert, Connection connection) throws SQLException{
-        String query = "INSERT INTO " + TABLE_APPLIUSER + " (" + FIELD_LOGIN + ", "
-                + FIELD_LAST_NAME + ", " + FIELD_FIRST_NAME + ", "
-                + FIELD_BIRTH_DATE + ", " + FIELD_HASHED_PASSWORD + ", "
-                + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement statement = null;
-        int rowsAffected = 0;
-
-        try{
-            statement = connection.prepareStatement(query);
-            statement.setString(1, objectToInsert.getLogin());
-            statement.setString(2, objectToInsert.getLastName());
-            statement.setString(3, objectToInsert.getFirstName());
-            statement.setDate(4, Date.valueOf(objectToInsert.getBirthDate()));
-            statement.setString(5, objectToInsert.getHashedPassword());
-            statement.setString(6, objectToInsert.getEmail());
-            statement.setString(7, objectToInsert.getPhoneNumber());
-            rowsAffected = statement.executeUpdate();
-        }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -201,17 +177,13 @@ public class DAOInterpreter implements DAO<Interpreter> {
             if (find(objectToInsert.getLogin()) != null){
                 throw new AlreadyExistsException();
             }
-            insertAppliUser(objectToInsert, connection);
 
-            statement = connection.prepareStatement(query, new String[]{FIELD_ID});
+            statement = connection.prepareStatement(query);
             statement.setString(1, objectToInsert.getLogin());
             statement.setInt(2, objectToInsert.getHourQuotaWeek());
             statement.setInt(3, objectToInsert.getHourQuotayear());
             statement.setString(4, objectToInsert.getTransportMode());
             rowsAffected = statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next())
-                objectToInsert.setId(generatedKeys.getInt(1));
         }finally {
             try {
                 if (statement != null) {
@@ -306,7 +278,10 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                interpreters.add(find(result.getString("login")));
+                Interpreter interpreter = null;
+                getResult(interpreter, result);
+
+                interpreters.add(interpreter);
             }
         }finally {
             try {
@@ -343,7 +318,10 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                list.add(find(result.getString(FIELD_LOGIN)));
+                Interpreter interpreter = null;
+                getResult(interpreter, result);
+
+                list.add(interpreter);
             }
         }finally {
             try {
@@ -392,7 +370,10 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                interpreters.add(find(result.getString("login")));
+                Interpreter interpreter = null;
+                getResult(interpreter, result);
+
+                interpreters.add(interpreter);
             }
         }finally {
             try {
@@ -432,7 +413,10 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                list.add(find(result.getString(FIELD_LOGIN)));
+                Interpreter interpreter = null;
+                getResult(interpreter, result);
+
+                list.add(interpreter);
             }
         }finally {
             try {
@@ -469,7 +453,10 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                interpreters.add(find(result.getString(FIELD_LOGIN)));
+                Interpreter interpreter = null;
+                getResult(interpreter, result);
+
+                interpreters.add(interpreter);
             }
         }finally {
             try {
