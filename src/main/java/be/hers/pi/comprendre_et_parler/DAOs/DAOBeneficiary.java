@@ -79,6 +79,15 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         return beneficiary;
     }
 
+    /**
+     * Populates a Beneficiary object from the current row of the given ResultSet.
+     * Fetches the associated Status and reference Interpreter from the database
+     * using their respective DAOs.
+     *
+     * @param beneficiary the Beneficiary object to populate
+     * @param result      the ResultSet positioned on the row to read, must not be null
+     * @throws SQLException if a database access error occurs while reading the ResultSet
+     */
     private void getResult(Beneficiary beneficiary, ResultSet result)throws SQLException{
         beneficiary = new Beneficiary(
                 result.getString(FIELD_LOGIN),
