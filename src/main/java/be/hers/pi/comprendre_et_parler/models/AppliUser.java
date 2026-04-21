@@ -35,6 +35,21 @@ public abstract class AppliUser {
     }
 
     /**
+     * Copy constructor. Creates a deep copy of the given AppliUser.
+     * @param other the AppliUser to copy, must not be null
+     */
+    public AppliUser(AppliUser other) {
+        id = other.id;
+        this.login = other.login;
+        this.firstName = other.firstName;
+        this.lastName = other.lastName;
+        this.birthDate = other.birthDate;
+        this.hashedPassword = other.hashedPassword;
+        this.email = other.email;
+        this.phoneNumber = other.phoneNumber;
+    }
+
+    /**
      * @param id represent the new id
      */
     public void setId(final int id) {
@@ -155,9 +170,28 @@ public abstract class AppliUser {
         if (this == other) return true;
         if(!(other instanceof AppliUser) ) return false;
         AppliUser user = (AppliUser) other;
-        return (login.equals(user.login) && firstName.equals(user.firstName) && lastName.equals(user.lastName) &&
-                birthDate.equals(user.birthDate) && hashedPassword.equals(user.hashedPassword) &&
-                email.equals(user.email) && phoneNumber.equals(user.phoneNumber));
+        return (Objects.equals(login, user.login) && Objects.equals(firstName, user.firstName)  && Objects.equals(lastName, user.lastName) &&
+                Objects.equals(birthDate, user.birthDate) && Objects.equals(hashedPassword, user.hashedPassword) &&
+                Objects.equals(email,user.email) && Objects.equals(phoneNumber,user.phoneNumber));
+    }
+
+    /**
+     * Computes a hash code for this Interpreter based on its attributes.
+     * two Interpreter objects that are equal according to equals() will have the same hash code.
+     * @return an integer hash code representing this AppliUser
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                login,
+                firstName,
+                lastName,
+                birthDate,
+                hashedPassword,
+                email,
+                phoneNumber
+        );
     }
 
     /**

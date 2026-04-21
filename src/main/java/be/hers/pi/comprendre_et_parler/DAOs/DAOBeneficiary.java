@@ -24,7 +24,7 @@ import java.util.Map;
 
 
 public class DAOBeneficiary implements DAO<Beneficiary> {
-    protected static final String TABLE = "Beneficiary";
+    protected static final String TABLE = "BeneficiaryT";
     protected static final String TABLE_APPLIUSER = "AppliUser";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
@@ -53,26 +53,57 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
 
         PreparedStatement statement = null;
         ResultSet result = null;
-        Beneficiary beneficiary;
+        Beneficiary beneficiary = null;
         try{
             statement = connection.prepareStatement(query);
             statement.setInt(1, id);
             result = statement.executeQuery();
 
             if(result.next()){
-                beneficiary = find(result.getString(FIELD_LOGIN));
+                getResult(beneficiary, result);
             }else{
                 throw new NoSuchElementException();
             }
         }finally {
-            if(result != null){
-                result.close();
-            }
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
         return beneficiary;
+    }
+
+    private void getResult(Beneficiary beneficiary, ResultSet result)throws SQLException{
+        beneficiary = new Beneficiary(
+                result.getString(FIELD_LOGIN),
+                result.getString(FIELD_FIRST_NAME),
+                result.getString(FIELD_LAST_NAME),
+                result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
+                result.getString(FIELD_HASHED_PASSWORD),
+                result.getString(FIELD_EMAIL),
+                result.getString(FIELD_PHONE_NUMBER),
+                new DAOStatus().find(result.getInt(FIELD_STATUS)),
+                new DAOInterpreter().find(result.getString(FIELD_INTERPRETER_REFERENCE))
+        );
+    }
+
+    private void closeStatement(PreparedStatement statement, ResultSet result)throws SQLException{
+        try {
+            if (statement != null) {
+                statement.close();
+            }
+            if(result != null){
+                result.close();
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -95,26 +126,19 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             statement = connection.prepareStatement(query);
             statement.setString(1, login);
             result = statement.executeQuery();
-            //TODO ce bloc dans une méthode private
             if(result.next()){
-                beneficiary = new Beneficiary(
-                        result.getString(FIELD_LOGIN),
-                        result.getString(FIELD_FIRST_NAME),
-                        result.getString(FIELD_LAST_NAME),
-                        result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
-                        result.getString(FIELD_HASHED_PASSWORD),
-                        result.getString(FIELD_EMAIL),
-                        result.getString(FIELD_PHONE_NUMBER),
-                        new DAOStatus().find(result.getInt(FIELD_STATUS)),
-                        new DAOInterpreter().find(result.getString(FIELD_INTERPRETER_REFERENCE))
-                );
+                getResult(beneficiary, result);
             }
         }finally {
-            if(result != null){
-                result.close();
-            }
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
         return beneficiary;
@@ -151,8 +175,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             }
             throw new SQLException("Insert AppliUser échoué : aucun id généré");
         }finally {
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
     }
@@ -164,7 +192,6 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @throws SQLException          if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
-    //TODO initialiser InterperterRef
     @Override
     public void create(Beneficiary objectToInsert)
             throws AlreadyExistsException, SQLException {
@@ -189,46 +216,15 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
         }finally {
-            if(statement != null){
-                statement.close();
-            }
-            if(result != null){
-                result.close();
-            }
-        }
-    }
-
-    /**
-     * Utility method to Update a column in the AppliUser table in database
-     * @param objectToUpdate the Beneficiary object that contains the information for the AppliUser table in database
-     * @param connection the connection object to connect to the database
-     * @throws SQLException if the database could not be reached
-     */
-    private void updateAppliUser(Beneficiary objectToUpdate, Connection connection) throws SQLException, NoSuchElementException{
-        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_LOGIN
-                + " = ?, " + FIELD_FIRST_NAME + " = ?, " + FIELD_LAST_NAME + " = ?, "
-                + FIELD_BIRTH_DATE + " = ?, " + FIELD_HASHED_PASSWORD + " = ?, "
-                + FIELD_EMAIL + " = ?, " + FIELD_PHONE_NUMBER + " = ? WHERE "
-                + FIELD_ID + " = ? ";
-        PreparedStatement statement = null;
-
-        try{
-            if(find(objectToUpdate.getId()) == null){
-                throw new NoSuchElementException("[ERREUR] Aucun utilisateur n'a l'identifiant " + objectToUpdate.getId() + ".");
-            }
-            statement = connection.prepareStatement(query);
-            statement.setString(1, objectToUpdate.getLogin());
-            statement.setString(2, objectToUpdate.getFirstName());
-            statement.setString(3, objectToUpdate.getLastName());
-            statement.setDate(4, Date.valueOf(objectToUpdate.getBirthDate()));
-            statement.setString(5, objectToUpdate.getHashedPassword());
-            statement.setString(6, objectToUpdate.getEmail());
-            statement.setString(7, objectToUpdate.getPhoneNumber());
-            statement.setInt(8, objectToUpdate.getId());
-            statement.executeUpdate();
-        }finally {
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
     }
@@ -248,15 +244,18 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
         PreparedStatement statement = null;
 
         try {
-            updateAppliUser(objectToUpdate, connection);
             statement = connection.prepareStatement(query);
             statement.setInt(1, objectToUpdate.getStatus().getId());
             statement.setInt(2, objectToUpdate.getInterpreterRef().getId());
             statement.setInt(3, objectToUpdate.getId());
             statement.executeUpdate();
         }finally {
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
     }
@@ -282,8 +281,12 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
              statement.setInt(1, objectToDelete.getId());
              statement.executeUpdate();
          }finally {
-             if(statement != null){
-                 statement.close();
+             try {
+                 if (statement != null) {
+                     statement.close();
+                 }
+             }catch(SQLException e){
+                 e.printStackTrace();
              }
          }
     }
@@ -309,27 +312,29 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 beneficiaries.add(find(result.getInt(FIELD_ID)));
             }
         }finally {
-            //TODO revoir le try de Luna
-            if(result != null){
-                result.close();
-            }
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
         return beneficiaries;
     }
 
-    //TODO modifié pour retourner un seul benef
     /**
      * Return all Beneficiary linked to the given mission id
      * @param missionId represent the id of the mission
      * @return a List of Beneficiary linked to the mission, empty if none
      * @throws SQLException if the database could not be reached
      */
-    public static List<Beneficiary> findByIdBeneficiariesMission(int missionId) throws SQLException {
+    public Beneficiary findByIdBeneficiariesMission(int missionId) throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Beneficiary> beneficiaries = new ArrayList<>();
+        Beneficiary beneficiary = null;
         String query = "SELECT b." + FIELD_LOGIN + " FROM " + TABLE + " b JOIN BeneficiaryMission bm ON b."
                 + FIELD_ID + " = bm.beneficiary WHERE bm.mission = ?";
 
@@ -340,18 +345,22 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             statement.setInt(1, missionId);
             result = statement.executeQuery();
 
-            while (result.next()) {
-                beneficiaries.add(new DAOBeneficiary().find(result.getString(FIELD_LOGIN)));
+            if (result.next()) {
+                getResult(beneficiary, result);
             }
         } finally {
-            if (result != null) {
-                result.close();
-            }
-            if (statement != null) {
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
-        return beneficiaries;
+        return beneficiary;
     }
 
     /**
@@ -360,9 +369,9 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
      * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter, or null if no beneficiaries
      * @throws NoSuchElementException if the idInterpreter doesn't correspond to an existent interpreter
      */
-    public List<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
+    public Beneficiary findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Beneficiary> beneficiaries = new ArrayList<>();
+        Beneficiary beneficiary = null;
         String query = "SELECT " + FIELD_LOGIN + " FROM " + TABLE + " WHERE " + FIELD_INTERPRETER_REFERENCE + " = ?";
 
         PreparedStatement statement = null;
@@ -372,18 +381,22 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             statement.setInt(1, idInterpreter);
             result = statement.executeQuery();
 
-            while(result.next()){
-                beneficiaries.add(find(result.getString(FIELD_LOGIN)));
+            if(result.next()){
+                getResult(beneficiary, result);
             }
         }finally {
-            if(result != null){
-                result.close();
-            }
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
-        return beneficiaries;
+        return beneficiary;
     }
 
     /**
@@ -411,11 +424,15 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 beneficiaries.add(find(result.getInt(FIELD_ID)));
             }
         }finally {
-            if(result != null){
-                result.close();
-            }
-            if(statement != null){
-                statement.close();
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if(result != null){
+                    result.close();
+                }
+            }catch(SQLException e){
+                e.printStackTrace();
             }
         }
         return beneficiaries;

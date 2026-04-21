@@ -5,6 +5,7 @@ import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class Beneficiary extends AppliUser {
     private Status status;
@@ -49,7 +50,23 @@ public class Beneficiary extends AppliUser {
         this.status = status;
         this.interpreterRef = interpreterRef;
     }
-    //TODO ajouter constructeurs de copie
+
+
+    /**
+     * Copy constructor. Creates a deep copy of the given Beneficiary.
+     * The interpreterRef field is shared (shallow copy) to avoid
+     * an infinite recursion between Beneficiary and Interpreter
+     * copy constructors.
+     *
+     * @param other the Beneficiary to copy, must not be null
+     */
+    public Beneficiary(Beneficiary other) {
+        super(other.getLogin(), other.getFirstName(), other.getLastName(),
+                other.getBirthDate(), other.getHashedPassword(), other.getEmail(),
+                other.getPhoneNumber());
+        this.status = other.status;
+        this.interpreterRef = other.interpreterRef != null ? new Interpreter(other.interpreterRef) : null;
+    }
 
     /**
      * @return this.status
@@ -88,9 +105,22 @@ public class Beneficiary extends AppliUser {
         if(this == other) return true;
         if(!(other instanceof Beneficiary)) return false;
         Beneficiary beneficiary = (Beneficiary) other;
-        return (super.equals(other) && status.equals(beneficiary.status) && interpreterRef.equals(beneficiary.interpreterRef));
+        return (super.equals(other) && Objects.equals(status, beneficiary.status) && Objects.equals(interpreterRef, beneficiary.interpreterRef));
     }
-    //TODO ajouter le hashcode
+
+    /**
+     * Computes a hash code for this Interpreter based on its attributes.
+     * two Interpreter objects that are equal according to equals() will have the same hash code.
+     * @return an integer hash code representing this Beneficiary
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                status,
+                interpreterRef
+        );
+    }
 
 
     /**
