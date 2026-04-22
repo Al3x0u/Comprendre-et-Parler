@@ -1,20 +1,41 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Status {
-    private int id;
+    private int id = -1;
     private String designation;
     private int hourQuota;
 
     /**
      * Constructor of a Status object
+     * @param designation the name or description of the status
+     * @param hourQuota the associated hour quota (will be 0 if negative)
+     */
+    public Status(String designation, int hourQuota) {
+        this.designation = designation;
+        setHourQuota(hourQuota);
+    }
+
+    /**
+     * Constructor of a Status object
      * @param id the unique identifier of the status
      * @param designation the name or description of the status
-     * @param hourQuota the associated hour quota
+     * @param hourQuota the associated hour quota (will be 0 if negative)
      */
     public Status(int id, String designation, int hourQuota) {
+        this(designation, hourQuota);
         this.id = id;
-        this.designation = designation;
-        this.hourQuota = hourQuota;
+    }
+
+    /**
+     * Copy constructor of a Status object
+     * @param other the object to copy
+     */
+    public Status(Status other) {
+        this.id = other.getId();
+        this.designation = other.getDesignation();
+        this.hourQuota = other.getHourQuota();
     }
 
     /**
@@ -46,27 +67,42 @@ public class Status {
     }
 
     /**
+     * @param id the new id
+     */
+    public void setId(int id) { if (id >= 0) this.id = id; }
+
+    /**
      * @param hourQuota the new associated hour quota
      */
-    public void setHourQuota(int hourQuota) {
-        this.hourQuota = hourQuota;
-    }
+    public void setHourQuota(int hourQuota)  { if (hourQuota >= 0) this.hourQuota = hourQuota; }
 
     /**
      * Compare this Status with another Status for equality
      * @param other the Status object to compare with
-     * @return true if both Status objects have identical id, designation and hourQuota
+     * @return true if both objects are of type Status and have identical attributes except for id
      */
-    public boolean equals(Status other) {
-        return (id == other.id && designation == other.designation && hourQuota == other.hourQuota);
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Mission)) return false;
+        Status o = (Status) other;
+        return (designation.equals(o.getDesignation()) && Objects.equals(hourQuota, o.getHourQuota()));
     }
 
+    /**
+     * Computes the hash code of this Mission.
+     * @return an integer hash code value based on designation and hourQuota
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, hourQuota);
+    }
     /**
      * Return a String representation of the Status containing all fields
      * @return formatted string with id, designation and hourQuota
      */
     @Override
     public String toString() {
-        return null;
+        return "Status{id=" + id + ", designation=" + designation + ", hourQuota:" + hourQuota +"}";
     }
 }

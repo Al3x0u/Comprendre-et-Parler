@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
@@ -12,13 +11,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public class DAOLocation implements DAO<Location> {
-    public final String TABLE = "location";
-    public final String FIELD_ID = "id";
-    public final String FIELD_DESIGNATION = "designation";
-    public final String FIELD_CITY = "city";
-    public final String FIELD_STREET = "street";
-    public final String FIELD_STREET_NUMBER = "streetNumber";
-    public final String FIELD_BOX = "box";
+    protected static final String TABLE = "location";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_DESIGNATION = "designation";
+    protected static final String FIELD_CITY = "city";
+    protected static final String FIELD_STREET = "street";
+    protected static final String FIELD_STREET_NUMBER = "streetNumber";
+    protected static final String FIELD_BOX = "box";
 
     /**
      * Search for a location in the database with the int parameter
@@ -63,18 +62,14 @@ public class DAOLocation implements DAO<Location> {
      * @param objectToInsert : Object that we gonna insert
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws SQLException if we couldn't connect to the database
-     * @post objectToInsert has been added to the database, and the change was commited
+     * @post objectToInsert has been added to the database, the object is updated with auto generated id from the database,
+     * and the change was commited
      */
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, SQLException {
-        // Manage invalid Location
-        List<Location> locations = findAll();
-        for (Location line : locations) {
-            if (line.equals(objectToInsert))
-                throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists");
 
-        // Attempt insertion
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
         PreparedStatement statement = null;
@@ -104,15 +99,13 @@ public class DAOLocation implements DAO<Location> {
      * @throws AlreadyExistsException if there are already a line with there information
      * @throws NoSuchElementException if there are not the element to update in the database
      * @throws SQLException if there are an error during the connection to the database
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes,
+     * and the change was commited
      */
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<Location> locations = findAll();
-        for (Location line : locations) {
-            if (line.equals(objectToUpdate))
-                throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists at id " + line.getId());
-        }
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX, FIELD_ID);
@@ -140,7 +133,8 @@ public class DAOLocation implements DAO<Location> {
      * @param objectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the Location object in the database
      * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * and the change was commited
      */
     @Override
     public void delete(Location objectToDelete) throws NoSuchElementException, SQLException {
@@ -199,5 +193,20 @@ public class DAOLocation implements DAO<Location> {
             }
         }
         return locations;
+    }
+
+    /**
+     * Check if a Location already exists in the database
+     * @param location the location to check
+     * @return true if the location already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    private boolean checkAlreadyExists(Location location) throws SQLException {
+        List<Location> locations = findAll();
+        for (Location line : locations) {
+            if (line.equals(location))
+                return true;
+        }
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;

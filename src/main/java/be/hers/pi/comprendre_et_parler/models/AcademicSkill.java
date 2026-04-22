@@ -1,7 +1,9 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class AcademicSkill {
-    private int id;
+    private  int id;
     private String designation;
 
     /**
@@ -9,9 +11,31 @@ public class AcademicSkill {
         @param id : represent id
         @param designation : represent designation
     */
-    public AcademicSkill(int id, String designation) {
-        this.id = id;
+    public AcademicSkill(int  id, String designation) {
+        if(id >= 0){
+            this.id = id;
+        }else{
+            this.id = -1;
+        }
         this.designation = designation;
+    }
+
+    /**
+     Constructor of a AcademicSkill Object
+     @param designation : represent designation
+     */
+    public AcademicSkill(String designation) {
+        this.id = -1;
+        this.designation = designation;
+    }
+
+    /**
+     * Copy constructor of a AcademicSkill Object
+     * @param other represent the JobSkill object
+     */
+    public AcademicSkill(AcademicSkill other) {
+        this.id = other.id;
+        this.designation = other.designation;
     }
 
     /**
@@ -32,7 +56,9 @@ public class AcademicSkill {
      * @param id represent the new id
      */
     public void setId(int id) {
-        this.id = id;
+        if(id > 0){
+            this.id = id;
+        }
     }
 
     /**
@@ -44,12 +70,22 @@ public class AcademicSkill {
 
 
     /**
-     * Compare this AcademicSkill with another AcademicSkill for equality
-     * @param other the AcademicSkill object to compare with
-     * @return true if both AcademicSkill objects have identical id and designation
+     * Compare this AcademicSkill with another Object for equality
+     * @param o the Object  to compare with
+     * @return true if both Object objects have identical designation
      */
-    public boolean equals(AcademicSkill other) {
-        return false;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AcademicSkill)) return false;
+
+        AcademicSkill other = (AcademicSkill) o;
+        return Objects.equals(designation, other.designation);
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(designation);
     }
 
     /**
@@ -58,6 +94,6 @@ public class AcademicSkill {
      */
     @Override
     public String toString() {
-        return null;
+        return "AcademicSkill{id=" + id + ", designation=" + designation + "}";
     }
 }

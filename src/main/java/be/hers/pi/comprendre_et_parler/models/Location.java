@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class Location {
-    private int id=0;
+    private int id=-1;
     private String designation;
     private City city;
     private String street;
@@ -21,6 +21,24 @@ public class Location {
      */
     public Location(int id, String d, City c, String s, String sN, int box){
         if(id > 0) this.id = id;
+        this.designation = d;
+        this.city = new City(c);
+        this.street = s;
+        this.streetNumber = sN;
+        if(box > 0) this.box = box;
+    }
+
+
+    /**
+     Constructor of a Location Object without id
+     @param d : represent designation
+     @param c : represent the City object
+     @param s : represent the street name
+     @param sN : represent the street number
+     @param box : represent the new box
+     */
+    public Location(String d, City c, String s, String sN, int box){
+        this.id = -1;
         this.designation = d;
         this.city = new City(c);
         this.street = s;
