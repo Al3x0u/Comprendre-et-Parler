@@ -12,18 +12,15 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 
 public class DAOInterpreter implements DAO<Interpreter> {
     protected static final String TABLE_VIEW = "Interpreter";
-    protected static final String TABLE_APPLIUSER = "AppliUserT";
     protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
     protected static final String TABLE_JOBSKILL_INTERPRETER = "JobSkillInterpreter";
     protected static final String FIELD_JOB_SKILL_INTERPRETER = "JobSkillInterpreter";
-    protected static final String FIELD_BEGIN = "begin";
-    protected static final String FIELD_END = "end";
     protected static final String FIELD_ACADEMIC_SKILL_INTERPRETER = "interpreter";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
@@ -113,11 +110,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
         return interpreter;
     }
 
-    /*int id, String login, String firstName, String lastName,
-    LocalDate birthDate, String hashedPassword, String email,
-    String phoneNumber, int hQW, int hQY, Transportation transportMode,
-    List<AcademicSkill> academic, List<JobSkill> job, List<Beneficiary> beneficiaries,
-    List<Mission> missions, Location location, List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability*/
+    /**
+     * Search for an Interpreter in the database with the int parameter
+     * @param login the login of the interpreter to find in database
+     * @return the object identified by login in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
     public Interpreter find(String login) throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
         Interpreter interpreter = null;
@@ -276,14 +274,14 @@ public class DAOInterpreter implements DAO<Interpreter> {
     }
 
     /**
-     * Return all line of Interpreter table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * Return all line of Interpreter table in the database in a Set
+     * @return every object of the corresponding type present in database (possibly an empty set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<Interpreter> findAll() throws SQLException {
+    public Set<Interpreter> findAll() throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Interpreter> interpreters = new ArrayList<>();
+        Set<Interpreter> interpreters = new HashSet<>();
         String query = "SELECT *  FROM " + TABLE_VIEW;
 
         PreparedStatement statement = null;
@@ -294,10 +292,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                Interpreter interpreter = null;
                 interpreters.add(getResult(result));
-
-                interpreters.add(interpreter);
             }
         }finally {
             try {
@@ -317,12 +312,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
     /**
      * finds all the interpreter who have the same mission
      * @param idMission the id of the Mission
-     * @return the list of the interpreter who have the mission with the idMission for id or an empty list
+     * @return the set of the interpreter who have the mission with the idMission for id or an empty set
      * @throws SQLException if the database could not be reached
      */
-    public List<Interpreter> findAllByMissionId(int idMission) throws SQLException{
+    public Set<Interpreter> findAllByMissionId(int idMission) throws SQLException{
         Connection connection = DatabaseConnector.getInstance();
-        List<Interpreter> list = new ArrayList<>();
+        Set<Interpreter> interpreters = new HashSet<>();
         String query = "SELECT i.* FROM " + TABLE_VIEW + " i JOIN "
                 + TABLE_INTERPRETER_MISSION + " im ON i." + FIELD_ID
                 + " = im." + FIELD_INTERPRETER + " WHERE im." + FIELD_MISSION + " = ?";
@@ -340,7 +335,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                list.add(getResult(result));
+                interpreters.add(getResult(result));
             }
         }finally {
             try {
@@ -355,7 +350,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             }
         }
 
-        return list;
+        return interpreters;
     }
 
     /**
@@ -363,11 +358,11 @@ public class DAOInterpreter implements DAO<Interpreter> {
      * @param start represent the start of the time that we want the availability
      * @param end represent the end of the time that we want the availability
      * @param date represent the date
-     * @return a List of Interpreter who are available in the given time and date, or an empty List if no Interpreter is available
+     * @return a set of Interpreter who are available in the given time and date, or an empty set if no Interpreter is available
      */
-    public List<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date)throws SQLException {
+    public Set<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date)throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Interpreter> interpreters = new ArrayList<>();
+        Set<Interpreter> interpreters = new HashSet<>();
         String query = "SELECT i.* FROM " + TABLE_VIEW + " i JOIN "
                 + TABLE_AVAILABILITY + " av ON i." + FIELD_ID
                 + " = av." + FIELD_INTERPRETER + " JOIN "
@@ -408,12 +403,12 @@ public class DAOInterpreter implements DAO<Interpreter> {
     /**
      * Return all Interpreter who have the AcademicSkill having the given id
      * @param idAcademicSkills the id of the AcademicSkill
-     * @return a List of Interpreter who have the AcademicSkill having the idAcademicSkills, or an empty List if no Interpreter have this AcademicSkill
+     * @return a set of Interpreter who have the AcademicSkill having the idAcademicSkills, or an empty set if no Interpreter have this AcademicSkill
      * @throws NoSuchElementException if idAcademicSkills doesn't correspond to the id of any AcademicSkill
      */
-    public List<Interpreter> findByAcademicSkills(int idAcademicSkills) throws NoSuchElementException, SQLException {
+    public Set<Interpreter> findByAcademicSkills(int idAcademicSkills) throws NoSuchElementException, SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Interpreter> list = new ArrayList<>();
+        Set<Interpreter> interpreters = new HashSet<>();
         String query = "SELECT i.* FROM " + TABLE_VIEW
                 + " i ON JOIN " + TABLE_ACADEMIC_SKILL_INTERPRETER
                 + " ai ON i." + FIELD_ID + " = ai." + FIELD_INTERPRETER
@@ -427,7 +422,7 @@ public class DAOInterpreter implements DAO<Interpreter> {
             result = statement.executeQuery();
 
             while(result.next()){
-                list.add(getResult(result));
+                interpreters.add(getResult(result));
             }
         }finally {
             try {
@@ -441,18 +436,18 @@ public class DAOInterpreter implements DAO<Interpreter> {
                 e.printStackTrace();
             }
         }
-        return list;
+        return interpreters;
     }
 
     /**
      * Return all Interpreter who have the JobSkill having the given id
      * @param idJobSkills the id of the JobSkill
-     * @return a List of Interpreter who have the JobSkill having the idJobSkills, or an empty List if no Interpreter have this JobSkill
+     * @return a Set of Interpreter who have the JobSkill having the idJobSkills, or an empty set if no Interpreter have this JobSkill
      * @throws NoSuchElementException if idJobSkills doesn't correspond to the id of any JobSkill
      */
-    public List<Interpreter> findByJobSkills(int idJobSkills) throws NoSuchElementException, SQLException {
+    public Set<Interpreter> findByJobSkills(int idJobSkills) throws NoSuchElementException, SQLException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Interpreter> interpreters = null;
+        Set<Interpreter> interpreters = new HashSet<>();
         String query = "SELECT i." + FIELD_LOGIN + " FROM " + TABLE_VIEW
                 + "i ON JOIN " + TABLE_JOBSKILL_INTERPRETER + " ai ON i."
                 + FIELD_LOGIN + " = ai." + FIELD_INTERPRETER + " WHERE ai."

@@ -1,21 +1,21 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class Interpreter extends AppliUser{
     private int hourQuotaWeek;
     private int hourQuotaYear;
     private String transportMode;
-    private List<AcademicSkill> academicSkills;
-    private List<JobSkill> jobSkills;
-    private List<Beneficiary> assignedBeneficiaries;
-    private List<Mission> missions;
+    private Set<AcademicSkill> academicSkills;
+    private Set<JobSkill> jobSkills;
+    private Set<Beneficiary> assignedBeneficiaries;
+    private Set<Mission> missions;
     private Location location;
-    private List<BaseTimeSlot> availability;
-    private List<ExceptionalUnavailability> unavailability;
+    private Set<BaseTimeSlot> availability;
+    private Set<ExceptionalUnavailability> unavailability;
 
 
     /**
@@ -31,18 +31,18 @@ public class Interpreter extends AppliUser{
      * @param hQW                represent the hour quota per week
      * @param hQY                represent the hour quota per year
      * @param transportMode      represent the transport mode of the interpreter
-     * @param academic           represent the list of academic skills of the interpreter
-     * @param job                represent the list of job skills of the interpreter
+     * @param academic           represent the set of academic skills of the interpreter
+     * @param job                represent the set of job skills of the interpreter
      * @param location           represent the location of the interpreter
-     * @param time               represent the list of punctual time slots of the interpreter
-     * @param unavailability     represent the list of exceptional unavailabilities of the interpreter
+     * @param time               represent the set of punctual time slots of the interpreter
+     * @param unavailability     represent the set of exceptional unavailabilities of the interpreter
      * @throws IllegalArgumentException if hQW or hQY is negative
      */
     public Interpreter(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, String transportMode,
-                       List<AcademicSkill> academic, List<JobSkill> job, Location location,
-                       List<BaseTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+                       Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
+                       Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
         super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
@@ -73,18 +73,18 @@ public class Interpreter extends AppliUser{
      * @param hQW                represent the hour quota per week
      * @param hQY                represent the hour quota per year
      * @param transportMode      represent the transport mode of the interpreter
-     * @param academic           represent the list of academic skills of the interpreter
-     * @param job                represent the list of job skills of the interpreter
+     * @param academic           represent the set of academic skills of the interpreter
+     * @param job                represent the set of job skills of the interpreter
      * @param location           represent the location of the interpreter
-     * @param time               represent the list of punctual time slots of the interpreter
-     * @param unavailability     represent the list of exceptional unavailabilities of the interpreter
+     * @param time               represent the set of punctual time slots of the interpreter
+     * @param unavailability     represent the set of exceptional unavailabilities of the interpreter
      * @throws IllegalArgumentException if hQW or hQY is negative
      */
     public Interpreter(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, String transportMode,
-                       List<AcademicSkill> academic, List<JobSkill> job, Location location,
-                       List<BaseTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+                       Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
+                       Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
@@ -120,25 +120,25 @@ public class Interpreter extends AppliUser{
         hourQuotaYear = other.hourQuotaYear;
         transportMode = other.transportMode;
         if(other.academicSkills != null){
-            this.academicSkills = new ArrayList<>(other.academicSkills);
+            this.academicSkills = new HashSet<>(other.academicSkills);
         }
         if(other.jobSkills != null){
-            this.jobSkills = new ArrayList<>(other.jobSkills);
+            this.jobSkills = new HashSet<>(other.jobSkills);
         }
         if(other.assignedBeneficiaries != null){
-            this.assignedBeneficiaries = new ArrayList<>(other.assignedBeneficiaries);
+            this.assignedBeneficiaries = new HashSet<>(other.assignedBeneficiaries);
         }
         if(other.missions != null){
-            this.missions = new ArrayList<>(other.missions);
+            this.missions = new HashSet<>(other.missions);
         }
         if(other.availability != null){
-            this.availability = new ArrayList<>(other.availability);
+            this.availability = new HashSet<>(other.availability);
         }
         if(other.location != null){
             this.location = new Location(other.location);
         }
         if(other.unavailability != null){
-            this.unavailability = new ArrayList<>(other.unavailability);
+            this.unavailability = new HashSet<>(other.unavailability);
         }
     }
 
@@ -166,21 +166,21 @@ public class Interpreter extends AppliUser{
     /**
      * @return this.jobskills
      */
-    public List<JobSkill> getJobSkills() {
+    public Set<JobSkill> getJobSkills() {
         return jobSkills;
     }
 
     /**
      * @return this.missions
      */
-    public List<Mission> getMissions() {
+    public Set<Mission> getMissions() {
         return missions;
     }
 
     /**
-     * @param missions the new list of missions
+     * @param missions the new set of missions
      */
-    public void setMissions(List<Mission> missions) {
+    public void setMissions(Set<Mission> missions) {
         this.missions = missions;
     }
 
@@ -201,28 +201,28 @@ public class Interpreter extends AppliUser{
     /**
      * @return this.punctualTime
      */
-    public List<BaseTimeSlot> getAvailability() {
+    public Set<BaseTimeSlot> getAvailability() {
         return availability;
     }
 
     /**
      * @param availability the new timeSlot
      */
-    public void setAvailability(List<BaseTimeSlot> availability) {
+    public void setAvailability(Set<BaseTimeSlot> availability) {
         this.availability = availability;
     }
 
     /**
      * @return this.unavavailability
      */
-    public List<ExceptionalUnavailability> getUnavailability() {
+    public Set<ExceptionalUnavailability> getUnavailability() {
         return this.unavailability;
     }
 
     /**
      * @param unavailability the new unavailability
      */
-    public void setUnavailability(List<ExceptionalUnavailability> unavailability) {
+    public void setUnavailability(Set<ExceptionalUnavailability> unavailability) {
         this.unavailability = unavailability;
     }
 
@@ -258,14 +258,14 @@ public class Interpreter extends AppliUser{
     /**
      * @return this.academicSkills
      */
-    public List<AcademicSkill> getAcademicSkills() {
+    public Set<AcademicSkill> getAcademicSkills() {
         return academicSkills;
     }
 
     /**
-     * @param academicSkills the new list of academic Skills
+     * @param academicSkills the new Set of academic Skills
      */
-    public void setAcademicSkills(List<AcademicSkill> academicSkills) {
+    public void setAcademicSkills(Set<AcademicSkill> academicSkills) {
         this.academicSkills = academicSkills;
     }
 
@@ -281,23 +281,23 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     * @param jobSkills the new list of job skills
+     * @param jobSkills the new set of job skills
      */
-    public void setJobSkills(List<JobSkill> jobSkills) {
+    public void setJobSkills(Set<JobSkill> jobSkills) {
         this.jobSkills = jobSkills;
     }
 
     /**
      * @return this.beneficiaries
      */
-    public List<Beneficiary> getAssignedBeneficiaries() {
+    public Set<Beneficiary> getAssignedBeneficiaries() {
         return assignedBeneficiaries;
     }
 
     /**
-     * @param assignedBeneficiaries the new list of beneficiaries
+     * @param assignedBeneficiaries the new Set of beneficiaries
      */
-    public void setAssignedBeneficiaries(List<Beneficiary> assignedBeneficiaries) {
+    public void setAssignedBeneficiaries(Set<Beneficiary> assignedBeneficiaries) {
         this.assignedBeneficiaries = assignedBeneficiaries;
     }
 

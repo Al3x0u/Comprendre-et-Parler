@@ -1,101 +1,51 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.NoSuchElementException;
+import java.sql.SQLException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-
+import java.sql.SQLException;
 import java.util.Set;
 
-public abstract class DAO<T> {
+public interface DAO<T> {
 
     /**
-     * Search for an Object in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
-    public abstract T find(int id) throws SQLException;
+    T find(int id) throws SQLException;
 
     /**
-     * Insert an Object object in the database
-     * @param objectToInsert the object to add to the database
-     * @throws AlreadyExistsException if an object with a different id but otherwise identical fields already exists in database
+     * @param objectToInsert an object of type T to add to the database
+     * @post objectToInsert has been added to the database, and the change was commited
+     * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the insertion failed for any other reason
-     * @post objectToInsert has been added to the database, the object is updated with auto generated id from the database,
-     * and the change was commited
      */
-    public abstract void create(T objectToInsert) throws AlreadyExistsException, SQLException;
+    void create(T objectToInsert) throws AlreadyExistsException, SQLException;
 
     /**
-     * Update an Object line who already exist in the database
      * @param objectToUpdate the object to edit in the database
+     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws AlreadyExistsException if an object with a different id but otherwise identical fields already exists in database
      * @throws SQLException if the update failed for any other reason
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes,
-     * and the change was commited
      */
-    public abstract void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
+    void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
 
     /**
-     * Delete an Object line in the table in the database
-     * @param idObjectToDelete the ID of the object to delete in the database
-     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
+     *
+     * @param objectToDelete the object to delete in the database
+     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
-     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
      */
-    public abstract void delete(int idObjectToDelete) throws NoSuchElementException, SQLException;
+    void delete(T objectToDelete) throws NoSuchElementException, SQLException;
 
     /**
-     * Return all line of Object table in the database in a Set
+     *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
-    public abstract Set<T> findAll() throws SQLException;
-
-    /**
-     * Check if an object already exists in the database
-     * @param objectToCheck the object to check
-     * @return the id of the object found in DB, or -1 if none was found
-     * @throws SQLException if the database could not be reached
-     */
-    protected abstract int checkAlreadyExists(T objectToCheck) throws SQLException;
-
-    /**
-     * Build an object from a ResultSet
-     * @param result the ResultSet to read from
-     * @return an object built from the ResultSet
-     * @throws SQLException if the database could not be reached
-     */
-    protected abstract T getResult(ResultSet result) throws SQLException;
-
-    /**
-     * Close a Statement
-     * @param statement the Statement to close (can be null)
-     */
-    protected void closeStatement(Statement statement) {
-        if (statement != null) {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * Close a ResultSet
-     * @param resultSet the ResultSet to close (can be null)
-     */
-    protected void closeResultSet(ResultSet resultSet) {
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    Set<T> findAll() throws SQLException;
 }
