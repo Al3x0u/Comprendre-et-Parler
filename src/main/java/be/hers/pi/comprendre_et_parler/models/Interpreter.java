@@ -14,7 +14,7 @@ public class Interpreter extends AppliUser{
     private List<Beneficiary> assignedBeneficiaries;
     private List<Mission> missions;
     private Location location;
-    private List<PunctualTimeSlot> punctualTime;
+    private List<BaseTimeSlot> availability;
     private List<ExceptionalUnavailability> unavailability;
 
 
@@ -42,7 +42,7 @@ public class Interpreter extends AppliUser{
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, String transportMode,
                        List<AcademicSkill> academic, List<JobSkill> job, Location location,
-                       List<PunctualTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+                       List<BaseTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
         super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW < 0 || hQY < 0) {
             throw new IllegalArgumentException("Hour quotas cannot be negative");
@@ -54,7 +54,49 @@ public class Interpreter extends AppliUser{
         academicSkills = academic;
         assignedBeneficiaries = null;
         missions = null;
-        punctualTime = time;
+        availability = time;
+        this.location = location;
+        this.unavailability = unavailability;
+    }
+
+    /**
+     * Constructor of an Interpreter object,
+     * beneficiaries and missions are initialized with null with id
+     * @param id                 represent the id in database
+     * @param login              represent the login
+     * @param firstName          represent the firstname of the interpreter
+     * @param lastName           represent the lastname of the interpreter
+     * @param birthDate          represent the birthdate of the interpreter
+     * @param hashedPassword     represent the hashed password of the interpreter
+     * @param email              represent the email of the interpreter
+     * @param phoneNumber        represent the phone number of the interpreter
+     * @param hQW                represent the hour quota per week
+     * @param hQY                represent the hour quota per year
+     * @param transportMode      represent the transport mode of the interpreter
+     * @param academic           represent the list of academic skills of the interpreter
+     * @param job                represent the list of job skills of the interpreter
+     * @param location           represent the location of the interpreter
+     * @param time               represent the list of punctual time slots of the interpreter
+     * @param unavailability     represent the list of exceptional unavailabilities of the interpreter
+     * @throws IllegalArgumentException if hQW or hQY is negative
+     */
+    public Interpreter(int id, String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, int hQW, int hQY, String transportMode,
+                       List<AcademicSkill> academic, List<JobSkill> job, Location location,
+                       List<BaseTimeSlot> time, List<ExceptionalUnavailability> unavailability) {
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        if (hQW < 0 || hQY < 0) {
+            throw new IllegalArgumentException("Hour quotas cannot be negative");
+        }
+        hourQuotaWeek = hQW;
+        hourQuotaYear = hQY;
+        this.transportMode = transportMode;
+        jobSkills = job;
+        academicSkills = academic;
+        assignedBeneficiaries = null;
+        missions = null;
+        availability = time;
         this.location = location;
         this.unavailability = unavailability;
     }
@@ -89,10 +131,12 @@ public class Interpreter extends AppliUser{
         if(other.missions != null){
             this.missions = new ArrayList<>(other.missions);
         }
-        if(other.punctualTime != null){
-            this.punctualTime = new ArrayList<>(other.punctualTime);
+        if(other.availability != null){
+            this.availability = new ArrayList<>(other.availability);
         }
-        this.location = other.location;
+        if(other.location != null){
+            this.location = new Location(other.location);
+        }
         if(other.unavailability != null){
             this.unavailability = new ArrayList<>(other.unavailability);
         }
@@ -157,15 +201,15 @@ public class Interpreter extends AppliUser{
     /**
      * @return this.punctualTime
      */
-    public List<PunctualTimeSlot> getPunctualTime() {
-        return punctualTime;
+    public List<BaseTimeSlot> getAvailability() {
+        return availability;
     }
 
     /**
-     * @param punctualTime the new timeSlot
+     * @param availability the new timeSlot
      */
-    public void setPunctualTime(List<PunctualTimeSlot> punctualTime) {
-        this.punctualTime = punctualTime;
+    public void setAvailability(List<BaseTimeSlot> availability) {
+        this.availability = availability;
     }
 
     /**
@@ -283,7 +327,7 @@ public class Interpreter extends AppliUser{
                 Objects.equals(academicSkills, other.academicSkills) &&
                 Objects.equals(jobSkills, other.jobSkills) &&
                 Objects.equals(location, other.location) &&
-                Objects.equals(punctualTime, other.punctualTime) &&
+                Objects.equals(availability, other.availability) &&
                 Objects.equals(unavailability, other.unavailability);
     }
 
@@ -302,18 +346,19 @@ public class Interpreter extends AppliUser{
                 academicSkills,
                 jobSkills,
                 location,
-                punctualTime,
+                availability,
                 unavailability
         );
     }
 
     /**
-     * Return a String representation of the Interpreter containing all fields
-     * @return formatted string with hour quotas, transport mode and AppliUser fields
+     * Returns a String representation of this Interpreter,
+     * including only the fields inherited from AppliUser.
+     * @return a formatted String representing this Interpreter
      */
     @Override
     public String toString() {
-        return super.toString();
+        return super.toString() + " is an interpreter.";
 
     }
 }

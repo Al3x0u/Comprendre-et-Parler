@@ -46,7 +46,7 @@ public class Beneficiary extends AppliUser {
     public Beneficiary(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, Status status, Interpreter interpreterRef) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
         this.interpreterRef = interpreterRef;
     }
@@ -129,7 +129,7 @@ public class Beneficiary extends AppliUser {
      */
     @Override
     public String toString() {
-        return super.toString() + ", status = ?" + status.getDesignation()
-                + ", reference Interpreter login = " + interpreterRef.getLogin() + "}";
+        return "Beneficiary " + super.toString() + ", status = " + status.getDesignation()
+                + ", reference Interpreter login = " + interpreterRef.toString() + "}";
     }
 }

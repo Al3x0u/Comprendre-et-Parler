@@ -14,7 +14,7 @@ public abstract class AppliUser {
     private String phoneNumber;
 
     /**
-     Constructor of a AppliUser
+     Constructor of a AppliUser without id
      @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
@@ -25,6 +25,28 @@ public abstract class AppliUser {
      */
     public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
         id = -1;
+        this.login = login;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
+        this.hashedPassword = hashedPassword;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     Constructor of a AppliUser with id
+     @param id represent the id
+     @param login represent the login
+     @param firstName represent the firstname
+     @param lastName represent he lastname
+     @param birthDate represent the birthdate
+     @param hashedPassword represent the hashed password
+     @param email represent the email
+     @param phoneNumber represent the phone number
+     */
+    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
