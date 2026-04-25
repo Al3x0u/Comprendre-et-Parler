@@ -8,14 +8,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 
-public class DAOBeneficiary implements DAO<Beneficiary> {
+public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String TABLE_VIEW = "Beneficiary";
-    protected static final String TABLE_APPLIUSER = "AppliUserT";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
     protected static final String FIELD_FIRST_NAME = "firstName";
@@ -27,9 +24,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     protected static final String FIELD_INTERPRETER_REFERENCE = "referenceInterpreter";
     protected static final String FIELD_STATUS = "status";
 
-
     /**
-     * Search for a Beneficiary in the database with the int parameter
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -87,21 +82,8 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 result.getString(FIELD_EMAIL),
                 result.getString(FIELD_PHONE_NUMBER),
                 new DAOStatus().find(result.getInt(FIELD_STATUS)),
-                new DAOInterpreter().find(result.getString(FIELD_INTERPRETER_REFERENCE))
+                new DAOInterpreter().find(result.getInt(FIELD_INTERPRETER_REFERENCE))
         );
-    }
-
-    private void closeStatement(PreparedStatement statement, ResultSet result)throws SQLException{
-        try {
-            statement.close();
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
-        try {
-            result.close();
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -141,11 +123,10 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     * Insert a Beneficiary object in the database
-     * @param objectToInsert an object of type Beneficiary to add to the database
-     * @throws AlreadyExistsException       if objectToInsert is already present in database
-     * @throws SQLException          if the database could not be reached
+     * @param objectToInsert an object of type T to add to the database
      * @post objectToInsert has been added to the database, and the change was commited
+     * @throws AlreadyExistsException if objectToInsert is already present in database
+     * @throws SQLException if the insertion failed for any other reason
      */
     @Override
     public void create(Beneficiary objectToInsert)
@@ -156,23 +137,15 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 FIELD_HASHED_PASSWORD + ", " + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ", " +
                 FIELD_STATUS + ", " + FIELD_INTERPRETER_REFERENCE + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int rowsAffected = 0;
+
+        ResultSet rs = null;
+        if(find(objectToInsert.getLogin()) != null){
+            throw new AlreadyExistsException("Object already exists in database");
+        }
         PreparedStatement statement = null;
 
         try{
-            if(find(objectToInsert.getLogin()) != null){
-                throw new AlreadyExistsException("Object déjà existant en BD");
-            }
-
-            statement = connection.prepareStatement(query, new String[]{FIELD_ID});
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-
-            String queryId = "SELECT id FROM AppliUser WHERE login = ?";
-            PreparedStatement stmtId = connection.prepareStatement(queryId);
-            stmtId.setString(1, objectToInsert.getLogin());
-            ResultSet rs = stmtId.executeQuery();
-            if (rs.next()) {
-                objectToInsert.setId(rs.getInt(1));
-            }
+            statement = connection.prepareStatement(query,  new String[]{FIELD_ID});
 
             statement.setString(1, objectToInsert.getLogin());
             statement.setString(2, objectToInsert.getFirstName());
@@ -184,23 +157,28 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             statement.setInt(8, objectToInsert.getStatus().getId());
             statement.setInt(9, objectToInsert.getInterpreterRef().getId());
             rowsAffected = statement.executeUpdate();
-        }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
+            if (rowsAffected == 0) {
+                throw new SQLException("insert failed,, no line affected.");
             }
+
+            rowsAffected = statement.executeUpdate();
+
+            rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                objectToInsert.setId(rs.getInt(1));
+            }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (statement != null) statement.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
     /**
-     * Update a Beneficiary line who already exist in the database
      * @param objectToUpdate the object to edit in the database
-     * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
-     * @throws SQLException    if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
+     * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
+     * @throws AlreadyExistsException if an object with a different id but otherwise identical fields already exists in database
+     * @throws SQLException if the update failed for any other reason
      */
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
@@ -210,6 +188,7 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
                 FIELD_HASHED_PASSWORD + " = ?, " + FIELD_EMAIL + " = ?, " + FIELD_PHONE_NUMBER + " = ?, " +
                 FIELD_STATUS + " = ?, " + FIELD_INTERPRETER_REFERENCE + " = ? WHERE " + FIELD_ID + " = ? ";
         PreparedStatement statement = null;
+        int rowsAffected = 0;
 
         try {
             statement.setString(1, objectToUpdate.getLogin());
@@ -222,7 +201,11 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
             statement.setInt(8, objectToUpdate.getStatus().getId());
             statement.setInt(9, objectToUpdate.getInterpreterRef().getId());
             statement.setInt(10, objectToUpdate.getId());
-            statement.executeUpdate();
+            rowsAffected = statement.executeUpdate();
+
+            if(rowsAffected < 1){
+                throw new NoSuchElementException("[ERROR] There is no user with the id " + objectToUpdate.getId() + ".");
+            }
         }finally {
             try {
                 if (statement != null) {
@@ -235,11 +218,11 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     * Delete a Beneficiary line in the TABLE in the database
+     *
      * @param objectToDelete the object to delete in the database
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
-     * @throws SQLException    if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @throws SQLException if the deletion failed for any other reason
      */
     @Override
     public void delete(Beneficiary objectToDelete) throws NoSuchElementException, SQLException {
@@ -267,16 +250,16 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     }
 
     /**
-     * Return all line of Beneficiary TABLE in the database in a List
+     *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<Beneficiary> findAll() throws SQLException {
+    public Set<Beneficiary> findAll() throws SQLException {
         Connection connection = DatabaseConnector.getInstance();
         String query = "SELECT *  FROM " + TABLE_VIEW;
 
-        List<Beneficiary> beneficiaries = new ArrayList<>();
+        Set<Beneficiary> beneficiaries = new HashSet<>();
         PreparedStatement statement = null;
         ResultSet result = null;
         try{
@@ -304,12 +287,13 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     /**
      * Return all Beneficiary referenced by the interpreter with the given id
      * @param idInterpreter represent the id of the interpreter which we want the beneficiary
-     * @return a List of Beneficiary which are referenced by the interpreter who have the idInterpreter, or null if no beneficiaries
+     * @return a set of Beneficiary which are referenced by the interpreter who have the idInterpreter, or an empty set if no beneficiaries
      * @throws NoSuchElementException if the idInterpreter doesn't correspond to an existent interpreter
+     * @throws SQLException if the database could not be reached
      */
-    public List<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
+    public Set<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Beneficiary> beneficiaries = new ArrayList<>();
+        Set<Beneficiary> beneficiaries = new HashSet<>();
         String query = "SELECT * FROM " + TABLE_VIEW + " WHERE " + FIELD_INTERPRETER_REFERENCE + " = ?";
 
         if(new DAOInterpreter().find(idInterpreter) == null ){
@@ -344,13 +328,13 @@ public class DAOBeneficiary implements DAO<Beneficiary> {
     /**
      * Return all Beneficiary having the given status
      * @param idStatus represent the id of the status
-     * @throws SQLException
+     * @throws SQLException if the database could not be reached
      * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
      * @return a List of Beneficiary who have the id having the given idStatus,or an empty list if no beneficiaries having this Status
      */
-    public List<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
+    public Set<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();
-        List<Beneficiary> beneficiaries = new ArrayList<>();
+        Set<Beneficiary> beneficiaries = new HashSet<>();
         String query = "SELECT * FROM " + TABLE_VIEW + " WHERE " + FIELD_STATUS + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;

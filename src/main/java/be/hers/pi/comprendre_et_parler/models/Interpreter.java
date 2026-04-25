@@ -113,9 +113,6 @@ public class Interpreter extends AppliUser{
      */
     public Interpreter(Interpreter other) {
         super(other);
-        if (other.hourQuotaWeek < 0 || other.hourQuotaYear < 0) {
-            throw new IllegalArgumentException("Hour quotas cannot be negative");
-        }
         hourQuotaWeek = other.hourQuotaWeek;
         hourQuotaYear = other.hourQuotaYear;
         transportMode = other.transportMode;
@@ -237,7 +234,7 @@ public class Interpreter extends AppliUser{
      * @param newHourQuotaWeek represent the new quota hour
      * @throws IllegalArgumentException if newHourQuotaWeek is negative
      */
-    public void setHourQuotaWeek(int newHourQuotaWeek){
+    public void setHourQuotaWeek(int newHourQuotaWeek)throws IllegalArgumentException {
         if (newHourQuotaWeek < 0) {
             throw new IllegalArgumentException("Hour quota week cannot be negative");
         }
@@ -249,10 +246,6 @@ public class Interpreter extends AppliUser{
      */
     public int getHourQuotayear() {
         return this.hourQuotaYear;
-    }
-
-    public void setHourQuotayear(final int hourQuotayear) {
-        this.hourQuotaYear = hourQuotayear;
     }
 
     /**
@@ -273,7 +266,7 @@ public class Interpreter extends AppliUser{
      * @param newHourQuotaYear represent the new quota year
      * @throws IllegalArgumentException if newHourQuotaYear is negative
      */
-    public void setHourQuotaYear(int newHourQuotaYear){
+    public void setHourQuotaYear(int newHourQuotaYear)throws IllegalArgumentException{
         if (newHourQuotaYear < 0) {
             throw new IllegalArgumentException("Hour quota year cannot be negative");
         }

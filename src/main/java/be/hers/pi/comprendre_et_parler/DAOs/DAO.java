@@ -1,20 +1,20 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.NoSuchElementException;
-import java.sql.SQLException;
+
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import java.sql.SQLException;
+
 import java.util.Set;
 
-public interface DAO<T> {
+public abstract class DAO<T> {
 
     /**
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
-    T find(int id) throws SQLException;
+    abstract T find(int id) throws SQLException;
 
     /**
      * @param objectToInsert an object of type T to add to the database
@@ -22,7 +22,7 @@ public interface DAO<T> {
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the insertion failed for any other reason
      */
-    void create(T objectToInsert) throws AlreadyExistsException, SQLException;
+    abstract void create(T objectToInsert) throws AlreadyExistsException, SQLException;
 
     /**
      * @param objectToUpdate the object to edit in the database
@@ -31,7 +31,7 @@ public interface DAO<T> {
      * @throws AlreadyExistsException if an object with a different id but otherwise identical fields already exists in database
      * @throws SQLException if the update failed for any other reason
      */
-    void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
+    abstract void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
 
     /**
      *
@@ -40,12 +40,24 @@ public interface DAO<T> {
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
-    void delete(T objectToDelete) throws NoSuchElementException, SQLException;
+    abstract void delete(T objectToDelete) throws NoSuchElementException, SQLException;
 
     /**
-     *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
-    Set<T> findAll() throws SQLException;
+    abstract Set<T> findAll() throws SQLException;
+
+    private void closeStatement(PreparedStatement statement, ResultSet result)throws SQLException{
+        try {
+            statement.close();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        try {
+            result.close();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
 }
