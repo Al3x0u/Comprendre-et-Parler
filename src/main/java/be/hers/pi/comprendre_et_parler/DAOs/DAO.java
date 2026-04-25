@@ -1,8 +1,9 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.PreparedStatement;
 import java.util.NoSuchElementException;
-
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.util.Set;

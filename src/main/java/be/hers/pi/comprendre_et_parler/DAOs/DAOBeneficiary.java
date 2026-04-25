@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
-import java.util.*;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.HashSet;
 
 
 public class DAOBeneficiary extends DAO<Beneficiary> {
