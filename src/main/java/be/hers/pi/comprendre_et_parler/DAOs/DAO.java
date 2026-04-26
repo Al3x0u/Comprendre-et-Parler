@@ -51,6 +51,14 @@ public abstract class DAO<T> {
     abstract Set<T> findAll() throws SQLException;
 
     /**
+     * Check if an object already exists in the database
+     * @param object the object to check
+     * @return true if the object already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    protected abstract boolean checkAlreadyExists(T object) throws SQLException;
+    
+    /**
      * Build an object from a ResultSet
      * @param result the ResultSet to read from
      * @return an object built from the ResultSet

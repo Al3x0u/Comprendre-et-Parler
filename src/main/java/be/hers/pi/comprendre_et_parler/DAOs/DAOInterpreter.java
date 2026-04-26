@@ -20,6 +20,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String TABLE_VIEW = "Interpreter";
     protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
     protected static final String TABLE_JOBSKILL_INTERPRETER = "JobSkillInterpreter";
+    protected static final String TABLE_AVAILABILITY = "Availability";
     protected static final String FIELD_JOB_SKILL_INTERPRETER = "JobSkillInterpreter";
     protected static final String FIELD_ACADEMIC_SKILL_INTERPRETER = "interpreter";
     protected static final String FIELD_ID = "id";
@@ -37,7 +38,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String FIELD_LOCATION = "location";
     protected static final String FIELD_MISSION = "mission";
     protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
-    protected static final String TABLE_AVAILABILITY = "Unavailability";
 
     /**
      * Populates an Interpreter object from the current row of the given ResultSet.
@@ -46,7 +46,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
      * @param result      the ResultSet positioned on the row to read, must not be null
      * @throws SQLException if a database access error occurs while reading the ResultSet
      */
-    private Interpreter getResult(ResultSet result)throws SQLException{
+    public Interpreter getResult(ResultSet result)throws SQLException{
         return new Interpreter(
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
@@ -64,6 +64,23 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 DAOBaseTimeSlot.findAllByInterpreterId(result.getInt(FIELD_ID)),
                 new DAOExceptionalUnavailability().findByInterpreterId(result.getInt(FIELD_ID))
         );
+    }
+
+    /**
+     * Check if an object already exists in the database
+     * @param objectToCheck the object to check
+     * @return true if the object already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    protected boolean checkAlreadyExists(Interpreter objectToCheck) throws SQLException{
+        boolean exists = false;
+        Set<Interpreter> interpreters = findAll();
+        for(Interpreter interpreter : interpreters){
+            if(objectToCheck.equals(interpreter)){
+                exists = true;
+            }
+        }
+        return exists;
     }
 
     /**
@@ -89,16 +106,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
                interpreter = getResult(result);
             }
         }finally{
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
+
         }
         return interpreter;
     }
@@ -128,16 +138,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 interpreter = getResult(result);
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
+
         }
         return interpreter;
     }
@@ -156,14 +159,16 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 FIELD_HASHED_PASSWORD + ", " + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ", "
                 + FIELD_WEEK_QUOTA + ", " + FIELD_YEAR_QUOTA + ", " + FIELD_TRANSPORT_MODE + ", "
                 + FIELD_LOCATION + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        if (find(objectToInsert.getLogin()) != null){
+            throw new AlreadyExistsException("Object already exist in database");
+        }
+        if(checkAlreadyExists(objectToInsert)){
+            throw new AlreadyExistsException("The interpreter already exists in the database");
+        }
         PreparedStatement statement = null;
         ResultSet rs;
 
         try{
-            if (find(objectToInsert.getLogin()) != null){
-                throw new AlreadyExistsException("Object already exist in database");
-            }
-
             statement = connection.prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getLogin());
             statement.setString(2, objectToInsert.getFirstName());
@@ -173,7 +178,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setString(6, objectToInsert.getEmail());
             statement.setString(7, objectToInsert.getPhoneNumber());
             statement.setInt(8, objectToInsert.getHourQuotaWeek());
-            statement.setInt(9, objectToInsert.getHourQuotayear());
+            statement.setInt(9, objectToInsert.getHourQuotaYear());
             statement.setString(10, objectToInsert.getTransportMode());
             statement.setInt(11, objectToInsert.getLocation().getId());
             statement.executeUpdate();
@@ -182,15 +187,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 objectToInsert.setId(rs.getInt(FIELD_ID));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeStatement(statement);
         }
     }
+
 
     /**
      * @param objectToUpdate the object to edit in the database
@@ -211,6 +211,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
         PreparedStatement statement = null;
         int rowsAffected = 0;
 
+        if(checkAlreadyExists(objectToUpdate)){
+            throw new AlreadyExistsException("The beneficiary already exists in database.");
+        }
+
         try {
             statement = connection.prepareStatement(queryInterpreter);
             statement.setString(1, objectToUpdate.getLogin());
@@ -221,7 +225,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setString(6, objectToUpdate.getEmail());
             statement.setString(7, objectToUpdate.getPhoneNumber());
             statement.setInt(8, objectToUpdate.getHourQuotaWeek());
-            statement.setInt(9, objectToUpdate.getHourQuotayear());
+            statement.setInt(9, objectToUpdate.getHourQuotaYear());
             statement.setString(10, objectToUpdate.getTransportMode());
             statement.setInt(11, objectToUpdate.getLocation().getId());
             statement.setInt(12, objectToUpdate.getId());
@@ -231,13 +235,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 throw new NoSuchElementException("[ERROR] There is no interpreter with the id " + objectToUpdate.getId() + ".");
             }
         } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeStatement(statement);
         }
     }
 
@@ -265,13 +263,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 throw new NoSuchElementException("[ERROR] There is no user with the id " + objectToDelete.getId() + ".");
             }
         } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeStatement(statement);
         }
     }
 
@@ -296,16 +288,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 interpreters.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return interpreters;
     }
@@ -340,16 +324,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 interpreters.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
 
         return interpreters;
@@ -389,16 +365,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 interpreters.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return interpreters;
     }
@@ -431,16 +399,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 interpreters.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return interpreters;
     }
@@ -474,16 +434,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 interpreters.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return interpreters;
     }

@@ -10,8 +10,7 @@ import java.util.Objects;
 public class Beneficiary extends AppliUser {
     private Status status;
     private Interpreter interpreterRef;
-
-
+    
     /**
      * Constructor of a Beneficiary extends User without id
      * @param login          represent the login
@@ -50,7 +49,6 @@ public class Beneficiary extends AppliUser {
         this.status = status;
         this.interpreterRef = interpreterRef;
     }
-
 
     /**
      * Copy constructor. Creates a deep copy of the given Beneficiary.
@@ -121,7 +119,6 @@ public class Beneficiary extends AppliUser {
                 interpreterRef
         );
     }
-
 
     /**
      * Return a String representation of the Beneficiary containing all fields

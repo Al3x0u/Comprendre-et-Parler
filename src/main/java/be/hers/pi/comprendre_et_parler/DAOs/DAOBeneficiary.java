@@ -27,6 +27,23 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String FIELD_STATUS = "status";
 
     /**
+     * Check if an object already exists in the database
+     * @param objectToCheck the object to check
+     * @return true if the object already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    protected boolean checkAlreadyExists(Beneficiary objectToCheck) throws SQLException{
+        boolean exists = false;
+        Set<Beneficiary> beneficiaries = findAll();
+        for(Beneficiary beneficiary : beneficiaries){
+            if(objectToCheck.equals(beneficiary)){
+                exists = true;
+            }
+        }
+        return exists;
+    }
+
+    /**
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
@@ -52,16 +69,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 throw new NoSuchElementException();
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return beneficiary;
     }
@@ -74,7 +83,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @param result      the ResultSet positioned on the row to read, must not be null
      * @throws SQLException if a database access error occurs while reading the ResultSet
      */
-    private Beneficiary getResult(ResultSet result)throws SQLException{
+    public Beneficiary getResult(ResultSet result)throws SQLException{
         return new Beneficiary(
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
@@ -110,16 +119,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 beneficiary = getResult(result);
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return beneficiary;
     }
@@ -138,7 +139,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 FIELD_FIRST_NAME + ", " + FIELD_LAST_NAME + ", " + FIELD_BIRTH_DATE + ", " +
                 FIELD_HASHED_PASSWORD + ", " + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ", " +
                 FIELD_STATUS + ", " + FIELD_INTERPRETER_REFERENCE + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        int rowsAffected = 0;
+
 
         ResultSet rs = null;
         if(find(objectToInsert.getLogin()) != null){
@@ -158,20 +159,15 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setString(7, objectToInsert.getPhoneNumber());
             statement.setInt(8, objectToInsert.getStatus().getId());
             statement.setInt(9, objectToInsert.getInterpreterRef().getId());
-            rowsAffected = statement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("insert failed,, no line affected.");
-            }
-
-            rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
 
             rs = statement.getGeneratedKeys();
             if (rs.next()) {
                 objectToInsert.setId(rs.getInt(1));
             }
         }finally {
-            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
-            try { if (statement != null) statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            closeResultSet(rs);
+            closeStatement(statement);
         }
     }
 
@@ -192,6 +188,10 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
         PreparedStatement statement = null;
         int rowsAffected = 0;
 
+        if(checkAlreadyExists(objectToUpdate)){
+            throw new AlreadyExistsException("The beneficiary already exists in database.");
+        }
+
         try {
             statement.setString(1, objectToUpdate.getLogin());
             statement.setString(2, objectToUpdate.getFirstName());
@@ -209,13 +209,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 throw new NoSuchElementException("[ERROR] There is no user with the id " + objectToUpdate.getId() + ".");
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeStatement(statement);
         }
     }
 
@@ -241,13 +235,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                  throw new NoSuchElementException("[ERROR] There is no user with the id " + objectToDelete.getId() + ".");
              }
          }finally {
-             try {
-                 if (statement != null) {
-                     statement.close();
-                 }
-             }catch(SQLException e){
-                 e.printStackTrace();
-             }
+             closeStatement(statement);
          }
     }
 
@@ -272,16 +260,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 beneficiaries.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return beneficiaries;
     }
@@ -313,16 +293,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 beneficiaries.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return beneficiaries;
     }
@@ -352,16 +324,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 beneficiaries.add(getResult(result));
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return beneficiaries;
     }

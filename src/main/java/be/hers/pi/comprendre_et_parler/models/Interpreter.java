@@ -140,13 +140,6 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     * @return this.hourQuotaYear
-     */
-    public int getHourQuotaYear() {
-        return hourQuotaYear;
-    }
-
-    /**
      * @return this.transportMode
      */
     public String getTransportMode() {
@@ -244,7 +237,7 @@ public class Interpreter extends AppliUser{
     /**
      @return this.hourQuotaYear
      */
-    public int getHourQuotayear() {
+    public int getHourQuotaYear() {
         return this.hourQuotaYear;
     }
 
