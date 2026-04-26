@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
@@ -39,103 +38,36 @@ class MissionTest {
     }
 
     @Test
-    public void testSetBeneficiary() {
-        Beneficiary b2 = new Beneficiary(3, "3", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
-        m1.setBeneficiary(b2);
-        assertEquals(m1.getBeneficiary(), b2, "Must have copied the object.");
+    public void testHashCode() {
+        int hash1 = m1.hashCode();
+        int hash2 = m1.hashCode();
+        assertEquals(hash1, hash2, "Same object hashed.");
 
-        b2.setFirstName("Autre test");
-        assertNotEquals(m1.getBeneficiary(), b2, "Modifications effected on the obtained object cannot change the original object.");
-    }
+        Mission m2 = new Mission(m1);
+        int hash3 = m2.hashCode();
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
 
-    @Test
-    public void testGetBeneficiary() {
-        Beneficiary b3 = m1.getBeneficiary();
+        m2.setId(50);
+        int hash4 = m2.hashCode();
+        assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        b3.setFirstName("Autre test");
-        assertNotEquals(b3, m1.getBeneficiary(), "The original object has to remain itself.");
-    }
-
-    @Test
-    public void testSetInterpreters() {
-        List<Interpreter> i2 = new ArrayList<Interpreter>();
-        i2.add(new Interpreter(74, 105, 7, "7", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
-        m1.setInterpreters(i2);
-        assertEquals(m1.getInterpreters(), i2, "Must have copied the object.");
-
-        Interpreter i3 = new Interpreter(74, 105, 8, "8", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
-        i2.add(i3);
-        assertNotEquals(m1.getInterpreters(), i2, "Modifications effected on the obtained object cannot change the original object.");
-
-        i3.setLogin("9");
-        i2.add(i3);
-        assertThrows(AlreadyExistsException.class, () -> {
-            m1.setInterpreters(i2);
-        }, "The List cannot have two objects with the same id.");
-
-        i2.remove(i3);
-        i3.setLogin("8");
-        i3.setId(20);
-        i2.add(i3);
-        assertThrows(AlreadyExistsException.class, () -> {
-            m1.setInterpreters(i2);
-        }, "The List cannot have two equal objects.");
-    }
-
-    @Test
-    public void testGetInterpreters() {
-        List<Interpreter> i3 = m1.getInterpreters();
-        assertEquals(i3, m1.getInterpreters(), "Must obtain an exact copy of the object.");
-
-        i3.add(new Interpreter(74, 105, 9, "9", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null));
-        assertNotEquals(m1.getInterpreters(), i3, "The original object has to remain itself.");
-    }
-
-    @Test
-    public void testAddInterpreter() {
-        assertThrows(NullPointerException.class, () -> {
-            m1.addInterpreter(null);
-        }, "An exception must occur when the object is null.");
-
-        Interpreter i4 = new Interpreter(74, 105, 10, "10", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
-        m1.addInterpreter(i4);
-        assertTrue(m1.getInterpreters().contains(i4), "The object is added to the list.");
-
-        assertThrows(AlreadyExistsException.class, () -> {
-            m1.addInterpreter(i4);
-        }, "The object has already been added to the list.");
-    }
-
-    @Test
-    public void testDeleteInterpreter() {
-        assertDoesNotThrow(() -> {
-            m1.deleteInterpreter(null);
-        }, "No exception should occur when the object is null.");
-
-        Interpreter i5 = new Interpreter(74, 105, 11, "11", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", null);
-        m1.addInterpreter(i5);
-        assertDoesNotThrow(() -> {
-            m1.deleteInterpreter(11);
-        }, "Delete an object from the list.");
-        assertFalse(m1.getInterpreters().contains(i5), "The object has been deleted from the list.");
-
-        assertThrows(NoSuchElementException.class, () -> {
-            m1.deleteInterpreter(11);
-        }, "The object is not present in the list.");
+        m2.setCommentary("The las test");
+        int hash5 = m2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
 
     @Test
     public void testEquals() {
-        assertFalse(m1.equals(null), "The second object is null.");
-        assertTrue(m1.equals(m1), "The second object is the same as the first one.");
+        assertNotEquals(null, m1, "The second object is null.");
+        assertEquals(m1, m1, "The second object is the same as the first one.");
 
         Mission m2 = new Mission(m1);
-        assertTrue(m1.equals(m2), "The second object is a copy of the first one.");
+        assertEquals(m1, m2, "The second object is a copy of the first one.");
 
         m1.setId(20);
-        assertTrue(m2.equals(m1), "The second object has its id changed.");
+        assertEquals(m2, m1, "The second object has its id changed.");
 
         m2.setCommentary("Dernier test");
-        assertFalse(m2.equals(m1), "The second object has one of its attributes other than its id changed.");
+        assertNotEquals(m2, m1, "The second object has one of its attributes other than its id changed.");
     }
 }

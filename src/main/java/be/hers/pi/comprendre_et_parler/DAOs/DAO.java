@@ -36,7 +36,6 @@ public abstract class DAO<T> {
     public abstract void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
 
     /**
-     *
      * @param objectToDelete the object to delete in the database
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
@@ -45,7 +44,6 @@ public abstract class DAO<T> {
     public abstract void delete(T objectToDelete) throws NoSuchElementException, SQLException;
 
     /**
-     *
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */

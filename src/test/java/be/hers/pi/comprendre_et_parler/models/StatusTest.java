@@ -30,17 +30,36 @@ class StatusTest {
     }
 
     @Test
-    public void testEquals() {
-        assertFalse(s1.equals(null), "The second object is null.");
-        assertTrue(s1.equals(s1), "The second object is the same as the first one.");
+    public void testHashCode() {
+        int hash1 = s1.hashCode();
+        int hash2 = s1.hashCode();
+        assertEquals(hash1, hash2, "Same object hashed.");
 
         Status s2 = new Status(s1);
-        assertTrue(s1.equals(s2), "The second object is a copy of the first one.");
+        int hash3 = s2.hashCode();
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
+
+        s2.setId(50);
+        int hash4 = s2.hashCode();
+        assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
+
+        s2.setDesignation("The las test");
+        int hash5 = s2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
+    }
+
+    @Test
+    public void testEquals() {
+        assertNotEquals(null, s1, "The second object is null.");
+        assertEquals(s1, s1, "The second object is the same as the first one.");
+
+        Status s2 = new Status(s1);
+        assertEquals(s1, s2, "The second object is a copy of the first one.");
 
         s1.setId(20);
-        assertTrue(s2.equals(s1), "The second object has its id changed.");
+        assertEquals(s2, s1, "The second object has its id changed.");
 
         s2.setDesignation("Dernier test");
-        assertFalse(s2.equals(s1), "The second object has one of its attributes other than its id changed.");
+        assertNotEquals(s2, s1, "The second object has one of its attributes other than its id changed.");
     }
 }

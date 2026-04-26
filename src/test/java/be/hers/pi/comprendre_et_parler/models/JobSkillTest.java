@@ -22,17 +22,36 @@ class JobSkillTest {
     }
 
     @Test
-    public void testEquals() {
-        assertFalse(j1.equals(null), "The second object is null.");
-        assertTrue(j1.equals(j1), "The second object is the same as the first one.");
+    public void testHashCode() {
+        int hash1 = j1.hashCode();
+        int hash2 = j1.hashCode();
+        assertEquals(hash1, hash2, "Same object hashed.");
 
         JobSkill j2 = new JobSkill(j1);
-        assertTrue(j1.equals(j2), "The second object is a copy of the first one.");
+        int hash3 = j2.hashCode();
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
+
+        j2.setId(50);
+        int hash4 = j2.hashCode();
+        assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
+
+        j2.setDesignation("The las test");
+        int hash5 = j2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
+    }
+
+    @Test
+    public void testEquals() {
+        assertNotEquals(null, j1, "The second object is null.");
+        assertEquals(j1, j1, "The second object is the same as the first one.");
+
+        JobSkill j2 = new JobSkill(j1);
+        assertEquals(j1, j2, "The second object is a copy of the first one.");
 
         j1.setId(20);
-        assertTrue(j2.equals(j1), "The second object has its id changed.");
+        assertEquals(j2, j1, "The second object has its id changed.");
 
         j2.setDesignation("Dernier test");
-        assertFalse(j2.equals(j1), "The second object has one of its attributes other than its id changed.");
+        assertNotEquals(j2, j1, "The second object has one of its attributes other than its id changed.");
     }
 }

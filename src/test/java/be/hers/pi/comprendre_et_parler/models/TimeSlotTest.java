@@ -115,21 +115,40 @@ class TimeSlotTest {
         TimeSlot t2 = t1.clone();
         assertTrue(t1.equals(t2), "The second object is a copy of the first one.");
         t2.setId(50);
-        assertFalse(t1.getId() == t2.getId(), "Changes made to the copy can't impact the original.");
+        assertNotEquals(t1.getId(), t2.getId(), "Changes made to the copy can't impact the original.");
+    }
+
+    @Test
+    public void testHashCode() {
+        int hash1 = t1.hashCode();
+        int hash2 = t1.hashCode();
+        assertEquals(hash1, hash2, "Same object hashed.");
+
+        TimeSlot t2 = t1.clone();
+        int hash3 = t2.hashCode();
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
+
+        t2.setId(50);
+        int hash4 = t2.hashCode();
+        assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
+
+        t2.setEndTime(sixteen.plusHours(2));
+        int hash5 = t2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
 
     @Test
     public void testEquals() {
-        assertFalse(t1.equals(null), "The second object is null.");
-        assertTrue(t1.equals(t1), "The second object is the same as the first one.");
+        assertNotEquals(null, t1, "The second object is null.");
+        assertEquals(t1, t1, "The second object is the same as the first one.");
 
-        TimeSlot t2 = new BaseTimeSlot(t1);
-        assertTrue(t1.equals(t2), "The second object is a copy of the first one.");
+        TimeSlot t2 = t1.clone();
+        assertEquals(t1, t2, "The second object is a copy of the first one.");
 
         t1.setId(20);
-        assertTrue(t2.equals(t1), "The second object has its id changed.");
+        assertEquals(t2, t1, "The second object has its id changed.");
 
         t2.setEndTime(LocalTime.MIDNIGHT.minusHours(1));
-        assertFalse(t2.equals(t1), "The second object has one of its attributes other than its id changed.");
+        assertNotEquals(t2, t1, "The second object has one of its attributes other than its id changed.");
     }
 }
