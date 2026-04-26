@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.models;
 import java.util.Objects;
 
 public class AcademicSkill {
-    private  int id;
+    private  int id=-1;
     private String designation;
 
     /**
@@ -14,8 +14,6 @@ public class AcademicSkill {
     public AcademicSkill(int  id, String designation) {
         if(id >= 0){
             this.id = id;
-        }else{
-            this.id = -1;
         }
         this.designation = designation;
     }
@@ -25,8 +23,7 @@ public class AcademicSkill {
      @param designation : represent designation
      */
     public AcademicSkill(String designation) {
-        this.id = -1;
-        this.designation = designation;
+       this(-1,designation);
     }
 
     /**
@@ -34,8 +31,7 @@ public class AcademicSkill {
      * @param other represent the JobSkill object
      */
     public AcademicSkill(AcademicSkill other) {
-        this.id = other.id;
-        this.designation = other.designation;
+        this(other.id,other.designation);
     }
 
     /**

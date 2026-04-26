@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DAOAcademicSkill implements DAO<AcademicSkill> {
+public class DAOAcademicSkill extends DAO<AcademicSkill> {
     protected final String TABLE = "academicskill";
     protected final String FIELD_ID = "id";
     protected final String FIELD_DESIGNATION = "designation";
@@ -33,19 +33,12 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                ret = new AcademicSkill(
-                        id,
-                        result.getString(FIELD_DESIGNATION)
-                );
+                ret = getResult(result);
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
@@ -59,28 +52,25 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      */
     @Override
     public void create(AcademicSkill objectToInsert) throws AlreadyExistsException, SQLException {
-        List<AcademicSkill> skills = findAll();
-        for(AcademicSkill skill : skills){
-            if (skill.equals(objectToInsert)) {
-                throw new AlreadyExistsException("AcademicSkill " + objectToInsert.getDesignation() + " already exists at id" + skill.getId() );
-            }
+        if (checkAlreadyExists(objectToInsert)) {
+            throw new AlreadyExistsException("AcademicSkill " + objectToInsert.getDesignation() + " already exists" );
         }
 
         String query = "INSERT INTO %s(%s) VALUES(?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION);
         PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
             statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -94,12 +84,8 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
      */
     @Override
     public void update(AcademicSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<AcademicSkill> skills = findAll();
-
-        for(AcademicSkill skill : skills){
-            if (skill.equals(objectToUpdate)) {
-                throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists at id" + skill.getId() );
-            }
+        if (checkAlreadyExists(objectToUpdate)) {
+            throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists" );
         }
 
         String query = "UPDATE %s SET %s = ? WHERE %s = ?";
@@ -114,9 +100,8 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
             }
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
+
         }
     }
 
@@ -141,9 +126,8 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
             }
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
+
         }
     }
 
@@ -162,21 +146,57 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                ret.add(new AcademicSkill(
-                        result.getInt(FIELD_ID),
-                        result.getString(FIELD_DESIGNATION)
-                ));
+                ret.add(getResult(result));
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
+    }
+
+    /**
+     * Check if an object already exists in the database
+     *
+     * @param object the object to check
+     * @return true if the object already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    protected  boolean checkAlreadyExists(AcademicSkill object) throws SQLException{
+        String query = "SELECT * FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_DESIGNATION);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, object.getDesignation());
+            result = statement.executeQuery();
+            if (result.next()) {
+                return true;
+            }
+            return false;
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+
+    }
+
+    /**
+     * Build an object from a ResultSet
+     *
+     * @param result the ResultSet to read from
+     * @return an object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    protected AcademicSkill getResult(ResultSet result) throws SQLException {
+        return new AcademicSkill(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION)
+        );
     }
 
     /**
@@ -192,7 +212,7 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
         if (interpreter == null) {
             throw new NoSuchElementException("Interpreter with id " + idInterpreter + " not found");
         }
-        String query = "SELECT a." + FIELD_ID +", a."+ FIELD_DESIGNATION+" FROM " + TABLE + " a JOIN AcademicSkilllInterpreter asi ON a."+ FIELD_ID+" = asi.idAcademicSkill WHERE asi.idInterpreter = ?";
+        String query = "SELECT a." + FIELD_ID +", a."+ FIELD_DESIGNATION+" FROM " + TABLE + " a JOIN AcademicSkillInterpreter asi ON a."+ FIELD_ID+" = asi.idAcademicSkill WHERE asi.idInterpreter = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         List<AcademicSkill> ret = new ArrayList<>();
@@ -203,20 +223,18 @@ public class DAOAcademicSkill implements DAO<AcademicSkill> {
             result = statement.executeQuery();
 
             while (result.next()) {
-                ret.add(new AcademicSkill(
-                        result.getInt("id"),
-                        result.getString("designation")
-                ));
+                ret.add(getResult(result));
             }
         } finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
 
         return ret;
     }
+
+
+
+
+
 }
