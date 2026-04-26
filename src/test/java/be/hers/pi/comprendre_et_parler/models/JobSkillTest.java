@@ -35,7 +35,7 @@ class JobSkillTest {
         int hash4 = j2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        j2.setDesignation("The las test");
+        j2.setDesignation("The last test");
         int hash5 = j2.hashCode();
         assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
@@ -51,7 +51,7 @@ class JobSkillTest {
         j1.setId(20);
         assertEquals(j2, j1, "The second object has its id changed.");
 
-        j2.setDesignation("Dernier test");
+        j2.setDesignation("The last test");
         assertNotEquals(j2, j1, "The second object has one of its attributes other than its id changed.");
     }
 }

@@ -45,7 +45,7 @@ class CityTest {
         int hash4 = c2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        c2.setDesignation("The las test");
+        c2.setDesignation("The last test");
         int hash5 = c2.hashCode();
         assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
@@ -61,7 +61,7 @@ class CityTest {
         c1.setId(20);
         assertEquals(c2, c1, "The second object has its id changed.");
 
-        c2.setDesignation("Dernier test");
+        c2.setDesignation("The last test");
         assertNotEquals(c2, c1, "The second object has one of its attributes other than its id changed.");
     }
 }
