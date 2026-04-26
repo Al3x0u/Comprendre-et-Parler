@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.NoSuchElementException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
@@ -49,16 +50,39 @@ public abstract class DAO<T> {
      */
     abstract Set<T> findAll() throws SQLException;
 
-    private void closeStatement(PreparedStatement statement, ResultSet result)throws SQLException{
-        try {
-            statement.close();
-        }catch(SQLException e){
-            e.printStackTrace();
+    /**
+     * Build an object from a ResultSet
+     * @param result the ResultSet to read from
+     * @return an object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    protected abstract T getResult(ResultSet result) throws SQLException;
+
+    /**
+     * Close a Statement
+     * @param statement the Statement to close (can be null)
+     */
+    protected void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            result.close();
-        }catch(SQLException e){
-            e.printStackTrace();
+    }
+
+    /**
+     * Close a ResultSet
+     * @param resultSet the ResultSet to close (can be null)
+     */
+    protected void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
