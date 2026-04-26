@@ -14,7 +14,6 @@ public abstract class AppliUser {
 
     /**
      Constructor of a AppliUser
-     @param id represent the id
      @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
@@ -32,6 +31,42 @@ public abstract class AppliUser {
         this.hashedPassword = hashedPassword;
         this.email = email;
         this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     Constructor of a AppliUser
+     @param login represent the login
+     @param firstName represent the firstname
+     @param lastName represent he lastname
+     @param birthDate represent the birthdate
+     @param hashedPassword represent the hashed password
+     @param email represent the email
+     @param phoneNumber represent the phone number
+     */
+    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        id = -1;
+        this.login = login;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
+        this.hashedPassword = hashedPassword;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * Copy constructor. Creates a deep copy of the given AppliUser.
+     * @param other the AppliUser to copy, must not be null
+     */
+    public AppliUser(AppliUser other) {
+        id = other.id;
+        this.login = other.login;
+        this.firstName = other.firstName;
+        this.lastName = other.lastName;
+        this.birthDate = other.birthDate;
+        this.hashedPassword = other.hashedPassword;
+        this.email = other.email;
+        this.phoneNumber = other.phoneNumber;
     }
 
     /**

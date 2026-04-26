@@ -366,7 +366,7 @@ public class DAOMission implements DAO<Mission> {
      * @return a Mission object built from the ResultSet
      * @throws SQLException if the database could not be reached
      */
-    private Mission getResult(ResultSet result) throws SQLException {
+    public Mission getResult(ResultSet result) throws SQLException {
         int missionId = result.getInt(FIELD_ID);
         MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
         TimeSlot timeSlot;

@@ -8,7 +8,26 @@ public class Beneficiary extends AppliUser {
 
 
     /**
-     * Constructor of a Beneficiary extends User
+     * Constructor of a Beneficiary extends User without id
+     * @param login          represent the login
+     * @param firstName      represent the firstname
+     * @param lastName       represent he lastname
+     * @param birthDate      represent the birthdate
+     * @param hashedPassword represent the hashed password
+     * @param email          represent the email
+     * @param phoneNumber    represent the phone number
+     * @param status         represent the status
+     */
+    public Beneficiary(String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, Status status, Interpreter interpreterRef) {
+        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        this.status = status;
+        this.interpreterRef = interpreterRef;
+    }
+
+    /**
+     * Constructor of a Beneficiary extends User with id
      * @param id             represent the id
      * @param login          represent the login
      * @param firstName      represent the firstname
@@ -18,13 +37,32 @@ public class Beneficiary extends AppliUser {
      * @param email          represent the email
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
-     * @param interpreterRef represent the referent interpreter
      */
-    public Beneficiary(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber, Status status, Interpreter interpreterRef) {
-        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+    public Beneficiary(int id, String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, Status status, Interpreter interpreterRef) {
+        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
         this.interpreterRef = interpreterRef;
     }
+
+
+    /**
+     * Copy constructor. Creates a deep copy of the given Beneficiary.
+     * The interpreterRef field is shared (shallow copy) to avoid
+     * an infinite recursion between Beneficiary and Interpreter
+     * copy constructors.
+     *
+     * @param other the Beneficiary to copy, must not be null
+     */
+    public Beneficiary(Beneficiary other) {
+        super(other.getLogin(), other.getFirstName(), other.getLastName(),
+                other.getBirthDate(), other.getHashedPassword(), other.getEmail(),
+                other.getPhoneNumber());
+        this.status = other.status;
+        this.interpreterRef = other.interpreterRef != null ? new Interpreter(other.interpreterRef) : null;
+    }
+
 
     /**
      * @return this.status
