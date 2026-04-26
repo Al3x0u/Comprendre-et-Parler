@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOJobSkill implements DAO<JobSkill> {
+public class DAOJobSkill extends DAO<JobSkill> {
     protected final String TABLE = "jobskill";
     protected final String FIELD_ID = "id";
     protected final String FIELD_DESIGNATION = "designation";
@@ -34,19 +34,12 @@ public class DAOJobSkill implements DAO<JobSkill> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                ret = new JobSkill(
-                        id,
-                        result.getString(FIELD_DESIGNATION)
-                );
+                ret = getResult(result);
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
@@ -60,29 +53,25 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public void create(JobSkill objectToInsert) throws AlreadyExistsException, SQLException {
-        List<JobSkill> skills = findAll();
-        for(JobSkill skill : skills){
-            if (skill.equals(objectToInsert)) {
-                throw new AlreadyExistsException("JobSkill " + objectToInsert.getDesignation() + " already exists at id" + skill.getId() );
-            }
+        if (checkAlreadyExists(objectToInsert)) {
+            throw new AlreadyExistsException("JobSkill " + objectToInsert.getDesignation() + " already exists" );
         }
 
-        String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION);
+        String query = "INSERT INTO %s(%s) VALUES(?)";
+        query = String.format(query, TABLE, FIELD_DESIGNATION);
         PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
-            statement.setInt(1, objectToInsert.getId());
-            statement.setString(2, objectToInsert.getDesignation());
+            statement.setString(1, objectToInsert.getDesignation());
             statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -96,12 +85,8 @@ public class DAOJobSkill implements DAO<JobSkill> {
      */
     @Override
     public void update(JobSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        List<JobSkill> skills = findAll();
-
-        for(JobSkill skill : skills){
-            if (skill.equals(objectToUpdate)) {
-                throw new AlreadyExistsException("JobSkill " + objectToUpdate.getDesignation() + " already exists at id" + skill.getId() );
-            }
+        if (checkAlreadyExists(objectToUpdate)) {
+            throw new AlreadyExistsException("JobSkill " + objectToUpdate.getDesignation() + " already exists" );
         }
 
         String query = "UPDATE %s SET %s = ? WHERE %s = ?";
@@ -111,15 +96,12 @@ public class DAOJobSkill implements DAO<JobSkill> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getId());
-            statement.executeUpdate();
             if(statement.executeUpdate() == 0){
                 throw new NoSuchElementException("JobSkill " + objectToUpdate.getDesignation() + " was not found in database");
             }
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -144,9 +126,7 @@ public class DAOJobSkill implements DAO<JobSkill> {
             }
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -165,21 +145,56 @@ public class DAOJobSkill implements DAO<JobSkill> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                ret.add(new JobSkill(
-                        result.getInt(FIELD_ID),
-                        result.getString(FIELD_DESIGNATION)
-                ));
+                ret.add(getResult(result));
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
+    }
+
+    /**
+     * Check if an object already exists in the database
+     *
+     * @param object the object to check
+     * @return true if the object already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    protected boolean checkAlreadyExists(JobSkill object) throws SQLException {
+        String query = "SELECT * FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_DESIGNATION);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, object.getDesignation());
+            result = statement.executeQuery();
+            if (result.next()) {
+                return true;
+            }
+            return false;
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Build an object from a ResultSet
+     *
+     * @param result the ResultSet to read from
+     * @return an object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    protected JobSkill getResult(ResultSet result) throws SQLException {
+        return new JobSkill(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION)
+        );
     }
 
     /**
@@ -206,18 +221,11 @@ public class DAOJobSkill implements DAO<JobSkill> {
             result = statement.executeQuery();
 
             while (result.next()) {
-                ret.add(new JobSkill(
-                        result.getInt("id"),
-                        result.getString("designation")
-                ));
+                ret.add(getResult(result));
             }
         } finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
 
         return ret;
