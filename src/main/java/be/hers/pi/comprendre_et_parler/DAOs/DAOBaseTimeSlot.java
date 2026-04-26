@@ -2,6 +2,8 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
+import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +21,10 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     protected static final String FIELD_START_TIME = "startTime";
     protected static final String FIELD_END_TIME = "endTime";
     protected static final String FIELD_DAY = "day";
+
+    protected static final String TABLE_AVAILABILITY = "availability";
+    protected static final String AVAILABILITY_REF_INTERPRETER = "interpreter";
+    protected static final String AVAILABILITY_REF_TIMESLOT = "timeslot";
 
     /**
      * @param id the primary key of the object to find in database
@@ -132,6 +138,40 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NOT NULL";
         List<BaseTimeSlot> ret = new ArrayList<>();
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    ret.add(new BaseTimeSlot(
+                            result.getInt(FIELD_ID),
+                            result.getTime(FIELD_START_TIME).toLocalTime(),
+                            result.getTime(FIELD_END_TIME).toLocalTime(),
+                            DayOfWeek.of(result.getInt(FIELD_DAY))
+                    ));
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * @param  interpreter the interpreter to retrieve the availabilities of
+     * @return a list of time slots during which interpreter is normally available
+     * @throws IllegalArgumentException if interpreter's id does not match anything in database
+     * @throws SQLException if a database error occurs
+     */
+    public List<BaseTimeSlot> findAvailabilities(Interpreter interpreter) throws IllegalArgumentException, SQLException {
+        int id = interpreter.getId();
+        if (id < 0 || find(id) == null)
+            throw new IllegalArgumentException("No object of id " + id + " could be found in database.");
+
+        List<BaseTimeSlot> ret = new ArrayList<>();
+        String query = "SELECT ts.%s, ts.%s, ts.%s, ts.%s " +
+                "FROM %s i, %s av, %s ts " +
+                "WHERE i.%s = ? AND i.%s = av.%s AND av.%s = ts.%s";
+        query = String.format(query, FIELD_ID, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY,
+                DAOInterpreter.TABLE_VIEW, TABLE_AVAILABILITY, TABLE,
+                DAOInterpreter.FIELD_ID, DAOInterpreter.FIELD_ID, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, FIELD_ID);
+        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+            statement.setInt(1, interpreter.getId());
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
                     ret.add(new BaseTimeSlot(
