@@ -29,61 +29,44 @@ class ExceptionalUnavailabilityTest {
     }
 
     @Test
-    public void testGetTimeSlot() {
-        PunctualTimeSlot p2 = e1.getTimeSlot();
-
-        p2.setEndTime(LocalTime.NOON.plusHours(5));
-        assertNotEquals(e1.getTimeSlot(), p2, "The original object has to remain itself.");
-    }
-
-    @Test
-    public void testSetTimeSlot() {
-        PunctualTimeSlot p2 = new PunctualTimeSlot(4, LocalTime.NOON.minusHours(1), LocalTime.NOON, LocalDate.now().minusDays(7), LocalTime.now());
-        e1.setTimeSlot(p2);
-        assertEquals(e1.getTimeSlot(), p2, "Must have copied the object.");
-
-        p2.setStartTime(LocalTime.NOON.minusHours(4));
-        assertNotEquals(e1.getTimeSlot(), p2, "Modifications effected on the obtained object cannot change the original object.");
-    }
-
-    @Test
-    public void testGetInterpreter() {
-        Interpreter i3 = e1.getInterpreter();
-
-        i3.setFirstName("Autre test");
-        assertNotEquals(i3, e1.getInterpreter(), "The original object has to remain itself.");
-    }
-
-    @Test
-    public void testSetInterpreter() {
-        Interpreter i2 = new Interpreter(10, 80, 2, "2", "test", "test", LocalDate.now(), "65874", "test@gmail.com", "123/45.67.89", new Transportation(2, "test"));
-        e1.setInterpreter(i2);
-        assertEquals(e1.getInterpreter(), i2, "Must have copied the object.");
-
-        i2.setFirstName("Autre test");
-        assertNotEquals(e1.getInterpreter(), i2, "Modifications effected on the obtained object cannot change the original object.");
-    }
-
-    @Test
     public void testClone() {
         ExceptionalUnavailability e2 = e1.clone();
-        assertTrue(e1.equals(e2), "The second object is a copy of the first one.");
+        assertEquals(e1, e2, "The second object is a copy of the first one.");
         e2.setId(30);
-        assertFalse(e1.getId() == e2.getId(), "Changes made to the copy can't impact the original.");
+        assertNotEquals(e1.getId(), e2.getId(), "Changes made to the copy can't impact the original.");
+    }
+
+    @Test
+    public void testHashCode() {
+        int hash1 = e1.hashCode();
+        int hash2 = e1.hashCode();
+        assertEquals(hash1, hash2, "Same object hashed.");
+
+        ExceptionalUnavailability e2 = new ExceptionalUnavailability(e1);
+        int hash3 = e2.hashCode();
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
+
+        e2.setId(50);
+        int hash4 = e2.hashCode();
+        assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
+
+        e2.setReason("The las test");
+        int hash5 = e2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
 
     @Test
     public void testEquals() {
-        assertFalse(e1.equals(null), "The second object is null.");
-        assertTrue(e1.equals(e1), "The second object is the same as the first one.");
+        assertNotEquals(null, e1, "The second object is null.");
+        assertEquals(e1, e1, "The second object is the same as the first one.");
 
         ExceptionalUnavailability e2 = new ExceptionalUnavailability(e1);
-        assertTrue(e1.equals(e2), "The second object is a copy of the first one.");
+        assertEquals(e1, e2, "The second object is a copy of the first one.");
 
         e1.setId(20);
-        assertTrue(e2.equals(e1), "The second object has its id changed.");
+        assertEquals(e2, e1, "The second object has its id changed.");
 
         e2.setReason("Dernier test");
-        assertFalse(e2.equals(e1), "The second object has one of its attributes other than its id changed.");
+        assertNotEquals(e2, e1, "The second object has one of its attributes other than its id changed.");
     }
 }

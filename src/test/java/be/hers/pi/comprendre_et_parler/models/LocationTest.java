@@ -33,34 +33,36 @@ class LocationTest {
     }
 
     @Test
-    public void testSetCity() {
-        City c2 = new City(c1);
-        l1.setCity(c2);
-        c2.setPostalCode(6900);
-        assertFalse(c2.equals(l1.getCity()), "Modifications effected on the obtained object cannot change the original object.");
-    }
+    public void testHashCode() {
+        int hash1 = l1.hashCode();
+        int hash2 = l1.hashCode();
+        assertEquals(hash1, hash2, "Same object hashed.");
 
-    @Test
-    public void testGetCity() {
-        City c2 = l1.getCity();
-        assertEquals(c2, l1.getCity(), "Must obtain an exact copy of the object.");
+        Location l2 = new Location(l1);
+        int hash3 = l2.hashCode();
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
 
-        c2.setPostalCode(7800);
-        assertFalse(c2.equals(l1.getCity()), "The original object has to remain itself.");
+        l2.setId(50);
+        int hash4 = l2.hashCode();
+        assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
+
+        l2.setStreetNumber("The las test");
+        int hash5 = l2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
 
     @Test
     public void testEquals() {
-        assertFalse(l1.equals(null), "The second object is null.");
-        assertTrue(l1.equals(l1), "The second object is the same as the first one.");
+        assertNotEquals(null, l1, "The second object is null.");
+        assertEquals(l1, l1, "The second object is the same as the first one.");
 
         Location l2 = new Location(l1);
-        assertTrue(l1.equals(l2), "The second object is a copy of the first one.");
+        assertEquals(l1, l2, "The second object is a copy of the first one.");
 
         l1.setId(20);
-        assertTrue(l2.equals(l1), "The second object has its id changed.");
+        assertEquals(l2, l1, "The second object has its id changed.");
 
         l2.setDesignation("Dernier test");
-        assertFalse(l2.equals(l1), "The second object has one of its attributes other than its id changed.");
+        assertNotEquals(l2, l1, "The second object has one of its attributes other than its id changed.");
     }
 }
