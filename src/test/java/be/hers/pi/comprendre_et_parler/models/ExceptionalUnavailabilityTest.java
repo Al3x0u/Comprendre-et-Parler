@@ -50,7 +50,7 @@ class ExceptionalUnavailabilityTest {
         int hash4 = e2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        e2.setReason("The las test");
+        e2.setReason("The last test");
         int hash5 = e2.hashCode();
         assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
@@ -66,7 +66,7 @@ class ExceptionalUnavailabilityTest {
         e1.setId(20);
         assertEquals(e2, e1, "The second object has its id changed.");
 
-        e2.setReason("Dernier test");
+        e2.setReason("The last test");
         assertNotEquals(e2, e1, "The second object has one of its attributes other than its id changed.");
     }
 }
