@@ -51,7 +51,7 @@ class MissionTest {
         int hash4 = m2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        m2.setCommentary("The las test");
+        m2.setCommentary("The last test");
         int hash5 = m2.hashCode();
         assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
@@ -67,7 +67,7 @@ class MissionTest {
         m1.setId(20);
         assertEquals(m2, m1, "The second object has its id changed.");
 
-        m2.setCommentary("Dernier test");
+        m2.setCommentary("The last test");
         assertNotEquals(m2, m1, "The second object has one of its attributes other than its id changed.");
     }
 }

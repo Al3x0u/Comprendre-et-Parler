@@ -3,18 +3,20 @@ package be.hers.pi.comprendre_et_parler.models;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-class AcademicSkillTest {
-    private static AcademicSkill a1;
+class AppliUserTest {
+    private static AppliUser a1;
 
     @BeforeAll
     public static void init() {
-        a1 = new AcademicSkill(1, "test");
+        a1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
     }
 
     @Test
-    public void testSetId() {
+    void testSetId() {
         a1.setId(-1);
         assertEquals(1, a1.getId(), "id cannot be negative.");
         a1.setId(2);
@@ -27,7 +29,7 @@ class AcademicSkillTest {
         int hash2 = a1.hashCode();
         assertEquals(hash1, hash2, "Same object hashed.");
 
-        AcademicSkill a2 = new AcademicSkill(a1);
+        AppliUser a2 = new Beneficiary(a1);
         int hash3 = a2.hashCode();
         assertEquals(hash3, hash2, "A copied object must have the same hash.");
 
@@ -35,23 +37,23 @@ class AcademicSkillTest {
         int hash4 = a2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        a2.setDesignation("The last test");
+        a2.setLastName("The last test");
         int hash5 = a2.hashCode();
         assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         assertNotEquals(null, a1, "The second object is null.");
         assertEquals(a1, a1, "The second object is the same as the first one.");
 
-        AcademicSkill a2 = new AcademicSkill(a1);
+        AppliUser a2 = new Beneficiary(a1);
         assertEquals(a1, a2, "The second object is a copy of the first one.");
 
         a1.setId(20);
         assertEquals(a2, a1, "The second object has its id changed.");
 
-        a2.setDesignation("The last test");
+        a2.setFirstName("The last test");
         assertNotEquals(a2, a1, "The second object has one of its attributes other than its id changed.");
     }
 }

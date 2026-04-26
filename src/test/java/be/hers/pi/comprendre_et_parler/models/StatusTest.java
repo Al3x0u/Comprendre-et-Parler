@@ -43,7 +43,7 @@ class StatusTest {
         int hash4 = s2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        s2.setDesignation("The las test");
+        s2.setDesignation("The last test");
         int hash5 = s2.hashCode();
         assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
@@ -59,7 +59,7 @@ class StatusTest {
         s1.setId(20);
         assertEquals(s2, s1, "The second object has its id changed.");
 
-        s2.setDesignation("Dernier test");
+        s2.setDesignation("The last test");
         assertNotEquals(s2, s1, "The second object has one of its attributes other than its id changed.");
     }
 }
