@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.models.Location;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOCity implements DAO<City> {
+public class DAOCity extends DAO<City> {
     protected static final String TABLE = "city";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_DESIGNATION = "designation";
@@ -34,20 +35,12 @@ public class DAOCity implements DAO<City> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                city = new City(
-                        id,
-                        result.getString(FIELD_DESIGNATION),
-                        result.getInt(FIELD_POSTAL_CODE)
-                );
+                city = getResult(result);
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return city;
     }
@@ -68,20 +61,20 @@ public class DAOCity implements DAO<City> {
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
         PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getPostalCode());
             statement.executeUpdate();
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -111,9 +104,7 @@ public class DAOCity implements DAO<City> {
                 throw new NoSuchElementException("City " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -139,9 +130,7 @@ public class DAOCity implements DAO<City> {
                 throw new NoSuchElementException("City " + objectToDelete.getDesignation() + " was not found in database");
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -160,20 +149,12 @@ public class DAOCity implements DAO<City> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                cities.add(new City(
-                        result.getInt(FIELD_ID),
-                        result.getString(FIELD_DESIGNATION),
-                        result.getInt(FIELD_POSTAL_CODE)
-                ));
+                cities.add(getResult(result));
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return cities;
     }
@@ -184,12 +165,38 @@ public class DAOCity implements DAO<City> {
      * @return true if the city already exists, else false
      * @throws SQLException if the database could not be reached
      */
-    private boolean checkAlreadyExists(City city) throws SQLException {
-        List<City> cities = findAll();
-        for (City line : cities) {
-            if (line.equals(city))
-                return true;
+    @Override
+    protected boolean checkAlreadyExists(City city) throws SQLException {
+        String query = "SELECT COUNT(*) FROM " + TABLE +
+                " WHERE " + FIELD_DESIGNATION + " = ? AND " + FIELD_POSTAL_CODE + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, city.getDesignation());
+            statement.setInt(2, city.getPostalCode());
+            result = statement.executeQuery();
+            if (result.next())
+                return result.getInt(1) > 0;
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return false;
+    }
+
+    /**
+     * Build a City object from a ResultSet
+     * @param result the ResultSet to read from
+     * @return a City object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    protected City getResult(ResultSet result) throws SQLException {
+        return new City(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION),
+                result.getInt(FIELD_POSTAL_CODE)
+        );
     }
 }

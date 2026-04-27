@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOMission implements DAO<Mission> {
+public class DAOMission extends DAO<Mission> {
     protected static final String TABLE = "mission";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_SUBJECT = "subject";
@@ -47,12 +47,8 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return mission;
     }
@@ -68,12 +64,13 @@ public class DAOMission implements DAO<Mission> {
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
         if (checkAlreadyExists(objectToInsert))
-            throw new AlreadyExistsException("Mission " + objectToInsert.getSubject() + " already exists");
+            throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
                 FIELD_LOCATION, FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
         PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getSubject());
@@ -88,7 +85,7 @@ public class DAOMission implements DAO<Mission> {
             statement.setInt(10, objectToInsert.getImportance());
             statement.executeUpdate();
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
 
@@ -98,9 +95,8 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -115,7 +111,7 @@ public class DAOMission implements DAO<Mission> {
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         if (checkAlreadyExists(objectToUpdate))
-            throw new AlreadyExistsException("Mission " + objectToUpdate.getSubject() + " already exists");
+            throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
@@ -143,9 +139,7 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -169,9 +163,7 @@ public class DAOMission implements DAO<Mission> {
                 throw new NoSuchElementException("Mission " + objectToDelete.getSubject() + " was not found in database");
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -194,12 +186,8 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return missions;
     }
@@ -254,12 +242,8 @@ public class DAOMission implements DAO<Mission> {
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return missions;
     }
@@ -290,12 +274,8 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
     }
 
@@ -318,9 +298,7 @@ public class DAOMission implements DAO<Mission> {
                 throw new NoSuchElementException("This interpreter is not linked to the mission");
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -339,23 +317,45 @@ public class DAOMission implements DAO<Mission> {
             statement.executeUpdate();
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
     /**
-     * Check if a Mission already exists in the database
+     * Check if a Mission overlaps with an existing mission in the database.
+     * Two missions overlap if they share the same time slot and either:
+     * - the same beneficiary
+     * - at least one common interpreter
      * @param mission the mission to check
-     * @return true if the mission already exists, else false
+     * @return true if an overlap exists, false otherwise
      * @throws SQLException if the database could not be reached
      */
-    private boolean checkAlreadyExists(Mission mission) throws SQLException {
-        List<Mission> missions = findAll();
-        for (Mission line : missions) {
-            if (line.equals(mission))
-                return true;
+    @Override
+    protected boolean checkAlreadyExists(Mission mission) throws SQLException {
+        String query = "SELECT COUNT(*) FROM " + TABLE + " m " +
+                        "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
+                        "JOIN TimeSlot tsNew ON tsNew.id = ? " +
+                        "WHERE ts.startTime < tsNew.endTime AND ts.endTime > tsNew.startTime " +
+                        "AND (m." + FIELD_BENEFICIARY + " = ? " +
+                        "OR m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter IN " +
+                        "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)))";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, mission.getTimeSlot().getId());
+            statement.setInt(2, mission.getBeneficiary().getId());
+            statement.setInt(3, mission.getId());
+            result = statement.executeQuery();
+            if (result.next())
+                return result.getInt(1) > 0;
+        } finally {
+            if (result != null) {
+                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+            if (statement != null) {
+                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
         }
         return false;
     }
@@ -366,8 +366,8 @@ public class DAOMission implements DAO<Mission> {
      * @return a Mission object built from the ResultSet
      * @throws SQLException if the database could not be reached
      */
-    public Mission getResult(ResultSet result) throws SQLException {
-        int missionId = result.getInt(FIELD_ID);
+    @Override
+    protected Mission getResult(ResultSet result) throws SQLException {
         MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
         TimeSlot timeSlot;
         if (state == MissionState.REGULAR) {
@@ -376,7 +376,7 @@ public class DAOMission implements DAO<Mission> {
             timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
         }
         return new Mission(
-                missionId,
+                result.getInt(FIELD_ID),
                 result.getString(FIELD_SUBJECT),
                 state,
                 result.getString(FIELD_COMMENTARY),

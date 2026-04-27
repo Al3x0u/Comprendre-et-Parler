@@ -1,9 +1,6 @@
     package be.hers.pi.comprendre_et_parler.models;
 
-    import java.sql.SQLException;
     import java.util.*;
-
-    import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
     import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
     public class Mission {
@@ -13,7 +10,7 @@
         private String commentary;
         private TimeSlot timeSlot;
         private Beneficiary beneficiary;
-        private List<Interpreter> interpreters;
+        private HashSet<Interpreter> interpreters;
         private Location location;
         private JobSkill jobSkill;
         private AcademicSkill academicSkill;
@@ -28,24 +25,25 @@
          * @param commentary represent the commentary of the mission
          * @param timeSlot represent the time slot of the mission
          * @param location represent the location of the mission
+         * @param interpreters represent the interpreters of the mission
          * @param jobSkill represent the required business skill
          * @param academicSkill represent the required academic skill
          * @param room represent the room of the mission (can be null)
          * @param importance represent the importance of the mission
          */
         public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                       Location location, List<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
+                       Location location, HashSet<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                        String room, int importance) {
             if(id > 0) this.id = id;
             this.subject = subject;
             this.stateOfMission = stateOfMission;
             this.commentary = commentary;
-            this.timeSlot = timeSlot.clone();
+            this.timeSlot = timeSlot;
             this.beneficiary = null;
-            this.interpreters = interpreters.stream().distinct().toList();
-            this.location = new Location(location);
-            this.jobSkill = new JobSkill(jobSkill);
-            this.academicSkill = new AcademicSkill(academicSkill);
+            this.interpreters = interpreters;
+            this.location = location;
+            this.jobSkill = jobSkill;
+            this.academicSkill = academicSkill;
             this.room = room;
             if(importance >= 0 && importance <= 3) this.importance = importance;
         }
@@ -57,26 +55,16 @@
          * @param commentary represent the commentary of the mission
          * @param timeSlot represent the time slot of the mission
          * @param location represent the location of the mission
+         * @param interpreters represent the interpreters of the mission
          * @param jobSkill represent the required business skill
          * @param academicSkill represent the required academic skill
          * @param room represent the room of the mission (can be null)
          * @param importance represent the importance of the mission
          */
         public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                       Location location, List<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
+                       Location location, HashSet<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                        String room, int importance) {
-            this.id = -1;
-            this.subject = subject;
-            this.stateOfMission = stateOfMission;
-            this.commentary = commentary;
-            this.timeSlot = timeSlot.clone();
-            this.beneficiary = null;
-            this.interpreters = interpreters.stream().distinct().toList();
-            this.location = new Location(location);
-            this.jobSkill = new JobSkill(jobSkill);
-            this.academicSkill = new AcademicSkill(academicSkill);
-            this.room = room;
-            if(importance >= 0 && importance <= 3) this.importance = importance;
+            this(-1, subject, stateOfMission, commentary, timeSlot, location, interpreters, jobSkill, academicSkill, room, importance);
         }
 
         /**
@@ -99,12 +87,12 @@
             this.subject = subject;
             this.stateOfMission = stateOfMission;
             this.commentary = commentary;
-            this.timeSlot = timeSlot.clone();
-            this.beneficiary = new Beneficiary(beneficiary);
+            this.timeSlot = timeSlot;
+            this.beneficiary = beneficiary;
             this.interpreters = null;
-            this.location = new Location(location);
-            this.jobSkill = new JobSkill(jobSkill);
-            this.academicSkill = new AcademicSkill(academicSkill);
+            this.location = location;
+            this.jobSkill = jobSkill;
+            this.academicSkill = academicSkill;
             this.room = room;
             if(importance >= 0 && importance <= 3) this.importance = importance;
         }
@@ -124,23 +112,12 @@
         public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                        Beneficiary beneficiary, Location location,
                        JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
-            this.id = -1;
-            this.subject = subject;
-            this.stateOfMission = stateOfMission;
-            this.commentary = commentary;
-            this.timeSlot = timeSlot.clone();
-            this.beneficiary = new Beneficiary(beneficiary);
-            this.interpreters = null;
-            this.location = new Location(location);
-            this.jobSkill = new JobSkill(jobSkill);
-            this.academicSkill = new AcademicSkill(academicSkill);
-            this.room = room;
-            if(importance >= 0 && importance <= 3) this.importance = importance;
+            this(-1, subject, stateOfMission, commentary, timeSlot, beneficiary, location, jobSkill, academicSkill, room, importance);
         }
 
         /**
          * Copy constructor of a Mission Object
-         * @param mission
+         * @param mission the Mission object to copy
          */
         public Mission(Mission mission) {
             this.id = mission.id;
@@ -152,7 +129,7 @@
             if (mission.beneficiary != null) this.beneficiary = new Beneficiary(mission.beneficiary);
             else this.beneficiary = null;
 
-            if (mission.interpreters != null) this.interpreters = new ArrayList<>(mission.interpreters);
+            if (mission.interpreters != null) this.interpreters = new HashSet<>(mission.interpreters);
             else this.interpreters = null;
 
             this.location = new Location(mission.location);
@@ -191,53 +168,45 @@
         }
 
         /**
-         * @return a copy of this.timeSlot
+         * @return this.timeSlot
          */
         public TimeSlot getTimeSlot() {
-            return timeSlot.copy();
+            return timeSlot;
         }
 
         /**
-         * @return a copy of this.beneficiary
+         * @return this.beneficiary
          */
         public Beneficiary getBeneficiary() {
-            if (beneficiary != null) {
-                return new Beneficiary(beneficiary);
-            } else {
-                return null;
-            }
+            return beneficiary;
         }
 
         /**
-         * @return a copy this.interpreters
+         * @return this.interpreters
          */
-        public List<Interpreter> getInterpreters() {
-            if (interpreters != null) {
-                return new ArrayList<>(interpreters);
-            } else {
-                return null;
-            }
+        public HashSet<Interpreter> getInterpreters() {
+            return interpreters;
         }
 
         /**
-         * @return a copy of this.location
+         * @return this.location
          */
         public Location getLocation() {
-            return new Location(location);
+            return location;
         }
 
         /**
-         * @return a copy of this.jobSkill
+         * @return this.jobSkill
          */
         public JobSkill getJobSkill() {
-            return new JobSkill(jobSkill);
+            return jobSkill;
         }
 
         /**
-         * @return a copy of this.academicSkill
+         * @return this.academicSkill
          */
         public AcademicSkill getAcademicSkill() {
-            return new AcademicSkill(academicSkill);
+            return academicSkill;
         }
 
         /**
@@ -287,49 +256,48 @@
          * @param timeSlot represent the time slot of the mission
          */
         public void setTimeSlot(TimeSlot timeSlot){
-            this.timeSlot = timeSlot.copy();
+            this.timeSlot = timeSlot;
         }
 
         /**
          * @param beneficiary represent the beneficiary of the mission
          */
         public void setBeneficiary(Beneficiary beneficiary) {
-            this.beneficiary = new Beneficiary(beneficiary);
+            this.beneficiary = beneficiary;
         }
 
         /**
          * @param interpreters represent the interpreters of the mission
          * @throws AlreadyExistsException if two interpreters have the same id or are equal
          */
-        public void setInterpreters(List<Interpreter> interpreters) throws AlreadyExistsException {
-            for (int i = 0; i < interpreters.size(); i++) {
-                for (int j = i + 1; j < interpreters.size(); j++) {
-                    if (interpreters.get(i).getId() == interpreters.get(j).getId() || interpreters.get(i).equals(interpreters.get(j)))
-                        throw new AlreadyExistsException("Two interpreters have the same id or are equal");
-                }
-            }
-            this.interpreters = new ArrayList<>(interpreters);
+        public void setInterpreters(Set<Interpreter> interpreters) throws AlreadyExistsException {
+            List<Interpreter> list = new ArrayList<>(interpreters);
+            for (int i = 0; i < list.size(); i++)
+                for (int j = i + 1; j < list.size(); j++)
+                    if (list.get(i).getId() == list.get(j).getId())
+                        throw new AlreadyExistsException("Two interpreters have the same id");
+            this.interpreters = new HashSet<>(interpreters);
         }
 
         /**
          * @param location represent the location of the mission
          */
         public void setLocation(Location location) {
-            this.location = new Location(location);
+            this.location = location;
         }
 
         /**
          * @param jobSkill represent the business skill required for the mission
          */
         public void setJobSkill(JobSkill jobSkill) {
-            this.jobSkill = new JobSkill(jobSkill);
+            this.jobSkill = jobSkill;
         }
 
         /**
          * @param academicSkill represent the academic skill required for the mission
          */
         public void setAcademicSkill(AcademicSkill academicSkill) {
-            this.academicSkill = new AcademicSkill(academicSkill);
+            this.academicSkill = academicSkill;
         }
 
         /**
@@ -399,45 +367,45 @@
         }
 
         /**
-         * Add an Interpreter to the interpreters List
+         * Add an Interpreter to the interpreters Set
          * @param interpreter represent the Interpreter to add, not null
-         * @throws AlreadyExistsException if the interpreter is already in the list
+         * @throws AlreadyExistsException if an interpreter with the same id already exists in the set
          * @throws NullPointerException if interpreter is null
-         * @throws SQLException if the database could not be reached
          */
-        public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException, SQLException {
+        public void addInterpreter(Interpreter interpreter) throws AlreadyExistsException, NullPointerException {
             if (interpreter == null)
                 throw new NullPointerException("Interpreter cannot be null");
 
             if (interpreters == null)
-                interpreters = new ArrayList<>();
+                interpreters = new HashSet<>();
 
-            for (Interpreter i : interpreters) {
-                if (i.equals(interpreter)) throw new AlreadyExistsException("Interpreter already exists in this mission");
-            }
+            for (Interpreter i : interpreters)
+                if (i.getId() == interpreter.getId())
+                    throw new AlreadyExistsException("Interpreter already exists in this mission");
+
             interpreters.add(interpreter);
         }
 
         /**
-         * Remove an Interpreter from the interpreters List by id
+         * Remove an Interpreter from the interpreters Set by id
          * @param id represent the id of the Interpreter to remove
-         * @throws NoSuchElementException if no interpreter with the given id exists in the list
-         * @throws SQLException if the database could not be reached
+         * @throws NoSuchElementException if no interpreter with the given id exists in the set
          */
-        public void deleteInterpreter(int id) throws NoSuchElementException, SQLException {
+        public void deleteInterpreter(int id) throws NoSuchElementException {
             if (interpreters == null)
                 return;
 
-            int i = 0;
+            Interpreter toRemove = null;
             boolean found = false;
-            while (!found && i < interpreters.size()) {
-                if (interpreters.get(i).getId() == id) {
+            Iterator<Interpreter> it = interpreters.iterator();
+            while (!found && it.hasNext()) {
+                Interpreter i = it.next();
+                if (i.getId() == id) {
+                    toRemove = i;
                     found = true;
-                } else {
-                    i++;
                 }
             }
             if (!found) throw new NoSuchElementException("No interpreter with id: " + id);
-            interpreters.remove(i);
+            interpreters.remove(toRemove);
         }
     }
