@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Objects;
 
 public class Interpreter extends AppliUser{
-    private int hourQuotaWeek;
-    private int hourQuotaYear;
+    private int hourQuotaWeek = 0;
+    private int hourQuotaYear = 0;
     private String transportMode;
     private Set<AcademicSkill> academicSkills;
     private Set<JobSkill> jobSkills;
@@ -44,11 +44,8 @@ public class Interpreter extends AppliUser{
                        Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
                        Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
         super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
-        if (hQW < 0 || hQY < 0) {
-            throw new IllegalArgumentException("Hour quotas cannot be negative");
-        }
-        hourQuotaWeek = hQW;
-        hourQuotaYear = hQY;
+        if (hQW >= 0) hourQuotaWeek = hQW;
+        if (hQY >= 0) hourQuotaYear = hQY;
         this.transportMode = transportMode;
         jobSkills = job;
         academicSkills = academic;
@@ -86,11 +83,8 @@ public class Interpreter extends AppliUser{
                        Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
                        Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
-        if (hQW < 0 || hQY < 0) {
-            throw new IllegalArgumentException("Hour quotas cannot be negative");
-        }
-        hourQuotaWeek = hQW;
-        hourQuotaYear = hQY;
+        if (hQW >= 0) hourQuotaWeek = hQW;
+        if (hQY >= 0) hourQuotaYear = hQY;
         this.transportMode = transportMode;
         jobSkills = job;
         academicSkills = academic;
@@ -229,13 +223,10 @@ public class Interpreter extends AppliUser{
 
     /**
      * @param newHourQuotaWeek represent the new quota hour
-     * @throws IllegalArgumentException if newHourQuotaWeek is negative
      */
-    public void setHourQuotaWeek(int newHourQuotaWeek)throws IllegalArgumentException {
-        if (newHourQuotaWeek < 0) {
-            throw new IllegalArgumentException("Hour quota week cannot be negative");
-        }
-        this.hourQuotaWeek = newHourQuotaWeek;
+    public void setHourQuotaWeek(int newHourQuotaWeek) {
+        if (newHourQuotaWeek >= 0)
+            this.hourQuotaWeek = newHourQuotaWeek;
     }
 
     /**
@@ -261,13 +252,10 @@ public class Interpreter extends AppliUser{
 
     /**
      * @param newHourQuotaYear represent the new quota year
-     * @throws IllegalArgumentException if newHourQuotaYear is negative
      */
-    public void setHourQuotaYear(int newHourQuotaYear)throws IllegalArgumentException{
-        if (newHourQuotaYear < 0) {
-            throw new IllegalArgumentException("Hour quota year cannot be negative");
-        }
-        this.hourQuotaYear = newHourQuotaYear;
+    public void setHourQuotaYear(int newHourQuotaYear) {
+        if (newHourQuotaYear >= 0)
+            this.hourQuotaYear = newHourQuotaYear;
     }
 
     /**
