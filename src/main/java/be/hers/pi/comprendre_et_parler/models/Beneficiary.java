@@ -10,25 +10,6 @@ import java.util.Objects;
 public class Beneficiary extends AppliUser {
     private Status status;
     private Interpreter interpreterRef;
-    
-    /**
-     * Constructor of a Beneficiary extends User without id
-     * @param login          represent the login
-     * @param firstName      represent the firstname
-     * @param lastName       represent he lastname
-     * @param birthDate      represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email          represent the email
-     * @param phoneNumber    represent the phone number
-     * @param status         represent the status
-     */
-    public Beneficiary(String login, String firstName, String lastName,
-                       LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber, Status status, Interpreter interpreterRef) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
-        this.status = status;
-        this.interpreterRef = interpreterRef;
-    }
 
     /**
      * Constructor of a Beneficiary extends User with id
@@ -51,6 +32,23 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
+     * Constructor of a Beneficiary extends User without id
+     * @param login          represent the login
+     * @param firstName      represent the firstname
+     * @param lastName       represent he lastname
+     * @param birthDate      represent the birthdate
+     * @param hashedPassword represent the hashed password
+     * @param email          represent the email
+     * @param phoneNumber    represent the phone number
+     * @param status         represent the status
+     */
+    public Beneficiary(String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, Status status, Interpreter interpreterRef) {
+        this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, status, interpreterRef);
+    }
+
+    /**
      * Copy constructor. Creates a deep copy of the given Beneficiary.
      * The interpreterRef field is shared (shallow copy) to avoid
      * an infinite recursion between Beneficiary and Interpreter
@@ -59,11 +57,9 @@ public class Beneficiary extends AppliUser {
      * @param other the Beneficiary to copy, must not be null
      */
     public Beneficiary(Beneficiary other) {
-        super(other.getLogin(), other.getFirstName(), other.getLastName(),
+        this(other.getId(), other.getLogin(), other.getFirstName(), other.getLastName(),
                 other.getBirthDate(), other.getHashedPassword(), other.getEmail(),
-                other.getPhoneNumber());
-        this.status = new Status(other.status);
-        this.interpreterRef = new Interpreter(other.interpreterRef);
+                other.getPhoneNumber(), new Status(other.status), new Interpreter(other.interpreterRef));
     }
 
     public Beneficiary clone() {

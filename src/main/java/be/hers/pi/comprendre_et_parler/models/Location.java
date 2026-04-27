@@ -46,12 +46,7 @@ public class Location {
      * @param l the Location object to copy
      */
     public Location(Location l){
-        this.id = l.id;
-        this.designation = l.designation;
-        this.city = new City(l.city);
-        this.street = l.street;
-        this.streetNumber = l.streetNumber;
-        this.box = l.box;
+        this(l.id, l.designation, new City(l.city), l.street, l.streetNumber, l.box);
     }
 
     /**

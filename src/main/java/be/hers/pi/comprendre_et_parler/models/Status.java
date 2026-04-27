@@ -9,23 +9,23 @@ public class Status {
 
     /**
      * Constructor of a Status object
-     * @param designation the name or description of the status
-     * @param hourQuota the associated hour quota (will be 0 if negative)
-     */
-    public Status(String designation, int hourQuota) {
-        this.designation = designation;
-        setHourQuota(hourQuota);
-    }
-
-    /**
-     * Constructor of a Status object
      * @param id the unique identifier of the status
      * @param designation the name or description of the status
      * @param hourQuota the associated hour quota (will be 0 if negative)
      */
     public Status(int id, String designation, int hourQuota) {
-        this(designation, hourQuota);
         this.id = id;
+        this.designation = designation;
+        this.hourQuota = hourQuota;
+    }
+
+    /**
+     * Constructor of a Status object
+     * @param designation the name or description of the status
+     * @param hourQuota the associated hour quota (will be 0 if negative)
+     */
+    public Status(String designation, int hourQuota) {
+        this(-1, designation, hourQuota);
     }
 
     /**
@@ -33,9 +33,7 @@ public class Status {
      * @param other the object to copy
      */
     public Status(Status other) {
-        this.id = other.getId();
-        this.designation = other.getDesignation();
-        this.hourQuota = other.getHourQuota();
+        this(other.id, other.designation, other.hourQuota);
     }
 
     /**

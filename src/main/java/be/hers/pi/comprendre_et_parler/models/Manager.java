@@ -47,8 +47,8 @@ public class Manager extends Interpreter {
             Set<BaseTimeSlot> time,
             Set<ExceptionalUnavailability> unavailabilities
     ) {
-        super(
-                login, firstName, lastName,
+        this(
+                -1, login, firstName, lastName,
                 birthDate, hashedPassword,
                 email, phoneNumber,
                 hourQuotaWeek, hourQuotaYear,
