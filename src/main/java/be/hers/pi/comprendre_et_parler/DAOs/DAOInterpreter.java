@@ -40,30 +40,15 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
 
     /**
-     * Check if an object already exists in the database
-     * @param objectToCheck the object to check
-     * @return true if the object already exists, else false
-     * @throws SQLException if the database could not be reached
-     */
-     protected boolean checkAlreadyExists(Interpreter objectToCheck) throws SQLException{
-         boolean exists = false;
-         Set<Interpreter> interpreters = findAll();
-         for(Interpreter interpreter : interpreters){
-             if(objectToCheck.equals(interpreter)){
-                 exists = true;
-             }
-         }
-         return exists;
-     }
-
-    /**
-     * Build an object from a ResultSet
-     * @param result the ResultSet to read from
-     * @return an object built from the ResultSet
-     * @throws SQLException if the database could not be reached
+     * Populates an Interpreter object from the current row of the given ResultSet.
+     * Fetches all related data (academic skills, job skills, location, time slots,
+     * unavailabilities) from the database using their respective DAOs.
+     * @param result      the ResultSet positioned on the row to read, must not be null
+     * @throws SQLException if a database access error occurs while reading the ResultSet
      */
     public Interpreter getResult(ResultSet result)throws SQLException{
         return new Interpreter(
+                result.getInt(FIELD_ID),
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
                 result.getString(FIELD_LAST_NAME),
@@ -80,6 +65,51 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 DAOBaseTimeSlot.findAllByInterpreterId(result.getInt(FIELD_ID)),
                 new DAOExceptionalUnavailability().findByInterpreterId(result.getInt(FIELD_ID))
         );
+    }
+
+    /**
+     * Check if an object already exists in the database
+     * @param objectToCheck the object to check
+     * @return true if the object already exists, else false
+     * @throws SQLException if the database could not be reached
+     */
+    protected boolean checkAlreadyExists(Interpreter objectToCheck) throws SQLException{
+        boolean exists = false;
+        Connection connection = DatabaseConnector.getInstance();
+        String query = "SELECT COUNT(*) FROM " + TABLE_VIEW + " WHERE " + FIELD_LOGIN +
+                " = ? AND " + FIELD_FIRST_NAME + " = ? AND " + FIELD_LAST_NAME + " = ? AND "
+                + FIELD_BIRTH_DATE + " = ? AND " + FIELD_HASHED_PASSWORD + " = ? AND "
+                + FIELD_EMAIL + " = ? AND " + FIELD_PHONE_NUMBER + " = ? AND "
+                + FIELD_WEEK_QUOTA + " = ? AND " + FIELD_YEAR_QUOTA + " = ? AND "
+                + FIELD_TRANSPORT_MODE + " = ? AND " + FIELD_LOCATION + " = ? AND "
+                + FIELD_ID + " != ?";
+
+        ResultSet result = null;
+        PreparedStatement statement = null;
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToCheck.getLogin());
+            statement.setString(2, objectToCheck.getFirstName());
+            statement.setString(3, objectToCheck.getLastName());
+            statement.setDate(4, Date.valueOf(objectToCheck.getBirthDate()));
+            statement.setString(5, objectToCheck.getHashedPassword());
+            statement.setString(6, objectToCheck.getEmail());
+            statement.setString(7, objectToCheck.getPhoneNumber());
+            statement.setInt(8, objectToCheck.getHourQuotaWeek());
+            statement.setInt(9, objectToCheck.getHourQuotaYear());
+            statement.setString(10, objectToCheck.getTransportMode());
+            statement.setInt(11, objectToCheck.getLocation().getId());
+            statement.setInt(12,objectToCheck.getId());
+            result = statement.executeQuery();
+
+            if(result.next()){
+                exists = result.getInt(1) > 0;
+            }
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return exists;
     }
 
     /**
@@ -105,8 +135,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
                interpreter = getResult(result);
             }
         }finally{
-            closeStatement(statement);
             closeResultSet(result);
+            closeStatement(statement);
+
         }
         return interpreter;
     }
@@ -138,6 +169,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }finally {
             closeResultSet(result);
             closeStatement(statement);
+
         }
         return interpreter;
     }
@@ -188,6 +220,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
     }
 
+
     /**
      * @param objectToUpdate the object to edit in the database
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
@@ -206,6 +239,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 + FIELD_TRANSPORT_MODE + " = ?" + FIELD_LOCATION + " = ? WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         int rowsAffected = 0;
+
+        if(checkAlreadyExists(objectToUpdate)){
+            throw new AlreadyExistsException("The beneficiary already exists in database.");
+        }
 
         try {
             statement = connection.prepareStatement(queryInterpreter);

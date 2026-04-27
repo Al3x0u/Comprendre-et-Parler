@@ -1,12 +1,16 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
+
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
 
 public class Beneficiary extends AppliUser {
     private Status status;
     private Interpreter interpreterRef;
-
-
+    
     /**
      * Constructor of a Beneficiary extends User without id
      * @param login          represent the login
@@ -41,11 +45,10 @@ public class Beneficiary extends AppliUser {
     public Beneficiary(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, Status status, Interpreter interpreterRef) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+        super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
         this.interpreterRef = interpreterRef;
     }
-
 
     /**
      * Copy constructor. Creates a deep copy of the given Beneficiary.
@@ -59,10 +62,9 @@ public class Beneficiary extends AppliUser {
         super(other.getLogin(), other.getFirstName(), other.getLastName(),
                 other.getBirthDate(), other.getHashedPassword(), other.getEmail(),
                 other.getPhoneNumber());
-        this.status = other.status;
-        this.interpreterRef = other.interpreterRef != null ? new Interpreter(other.interpreterRef) : null;
+        this.status = new Status(other.status);
+        this.interpreterRef = new Interpreter(other.interpreterRef);
     }
-
 
     /**
      * @return this.status
@@ -97,8 +99,25 @@ public class Beneficiary extends AppliUser {
      * @param other the Beneficiary object to compare with
      * @return true if both Beneficiary objects have identical status, interpreterRef and AppliUser fields
      */
-    public boolean equals(Beneficiary other) {
-        return (super.equals(other) && status == other.status && interpreterRef == other.interpreterRef);
+    public boolean equals(Object other) {
+        if(this == other) return true;
+        if(!(other instanceof Beneficiary)) return false;
+        Beneficiary beneficiary = (Beneficiary) other;
+        return (super.equals(other) && Objects.equals(status, beneficiary.status) && Objects.equals(interpreterRef, beneficiary.interpreterRef));
+    }
+
+    /**
+     * Computes a hash code for this Interpreter based on its attributes.
+     * two Interpreter objects that are equal according to equals() will have the same hash code.
+     * @return an integer hash code representing this Beneficiary
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+                super.hashCode(),
+                status,
+                interpreterRef
+        );
     }
 
     /**
@@ -107,6 +126,7 @@ public class Beneficiary extends AppliUser {
      */
     @Override
     public String toString() {
-        return null;
+        return "Beneficiary " + super.toString() + ", status = " + status.getDesignation()
+                + ", reference Interpreter login = " + interpreterRef.toString() + "}";
     }
 }
