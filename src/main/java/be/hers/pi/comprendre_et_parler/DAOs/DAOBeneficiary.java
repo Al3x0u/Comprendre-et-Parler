@@ -34,11 +34,36 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      */
     protected boolean checkAlreadyExists(Beneficiary objectToCheck) throws SQLException{
         boolean exists = false;
-        Set<Beneficiary> beneficiaries = findAll();
-        for(Beneficiary beneficiary : beneficiaries){
-            if(objectToCheck.equals(beneficiary)){
-                exists = true;
+        Connection connection = DatabaseConnector.getInstance();
+        String query = "SELECT COUNT(*) FROM " + TABLE_VIEW + " WHERE " +
+                FIELD_LOGIN + " = ? AND " + FIELD_FIRST_NAME + " = ? AND "
+                + FIELD_LAST_NAME + " = ? AND " + FIELD_BIRTH_DATE + " = ? AND "
+                + FIELD_HASHED_PASSWORD + " = ? AND " + FIELD_EMAIL + " = ? AND "
+                + FIELD_PHONE_NUMBER + " = ? AND " + FIELD_STATUS + " = ? AND "
+                + FIELD_INTERPRETER_REFERENCE + " = ? AND " + FIELD_ID + " != ?";
+
+        ResultSet result = null;
+        PreparedStatement statement = null;
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToCheck.getLogin());
+            statement.setString(2, objectToCheck.getFirstName());
+            statement.setString(3, objectToCheck.getLastName());
+            statement.setDate(4, Date.valueOf(objectToCheck.getBirthDate()));
+            statement.setString(5, objectToCheck.getHashedPassword());
+            statement.setString(6, objectToCheck.getEmail());
+            statement.setString(7, objectToCheck.getPhoneNumber());
+            statement.setInt(8, objectToCheck.getStatus().getId());
+            statement.setInt(9, objectToCheck.getInterpreterRef().getId());
+            statement.setInt(10, objectToCheck.getId());
+            result = statement.executeQuery();
+
+            if(result.next()){
+                exists = result.getInt(1) > 0;
             }
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return exists;
     }
@@ -85,6 +110,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      */
     public Beneficiary getResult(ResultSet result)throws SQLException{
         return new Beneficiary(
+                result.getInt(FIELD_ID),
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
                 result.getString(FIELD_LAST_NAME),
