@@ -19,6 +19,11 @@ public class BaseTimeSlot extends TimeSlot {
         this.day = day;
     }
 
+    public BaseTimeSlot(BaseTimeSlot b)
+    {
+        this(b.id, b.startTime, b.endTime, b.day);
+    }
+
     public DayOfWeek getDay() {
         return day;
     }

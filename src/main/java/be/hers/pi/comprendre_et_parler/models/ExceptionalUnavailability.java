@@ -26,6 +26,10 @@ public class ExceptionalUnavailability {
         this.interpreter = interpreter;
     }
 
+    public ExceptionalUnavailability(ExceptionalUnavailability e) {
+        this(e.id, e.reason, new PunctualTimeSlot(e.timeSlot), new Interpreter(e.interpreter));
+    }
+
     public int getId() {
         return id;
     }
