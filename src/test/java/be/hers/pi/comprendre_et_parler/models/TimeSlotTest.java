@@ -59,7 +59,7 @@ class TimeSlotTest {
         assertTrue(t1.overlaps(t1), "The second object is the same as the first one.");
         assertFalse(t1.overlaps(null), "The second object is null.");
 
-        TimeSlot t2 = new BaseTimeSlot(t1);
+        TimeSlot t2 = t1.clone();
         assertTrue(t2.overlaps(t1), "The second object is a copy of the first one.");
 
         t1.setEndTime(sixteen);
@@ -87,7 +87,7 @@ class TimeSlotTest {
         assertTrue(t1.overlapsCompletely(t1), "The second object is the same as the first one.");
         assertFalse(t1.overlapsCompletely(null), "The second object is null.");
 
-        TimeSlot t2 = new BaseTimeSlot(t1);
+        TimeSlot t2 = t1.clone();
         assertTrue(t2.overlapsCompletely(t1), "The second object is a copy of the first one.");
 
         t1.setEndTime(sixteen);

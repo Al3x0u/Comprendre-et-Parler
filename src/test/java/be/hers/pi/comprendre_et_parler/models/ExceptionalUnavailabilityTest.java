@@ -16,7 +16,7 @@ class ExceptionalUnavailabilityTest {
     @BeforeAll
     public static void init() {
         p1 = new PunctualTimeSlot(1, LocalTime.NOON, LocalTime.NOON.plusHours(1), LocalDate.now(), LocalDate.now());
-        i1 = new Interpreter(20, 30, 1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Transportation(1, "test"));
+        i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", 20, 40 ,"test", null, null, null, null, null);
         e1 = new ExceptionalUnavailability(1, "test", p1, i1);
     }
 

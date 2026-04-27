@@ -29,7 +29,7 @@ class AppliUserTest {
         int hash2 = a1.hashCode();
         assertEquals(hash1, hash2, "Same object hashed.");
 
-        AppliUser a2 = new Beneficiary(a1);
+        AppliUser a2 = a1.clone();
         int hash3 = a2.hashCode();
         assertEquals(hash3, hash2, "A copied object must have the same hash.");
 
@@ -47,7 +47,7 @@ class AppliUserTest {
         assertNotEquals(null, a1, "The second object is null.");
         assertEquals(a1, a1, "The second object is the same as the first one.");
 
-        AppliUser a2 = new Beneficiary(a1);
+        AppliUser a2 = a1.clone();
         assertEquals(a1, a2, "The second object is a copy of the first one.");
 
         a1.setId(20);
