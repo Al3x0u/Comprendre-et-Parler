@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
+public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     protected static final String TABLE = "timeslot";
     protected static final String FIELD_ID = "id";
@@ -33,13 +33,7 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
             statement.setInt(1, id);
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    ret = new PunctualTimeSlot(
-                            result.getInt(FIELD_ID),
-                            result.getTime(FIELD_START_TIME).toLocalTime(),
-                            result.getTime(FIELD_END_TIME).toLocalTime(),
-                            result.getDate(FIELD_START_TIME).toLocalDate(),
-                            result.getDate(FIELD_END_TIME).toLocalDate()
-                    );
+                    ret = getResult(result);
                 }
             }
         }
@@ -54,12 +48,9 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      */
     @Override
     public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
-        // Manage invalid states
-        int duplicateId = findDuplicate(objectToInsert);
-        if (duplicateId >= 0)
-            throw new AlreadyExistsException("Object already exists in database at id " + duplicateId);
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("PunctualTimeSlot" + objectToInsert.getStartDate() + " to " + objectToInsert.getEndDate() +  " already exists");
 
-        // Attempt insertion
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
@@ -85,12 +76,9 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
      */
     @Override
     public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        // Manage invalid states
-        int duplicateId = findDuplicate(objectToUpdate);
-        if (duplicateId >= 0)
-            throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + duplicateId);
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("PunctualTimeSlot" + objectToUpdate.getStartDate() + " to " + objectToUpdate.getEndDate() +  " already exists");
 
-        // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
@@ -137,39 +125,39 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    ret.add(new PunctualTimeSlot(
-                            result.getInt(FIELD_ID),
-                            result.getTime(FIELD_START_TIME).toLocalTime(),
-                            result.getTime(FIELD_END_TIME).toLocalTime(),
-                            result.getDate(FIELD_START_TIME).toLocalDate(),
-                            result.getDate(FIELD_END_TIME).toLocalDate()
-                    ));
+                    ret.add(getResult(result));
                 }
             }
         }
         return ret;
     }
 
-    /**
-     *
-     * @param obj the object to find in database
-     * @return the id of an identical object in database, or -1 if none was found
-     * @throws SQLException if a database error occured
-     */
-    private int findDuplicate(PunctualTimeSlot obj) throws SQLException {
+    @Override
+    protected boolean checkAlreadyExists(PunctualTimeSlot object) throws SQLException {
         String query = "SELECT * FROM %s WHERE %s IS NULL AND %s = ? AND %s = ?";
         query = String.format(query, TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            LocalDateTime beginning = LocalDateTime.of(obj.getDate(), obj.getStartTime());
-            LocalDateTime end = LocalDateTime.of(obj.getDate(), obj.getEndTime());
+            LocalDateTime beginning = LocalDateTime.of(object.getDate(), object.getStartTime());
+            LocalDateTime end = LocalDateTime.of(object.getDate(), object.getEndTime());
             statement.setTimestamp(1, Timestamp.valueOf(beginning));
             statement.setTimestamp(2, Timestamp.valueOf(end));
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    return result.getInt(FIELD_ID);
+                    return true;
                 }
             }
         }
-        return -1;
+        return false;
+    }
+
+    @Override
+    protected PunctualTimeSlot getResult(ResultSet result) throws SQLException {
+        return new PunctualTimeSlot(
+                result.getInt(FIELD_ID),
+                result.getTime(FIELD_START_TIME).toLocalTime(),
+                result.getTime(FIELD_END_TIME).toLocalTime(),
+                result.getDate(FIELD_START_TIME).toLocalDate(),
+                result.getDate(FIELD_END_TIME).toLocalDate()
+        );
     }
 }

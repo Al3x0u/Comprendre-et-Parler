@@ -33,12 +33,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
             statement.setInt(1, id);
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    ret = new BaseTimeSlot(
-                            result.getInt(FIELD_ID),
-                            result.getTime(FIELD_START_TIME).toLocalTime(),
-                            result.getTime(FIELD_END_TIME).toLocalTime(),
-                            DayOfWeek.of(result.getInt(FIELD_DAY))
-                    );
+                    ret = getResult(result);
                 }
             }
         }
@@ -53,12 +48,9 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
      */
     @Override
     public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
-        // Manage invalid states
-        int duplicateId = findDuplicate(objectToInsert);
-        if (duplicateId >= 0)
-            throw new AlreadyExistsException("Object already exists in database at id " + duplicateId);
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("BaseTimeSlot" + objectToInsert.getDay() + " already exists");
 
-        // Attempt insertion
         String query = "INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
@@ -83,12 +75,9 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
      */
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        // Manage invalid states
-        int duplicateId = findDuplicate(objectToUpdate);
-        if (duplicateId >= 0)
-            throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + duplicateId);
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("BaseTimeSlot" + objectToUpdate.getDay() + " already exists");
 
-        // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY, FIELD_ID);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
@@ -134,37 +123,37 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    ret.add(new BaseTimeSlot(
-                            result.getInt(FIELD_ID),
-                            result.getTime(FIELD_START_TIME).toLocalTime(),
-                            result.getTime(FIELD_END_TIME).toLocalTime(),
-                            DayOfWeek.of(result.getInt(FIELD_DAY))
-                    ));
+                    ret.add(getResult(result));
                 }
             }
         }
         return ret;
     }
 
-    /**
-     *
-     * @param obj the object to find in database
-     * @return the id of an identical object in database, or -1 if none was found
-     * @throws SQLException if a database error occured
-     */
-    private int findDuplicate(BaseTimeSlot obj) throws SQLException {
+    @Override
+    protected boolean checkAlreadyExists(BaseTimeSlot object) throws SQLException {
         String query = "SELECT * FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?";
         query = String.format(query, TABLE, FIELD_DAY, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            statement.setInt(1, obj.getDay().getValue());
-            statement.setTime(2, Time.valueOf(obj.getStartTime()));
-            statement.setTime(3, Time.valueOf(obj.getEndTime()));
+            statement.setInt(1, object.getDay().getValue());
+            statement.setTime(2, Time.valueOf(object.getStartTime()));
+            statement.setTime(3, Time.valueOf(object.getEndTime()));
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    return result.getInt(FIELD_ID);
+                    return true;
                 }
             }
         }
-        return -1;
+        return false;
+    }
+
+    @Override
+    protected BaseTimeSlot getResult(ResultSet result) throws SQLException {
+        return new BaseTimeSlot(
+                result.getInt(FIELD_ID),
+                result.getTime(FIELD_START_TIME).toLocalTime(),
+                result.getTime(FIELD_END_TIME).toLocalTime(),
+                DayOfWeek.of(result.getInt(FIELD_DAY))
+        );
     }
 }

@@ -3,11 +3,12 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.ExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailability> {
+public class DAOExceptionalUnavailability extends DAO<ExceptionalUnavailability> {
 
     /**
      * Search for a ExceptionalUnavailability in the database with the int parameter
@@ -64,6 +65,16 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     @Override
     public Set<ExceptionalUnavailability> findAll() throws SQLException {
         return Set.of();
+    }
+
+    @Override
+    protected boolean checkAlreadyExists(ExceptionalUnavailability object) throws SQLException {
+        return false;
+    }
+
+    @Override
+    protected ExceptionalUnavailability getResult(ResultSet result) throws SQLException {
+        return null;
     }
 
     /**
