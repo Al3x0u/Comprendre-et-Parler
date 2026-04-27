@@ -51,12 +51,11 @@ public class DAOManager extends DAO<Manager> {
                 result.getInt(FIELD_HOURQUOTAWEEK),
                 result.getInt(FIELD_HOURQUOTAYEAR),
                 result.getString(FIELD_TRANSPORTATION),
-                DAOAcademicSkill.getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                DAOJobSkill.getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                DAOLocation.find(result.getInt(FIELD_LOCATION)),
-                DAOBaseTimeSlot.findAvailabilities((result.getInt(FIELD_ID)),
-                new DAOExceptionalUnavailability().findByInterpreterLogin(result.getInt(FIELD_ID))
-                )
+                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID)),
+                new DAOExceptionalUnavailability().findForInterpreter(result.getInt(FIELD_ID))
         );
     }
 

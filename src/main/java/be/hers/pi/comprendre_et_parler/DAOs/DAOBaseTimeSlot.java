@@ -156,4 +156,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
                 DayOfWeek.of(result.getInt(FIELD_DAY))
         );
     }
+
+    public Set<BaseTimeSlot> findForInterpreter(int idInterpreter) throws SQLException, NoSuchElementException {
+        return null;
+    }
 }

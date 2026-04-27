@@ -54,8 +54,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
-            LocalDateTime beginning = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getStartTime());
-            LocalDateTime end = LocalDateTime.of(objectToInsert.getDate(), objectToInsert.getEndTime());
+            LocalDateTime beginning = LocalDateTime.of(objectToInsert.getStartDate(), objectToInsert.getStartTime());
+            LocalDateTime end = LocalDateTime.of(objectToInsert.getEndDate(), objectToInsert.getEndTime());
             statement.setTimestamp(1, Timestamp.valueOf(beginning));
             statement.setTimestamp(2, Timestamp.valueOf(end));
             statement.executeUpdate();
@@ -82,8 +82,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            LocalDateTime beginning = LocalDateTime.of(objectToUpdate.getDate(), objectToUpdate.getStartTime());
-            LocalDateTime end = LocalDateTime.of(objectToUpdate.getDate(), objectToUpdate.getEndTime());
+            LocalDateTime beginning = LocalDateTime.of(objectToUpdate.getStartDate(), objectToUpdate.getStartTime());
+            LocalDateTime end = LocalDateTime.of(objectToUpdate.getEndDate(), objectToUpdate.getEndTime());
             statement.setTimestamp(1, Timestamp.valueOf(beginning));
             statement.setTimestamp(2, Timestamp.valueOf(end));
             statement.setInt(3, objectToUpdate.getId());
@@ -137,8 +137,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
         String query = "SELECT * FROM %s WHERE %s IS NULL AND %s = ? AND %s = ?";
         query = String.format(query, TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            LocalDateTime beginning = LocalDateTime.of(object.getDate(), object.getStartTime());
-            LocalDateTime end = LocalDateTime.of(object.getDate(), object.getEndTime());
+            LocalDateTime beginning = LocalDateTime.of(object.getStartDate(), object.getStartTime());
+            LocalDateTime end = LocalDateTime.of(object.getEndDate(), object.getEndTime());
             statement.setTimestamp(1, Timestamp.valueOf(beginning));
             statement.setTimestamp(2, Timestamp.valueOf(end));
             try (ResultSet result = statement.executeQuery()) {

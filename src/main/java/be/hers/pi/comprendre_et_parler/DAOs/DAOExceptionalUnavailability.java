@@ -83,7 +83,7 @@ public class DAOExceptionalUnavailability extends DAO<ExceptionalUnavailability>
      * @return a Set of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty Set if none exist
      * @throws NoSuchElementException if there are not an Interpreter with the given id
      */
-    public Set<ExceptionalUnavailability> findForInterpreter(String idInterpreter)
+    public Set<ExceptionalUnavailability> findForInterpreter(int idInterpreter)
             throws NoSuchElementException {
         return null;
     }

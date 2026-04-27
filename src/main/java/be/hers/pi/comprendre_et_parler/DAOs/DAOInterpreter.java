@@ -21,6 +21,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
     protected static final String TABLE_JOBSKILL_INTERPRETER = "JobSkillInterpreter";
     protected static final String TABLE_AVAILABILITY = "Availability";
+    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
     protected static final String FIELD_JOB_SKILL_INTERPRETER = "JobSkillInterpreter";
     protected static final String FIELD_ACADEMIC_SKILL_INTERPRETER = "interpreter";
     protected static final String FIELD_ID = "id";
@@ -37,7 +38,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String FIELD_TRANSPORT_MODE = "transportMode";
     protected static final String FIELD_LOCATION = "location";
     protected static final String FIELD_MISSION = "mission";
-    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
 
     /**
      * Populates an Interpreter object from the current row of the given ResultSet.
@@ -59,11 +59,11 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 result.getInt(FIELD_WEEK_QUOTA),
                 result.getInt(FIELD_YEAR_QUOTA),
                 result.getString(FIELD_TRANSPORT_MODE),
-                DAOAcademicSkill.getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                DAOJobSkill.getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                DAOLocation.find(result.getInt(FIELD_LOCATION)),
-                DAOBaseTimeSlot.findAllByInterpreterId(result.getInt(FIELD_ID)),
-                new DAOExceptionalUnavailability().findByInterpreterId(result.getInt(FIELD_ID))
+                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID)),
+                new DAOExceptionalUnavailability().findForInterpreter(result.getInt(FIELD_ID))
         );
     }
 
@@ -374,8 +374,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
         String query = "SELECT i.* FROM " + TABLE_VIEW + " i JOIN "
                 + TABLE_AVAILABILITY + " av ON i." + FIELD_ID
                 + " = av." + FIELD_INTERPRETER + " JOIN "
-                + DAOBaseTimeSlot.TABLE_TIMESLOT + " t ON av." + DAOBaseTimeSlot.TABLE_TIMESLOT
-                + " = t." + DAOBaseTimeSlot.TABLE_TIMESLOT_ID + " WHERE t."
+                + DAOBaseTimeSlot.TABLE + " t ON av." + DAOBaseTimeSlot.TABLE
+                + " = t." + DAOBaseTimeSlot.FIELD_ID + " WHERE t."
                 + DAOPunctualTimeSlot.FIELD_START_TIME + " = ? AND t."
                 + DAOPunctualTimeSlot.FIELD_END_TIME + " = ? AND TRUNC(t."
                 + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?";
