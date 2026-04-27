@@ -3,8 +3,8 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.Status;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
@@ -119,13 +119,13 @@ public class DAOStatus implements DAO<Status> {
     }
 
     /**
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<Status> findAll() throws SQLException {
+    public Set<Status> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE;
-        List<Status> ret = new ArrayList<>();
+        Set<Status> ret = new HashSet<>();
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {

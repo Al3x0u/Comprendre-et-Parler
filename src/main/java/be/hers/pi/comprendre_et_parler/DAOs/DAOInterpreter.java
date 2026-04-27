@@ -297,7 +297,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @return every object of the corresponding type present in database (possibly an empty set)
      * @throws SQLException if the database could not be reached
      */
     @Override

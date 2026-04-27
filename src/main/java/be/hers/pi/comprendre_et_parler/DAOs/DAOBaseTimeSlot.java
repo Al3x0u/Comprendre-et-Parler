@@ -8,11 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.time.DayOfWeek;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
+public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     protected static final String TABLE = "timeslot";
     protected static final String FIELD_ID = "id";
@@ -124,13 +124,13 @@ public class DAOBaseTimeSlot implements DAO<BaseTimeSlot> {
     }
 
     /**
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<BaseTimeSlot> findAll() throws SQLException {
+    public Set<BaseTimeSlot> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NOT NULL";
-        List<BaseTimeSlot> ret = new ArrayList<>();
+        Set<BaseTimeSlot> ret = new HashSet<>();
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {

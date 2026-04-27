@@ -4,7 +4,7 @@ import be.hers.pi.comprendre_et_parler.models.ExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailability> {
@@ -57,22 +57,22 @@ public class DAOExceptionalUnavailability implements DAO<ExceptionalUnavailabili
     }
 
     /**
-     * Return all line of ExceptionalUnavailability table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * Return all line of ExceptionalUnavailability table in the database in a Set
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<ExceptionalUnavailability> findAll() throws SQLException {
-        return List.of();
+    public Set<ExceptionalUnavailability> findAll() throws SQLException {
+        return Set.of();
     }
 
     /**
      * Return all ExceptionalUnavailability of an Interpreter with the given id
      * @param idInterpreter the id of an Interpreter
-     * @return a list of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty list if none exist
+     * @return a Set of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty Set if none exist
      * @throws NoSuchElementException if there are not an Interpreter with the given id
      */
-    public List<ExceptionalUnavailability> findForInterpreter(String idInterpreter)
+    public Set<ExceptionalUnavailability> findForInterpreter(String idInterpreter)
             throws NoSuchElementException {
         return null;
     }

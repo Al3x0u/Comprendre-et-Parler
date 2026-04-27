@@ -7,8 +7,8 @@ import be.hers.pi.comprendre_et_parler.models.Location;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOCity extends DAO<City> {
@@ -135,16 +135,16 @@ public class DAOCity extends DAO<City> {
     }
 
     /**
-     * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Objects, or an empty list if none was found
+     * Return all line of City table in the database in City Object in a Set
+     * @return a Set who contains City Objects, or an empty Set if none was found
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<City> findAll() throws SQLException {
+    public Set<City> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
-        List<City> cities = new ArrayList<>();
+        Set<City> cities = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();

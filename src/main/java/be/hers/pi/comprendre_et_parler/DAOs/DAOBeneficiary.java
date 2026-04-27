@@ -267,7 +267,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     /**
      *
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
@@ -330,7 +330,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @param idStatus represent the id of the status
      * @throws SQLException if the database could not be reached
      * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
-     * @return a List of Beneficiary who have the id having the given idStatus,or an empty list if no beneficiaries having this Status
+     * @return a Set of Beneficiary who have the id having the given idStatus,or an empty Set if no beneficiaries having this Status
      */
     public Set<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();

@@ -8,8 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
@@ -127,13 +127,13 @@ public class DAOPunctualTimeSlot implements DAO<PunctualTimeSlot> {
     }
 
     /**
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<PunctualTimeSlot> findAll() throws SQLException {
+    public Set<PunctualTimeSlot> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NULL";
-        List<PunctualTimeSlot> ret = new ArrayList<>();
+        Set<PunctualTimeSlot> ret = new HashSet<>();
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {

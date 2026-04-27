@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOMission extends DAO<Mission> {
@@ -168,16 +168,16 @@ public class DAOMission extends DAO<Mission> {
     }
 
     /**
-     * Return all line of Mission table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * Return all line of Mission table in the database in a Set
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<Mission> findAll() throws SQLException {
+    public Set<Mission> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
-        List<Mission> missions = new ArrayList<>();
+        Set<Mission> missions = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
@@ -197,14 +197,14 @@ public class DAOMission extends DAO<Mission> {
      * @param idUser represent the id of the user which we want the schedule
      * @param year represent the year of the week
      * @param weekNumber represent the week number in the year (1-52)
-     * @return a list of Mission which compose the schedule of the idUser for the given week, or an empty List if none was found
+     * @return a Set of Mission which compose the schedule of the idUser for the given week, or an empty Set if none was found
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
+    public Set<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
         LocalDate date = LocalDate.ofYearDay(year, 1)
                 .with(WeekFields.ISO.weekOfYear(), weekNumber)
                 .with(DayOfWeek.MONDAY);
-        List<Mission> missions = new ArrayList<>();
+        Set<Mission> missions = new HashSet<>();
         for (int i = 0; i < 7; i++) {
             missions.addAll(getScheduleForDay(idUser, date.plusDays(i)));
         }
@@ -215,11 +215,11 @@ public class DAOMission extends DAO<Mission> {
      * Return the schedule of the user with the given id for a specific day
      * @param idUser represent the id of the user which we want the schedule
      * @param date represent the specific day
-     * @return a list of Mission which compose the schedule of the idUser for the given day, or an empty List if none was found
+     * @return a Set of Mission which compose the schedule of the idUser for the given day, or an empty Set if none was found
      * @throws SQLException if the database could not be reached
      */
-    public List<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
-        List<Mission> missions = new ArrayList<>();
+    public Set<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
+        Set<Mission> missions = new HashSet<>();
         String query = "SELECT m.id FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE (ts.day = ? " +
