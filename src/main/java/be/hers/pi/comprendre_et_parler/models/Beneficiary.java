@@ -62,8 +62,8 @@ public class Beneficiary extends AppliUser {
         super(other.getLogin(), other.getFirstName(), other.getLastName(),
                 other.getBirthDate(), other.getHashedPassword(), other.getEmail(),
                 other.getPhoneNumber());
-        this.status = other.status;
-        this.interpreterRef = other.interpreterRef != null ? new Interpreter(other.interpreterRef) : null;
+        this.status = new Status(other.status);
+        this.interpreterRef = new Interpreter(other.interpreterRef);
     }
 
     /**
