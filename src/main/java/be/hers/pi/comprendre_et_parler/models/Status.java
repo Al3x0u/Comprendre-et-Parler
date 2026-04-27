@@ -84,7 +84,7 @@ public class Status {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof Mission)) return false;
+        if (!(other instanceof Status)) return false;
         Status o = (Status) other;
         return (designation.equals(o.getDesignation()) && Objects.equals(hourQuota, o.getHourQuota()));
     }
