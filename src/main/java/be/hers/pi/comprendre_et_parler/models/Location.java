@@ -22,7 +22,7 @@ public class Location {
     public Location(int id, String d, City c, String s, String sN, int box){
         if(id > 0) this.id = id;
         this.designation = d;
-        this.city = new City(c);
+        this.city = c;
         this.street = s;
         this.streetNumber = sN;
         if(box > 0) this.box = box;
@@ -38,17 +38,12 @@ public class Location {
      @param box : represent the new box
      */
     public Location(String d, City c, String s, String sN, int box){
-        this.id = -1;
-        this.designation = d;
-        this.city = new City(c);
-        this.street = s;
-        this.streetNumber = sN;
-        if(box > 0) this.box = box;
+        this(-1, d, c, s, sN, box);
     }
 
     /**
      * Copy constructor of a Location Object
-     * @param l
+     * @param l the Location object to copy
      */
     public Location(Location l){
         this.id = l.id;
@@ -77,7 +72,7 @@ public class Location {
      * @return a String which contains the city of the Location
      */
     public City getCity() {
-        return new City(city);
+        return city;
     }
 
     /**
@@ -95,7 +90,7 @@ public class Location {
     }
 
     /**
-     * @return a String which contains the box of the Location
+     * @return an integer representing the box of the Location
      */
     public int getBox() {
         return box;
@@ -120,7 +115,7 @@ public class Location {
      * @param city : location city
      */
     public void setCity(City city) {
-        this.city = new City(city);
+        this.city = city;
     }
 
     /**

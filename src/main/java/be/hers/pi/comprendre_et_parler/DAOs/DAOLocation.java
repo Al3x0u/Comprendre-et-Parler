@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DAOLocation implements DAO<Location> {
+public class DAOLocation extends DAO<Location> {
     protected static final String TABLE = "location";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_DESIGNATION = "designation";
@@ -36,23 +36,12 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(1, id);
             result = statement.executeQuery();
             if (result.next()) {
-                location = new Location(
-                        id,
-                        result.getString(FIELD_DESIGNATION),
-                        new DAOCity().find(result.getInt(FIELD_CITY)),
-                        result.getString(FIELD_STREET),
-                        result.getString(FIELD_STREET_NUMBER),
-                        result.getInt(FIELD_BOX)
-                );
+                location = getResult(result);
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return location;
     }
@@ -73,6 +62,7 @@ public class DAOLocation implements DAO<Location> {
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
         PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
@@ -82,14 +72,13 @@ public class DAOLocation implements DAO<Location> {
             statement.setInt(5, objectToInsert.getBox());
             statement.executeUpdate();
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -122,9 +111,7 @@ public class DAOLocation implements DAO<Location> {
                 throw new NoSuchElementException("Location " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -153,9 +140,7 @@ public class DAOLocation implements DAO<Location> {
                 throw new NoSuchElementException("Location " + objectToDelete.getDesignation() + " was not found in database");
         }
         finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeStatement(statement);
         }
     }
 
@@ -174,23 +159,12 @@ public class DAOLocation implements DAO<Location> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
             while (result.next()) {
-                locations.add(new Location(
-                        result.getInt(FIELD_ID),
-                        result.getString(FIELD_DESIGNATION),
-                        new DAOCity().find(result.getInt(FIELD_CITY)),
-                        result.getString(FIELD_STREET),
-                        result.getString(FIELD_STREET_NUMBER),
-                        result.getInt(FIELD_BOX)
-                ));
+                locations.add(getResult(result));
             }
         }
         finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return locations;
     }
@@ -201,12 +175,45 @@ public class DAOLocation implements DAO<Location> {
      * @return true if the location already exists, else false
      * @throws SQLException if the database could not be reached
      */
-    private boolean checkAlreadyExists(Location location) throws SQLException {
-        List<Location> locations = findAll();
-        for (Location line : locations) {
-            if (line.equals(location))
-                return true;
+    @Override
+    protected boolean checkAlreadyExists(Location location) throws SQLException {
+        String query = "SELECT COUNT(*) FROM " + TABLE +
+                " WHERE " + FIELD_DESIGNATION + " = ? AND " + FIELD_CITY + " = ? AND " +
+                FIELD_STREET + " = ? AND " + FIELD_STREET_NUMBER + " = ? AND " + FIELD_BOX + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, location.getDesignation());
+            statement.setInt(2, location.getCity().getId());
+            statement.setString(3, location.getStreet());
+            statement.setString(4, location.getStreetNumber());
+            statement.setInt(5, location.getBox());
+            result = statement.executeQuery();
+            if (result.next())
+                return result.getInt(1) > 0;
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return false;
+    }
+
+    /**
+     * Build a Location object from a ResultSet
+     * @param result the ResultSet to read from
+     * @return a Location object built from the ResultSet
+     * @throws SQLException if the database could not be reached
+     */
+    @Override
+    protected Location getResult(ResultSet result) throws SQLException {
+        return new Location(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION),
+                new DAOCity().find(result.getInt(FIELD_CITY)),
+                result.getString(FIELD_STREET),
+                result.getString(FIELD_STREET_NUMBER),
+                result.getInt(FIELD_BOX)
+        );
     }
 }

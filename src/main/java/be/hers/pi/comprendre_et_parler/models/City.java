@@ -25,19 +25,15 @@ public class City {
      @param pC : represent the postal code
      */
     public City(String d, int pC ){
-        this.id = -1;
-        this.designation = d;
-        if(pC >= 1000 && pC <= 10000) this.postalCode = pC;
+        this(-1, d, pC);
     }
 
     /**
      * Copy constructor of a City Object
-     * @param city
+     * @param city the City object to copy
      */
     public City(City city) {
-        this.id = city.id;
-        this.designation = city.designation;
-        this.postalCode = city.postalCode;
+        this(city.id, city.designation, city.postalCode);
     }
 
     /**
@@ -121,7 +117,7 @@ public class City {
 
     /**
      * Compare 2 cities based on the postal code and the city name
-     * @param city
+     * @param city the City object to compare with
      * @post city is unchanged
      * @return 0 if this == city based on postal code and city name,
      *         1 if this > city based on postal code and city name,
