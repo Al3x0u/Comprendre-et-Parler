@@ -66,6 +66,10 @@ public class Beneficiary extends AppliUser {
         this.interpreterRef = new Interpreter(other.interpreterRef);
     }
 
+    public Beneficiary clone() {
+        return new Beneficiary(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, new Status(status), new Interpreter(interpreterRef));
+    }
+
     /**
      * @return this.status
      */

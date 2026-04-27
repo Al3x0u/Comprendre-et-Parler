@@ -139,6 +139,10 @@ public class Interpreter extends AppliUser{
         }
     }
 
+    public Interpreter clone() {
+        return new Interpreter(this);
+    }
+
     /**
      * @return this.transportMode
      */

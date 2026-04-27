@@ -4,14 +4,14 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public abstract class AppliUser {
-    private int id;
-    private String login;
-    private String firstName;
-    private String lastName;
-    private LocalDate birthDate;
-    private String hashedPassword;
-    private String email;
-    private String phoneNumber;
+    protected int id;
+    protected String login;
+    protected String firstName;
+    protected String lastName;
+    protected LocalDate birthDate;
+    protected String hashedPassword;
+    protected String email;
+    protected String phoneNumber;
 
     /**
      Constructor of a AppliUser without id
@@ -70,6 +70,8 @@ public abstract class AppliUser {
         this.email = other.email;
         this.phoneNumber = other.phoneNumber;
     }
+
+    public abstract AppliUser clone();
 
     /**
      * @param id represent the new id
