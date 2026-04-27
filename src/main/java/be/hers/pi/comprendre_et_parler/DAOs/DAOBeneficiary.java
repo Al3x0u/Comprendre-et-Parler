@@ -26,7 +26,6 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String FIELD_INTERPRETER_REFERENCE = "referenceInterpreter";
     protected static final String FIELD_STATUS = "status";
 
-
     /**
      * Check if an object already exists in the database
      * @param objectToCheck the object to check
@@ -35,14 +34,40 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      */
     protected boolean checkAlreadyExists(Beneficiary objectToCheck) throws SQLException{
         boolean exists = false;
-        Set<Beneficiary> beneficiaries = findAll();
-        for(Beneficiary beneficiary : beneficiaries){
-            if(objectToCheck.equals(beneficiary)){
-                exists = true;
+        Connection connection = DatabaseConnector.getInstance();
+        String query = "SELECT COUNT(*) FROM " + TABLE_VIEW + " WHERE " +
+                FIELD_LOGIN + " = ? AND " + FIELD_FIRST_NAME + " = ? AND "
+                + FIELD_LAST_NAME + " = ? AND " + FIELD_BIRTH_DATE + " = ? AND "
+                + FIELD_HASHED_PASSWORD + " = ? AND " + FIELD_EMAIL + " = ? AND "
+                + FIELD_PHONE_NUMBER + " = ? AND " + FIELD_STATUS + " = ? AND "
+                + FIELD_INTERPRETER_REFERENCE + " = ? AND " + FIELD_ID + " != ?";
+
+        ResultSet result = null;
+        PreparedStatement statement = null;
+        try{
+            statement = connection.prepareStatement(query);
+            statement.setString(1, objectToCheck.getLogin());
+            statement.setString(2, objectToCheck.getFirstName());
+            statement.setString(3, objectToCheck.getLastName());
+            statement.setDate(4, Date.valueOf(objectToCheck.getBirthDate()));
+            statement.setString(5, objectToCheck.getHashedPassword());
+            statement.setString(6, objectToCheck.getEmail());
+            statement.setString(7, objectToCheck.getPhoneNumber());
+            statement.setInt(8, objectToCheck.getStatus().getId());
+            statement.setInt(9, objectToCheck.getInterpreterRef().getId());
+            statement.setInt(10, objectToCheck.getId());
+            result = statement.executeQuery();
+
+            if(result.next()){
+                exists = result.getInt(1) > 0;
             }
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return exists;
     }
+
     /**
      * @param id the primary key of the object to find in database
      * @return the object identified by id in database, or null if none was present
@@ -69,28 +94,23 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 throw new NoSuchElementException();
             }
         }finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if(result != null){
-                    result.close();
-                }
-            }catch(SQLException e){
-                e.printStackTrace();
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return beneficiary;
     }
 
     /**
-     * Build an object from a ResultSet
-     * @param result the ResultSet to read from
-     * @return an object built from the ResultSet
-     * @throws SQLException if the database could not be reached
+     * Populates a Beneficiary object from the current row of the given ResultSet.
+     * Fetches the associated Status and reference Interpreter from the database
+     * using their respective DAOs.
+     * @param beneficiary the Beneficiary object to populate
+     * @param result      the ResultSet positioned on the row to read, must not be null
+     * @throws SQLException if a database access error occurs while reading the ResultSet
      */
     public Beneficiary getResult(ResultSet result)throws SQLException{
         return new Beneficiary(
+                result.getInt(FIELD_ID),
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
                 result.getString(FIELD_LAST_NAME),
@@ -145,14 +165,11 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 FIELD_FIRST_NAME + ", " + FIELD_LAST_NAME + ", " + FIELD_BIRTH_DATE + ", " +
                 FIELD_HASHED_PASSWORD + ", " + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ", " +
                 FIELD_STATUS + ", " + FIELD_INTERPRETER_REFERENCE + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        int rowsAffected = 0;
+
 
         ResultSet rs = null;
         if(find(objectToInsert.getLogin()) != null){
             throw new AlreadyExistsException("Object already exists in database");
-        }
-        if(checkAlreadyExists(objectToInsert)){
-            throw new AlreadyExistsException("The Beneficiary already exists in the database");
         }
         PreparedStatement statement = null;
 
@@ -168,7 +185,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setString(7, objectToInsert.getPhoneNumber());
             statement.setInt(8, objectToInsert.getStatus().getId());
             statement.setInt(9, objectToInsert.getInterpreterRef().getId());
-            rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
 
             rs = statement.getGeneratedKeys();
             if (rs.next()) {
@@ -196,6 +213,10 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 FIELD_STATUS + " = ?, " + FIELD_INTERPRETER_REFERENCE + " = ? WHERE " + FIELD_ID + " = ? ";
         PreparedStatement statement = null;
         int rowsAffected = 0;
+
+        if(checkAlreadyExists(objectToUpdate)){
+            throw new AlreadyExistsException("The beneficiary already exists in database.");
+        }
 
         try {
             statement.setString(1, objectToUpdate.getLogin());
