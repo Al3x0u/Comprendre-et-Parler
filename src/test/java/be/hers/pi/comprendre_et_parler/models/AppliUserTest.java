@@ -34,7 +34,7 @@ class AppliUserTest {
 
         AppliUser a2 = a1.clone();
         int hash3 = a2.hashCode();
-        assertEquals(hash3, hash2, "A copied object must have the same hash.");
+        assertEquals(hash2, hash3, "A copied object must have the same hash.");
 
         a2.setId(50);
         int hash4 = a2.hashCode();

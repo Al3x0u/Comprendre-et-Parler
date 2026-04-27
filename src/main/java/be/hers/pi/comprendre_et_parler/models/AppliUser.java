@@ -193,7 +193,6 @@ public abstract class AppliUser {
     @Override
     public int hashCode() {
         return Objects.hash(
-                super.hashCode(),
                 login,
                 firstName,
                 lastName,
