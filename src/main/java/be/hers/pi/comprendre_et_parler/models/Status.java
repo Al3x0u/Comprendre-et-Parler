@@ -14,7 +14,7 @@ public class Status {
      * @param hourQuota the associated hour quota (will be 0 if negative)
      */
     public Status(int id, String designation, int hourQuota) {
-        this.id = id;
+        if(id >= 0) this.id = id;
         this.designation = designation;
         this.hourQuota = hourQuota;
     }
@@ -72,7 +72,7 @@ public class Status {
     /**
      * @param hourQuota the new associated hour quota
      */
-    public void setHourQuota(int hourQuota)  { if (hourQuota >= 0) this.hourQuota = hourQuota; }
+    public void setHourQuota(int hourQuota) { if (hourQuota >= 0) this.hourQuota = hourQuota; }
 
     /**
      * Compare this Status with another Status for equality
