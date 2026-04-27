@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class DAOStatus implements DAO<Status> {
+public class DAOStatus extends DAO<Status> {
     protected static final String TABLE = "status";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_DESIGNATION = "designation";
@@ -29,11 +29,7 @@ public class DAOStatus implements DAO<Status> {
             statement.setInt(1, id);
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    ret = new Status(
-                            result.getInt(FIELD_ID),
-                            result.getString(FIELD_DESIGNATION),
-                            result.getInt(FIELD_HOUR_QUOTA)
-                    );
+                    ret = getResult(result);
                 }
             }
         }
@@ -48,12 +44,10 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
-        // Manage invalid states
-        int duplicateId = findDuplicate(objectToInsert);
-        if (duplicateId >= 0)
-            throw new AlreadyExistsException("Object already exists in database at id " + duplicateId);
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() +  " already exists");
 
-        // Attempt insertion
+
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
@@ -77,12 +71,9 @@ public class DAOStatus implements DAO<Status> {
      */
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        // Manage invalid states
-        int duplicateId = findDuplicate(objectToUpdate);
-        if (duplicateId >= 0)
-            throw new AlreadyExistsException("Object of id " + objectToUpdate.getId() + "already exists at id " + duplicateId);
+        if (checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("Status" + objectToUpdate.getDesignation() + " already exists");
 
-        // Attempt update
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA, FIELD_ID);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
@@ -129,36 +120,36 @@ public class DAOStatus implements DAO<Status> {
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
             try (ResultSet result = statement.executeQuery()) {
                 while (result.next()) {
-                    ret.add(new Status(
-                            result.getInt(FIELD_ID),
-                            result.getString(FIELD_DESIGNATION),
-                            result.getInt(FIELD_HOUR_QUOTA)
-                    ));
+                    ret.add(getResult(result));
                 }
             }
         }
         return ret;
     }
 
-    /**
-     *
-     * @param obj the object to find in database
-     * @return the id of an identical object in database, or -1 if none was found
-     * @throws SQLException if a database error occured
-     */
-    private int findDuplicate(Status obj) throws SQLException {
+    @Override
+    protected boolean checkAlreadyExists(Status object) throws SQLException {
         String query = "SELECT * FROM %s WHERE %s = ? AND %s = ? ";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
-            statement.setString(1, obj.getDesignation());
-            statement.setInt(2, obj.getHourQuota());
+            statement.setString(1, object.getDesignation());
+            statement.setInt(2, object.getHourQuota());
             statement.executeUpdate();
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
-                    return result.getInt(FIELD_ID);
+                    return true;
                 }
             }
         }
-        return -1;
+        return false;
+    }
+
+    @Override
+    protected Status getResult(ResultSet result) throws SQLException {
+        return new Status(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION),
+                result.getInt(FIELD_HOUR_QUOTA)
+        );
     }
 }
