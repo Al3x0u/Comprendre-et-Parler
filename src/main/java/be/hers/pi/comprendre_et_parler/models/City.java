@@ -16,11 +16,11 @@ public class City {
     public City(int id, String d, int pC ){
         if(id > 0) this.id = id;
         this.designation = d;
-        if(pC >= 1000 && pC <= 10000) this.postalCode = pC;
+        if(pC >= 1000 && pC < 10000) this.postalCode = pC;
     }
 
     /**
-     Constructor of a City Object
+     Constructor of a City Object without id
      @param d : represent the designation
      @param pC : represent the postal code
      */
@@ -78,7 +78,7 @@ public class City {
      * @post if 1000 <= postalCode <= 10000, postalCode is affected to this.postalCode
      */
     public void setPostalCode(int postalCode) {
-        if(postalCode >= 1000 && postalCode <= 10000) this.postalCode = postalCode;
+        if(postalCode >= 1000 && postalCode < 10000) this.postalCode = postalCode;
     }
 
     /**

@@ -12,7 +12,10 @@ class AppliUserTest {
 
     @BeforeAll
     public static void init() {
-        a1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), null);
+        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
+                "test@gmail.com", "123/45.67.89", 10, 120,
+                "Velo", null, null, null, null, null);
+        a1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
     }
 
     @Test
@@ -29,9 +32,9 @@ class AppliUserTest {
         int hash2 = a1.hashCode();
         assertEquals(hash1, hash2, "Same object hashed.");
 
-        AppliUser a2 = new Beneficiary(a1);
+        AppliUser a2 = a1.clone();
         int hash3 = a2.hashCode();
-        assertEquals(hash3, hash2, "A copied object must have the same hash.");
+        assertEquals(hash2, hash3, "A copied object must have the same hash.");
 
         a2.setId(50);
         int hash4 = a2.hashCode();
@@ -47,7 +50,7 @@ class AppliUserTest {
         assertNotEquals(null, a1, "The second object is null.");
         assertEquals(a1, a1, "The second object is the same as the first one.");
 
-        AppliUser a2 = new Beneficiary(a1);
+        AppliUser a2 = a1.clone();
         assertEquals(a1, a2, "The second object is a copy of the first one.");
 
         a1.setId(20);

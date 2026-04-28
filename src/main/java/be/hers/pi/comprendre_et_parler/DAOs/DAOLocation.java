@@ -6,8 +6,8 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOLocation extends DAO<Location> {
@@ -145,16 +145,16 @@ public class DAOLocation extends DAO<Location> {
     }
 
     /**
-     * Return all line of Location table in the database in Location Object in a List
-     * @return a List who contains Location Objects, if database is empty, an empty list
+     * Return all line of Location table in the database in Location Object in a Set
+     * @return a Set who contains Location Objects, if database is empty, an empty Set
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<Location> findAll() throws SQLException {
+    public Set<Location> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
-        List<Location> locations = new ArrayList<>();
+        Set<Location> locations = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();

@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
@@ -16,7 +15,7 @@ public abstract class DAO<T> {
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
-    abstract T find(int id) throws SQLException;
+    public abstract T find(int id) throws SQLException;
 
     /**
      * @param objectToInsert an object of type T to add to the database
@@ -26,7 +25,7 @@ public abstract class DAO<T> {
      * @post objectToInsert has been added to the database, the object is updated with auto generated id from the database,
      * and the change was commited
      */
-    abstract void create(T objectToInsert) throws AlreadyExistsException, SQLException;
+    public abstract void create(T objectToInsert) throws AlreadyExistsException, SQLException;
 
     /**
      * @param objectToUpdate the object to edit in the database
@@ -35,22 +34,21 @@ public abstract class DAO<T> {
      * @throws AlreadyExistsException if an object with a different id but otherwise identical fields already exists in database
      * @throws SQLException if the update failed for any other reason
      */
-    abstract void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
+    public abstract void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
 
     /**
-     *
      * @param objectToDelete the object to delete in the database
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
-    abstract void delete(T objectToDelete) throws NoSuchElementException, SQLException;
+    public abstract void delete(T objectToDelete) throws NoSuchElementException, SQLException;
 
     /**
      * @return every object of the corresponding type present in database (possibly an empty list)
      * @throws SQLException if the database could not be reached
      */
-    abstract Set<T> findAll() throws SQLException;
+    public abstract Set<T> findAll() throws SQLException;
 
     /**
      * Check if an object already exists in the database

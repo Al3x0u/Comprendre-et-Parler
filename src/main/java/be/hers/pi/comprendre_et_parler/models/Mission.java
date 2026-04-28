@@ -127,10 +127,7 @@
             this.timeSlot = mission.timeSlot.clone();
 
             if (mission.beneficiary != null) this.beneficiary = new Beneficiary(mission.beneficiary);
-            else this.beneficiary = null;
-
             if (mission.interpreters != null) this.interpreters = new HashSet<>(mission.interpreters);
-            else this.interpreters = null;
 
             this.location = new Location(mission.location);
             this.jobSkill = new JobSkill(mission.jobSkill);

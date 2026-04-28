@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TimeSlotTest {
-    private TimeSlot t1;
+    private static TimeSlot t1;
 
     @BeforeAll
     public static void init() {

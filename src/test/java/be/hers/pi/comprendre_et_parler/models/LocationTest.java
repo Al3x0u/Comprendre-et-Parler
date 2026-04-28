@@ -15,7 +15,6 @@ class LocationTest {
         l1 = new Location(1, "test", c1, "test", "test", 1);
     }
 
-
     @Test
     public void testSetId() {
         l1.setId(-1);
