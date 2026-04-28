@@ -18,15 +18,13 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
-    private HttpSession session;
-
     @GetMapping("/")
     public String index(){
         return "redirect:/login";
     }
 
     @PostMapping("/login")
-    public String getUserLogin(@RequestParam String login, @RequestParam String password, Model model){
+    public String getUserLogin(@RequestParam String login, @RequestParam String password, Model model,  HttpSession session){
         AppliUser user = loginService.getUserData(login, password);
         if( user != null ){
             session.setAttribute("user", user);
@@ -35,11 +33,6 @@ public class LoginController {
             model.addAttribute("error", "Identidiants incorrects");
             return "login";
         }
-    }
-
-    @GetMapping("/home")
-    public String homePage(){
-        return "/home";
     }
 
     @GetMapping("/login")

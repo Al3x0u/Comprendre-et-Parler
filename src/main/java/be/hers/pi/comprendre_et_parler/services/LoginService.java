@@ -43,6 +43,10 @@ public class LoginService {
 
     private boolean checkUserLogin(AppliUser user , String login, String password){
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        System.out.println("Login BD: " + user.getLogin());
+        System.out.println("Login saisi: " + login);
+        System.out.println("Hash BD: " + user.getHashedPassword());
+        System.out.println("Matches: " + encoder.matches(password, user.getHashedPassword()));
         return user.getLogin().equals(login) && encoder.matches(password, user.getHashedPassword());
     }
 }
