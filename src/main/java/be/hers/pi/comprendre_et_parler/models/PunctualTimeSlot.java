@@ -20,6 +20,20 @@ public class PunctualTimeSlot extends TimeSlot {
         }
     }
 
+    @Override
+    public void setStartTime(LocalTime startTime) {
+        if (!startDate.equals(endDate) || startTime.isBefore(this.endTime)) {
+            this.startTime = startTime;
+        }
+    }
+
+    @Override
+    public void setEndTime(LocalTime endTime) {
+        if (!startDate.equals(endDate) || endTime.isAfter(this.startTime)) {
+            this.endTime = endTime;
+        }
+    }
+
     public PunctualTimeSlot(LocalTime beginTime, LocalTime endTime, LocalDate startDate, LocalDate endDate)
     {
         super(beginTime, endTime);
@@ -92,7 +106,7 @@ public class PunctualTimeSlot extends TimeSlot {
             result = true;
         } else if(this.endDate.equals(timeSlot.startDate) && super.startTime.isBefore(timeSlot.startTime) && this.endDate.isAfter(timeSlot.endDate)) {
             result = true;
-        } else if(this.startDate.equals(timeSlot.endDate) && super.endTime.isAfter(timeSlot.endTime) && this.startDate.isAfter(timeSlot.startDate)) {
+        }  else if(this.startDate.equals(timeSlot.endDate) && !this.startTime.isAfter(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime)) {
             result = true;
         } else if(this.startDate.equals(timeSlot.endDate) && super.startTime.isAfter(timeSlot.startTime) && this.endDate.isBefore(timeSlot.endDate)) {
             result = true;
