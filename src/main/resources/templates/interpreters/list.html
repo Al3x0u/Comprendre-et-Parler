@@ -14,15 +14,13 @@
     </div>
 
     <div class="list-group list-group-flush">
-      <div class="list-group-item d-flex justify-content-between align-items-center"
-           th:each="interprete : ${interpretes}">
+      <div class="list-group-item d-flex justify-content-between align-items-center" th:each="interprete : ${interpretes}">
         <div>
           <div class="fw-bold text-primary" th:text="${interprete.login}"></div>
           <div th:text="${interprete.firstName + ' ' + interprete.lastName}"></div>
         </div>
 
-        <a th:href="@{/interpreters/profile/{id}(id=${interprete.id})}"
-           class="btn btn-primary btn-sm">
+        <a th:href="@{/interpreters/profile/{id}(id=${interprete.id})}"  class="btn btn-primary btn-sm">
           Voir le profil
         </a>
       </div>

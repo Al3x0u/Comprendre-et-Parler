@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -73,17 +73,13 @@ public class InterpreterController {
         HashSet<ExceptionalUnavailability> unavailabilities = new HashSet<>();
 
         PunctualTimeSlot slot1 = new PunctualTimeSlot(
-                LocalTime.of(9, 0),
-                LocalTime.of(12, 0),
-                LocalDate.of(2026, 5, 2),
-                LocalDate.of(2026, 5, 2)
+                LocalDateTime.of(2026, 5, 2, 9, 0),
+                LocalDateTime.of(2026, 5, 2, 12, 0)
         );
 
         PunctualTimeSlot slot2 = new PunctualTimeSlot(
-                LocalTime.of(14, 0),
-                LocalTime.of(18, 0),
-                LocalDate.of(2026, 5, 5),
-                LocalDate.of(2026, 5, 5)
+                LocalDateTime.of(2026, 5, 5, 0, 0),
+                LocalDateTime.of(2026, 5, 9, 0, 0)
         );
 
         unavailabilities.add(new ExceptionalUnavailability(
@@ -93,7 +89,7 @@ public class InterpreterController {
         ));
 
         unavailabilities.add(new ExceptionalUnavailability(
-                "Formation externe",
+                "Congé maladie",
                 slot2,
                 fakeInterpreter
         ));
