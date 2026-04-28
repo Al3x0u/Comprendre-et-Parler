@@ -31,6 +31,10 @@ public class PunctualTimeSlot extends TimeSlot {
         }
     }
 
+    public PunctualTimeSlot(PunctualTimeSlot p) {
+        this(p.id, p.startDate,p.endDate);
+    }
+
     public LocalDateTime getStartDate() {
         return startDate;
     }

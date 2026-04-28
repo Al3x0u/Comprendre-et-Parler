@@ -151,6 +151,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     protected BaseTimeSlot getResult(ResultSet result) throws SQLException {
         return new BaseTimeSlot(
                 result.getInt(FIELD_ID),
+                result.getDate(FIELD_START_TIME).toLocalDate(),
+                result.getDate(FIELD_END_TIME).toLocalDate(),
                 result.getTime(FIELD_START_TIME).toLocalTime(),
                 result.getTime(FIELD_END_TIME).toLocalTime(),
                 DayOfWeek.of(result.getInt(FIELD_DAY))

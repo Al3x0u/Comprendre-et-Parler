@@ -32,20 +32,6 @@ public abstract class TimeSlot {
         }
     }
 
-    /**
-     * Checks if the 2 timeslots overlaps partially or totally
-     * @param timeSlot 2nd timeslot for the check
-     * @return true if the 2 time slots overlaps, or false if it doesn't
-     */
-    public abstract boolean overlaps(TimeSlot timeSlot);
-
-    /**
-     * Checks if the 2 timeslots overlaps totally
-     * @param timeSlot 2nd timeslot for the check
-     * @return true if the 2 time slots overlaps totally, or false if it doesn't
-     */
-    public abstract boolean overlapsCompletely(TimeSlot timeSlot);
-
     public abstract TimeSlot clone();
 
     /**
