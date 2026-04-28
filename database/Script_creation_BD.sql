@@ -53,7 +53,7 @@ CREATE TABLE AppliUserT (
     firstName VARCHAR2(25 CHAR) NOT NULL,
     lastName VARCHAR2(25 CHAR) NOT NULL,
     birthDate DATE NOT NULL,
-    hashedPassword VARCHAR2(50 CHAR) NOT NULL,
+    hashedPassword VARCHAR2(255 CHAR) NOT NULL,
     email VARCHAR2(50 CHAR) NOT NULL,
     phoneNumber VARCHAR2(25 CHAR)
 );
@@ -158,7 +158,6 @@ CREATE TABLE InterpreterMission (
 
 ALTER TABLE Status ADD CONSTRAINT QuotaValue CHECK (hourQuota >= 0);
 
-ALTER TABLE AppliUserT ADD CONSTRAINT IDUser CHECK (REGEXP_LIKE(login,'^[ibr][0-9]{7}$')); 
 ALTER TABLE AppliUserT ADD CONSTRAINT PhoneNumberUser CHECK (phoneNumber IS NULL OR REGEXP_LIKE(phoneNumber,'^[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+$'));
 ALTER TABLE AppliUserT ADD CONSTRAINT EmailUser CHECK (REGEXP_LIKE(email, '.+@.+\..+'));
  
