@@ -24,14 +24,14 @@ public class BaseTimeSlot extends TimeSlot {
     public BaseTimeSlot(int id, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day) {
         super(id);
         this.startDate = startDate;
-        if(endDate.isAfter(startDate)) {
+        if(!endDate.isBefore(startDate)) {
             this.endDate = endDate;
         } else {
             this.endDate = startDate;
         }
 
         this.startTime = startTime;
-        if(endTime.isAfter(startTime)) {
+        if(!endTime.isBefore(startTime)) {
             this.endTime = endTime;
         } else {
             this.endTime = startTime;
@@ -84,7 +84,7 @@ public class BaseTimeSlot extends TimeSlot {
      * @param startDate represent the new startDate
      */
     public void setStartDate(LocalDate startDate) {
-        if(startDate.isBefore(this.endDate)) {
+        if(!startDate.isAfter(this.endDate)) {
             this.startDate = startDate;
         }
     }
@@ -100,7 +100,7 @@ public class BaseTimeSlot extends TimeSlot {
      * @param endDate represent the new endDate
      */
     public void setEndDate(LocalDate endDate) {
-        if(endDate.isAfter(this.startDate)) {
+        if(!endDate.isBefore(this.startDate)) {
             this.endDate = endDate;
         }
     }
@@ -165,8 +165,8 @@ public class BaseTimeSlot extends TimeSlot {
         if(timeSlot == null) return false;
         if(timeSlot == this) return true;
         return this.day.equals(timeSlot.day)
-                && (this.startTime.isBefore(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime))
-                || (this.startTime.isAfter(timeSlot.startTime) && this.endTime.isBefore(timeSlot.endTime));
+                && ((this.startTime.isBefore(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime))
+                || (this.startTime.isAfter(timeSlot.startTime) && this.endTime.isBefore(timeSlot.endTime)));
     }
 
     /**
