@@ -14,9 +14,9 @@ public class LoginService {
 
     public AppliUser getUserData(String login, String password){
         AppliUser user = null;
-        if(login.trim().startsWith("r")){
+        if(login.trim().startsWith("i")){
             try {
-                user = new DAOManager().find(login);
+                user = new DAOInterpreter().find(login);
             }catch (SQLException e){
                 e.printStackTrace();
             }
@@ -26,9 +26,9 @@ public class LoginService {
             }catch (SQLException e){
                 e.printStackTrace();
             }
-        }else if(login.trim().startsWith("i")){
+        }else if(login.trim().startsWith("r")){
             try {
-                user = new DAOInterpreter().find(login);
+                user = new DAOManager().find(login);
             }catch (SQLException e){
                 e.printStackTrace();
             }
@@ -38,7 +38,6 @@ public class LoginService {
         if(user == null || !checkUserLogin(user, login, password) ) {
             return null;
         }
-
         return user;
     }
 

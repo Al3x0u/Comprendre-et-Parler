@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{website.name}"></title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+<body>
+<div class="d-flex flex-column flex-wrap align-items-center container" style="margin-top: 10vh;">
+
+    <!-- Logo + Title -->
+    <img th:src="#{website.logo}" alt="Logo" width="120" class="mb-1">
+    <h1 class="fw-bold text-primary mb-1" th:text="#{website.name}"></h1>
+    <p class="text-primary fst-italic mb-4">Bienvenue sur la plateforme</p>
+
+    <!-- Content -->
+    <div class="d-flex flex-column bg-light rounded-4 p-4 p-md-5 w-100" style="max-width: 500px;">
+        <p class="text-muted">Vous êtes connecté en tant que <strong th:text="${user}"></strong>.</p>
+        <div class="d-grid mt-3">
+            <a th:href="@{/logout}" class="btn btn-outline-danger rounded">Se déconnecter</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

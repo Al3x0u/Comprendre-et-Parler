@@ -1,0 +1,49 @@
+package be.hers.pi.comprendre_et_parler.controllers;
+import be.hers.pi.comprendre_et_parler.models.AppliUser;
+import be.hers.pi.comprendre_et_parler.services.*;
+
+import jakarta.servlet.http.HttpSession;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@Controller
+public class LoginController {
+
+    @Autowired
+    private LoginService loginService;
+
+    private HttpSession session;
+
+    @GetMapping("/")
+    public String index(){
+        return "redirect:/login";
+    }
+
+    @PostMapping("/login")
+    public String getUserLogin(@RequestParam String login, @RequestParam String password, Model model){
+        AppliUser user = loginService.getUserData(login, password);
+        if( user != null ){
+            session.setAttribute("user", user);
+            return "redirect:/home";
+        }else{
+            model.addAttribute("error", "Identidiants incorrects");
+            return "login";
+        }
+    }
+
+    @GetMapping("/home")
+    public String homePage(){
+        return "/home";
+    }
+
+    @GetMapping("/login")
+    public String loginPage(){
+        return "login";
+    }
+}
