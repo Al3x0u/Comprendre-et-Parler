@@ -63,7 +63,7 @@ class BaseTimeSlotTest {
         assertTrue(b1.overlaps(b1), "The second object is the same as the first one.");
         assertFalse(b1.overlaps(null), "The second object is null.");
 
-        BaseTimeSlot b2 = new BaseTimeSlot(2, today, today.plusDays(1), eight, sixteen, DayOfWeek.SUNDAY);
+        BaseTimeSlot b2 = new BaseTimeSlot(2, today, today.plusDays(1), eight, sixteen, DayOfWeek.WEDNESDAY);
         assertFalse(b1.overlaps(b2), "The second object completely overlaps the first one, but they are not on the same day.");
 
         b1.setDay(b2.getDay());
@@ -92,7 +92,7 @@ class BaseTimeSlotTest {
         assertTrue(b1.overlapsCompletely(b1), "The second object is the same as the first one.");
         assertFalse(b1.overlapsCompletely(null), "The second object is null.");
 
-        BaseTimeSlot b2 = new BaseTimeSlot(3, today, today.plusDays(1), eight, sixteen, DayOfWeek.SUNDAY);
+        BaseTimeSlot b2 = new BaseTimeSlot(3, today, today.plusDays(1), eight, sixteen, DayOfWeek.WEDNESDAY);
         assertFalse(b1.overlapsCompletely(b2), "The second object completely overlaps the first one, but they are not on the same day.");
 
         b1.setDay(b2.getDay());
