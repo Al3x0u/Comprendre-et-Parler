@@ -62,21 +62,15 @@
             <div class="mb-2">
               <span class="fw-semibold">Académiques :</span>
               <span th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}">
-                                <span th:each="skill : *{academicSkills}"
-                                      class="badge bg-secondary me-1 mb-1"
-                                      th:text="${skill.designation}"></span>
-                            </span>
-              <span th:unless="*{academicSkills != null and !#sets.isEmpty(academicSkills)}"
-                    class="text-muted">Aucune</span>
+                <span th:each="skill : *{academicSkills}" class="badge bg-secondary me-1 mb-1" th:text="${skill.designation}"></span></span>
+              <span th:unless="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="text-muted">Aucune</span>
             </div>
 
             <div>
               <span class="fw-semibold">Métier :</span>
               <span th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}">
-                                <span th:each="skill : *{jobSkills}"
-                                      class="badge bg-dark me-1 mb-1"
-                                      th:text="${skill.designation}"></span>
-                            </span>
+                <span th:each="skill : *{jobSkills}" class="badge bg-dark me-1 mb-1" th:text="${skill.designation}"></span>
+              </span>
               <span th:unless="*{jobSkills != null and !#sets.isEmpty(jobSkills)}"
                     class="text-muted">Aucune</span>
             </div>
@@ -97,10 +91,13 @@
           <ul class="mb-0" th:if="*{unavailability != null and !#sets.isEmpty(unavailability)}">
             <li th:each="u : *{unavailability}">
               <span th:text="${u.reason}"></span>
+              -
+              <span th:text="${#temporals.format(u.timeSlot.startDate, 'dd/MM/yyyy HH:mm')}"></span>
+              à
+              <span th:text="${#temporals.format(u.timeSlot.endDate, 'dd/MM/yyyy HH:mm')}"></span>
             </li>
           </ul>
-          <div th:unless="*{unavailability != null and !#sets.isEmpty(unavailability)}"
-               class="text-muted">
+          <div th:unless="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="text-muted">
             Aucune indisponibilité renseignée
           </div>
         </div>
