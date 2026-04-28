@@ -12,8 +12,16 @@ public class BaseTimeSlot extends TimeSlot {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    public BaseTimeSlot(int id, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day)
-    {
+    /**
+     * Constructor of a BaseTimeSlot Object
+     * @param id : represent id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     * @param startTime : represent startTime
+     * @param endTime : represent endTime
+     * @param day : represent day
+     */
+    public BaseTimeSlot(int id, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day) {
         super(id);
         this.startDate = startDate;
         if(endDate.isAfter(startDate)) {
@@ -31,78 +39,107 @@ public class BaseTimeSlot extends TimeSlot {
         this.day = day;
     }
 
-    public BaseTimeSlot(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day)
-    {
-        super();
-        this.startDate = startDate;
-        if(endDate.isAfter(startDate)) {
-            this.endDate = endDate;
-        } else {
-            this.endDate = startDate;
-        }
-
-        this.startTime = startTime;
-        if(endTime.isAfter(startTime)) {
-            this.endTime = endTime;
-        } else {
-            this.endTime = startTime;
-        }
-        this.day = day;
+    /**
+     * Constructor of a BaseTimeSlot Object without id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     * @param startTime : represent startTime
+     * @param endTime : represent endTime
+     * @param day : represent day
+     */
+    public BaseTimeSlot(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day) {
+        this(-1, startDate, endDate, startTime, endTime, day);
     }
 
-    public BaseTimeSlot(BaseTimeSlot b)
-    {
-        this(b.id, b.startDate, b.endDate, b.startTime, b.endTime, b.day);
+    /**
+     * Copy constructor of a BaseTimeSlot Object
+     * @param other represent the BaseTimeSlot object
+     */
+    public BaseTimeSlot(BaseTimeSlot other) {
+        this(other.id, other.startDate, other.endDate, other.startTime, other.endTime, other.day);
     }
 
+    /**
+     * @return this.day
+     */
     public DayOfWeek getDay() {
         return day;
     }
 
+    /**
+     * @param day represent the new day
+     */
     public void setDay(DayOfWeek day) {
         this.day = day;
     }
 
-    public LocalDate getstartDate() {
+    /**
+     * @return this.startDate
+     */
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setstartDate(LocalDate startDate) {
+    /**
+     * @param startDate represent the new startDate
+     */
+    public void setStartDate(LocalDate startDate) {
         if(startDate.isBefore(this.endDate)) {
             this.startDate = startDate;
         }
     }
 
-    public LocalDate getendDate() {
+    /**
+     * @return this.endDate
+     */
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setendDate(LocalDate endDate) {
+    /**
+     * @param endDate represent the new endDate
+     */
+    public void setEndDate(LocalDate endDate) {
         if(endDate.isAfter(this.startDate)) {
             this.endDate = endDate;
         }
     }
 
+    /**
+     * @return this.startTime
+     */
     public LocalTime getStartTime() {
         return startTime;
     }
 
+    /**
+     * @param startTime represent the new startTime
+     */
     public void setStartTime(LocalTime startTime) {
         if(startTime.isBefore(this.endTime)) {
             this.startTime = startTime;
         }
     }
 
+    /**
+     * @return this.endTime
+     */
     public LocalTime getEndTime() {
         return endTime;
     }
 
+    /**
+     * @param endTime represent the new endTime
+     */
     public void setEndTime(LocalTime endTime) {
         if(endTime.isAfter(this.startTime)) {
             this.endTime = endTime;
         }
     }
 
+    /**
+     * Copy constructor of this BaseTimeSlot Object
+     */
     @Override
     public BaseTimeSlot clone() {
         return new BaseTimeSlot(super.id, this.startDate, this.endDate, this.startTime, this.endTime, this.day);
@@ -159,7 +196,7 @@ public class BaseTimeSlot extends TimeSlot {
 
     /**
      * Return the hashcode of BaseTimeSlot
-     * @return an integer whith is the hashcode of BaseTimeSlot
+     * @return an integer with is the hashcode of BaseTimeSlot
      */
     @Override
     public int hashCode() {

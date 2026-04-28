@@ -13,7 +13,7 @@ public abstract class TimeSlot {
     }
 
     /**
-     * Constructor of a TimeSlot Object
+     * Constructor of a TimeSlot Object without id
      */
     public TimeSlot() {}
 
@@ -33,7 +33,7 @@ public abstract class TimeSlot {
     }
 
     /**
-     * Copy constructor of a TimeSlot Object
+     * Copy constructor of this TimeSlot Object
      */
     public abstract TimeSlot clone();
 
