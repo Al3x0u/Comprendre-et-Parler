@@ -75,7 +75,9 @@ public abstract class AppliUser {
      * @param id represent the new id
      */
     public void setId(final int id) {
-        this.id = id;
+        if(id >= 0) {
+            this.id = id;
+        }
     }
 
     /**
@@ -205,7 +207,6 @@ public abstract class AppliUser {
     @Override
     public int hashCode() {
         return Objects.hash(
-                super.hashCode(),
                 login,
                 firstName,
                 lastName,

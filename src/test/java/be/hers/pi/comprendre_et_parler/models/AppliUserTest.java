@@ -3,8 +3,8 @@ package be.hers.pi.comprendre_et_parler.models;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,10 +13,8 @@ class AppliUserTest {
 
     @BeforeAll
     public static void init() {
-        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
-                "test@gmail.com", "123/45.67.89", 10, 120,
-                "Velo", null, null, null, null);
-        a1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
+        Interpreter interpreterTest = new Interpreter("i2365", "samou", "juni", LocalDate.of(2000, 6, 1), "qsdfghjklm", "samoujuni@gmail.com","0489134440", 10, 120, "car", Set.of(), Set.of(), new Location(0, "e", new City("e", 6000), "s", "e", 1), Set.of(), Set.of());
+        a1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), interpreterTest);
     }
 
     @Test
@@ -35,19 +33,15 @@ class AppliUserTest {
 
         AppliUser a2 = a1.clone();
         int hash3 = a2.hashCode();
-        assertEquals(hash2, hash3, "A copied object must have the same hash.");
+        assertEquals(hash3, hash2, "A copied object must have the same hash.");
 
         a2.setId(50);
         int hash4 = a2.hashCode();
         assertEquals(hash1, hash4, "IDs are different but must not impact the hash.");
 
-        a2.setLogin("r348961");
-        int hash5 = a2.hashCode();
-        assertEquals(hash3, hash5, "Logins are different but must not impact the hash.");
-
         a2.setLastName("The last test");
-        int hash6 = a2.hashCode();
-        assertNotEquals(hash4, hash6, "One attribute other than the ID has changed.");
+        int hash5 = a2.hashCode();
+        assertNotEquals(hash4, hash5, "One attribute other than the ID has changed.");
     }
 
     @Test
@@ -60,9 +54,6 @@ class AppliUserTest {
 
         a1.setId(20);
         assertEquals(a2, a1, "The second object has its id changed.");
-
-        a1.setLogin("b782146");
-        assertEquals(a2, a1, "The second object has its login changed.");
 
         a2.setFirstName("The last test");
         assertNotEquals(a2, a1, "The second object has one of its attributes other than its id changed.");

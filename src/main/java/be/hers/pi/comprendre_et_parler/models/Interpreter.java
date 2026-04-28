@@ -228,7 +228,7 @@ public class Interpreter extends AppliUser{
      * @throws IllegalArgumentException if newHourQuotaWeek is negative
      */
     public void setHourQuotaWeek(int newHourQuotaWeek)throws IllegalArgumentException {
-        if (newHourQuotaWeek < 0) {
+        if (newHourQuotaWeek < 0 || newHourQuotaWeek > 168) {
             throw new IllegalArgumentException("Hour quota week cannot be negative");
         }
         this.hourQuotaWeek = newHourQuotaWeek;
@@ -260,7 +260,7 @@ public class Interpreter extends AppliUser{
      * @throws IllegalArgumentException if newHourQuotaYear is negative
      */
     public void setHourQuotaYear(int newHourQuotaYear)throws IllegalArgumentException{
-        if (newHourQuotaYear < 0) {
+        if (newHourQuotaYear < 0 || newHourQuotaYear > 8760) {
             throw new IllegalArgumentException("Hour quota year cannot be negative");
         }
         this.hourQuotaYear = newHourQuotaYear;
