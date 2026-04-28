@@ -1,6 +1,9 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +15,11 @@ class ExceptionalUnavailabilityTest {
     @BeforeAll
     public static void init() {
         PunctualTimeSlot p1 = new PunctualTimeSlot(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-        e1 = new ExceptionalUnavailability("test", p1);
+        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
+                "test@gmail.com", "123/45.67.89", 10, 120,
+                "Auto", new HashSet<>(), new HashSet<>(),
+                new Location(1, "Test", new City(1, "test", 5000), "test", "test", 10), new HashSet<>(), new HashSet<>());
+        e1 = new ExceptionalUnavailability("test", p1, i1);
     }
 
     @Test
