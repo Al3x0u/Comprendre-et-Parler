@@ -107,10 +107,11 @@ class BaseTimeSlotTest {
         b2.setEndTime(LocalTime.MIDNIGHT.plusHours(2));
         assertFalse(b1.overlapsCompletely(b2), "The two objects are on the same day but don't overlap.");
 
-        b2.setEndTime(sixteen);
+        b2.setEndTime(LocalTime.NOON);
         assertFalse(b1.overlapsCompletely(b2), "The two objects are on the same day but overlap partially.");
         assertFalse(b2.overlapsCompletely(b1), "The two objects are on the same day but overlap partially.");
 
+        b2.setEndTime(sixteen);
         b2.setStartTime(b1.getEndTime());
         assertFalse(b1.overlaps(b2), "The first object ends when the second one begins.");
         assertFalse(b2.overlaps(b1), "The second object ends when the first one begins.");
