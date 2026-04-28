@@ -20,7 +20,7 @@ public class Status {
     }
 
     /**
-     * Constructor of a Status object
+     * Constructor of a Status object without id
      * @param designation the name or description of the status
      * @param hourQuota the associated hour quota (will be 0 if negative)
      */

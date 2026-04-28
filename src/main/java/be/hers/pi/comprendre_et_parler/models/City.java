@@ -20,7 +20,7 @@ public class City {
     }
 
     /**
-     Constructor of a City Object
+     Constructor of a City Object without id
      @param d : represent the designation
      @param pC : represent the postal code
      */
