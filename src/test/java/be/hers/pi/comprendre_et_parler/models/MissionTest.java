@@ -2,8 +2,8 @@ package be.hers.pi.comprendre_et_parler.models;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import java.time.LocalDateTime;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +20,7 @@ class MissionTest {
                 "test",
                 MissionState.PENDING,
                 "test",
-                new PunctualTimeSlot(1, LocalTime.NOON, LocalTime.MIDNIGHT, LocalDate.now()),
+                new PunctualTimeSlot(1, LocalDateTime.now(), LocalDateTime.now().plusHours(2)),
                 b1,
                 new Location(1, "test", new City(1, "Libramont", 6800), "test", "test", 15),
                 new JobSkill(2, "test"),
