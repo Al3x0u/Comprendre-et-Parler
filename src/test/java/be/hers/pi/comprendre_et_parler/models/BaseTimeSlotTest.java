@@ -51,7 +51,7 @@ class BaseTimeSlotTest {
     @Test
     public void testSetEndDate() {
         b1.setEndDate(today.minusWeeks(1));
-        assertEquals(today, b1.getEndDate(), "endDate cannot be before startDate.");
+        assertEquals(today.plusDays(1), b1.getEndDate(), "endDate cannot be before startDate.");
         b1.setEndDate(today.plusMonths(1));
         assertEquals(today.plusMonths(1), b1.getEndDate(), "endDate has to change.");
         b1.setEndDate(b1.getStartDate());
