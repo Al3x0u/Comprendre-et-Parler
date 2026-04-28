@@ -67,7 +67,7 @@ class PunctualTimeSlotTest {
         assertTrue(p2.overlapsCompletely(p1), "The first object completely overlaps the second one.");
 
         p2.setEndDate(p1.getEndDate().plusMinutes(25));
-        p2.setStartDate(p1.getStartDate().plusHours(6));
+        p2.setStartDate(p1.getStartDate().plusHours(1));
         assertFalse(p1.overlapsCompletely(p2), "The two dates overlap partially.");
         assertFalse(p2.overlapsCompletely(p1), "The two dates overlap partially.");
 
