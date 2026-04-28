@@ -1,0 +1,106 @@
+:root {
+    /* Blue
+     * ─────────────────────────────────── */
+    --oc-blue-0: #e7f5ff;
+    --oc-blue-0-rgb: 231, 245, 255;
+    --oc-blue-1: #d0ebff;
+    --oc-blue-1-rgb: 208, 235, 255;
+    --oc-blue-2: #a5d8ff;
+    --oc-blue-2-rgb: 165, 216, 255;
+    --oc-blue-3: #74c0fc;
+    --oc-blue-3-rgb: 116, 192, 252;
+    --oc-blue-4: #4dabf7;
+    --oc-blue-4-rgb: 77, 171, 247;
+    --oc-blue-5: #339af0;
+    --oc-blue-5-rgb: 51, 154, 240;
+    --oc-blue-6: #228be6;
+    --oc-blue-6-rgb: 34, 139, 230;
+    --oc-blue-7: #1c7ed6;
+    --oc-blue-7-rgb: 28, 126, 214;
+    --oc-blue-8: #1971c2;
+    --oc-blue-8-rgb: 25, 113, 194;
+    --oc-blue-9: #1864ab;
+    --oc-blue-9-rgb: 24, 100, 171;
+
+    /* Gray
+     * ─────────────────────────────────── */
+    --oc-gray-0: #f8f9fa;
+    --oc-gray-0-rgb: 248, 249, 250;
+    --oc-gray-1: #f1f3f5;
+    --oc-gray-1-rgb: 241, 243, 245;
+    --oc-gray-2: #e9ecef;
+    --oc-gray-2-rgb: 233, 236, 239;
+    --oc-gray-3: #dee2e6;
+    --oc-gray-3-rgb: 222, 226, 230;
+    --oc-gray-4: #ced4da;
+    --oc-gray-4-rgb: 206, 212, 218;
+    --oc-gray-5: #adb5bd;
+    --oc-gray-5-rgb: 173, 181, 189;
+    --oc-gray-6: #868e96;
+    --oc-gray-6-rgb: 134, 142, 150;
+    --oc-gray-7: #495057;
+    --oc-gray-7-rgb: 73, 80, 87;
+    --oc-gray-8: #343a40;
+    --oc-gray-8-rgb: 52, 58, 64;
+    --oc-gray-9: #212529;
+    --oc-gray-9-rgb: 33, 37, 41;
+}
+
+/* ─── Base ─────────────────────────────────────────── */
+body {
+    background-color: var(--oc-gray-1);
+}
+
+/* ─── Navbar ────────────────────────────────────────── */
+.nav-link.active {
+    background-color: var(--oc-blue-1);
+    color: var(--oc-blue-9) !important;
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
+.nav-link:hover {
+    color: var(--oc-blue-9);
+}
+
+.profile-name {
+    color: var(--oc-blue-9);
+}
+
+/* ─── Dashboard grid ────────────────────────────────── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 0 2rem;
+    }
+}
+
+/* ─── Dashboard cards ───────────────────────────────── */
+.bg-schedule,
+.bg-interpreters,
+.bg-beneficiaries {
+    background-color: var(--oc-blue-3);
+}
+
+.dashboard-card-title {
+    font-size: 2rem;
+}
+
+.dashboard-card-subtitle {
+    font-size: 1rem;
+}
+
+.dashboard-grid a:hover .card {
+    transform: translateY(-4px);
+    transition: transform 0.2s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
+}
