@@ -5,11 +5,76 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.NoSuchElementException;
+
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.util.Set;
 
 public abstract class DAO<T> {
+
+    public static <T, R> R call(FunctionWithSQLException<T, R> func, T param, boolean noSavePoint) {
+        R ret = null;
+        try {
+            // Begin transaction
+            ret = func.apply(param);
+            // Commit
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            // Handle reconnection
+        }
+        return ret;
+    }
+    public static <T, R> R call(FunctionWithSQLException<T, R> func, T param) {
+        return call(func, param, false);
+    }
+
+    public static <T, U, R> R call(BiFunctionWithSQLException<T, U, R> func, T param1, U param2, boolean noSavePoint) {
+        R ret = null;
+        try {
+            // Begin transaction
+            ret = func.apply(param1, param2);
+            // Commit
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            // Handle reconnection
+        }
+        return ret;
+    }
+    public static <T, U, R> R call(BiFunctionWithSQLException<T, U, R> func, T param1, U param2) {
+        return call(func, param1, param2, false);
+    }
+
+    public static <T> void call(ConsumerWithSQLException<T> cons, T param, boolean noSavePoint) {
+        try {
+            // Begin transaction
+            cons.apply(param);
+            // Commit
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            // Handle reconnection
+        }
+    }
+    public static <T, U> void call(ConsumerWithSQLException<T> cons, T param1, U param2) {
+        call(cons, param1, false);
+    }
+
+    public static <T, U> void call(BiConsumerWithSQLException<T, U> cons, T param1, U param2, boolean noSavePoint) {
+        try {
+            // Begin transaction
+            cons.apply(param1, param2);
+            // Commit
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            // Handle reconnection
+        }
+    }
+    public static <P> void call(ConsumerWithSQLException<P> cons, P param) {
+        call(cons, param, false);
+    }
 
     /**
      * @param id the primary key of the object to find in database
