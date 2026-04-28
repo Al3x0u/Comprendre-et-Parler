@@ -151,11 +151,7 @@ public class BaseTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps, or false if it doesn't
      */
     public boolean overlaps(BaseTimeSlot timeSlot) {
-        boolean result = false;
-        if(this.day.equals(timeSlot.day) && this.startDate.isBefore(timeSlot.endDate) && this.endDate.isAfter(timeSlot.startDate)) {
-            result = this.startTime.isBefore(timeSlot.endTime) && this.endTime.isAfter(timeSlot.startTime);
-        }
-        return result;
+        return this.day.equals(timeSlot.day) && this.startTime.isBefore(timeSlot.endTime) && this.endTime.isAfter(timeSlot.startTime);
     }
 
     /**
@@ -164,11 +160,9 @@ public class BaseTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps totally, or false if it doesn't
      */
     public boolean overlapsCompletely(BaseTimeSlot timeSlot) {
-        boolean result = false;
-        if(this.day.equals(timeSlot.day) && (this.startDate.isBefore(timeSlot.startDate) && this.endDate.isAfter(timeSlot.endDate)) || (this.startDate.isAfter(timeSlot.startDate) && this.endDate.isBefore(timeSlot.endDate))) {
-            result = (this.startTime.isBefore(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime)) || (this.startTime.isAfter(timeSlot.startTime) && this.endTime.isBefore(timeSlot.endTime));
-        }
-        return result;
+        return this.day.equals(timeSlot.day)
+                && (this.startTime.isBefore(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime))
+                || (this.startTime.isAfter(timeSlot.startTime) && this.endTime.isBefore(timeSlot.endTime));
     }
 
     /**

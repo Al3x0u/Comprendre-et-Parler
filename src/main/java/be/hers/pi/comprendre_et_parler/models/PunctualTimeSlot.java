@@ -88,7 +88,8 @@ public class PunctualTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps totally, or false if it doesn't
      */
     public boolean overlapsCompletely(PunctualTimeSlot timeSlot) {
-        return (this.startDate.isBefore(timeSlot.startDate) && this.endDate.isAfter(timeSlot.endDate)) || (this.startDate.isAfter(timeSlot.startDate) && this.endDate.isBefore(timeSlot.endDate));
+        return (this.startDate.isBefore(timeSlot.startDate) && this.endDate.isAfter(timeSlot.endDate))
+                || (this.startDate.isAfter(timeSlot.startDate) && this.endDate.isBefore(timeSlot.endDate));
     }
 
     /**
