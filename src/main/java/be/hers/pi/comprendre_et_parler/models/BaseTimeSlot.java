@@ -138,7 +138,7 @@ public class BaseTimeSlot extends TimeSlot {
     }
 
     /**
-     * Copy constructor of this BaseTimeSlot Object
+     * @return a copy of this BaseTimeSlot Object
      */
     @Override
     public BaseTimeSlot clone() {

@@ -33,7 +33,7 @@ public abstract class TimeSlot {
     }
 
     /**
-     * Copy constructor of this TimeSlot Object
+     * @return a copy of this TimeSlot Object
      */
     public abstract TimeSlot clone();
 

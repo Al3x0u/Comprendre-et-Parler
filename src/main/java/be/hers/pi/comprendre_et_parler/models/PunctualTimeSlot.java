@@ -7,8 +7,13 @@ public class PunctualTimeSlot extends TimeSlot {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    public PunctualTimeSlot(int id, LocalDateTime startDate, LocalDateTime endDate)
-    {
+    /**
+     * Constructor of a PunctualTimeSlot Object
+     * @param id : represent id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     */
+    public PunctualTimeSlot(int id, LocalDateTime startDate, LocalDateTime endDate) {
         super(id);
         this.startDate = startDate;
 
@@ -19,36 +24,49 @@ public class PunctualTimeSlot extends TimeSlot {
         }
     }
 
-    public PunctualTimeSlot(LocalDateTime startDate, LocalDateTime endDate)
-    {
-        super();
-        this.startDate = startDate;
-
-        if (endDate.isAfter(startDate)) {
-            this.endDate = endDate;
-        } else {
-            this.endDate = startDate;
-        }
+    /**
+     * Constructor of a PunctualTimeSlot Object without id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     */
+    public PunctualTimeSlot(LocalDateTime startDate, LocalDateTime endDate) {
+        this(-1, startDate, endDate);
     }
 
-    public PunctualTimeSlot(PunctualTimeSlot p) {
-        this(p.id, p.startDate,p.endDate);
+    /**
+     * Copy constructor of a PunctualTimeSlot Object
+     * @param other represent the PunctualTimeSlot object
+     */
+    public PunctualTimeSlot(PunctualTimeSlot other) {
+        this(other.id, other.startDate,other.endDate);
     }
 
+    /**
+     * @return this.startDate
+     */
     public LocalDateTime getStartDate() {
         return startDate;
     }
 
+    /**
+     * @param startDate represent the new startDate
+     */
     public void setStartDate(LocalDateTime startDate) {
         if (startDate.isBefore(this.endDate)) {
             this.startDate = startDate;
         }
     }
 
+    /**
+     * @return this.endDate
+     */
     public LocalDateTime getEndDate() {
         return endDate;
     }
 
+    /**
+     * @param endDate represent the new endDate
+     */
     public void setEndDate(LocalDateTime endDate) {
         if (endDate.isAfter(this.startDate)) {
             this.endDate = endDate;
@@ -73,6 +91,9 @@ public class PunctualTimeSlot extends TimeSlot {
         return (this.startDate.isBefore(timeSlot.startDate) && this.endDate.isAfter(timeSlot.endDate)) || (this.startDate.isAfter(timeSlot.startDate) && this.endDate.isBefore(timeSlot.endDate));
     }
 
+    /**
+     * @return a copy of this PunctualTimeSlot Object
+     */
     @Override
     public PunctualTimeSlot clone() {
         return new PunctualTimeSlot(super.id, this.startDate, this.endDate);
