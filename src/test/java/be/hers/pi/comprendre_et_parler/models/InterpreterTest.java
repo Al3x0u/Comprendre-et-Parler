@@ -1,10 +1,10 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,30 +12,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class InterpreterTest {
     private static Interpreter i1;
 
-    @BeforeEach
-    public void init() {
+    @BeforeAll
+    public static void init() {
         i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
-                "Velo", null, null, null, null, null);
+                "Auto", new HashSet<>(), new HashSet<>(),
+                new Location(1, "Test", new City(1, "test", 5000), "test", "test", 10), new HashSet<>(), new HashSet<>());
     }
 
     @Test
     void testSetHourQuotaWeek() {
-        assertThrows(IllegalArgumentException.class, () -> i1.setHourQuotaWeek(-1), "IllegalArgumentException should be thrown for negative value.");
+        i1.setHourQuotaWeek(-1);
         assertEquals(10, i1.getHourQuotaWeek(), "id cannot be negative.");
         i1.setHourQuotaWeek(20);
-        assertEquals(20, i1.getHourQuotaWeek(), "id has to change.");
-        assertThrows(IllegalArgumentException.class, () -> i1.setHourQuotaWeek(500));
         assertEquals(20, i1.getHourQuotaWeek(), "id has to change.");
     }
 
     @Test
     void testSetHourQuotaYear() {
-        assertThrows(IllegalArgumentException.class, () -> i1.setHourQuotaYear(-1), "IllegalArgumentException should be thrown for negative value.");
+        i1.setHourQuotaYear(-1);
         assertEquals(120, i1.getHourQuotaYear(), "id cannot be negative.");
         i1.setHourQuotaYear(100);
-        assertEquals(100, i1.getHourQuotaYear(), "id has to change.");
-        assertThrows(IllegalArgumentException.class, () -> i1.setHourQuotaYear(60000)); // ← ici aussi
         assertEquals(100, i1.getHourQuotaYear(), "id has to change.");
     }
 

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,8 +12,12 @@ class BeneficiaryTest {
 
     @BeforeAll
     public static void init() {
-        Interpreter interpreterTest = new Interpreter("i2365", "samou", "juni", LocalDate.of(2000, 6, 1), "qsdfghjklm", "samoujuni@gmail.com","0489134440", 10, 120, "car", Set.of(), Set.of(), new Location(0, "e", new City("e", 6000), "s", "e", 1), Set.of(), Set.of());
-        b1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), interpreterTest);
+        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
+                "test@gmail.com", "123/45.67.89", 10, 120,
+                "Auto", null, null, null, null, null);
+        b1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(),
+                "1234", "test@gmail.com", "123/45.67.89",
+                new Status(1, "test", 10), i1);
     }
 
     @Test
