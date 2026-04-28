@@ -4,35 +4,14 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public abstract class AppliUser {
-    private int id;
-    private String login;
-    private String firstName;
-    private String lastName;
-    private LocalDate birthDate;
-    private String hashedPassword;
-    private String email;
-    private String phoneNumber;
-
-    /**
-     Constructor of a AppliUser without id
-     @param login represent the login
-     @param firstName represent the firstname
-     @param lastName represent he lastname
-     @param birthDate represent the birthdate
-     @param hashedPassword represent the hashed password
-     @param email represent the email
-     @param phoneNumber represent the phone number
-     */
-    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
-        id = -1;
-        this.login = login;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.birthDate = birthDate;
-        this.hashedPassword = hashedPassword;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
+    protected int id = -1;
+    protected String login;
+    protected String firstName;
+    protected String lastName;
+    protected LocalDate birthDate;
+    protected String hashedPassword;
+    protected String email;
+    protected String phoneNumber;
 
     /**
      Constructor of a AppliUser with id
@@ -46,7 +25,7 @@ public abstract class AppliUser {
      @param phoneNumber represent the phone number
      */
     public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
-        this.id = id;
+        if(id >= 0) this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -57,25 +36,34 @@ public abstract class AppliUser {
     }
 
     /**
+     Constructor of a AppliUser without id
+     @param login represent the login
+     @param firstName represent the firstname
+     @param lastName represent he lastname
+     @param birthDate represent the birthdate
+     @param hashedPassword represent the hashed password
+     @param email represent the email
+     @param phoneNumber represent the phone number
+     */
+    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+        this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+    }
+
+    /**
      * Copy constructor. Creates a deep copy of the given AppliUser.
      * @param other the AppliUser to copy, must not be null
      */
     public AppliUser(AppliUser other) {
-        id = other.id;
-        this.login = other.login;
-        this.firstName = other.firstName;
-        this.lastName = other.lastName;
-        this.birthDate = other.birthDate;
-        this.hashedPassword = other.hashedPassword;
-        this.email = other.email;
-        this.phoneNumber = other.phoneNumber;
+        this(other.id, other.login, other.firstName, other.lastName, other.birthDate, other.hashedPassword, other.email, other.phoneNumber);
     }
+
+    public abstract AppliUser clone();
 
     /**
      * @param id represent the new id
      */
-    public void setId(final int id) {
-        this.id = id;
+    public void setId(int id) {
+        if(id >= 0) this.id = id;
     }
 
     /**
@@ -205,7 +193,6 @@ public abstract class AppliUser {
     @Override
     public int hashCode() {
         return Objects.hash(
-                super.hashCode(),
                 login,
                 firstName,
                 lastName,

@@ -104,7 +104,6 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * Populates a Beneficiary object from the current row of the given ResultSet.
      * Fetches the associated Status and reference Interpreter from the database
      * using their respective DAOs.
-     * @param beneficiary the Beneficiary object to populate
      * @param result      the ResultSet positioned on the row to read, must not be null
      * @throws SQLException if a database access error occurs while reading the ResultSet
      */
@@ -267,7 +266,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     /**
      *
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
@@ -330,7 +329,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @param idStatus represent the id of the status
      * @throws SQLException if the database could not be reached
      * @throws NoSuchElementException if the idStatus doesn't correspond to a existent Status
-     * @return a List of Beneficiary who have the id having the given idStatus,or an empty list if no beneficiaries having this Status
+     * @return a Set of Beneficiary who have the id having the given idStatus,or an empty Set if no beneficiaries having this Status
      */
     public Set<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
         Connection connection = DatabaseConnector.getInstance();

@@ -19,7 +19,7 @@ class BaseTimeSlotTest {
 
     @BeforeEach
     public void init() {
-        b1 = new BaseTimeSlot(1, eleven, thirteen, today, today.plusDays(1), DayOfWeek.SUNDAY);
+        b1 = new BaseTimeSlot(1, today, today.plusDays(1), eleven, thirteen, DayOfWeek.SUNDAY);
     }
 
     @Test
@@ -51,7 +51,7 @@ class BaseTimeSlotTest {
     @Test
     public void testSetEndDate() {
         b1.setEndDate(today.minusWeeks(1));
-        assertEquals(today, b1.getEndDate(), "endDate cannot be before startDate.");
+        assertEquals(today.plusDays(1), b1.getEndDate(), "endDate cannot be before startDate.");
         b1.setEndDate(today.plusMonths(1));
         assertEquals(today.plusMonths(1), b1.getEndDate(), "endDate has to change.");
         b1.setEndDate(b1.getStartDate());
@@ -63,7 +63,7 @@ class BaseTimeSlotTest {
         assertTrue(b1.overlaps(b1), "The second object is the same as the first one.");
         assertFalse(b1.overlaps(null), "The second object is null.");
 
-        BaseTimeSlot b2 = new BaseTimeSlot(2, eight, sixteen, today, today.plusDays(1), DayOfWeek.SUNDAY);
+        BaseTimeSlot b2 = new BaseTimeSlot(2, today, today.plusDays(1), eight, sixteen, DayOfWeek.WEDNESDAY);
         assertFalse(b1.overlaps(b2), "The second object completely overlaps the first one, but they are not on the same day.");
 
         b1.setDay(b2.getDay());
@@ -92,7 +92,7 @@ class BaseTimeSlotTest {
         assertTrue(b1.overlapsCompletely(b1), "The second object is the same as the first one.");
         assertFalse(b1.overlapsCompletely(null), "The second object is null.");
 
-        BaseTimeSlot b2 = new BaseTimeSlot(2, eight, sixteen, today, today.plusDays(1), DayOfWeek.SUNDAY);
+        BaseTimeSlot b2 = new BaseTimeSlot(3, today, today.plusDays(1), eight, sixteen, DayOfWeek.WEDNESDAY);
         assertFalse(b1.overlapsCompletely(b2), "The second object completely overlaps the first one, but they are not on the same day.");
 
         b1.setDay(b2.getDay());
@@ -107,10 +107,11 @@ class BaseTimeSlotTest {
         b2.setEndTime(LocalTime.MIDNIGHT.plusHours(2));
         assertFalse(b1.overlapsCompletely(b2), "The two objects are on the same day but don't overlap.");
 
-        b2.setEndTime(sixteen);
+        b2.setEndTime(LocalTime.NOON);
         assertFalse(b1.overlapsCompletely(b2), "The two objects are on the same day but overlap partially.");
         assertFalse(b2.overlapsCompletely(b1), "The two objects are on the same day but overlap partially.");
 
+        b2.setEndTime(sixteen);
         b2.setStartTime(b1.getEndTime());
         assertFalse(b1.overlaps(b2), "The first object ends when the second one begins.");
         assertFalse(b2.overlaps(b1), "The second object ends when the first one begins.");

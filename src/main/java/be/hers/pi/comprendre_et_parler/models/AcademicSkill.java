@@ -28,7 +28,7 @@ public class AcademicSkill {
 
     /**
      * Copy constructor of a AcademicSkill Object
-     * @param other represent the JobSkill object
+     * @param other represent the AcademicSkill object
      */
     public AcademicSkill(AcademicSkill other) {
         this(other.id,other.designation);

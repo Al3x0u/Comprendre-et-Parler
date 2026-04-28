@@ -5,9 +5,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.Interpreter;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -132,16 +130,16 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
     }
 
     /**
-     * Return all line of AcademicSkill table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * Return all line of AcademicSkill table in the database in a Set
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<AcademicSkill> findAll() throws SQLException {
+    public Set<AcademicSkill> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE;
         PreparedStatement statement = null;
         ResultSet result = null;
-        List<AcademicSkill> ret = new ArrayList<>();
+        Set<AcademicSkill> ret = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
@@ -202,11 +200,11 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
     /**
      * Return all Academic Skill of An Interpreter
      * @param idInterpreter represent the id of the interpreter that we want the Academic Skill
-     * @return  a List who represent the Academic Skill of the interpreter
+     * @return  a Set who represent the Academic Skill of the interpreter
      * @throws SQLException if the database could not be reached
      * @throws NoSuchElementException if the idInterpreter doesn't correspond to an Interpreter
      */
-    public List<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException, NoSuchElementException{
+    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException, NoSuchElementException{
         DAOInterpreter daoInterpreter = new DAOInterpreter();
         Interpreter interpreter = daoInterpreter.find(idInterpreter);
         if (interpreter == null) {
@@ -215,7 +213,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
         String query = "SELECT a." + FIELD_ID +", a."+ FIELD_DESIGNATION+" FROM " + TABLE + " a JOIN AcademicSkillInterpreter asi ON a."+ FIELD_ID+" = asi.idAcademicSkill WHERE asi.idInterpreter = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
-        List<AcademicSkill> ret = new ArrayList<>();
+        Set<AcademicSkill> ret = new HashSet<>();
 
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);

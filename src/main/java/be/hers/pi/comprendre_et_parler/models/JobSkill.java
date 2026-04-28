@@ -19,7 +19,7 @@ public class JobSkill {
     }
 
     /**
-     Constructor of a JobSkill Object
+     Constructor of a JobSkill Object without id
      @param designation : represent designation
      */
     public JobSkill(String designation) {
