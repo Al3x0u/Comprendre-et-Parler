@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.Interpreter;
-import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
