@@ -46,6 +46,10 @@
     --oc-gray-9-rgb: 33, 37, 41;
 }
 
+.form-login {
+    max-width: 500px;
+}
+
 /* ─── Base ─────────────────────────────────────────── */
 body {
     background-color: var(--oc-gray-1);
