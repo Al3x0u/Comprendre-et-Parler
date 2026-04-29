@@ -2,109 +2,158 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Profil interprète</title>
   <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 
+  <style>
+    .profile-avatar {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+    }
+  </style>
 </head>
 <body class="bg-body-tertiary">
 
-<div class="container py-4">
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4 py-md-5">
+
   <div class="mb-3">
-    <a th:href="@{/interpreters}" class="btn btn-outline-secondary btn-sm">
-      Retour à la liste
-    </a>
+    <a th:href="@{/interpreters}" class="btn btn-outline-secondary btn-lg">Retour à la liste</a>
   </div>
 
-  <div class="card shadow-sm border-0">
-    <div class="card-header bg-primary text-white">
-      <h1 class="h3 mb-0">Profil de l'interprète</h1>
-    </div>
+  <div class="card border-0 shadow-sm mb-4" th:object="${interprete}">
+    <div class="card-body bg-primary text-white rounded p-4 p-md-5">
+      <div class="row align-items-center g-4">
 
-    <div class="card-body" th:object="${interprete}">
-      <h2 class="h4 text-primary mb-1" th:text="*{login}"></h2>
-      <p class="fw-semibold mb-4" th:text="*{firstName + ' ' + lastName}"></p>
+        <div class="col-12 col-md-auto text-center">
+          <img th:src="@{/images/avatar_01.png}" alt="Avatar interprète" class="profile-avatar rounded-circle border border-4 border-white shadow">
+        </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <div class="border rounded p-3 bg-light">
-            <div class="fw-bold">Adresse mail</div>
-            <div th:text="*{email}"></div>
+        <div class="col-12 col-md">
+          <p class="text-white-50 mb-1">Profil interprète</p>
+          <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
+          <p class="fw-semibold mb-3" th:text="*{login}"></p>
+
+          <div class="d-grid d-md-flex gap-2">
+            <a href="#" class="btn btn-light btn-lg text-primary fw-semibold">Modifier le profil</a>
+            <a th:href="@{/interpreters}" class="btn btn-outline-light btn-lg">Retour à la liste</a>
           </div>
         </div>
 
-        <div class="col-md-6">
-          <div class="border rounded p-3 bg-light">
-            <div class="fw-bold">Téléphone</div>
-            <div th:text="*{phoneNumber}"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4" th:object="${interprete}">
+
+    <div class="col-12 col-lg-8">
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-primary mb-4">Informations de contact</h2>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="bg-light rounded p-3 h-100">
+                <p class="text-secondary fw-bold small mb-1">Adresse mail</p>
+                <p class="mb-0" th:text="*{email}"></p>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <div class="bg-light rounded p-3 h-100">
+                <p class="text-secondary fw-bold small mb-1">Téléphone</p>
+                <p class="mb-0" th:text="*{phoneNumber}"></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="mb-3">
-        <div class="border rounded p-3 bg-light">
-          <div class="fw-bold mb-2">Localisation</div>
-          <div th:if="*{location != null}">
-            <div th:text="*{location.designation}"></div>
-            <div th:text="*{location.street + ' ' + location.streetNumber}"></div>
-            <div th:text="*{location.city.postalCode + ' ' + location.city.designation}"></div>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-primary mb-4">Localisation</h2>
+
+          <div th:if="*{location != null}" class="bg-light rounded p-3">
+            <p class="mb-2" th:text="*{location.designation}"></p>
+            <p class="mb-2" th:text="*{location.street + ' ' + location.streetNumber}"></p>
+            <p class="mb-0" th:text="*{location.city.postalCode + ' ' + location.city.designation}"></p>
           </div>
+
           <div th:unless="*{location != null}" class="text-muted">
             Aucune localisation renseignée
           </div>
         </div>
       </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-md-8">
-          <div class="border rounded p-3 bg-light h-100">
-            <div class="fw-bold mb-2">Compétences</div>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="h5 text-primary mb-4">Indisponibilités</h2>
 
-            <div class="mb-2">
-              <span class="fw-semibold">Académiques :</span>
-              <span th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}">
-                <span th:each="skill : *{academicSkills}" class="badge bg-secondary me-1 mb-1" th:text="${skill.designation}"></span></span>
-              <span th:unless="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="text-muted">Aucune</span>
-            </div>
-
-            <div>
-              <span class="fw-semibold">Métier :</span>
-              <span th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}">
-                <span th:each="skill : *{jobSkills}" class="badge bg-dark me-1 mb-1" th:text="${skill.designation}"></span>
-              </span>
-              <span th:unless="*{jobSkills != null and !#sets.isEmpty(jobSkills)}"
-                    class="text-muted">Aucune</span>
+          <div th:if="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="d-flex flex-column gap-3">
+            <div th:each="u : *{unavailability}" class="bg-light rounded p-3 border">
+              <p class="fw-semibold mb-2" th:text="${u.reason}"></p>
+              <p class="mb-0 text-secondary">
+                <span th:text="${#temporals.format(u.timeSlot.startDate, 'dd/MM/yyyy HH:mm')}"></span>
+                <span> - </span>
+                <span th:text="${#temporals.format(u.timeSlot.endDate, 'dd/MM/yyyy HH:mm')}"></span>
+              </p>
             </div>
           </div>
-        </div>
 
-        <div class="col-md-4">
-          <div class="border rounded p-3 bg-light h-100">
-            <div class="fw-bold mb-2">Transport</div>
-            <div th:text="*{transportMode}"></div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="border rounded p-3 bg-light">
-          <div class="fw-bold mb-2">Indisponibilités</div>
-          <ul class="mb-0" th:if="*{unavailability != null and !#sets.isEmpty(unavailability)}">
-            <li th:each="u : *{unavailability}">
-              <span th:text="${u.reason}"></span>
-              -
-              <span th:text="${#temporals.format(u.timeSlot.startDate, 'dd/MM/yyyy HH:mm')}"></span>
-              à
-              <span th:text="${#temporals.format(u.timeSlot.endDate, 'dd/MM/yyyy HH:mm')}"></span>
-            </li>
-          </ul>
           <div th:unless="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="text-muted">
             Aucune indisponibilité renseignée
           </div>
         </div>
       </div>
+
     </div>
+
+    <div class="col-12 col-lg-4">
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-primary mb-4">Compétences académiques</h2>
+
+          <div th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="d-flex flex-wrap gap-2">
+            <span th:each="skill : *{academicSkills}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill" th:text="${skill.designation}"></span>
+          </div>
+
+          <div th:unless="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="text-muted">
+            Aucune compétence académique
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h2 class="h5 text-primary mb-4">Compétences métier</h2>
+
+          <div th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="d-flex flex-wrap gap-2">
+            <span th:each="skill : *{jobSkills}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill" th:text="${skill.designation}"></span>
+          </div>
+
+          <div th:unless="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="text-muted">
+            Aucune compétence métier
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="h5 text-primary mb-4">Transport</h2>
+          <p class="mb-0" th:text="*{transportMode}"></p>
+        </div>
+      </div>
+
+    </div>
+
   </div>
-</div>
+
+</main>
 
 </body>
 </html>
