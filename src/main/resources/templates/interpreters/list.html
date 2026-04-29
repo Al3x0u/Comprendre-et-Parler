@@ -5,77 +5,121 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Liste des interprètes</title>
   <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-  <style>
-    .page-header {
-      background: linear-gradient(135deg, #0d6efd, #6ea8fe);
-      color: white;
-      border-radius: 1rem;
-    }
-
-    .interpreter-card {
-      border: 0;
-      border-radius: 1rem;
-      box-shadow: 0 .125rem .5rem rgba(0,0,0,.08);
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-
-    .interpreter-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 .5rem 1rem rgba(0,0,0,.12);
-    }
-
-    .avatar {
-      width: 56px;
-      height: 56px;
-      object-fit: cover;
-    }
-
-    .profile-btn {
-      min-height: 44px;
-    }
-  </style>
 </head>
 <body class="bg-body-tertiary">
 
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<main class="container py-4 py-md-5">
-  <section class="page-header p-4 p-md-5 shadow-sm mb-4">
-    <div class="d-flex flex-column gap-2">
-      <span class="badge text-bg-light text-primary align-self-start">Responsable</span>
-      <h1 class="h3 h2-md mb-0">Liste des interprètes</h1>
+<main class="container py-4">
 
+  <div class="card shadow-sm border-0">
+
+    <div class="card-header bg-primary text-white">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+        <div>
+          <h1 class="h3 mb-1">Liste des interprètes</h1>
+        </div>
+
+        <div>
+          <a href="#" class="btn btn-light text-primary fw-semibold">Ajouter un interprète</a>
+        </div>
+
+      </div>
     </div>
-  </section>
 
-  <section class="row g-3" th:if="${interpretes != null and !#lists.isEmpty(interpretes)}">
-    <div class="col-12" th:each="interprete : ${interpretes}">
-      <article class="card interpreter-card">
-        <div class="card-body p-3 p-md-4">
-          <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-sm-between gap-3">
-            <div class="d-flex align-items-center gap-3">
-              <img th:src="@{/images/avatar.png}" alt="Avatar interprète" class="avatar rounded-circle border">
-              <div>
-                <div class="fw-bold text-primary fs-5" th:text="${interprete.login}"></div>
-                <div class="text-body-secondary" th:text="${interprete.firstName + ' ' + interprete.lastName}"></div>
-              </div>
+    <div class="card-body border-bottom">
+      <form method="get" th:action="@{/interpreters}" class="row g-2">
+
+        <div class="col-12 col-md">
+          <label for="keyword" class="form-label">Recherche</label>
+          <input id="keyword" type="text" name="keyword" class="form-control" placeholder="Rechercher par login, prénom ou nom" th:value="${keyword}">
+        </div>
+
+        <div class="col-12 col-md-auto d-grid align-self-end">
+          <button type="submit" class="btn btn-primary">
+            Rechercher
+          </button>
+        </div>
+
+        <div class="col-12 col-md-auto d-grid align-self-end">
+          <a th:href="@{/interpreters}" class="btn btn-outline-secondary">Réinitialiser</a>
+        </div>
+
+      </form>
+    </div>
+
+    <div th:if="${interpretes != null and !#lists.isEmpty(interpretes)}">
+      <div class="list-group list-group-flush">
+
+        <div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" th:each="interprete : ${interpretes}">
+
+          <div class="d-flex align-items-center gap-3">
+
+            <div>
+              <img th:src="@{/images/avatar.png}" alt="Avatar interprète" width="52" height="52" class="rounded-circle border">
             </div>
 
-            <a th:href="@{/interpreters/profile/{id}(id=${interprete.id})}"
-               class="btn btn-primary profile-btn px-4 w-100 w-sm-auto">
-              Voir le profil
-            </a>
-          </div>
-        </div>
-      </article>
-    </div>
-  </section>
+            <div>
+              <div class="fw-bold text-primary" th:text="${interprete.login}"></div>
+              <div th:text="${interprete.firstName + ' ' + interprete.lastName}"></div>
+            </div>
 
-  <div class="alert alert-info shadow-sm" th:if="${interpretes == null or #lists.isEmpty(interpretes)}">
-    Aucun interprète à afficher.
+          </div>
+
+          <div>
+            <a th:href="@{/interpreters/profile/{id}(id=${interprete.id})}" class="btn btn-primary btn-sm">Voir le profil</a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card-body" th:if="${interpretes == null or #lists.isEmpty(interpretes)}">
+      <div class="alert alert-info mb-0">
+        Aucun interprète trouvé.
+      </div>
+    </div>
+
+    <div class="card-footer bg-white">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+        <div class="text-body-secondary small">
+          <span th:text="'Affichage de ' + ${startItem}"></span>
+          <span th:text="' à ' + ${endItem}"></span>
+          <span th:text="' sur ' + ${totalItems} + ' interprète(s)'"></span>
+        </div>
+
+        <nav th:if="${totalPages > 1}" aria-label="Pagination des interprètes">
+
+          <ul class="pagination pagination-sm mb-0 flex-wrap">
+
+            <li class="page-item" th:classappend="${hasPrevious} ? '' : ' disabled'">
+              <a class="page-link" th:href="@{/interpreters(page=${pageNumber - 1}, keyword=${keyword})}">Précédent</a>
+            </li>
+
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == pageNumber} ? ' active' : ''">
+              <a class="page-link" th:href="@{/interpreters(page=${i}, keyword=${keyword})}" th:text="${i}"></a>
+            </li>
+
+            <li class="page-item" th:classappend="${hasNext} ? '' : ' disabled'">
+              <a class="page-link" th:href="@{/interpreters(page=${pageNumber + 1}, keyword=${keyword})}">Suivant</a>
+            </li>
+
+          </ul>
+        </nav>
+
+      </div>
+
+    </div>
+
   </div>
+
 </main>
 
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<!-- A UTILISER PLUS TARD PEUT ETRE -->
+<!--<script th:src="@{/js/bootstrap.bundle.min.js}"></script>-->
 </body>
 </html>
