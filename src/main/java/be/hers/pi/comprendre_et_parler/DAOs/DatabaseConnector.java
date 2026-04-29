@@ -60,10 +60,15 @@ public class DatabaseConnector {
      * @throws ConnectionException if the connection failed
      */
     public static Connection getInstance() throws ConnectionException {
-        if (connection == null) {
-            initialize();
+        try {
+            if (connection == null || connection.isClosed()) {
+                initialize();
+            }
+            return connection;
         }
-        return connection;
+        catch (SQLException e) {
+            throw new ConnectionException("Could not connect to database");
+        }
     }
 
     /**
