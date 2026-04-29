@@ -1,14 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr"
       xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="#{website.name}"></title>
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/style.css}" rel="stylesheet">
-    <link th:href="#{bootstrap.icons}" rel="stylesheet">
-</head>
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
 <body class="vh-100">
 <div th:replace="~{common/navbar :: navbar}"></div>
 
@@ -58,5 +51,7 @@
     </a>
 </div>
 
+<!-- Bundle Bootstrap JS -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

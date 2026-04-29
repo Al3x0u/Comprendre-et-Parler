@@ -39,13 +39,27 @@
                         Bénéficiaires
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="profile-name nav-link" th:href="@{/profile}">Isabelle Hulin</a>
-                </li>
-                <li class="nav-item">
-                    <a th:href="@{/profile}">
-                        <img src="/images/avatar.png" alt="Profil" width="35" class="rounded-circle border border-black border-1">
+
+                <!-- Dropdown profil -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle profile-name d-flex align-items-center gap-2"
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span>Isabelle Hulin</span>
+                        <img src="/images/avatar.png" alt="Profil" width="35" class="rounded-circle border border-1">
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/profile}">
+                                <i class="bi bi-person me-2"></i>Mon profil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" th:href="@{/logout}">
+                                <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>
