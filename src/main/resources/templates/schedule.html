@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{website.name}"></title>
+    <link th:href="@{css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{css/style.css}" rel="stylesheet">
+</head>
+<body>
+<div th:replace="common/navbar :: navbar"></div>
+
+</body>
+</html>
