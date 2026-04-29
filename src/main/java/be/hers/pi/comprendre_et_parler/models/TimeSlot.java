@@ -1,51 +1,40 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.time.LocalTime;
-import java.util.Objects;
-
 public abstract class TimeSlot {
-    protected int id;
+    protected int id = -1;
 
+    /**
+     * Constructor of a TimeSlot Object
+     * @param id : represent id
+     */
     public TimeSlot(int id) {
-        if (id >= 0) {
+        if (id >= 0)
             this.id = id;
-        } else {
-            this.id = 0;
-        }
     }
 
-    public TimeSlot() {
-        this.id = -1;
-    }
+    /**
+     * Constructor of a TimeSlot Object without id
+     */
+    public TimeSlot() {}
 
-    public TimeSlot(TimeSlot timeslot) {
-        this.id = timeslot.id;
-    }
-
+    /**
+     * @return this.id
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * @param id represent the new id
+     */
     public void setId(int id) {
-        if (id >= 0) {
+        if (id >= 0)
             this.id = id;
-        }
     }
 
     /**
-     * Checks if the 2 timeslots overlaps partially or totally
-     * @param timeSlot 2nd timeslot for the check
-     * @return true if the 2 time slots overlaps, or false if it doesn't
+     * @return a copy of this TimeSlot Object
      */
-    public abstract boolean overlaps(TimeSlot timeSlot);
-
-    /**
-     * Checks if the 2 timeslots overlaps totally
-     * @param timeSlot 2nd timeslot for the check
-     * @return true if the 2 time slots overlaps totally, or false if it doesn't
-     */
-    public abstract boolean overlapsCompletely(TimeSlot timeSlot);
-
     public abstract TimeSlot clone();
 
     /**
@@ -58,7 +47,7 @@ public abstract class TimeSlot {
     }
 
     /**
-     * Check if the time slot have the same data than the current one
+     * Check if the time slot have the same data as the current one
      * @param o time slot to compare
      * @return true if it's the same, else false
      */
@@ -67,7 +56,7 @@ public abstract class TimeSlot {
 
     /**
      * Return the hashcode of TimeSlot
-     * @return an integer whith is the hashcode of TimeSlot
+     * @return an integer with the hashcode of TimeSlot
      */
     @Override
     public abstract int hashCode();

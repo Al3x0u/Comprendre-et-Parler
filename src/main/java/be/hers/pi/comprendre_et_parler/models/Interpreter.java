@@ -6,8 +6,8 @@ import java.util.HashSet;
 import java.util.Objects;
 
 public class Interpreter extends AppliUser{
-    private int hourQuotaWeek;
-    private int hourQuotaYear;
+    private int hourQuotaWeek = 0;
+    private int hourQuotaYear = 0;
     private String transportMode;
     private Set<AcademicSkill> academicSkills;
     private Set<JobSkill> jobSkills;
@@ -16,48 +16,6 @@ public class Interpreter extends AppliUser{
     private Location location;
     private Set<BaseTimeSlot> availability;
     private Set<ExceptionalUnavailability> unavailability;
-
-
-    /**
-     * Constructor of an Interpreter object,
-     * beneficiaries and missions are initialized with null
-     * @param login              represent the login
-     * @param firstName          represent the firstname of the interpreter
-     * @param lastName           represent the lastname of the interpreter
-     * @param birthDate          represent the birthdate of the interpreter
-     * @param hashedPassword     represent the hashed password of the interpreter
-     * @param email              represent the email of the interpreter
-     * @param phoneNumber        represent the phone number of the interpreter
-     * @param hQW                represent the hour quota per week
-     * @param hQY                represent the hour quota per year
-     * @param transportMode      represent the transport mode of the interpreter
-     * @param academic           represent the set of academic skills of the interpreter
-     * @param job                represent the set of job skills of the interpreter
-     * @param location           represent the location of the interpreter
-     * @param time               represent the set of punctual time slots of the interpreter
-     * @param unavailability     represent the set of exceptional unavailabilities of the interpreter
-     * @throws IllegalArgumentException if hQW or hQY is negative
-     */
-    public Interpreter(String login, String firstName, String lastName,
-                       LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber, int hQW, int hQY, String transportMode,
-                       Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
-                       Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
-        if (hQW < 0 || hQY < 0) {
-            throw new IllegalArgumentException("Hour quotas cannot be negative");
-        }
-        hourQuotaWeek = hQW;
-        hourQuotaYear = hQY;
-        this.transportMode = transportMode;
-        jobSkills = job;
-        academicSkills = academic;
-        assignedBeneficiaries = null;
-        missions = null;
-        availability = time;
-        this.location = location;
-        this.unavailability = unavailability;
-    }
 
     /**
      * Constructor of an Interpreter object,
@@ -86,11 +44,8 @@ public class Interpreter extends AppliUser{
                        Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
                        Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
-        if (hQW < 0 || hQY < 0) {
-            throw new IllegalArgumentException("Hour quotas cannot be negative");
-        }
-        hourQuotaWeek = hQW;
-        hourQuotaYear = hQY;
+        if (hQW >= 0) hourQuotaWeek = hQW;
+        if (hQY >= 0) hourQuotaYear = hQY;
         this.transportMode = transportMode;
         jobSkills = job;
         academicSkills = academic;
@@ -99,6 +54,35 @@ public class Interpreter extends AppliUser{
         availability = time;
         this.location = location;
         this.unavailability = unavailability;
+    }
+
+    /**
+     * Constructor of an Interpreter object,
+     * beneficiaries and missions are initialized with null
+     * @param login              represent the login
+     * @param firstName          represent the firstname of the interpreter
+     * @param lastName           represent the lastname of the interpreter
+     * @param birthDate          represent the birthdate of the interpreter
+     * @param hashedPassword     represent the hashed password of the interpreter
+     * @param email              represent the email of the interpreter
+     * @param phoneNumber        represent the phone number of the interpreter
+     * @param hQW                represent the hour quota per week
+     * @param hQY                represent the hour quota per year
+     * @param transportMode      represent the transport mode of the interpreter
+     * @param academic           represent the set of academic skills of the interpreter
+     * @param job                represent the set of job skills of the interpreter
+     * @param location           represent the location of the interpreter
+     * @param time               represent the set of punctual time slots of the interpreter
+     * @param unavailability     represent the set of exceptional unavailabilities of the interpreter
+     * @throws IllegalArgumentException if hQW or hQY is negative
+     */
+    public Interpreter(String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, int hQW, int hQY, String transportMode,
+                       Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
+                       Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
+        this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, hQW,
+            hQY, transportMode, academic, job, location, time, unavailability);
     }
 
     /**
@@ -137,6 +121,10 @@ public class Interpreter extends AppliUser{
         if(other.unavailability != null){
             this.unavailability = new HashSet<>(other.unavailability);
         }
+    }
+
+    public Interpreter clone() {
+        return new Interpreter(this);
     }
 
     /**
@@ -225,13 +213,10 @@ public class Interpreter extends AppliUser{
 
     /**
      * @param newHourQuotaWeek represent the new quota hour
-     * @throws IllegalArgumentException if newHourQuotaWeek is negative
      */
-    public void setHourQuotaWeek(int newHourQuotaWeek)throws IllegalArgumentException {
-        if (newHourQuotaWeek < 0) {
-            throw new IllegalArgumentException("Hour quota week cannot be negative");
-        }
-        this.hourQuotaWeek = newHourQuotaWeek;
+    public void setHourQuotaWeek(int newHourQuotaWeek) {
+        if (newHourQuotaWeek >= 0)
+            this.hourQuotaWeek = newHourQuotaWeek;
     }
 
     /**
@@ -257,13 +242,10 @@ public class Interpreter extends AppliUser{
 
     /**
      * @param newHourQuotaYear represent the new quota year
-     * @throws IllegalArgumentException if newHourQuotaYear is negative
      */
-    public void setHourQuotaYear(int newHourQuotaYear)throws IllegalArgumentException{
-        if (newHourQuotaYear < 0) {
-            throw new IllegalArgumentException("Hour quota year cannot be negative");
-        }
-        this.hourQuotaYear = newHourQuotaYear;
+    public void setHourQuotaYear(int newHourQuotaYear) {
+        if (newHourQuotaYear >= 0)
+            this.hourQuotaYear = newHourQuotaYear;
     }
 
     /**

@@ -7,23 +7,31 @@ import java.util.Objects;
 
 public class BaseTimeSlot extends TimeSlot {
     private DayOfWeek day;
-    private LocalDate startRepeatDate;
-    private LocalDate endRepeatDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
 
-    public BaseTimeSlot(int id, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day)
-    {
+    /**
+     * Constructor of a BaseTimeSlot Object
+     * @param id : represent id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     * @param startTime : represent startTime
+     * @param endTime : represent endTime
+     * @param day : represent day
+     */
+    public BaseTimeSlot(int id, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day) {
         super(id);
-        this.startRepeatDate = startDate;
-        if(endDate.isAfter(startDate)) {
-            this.endRepeatDate = endDate;
+        this.startDate = startDate;
+        if(!endDate.isBefore(startDate)) {
+            this.endDate = endDate;
         } else {
-            this.endRepeatDate = startDate;
+            this.endDate = startDate;
         }
 
         this.startTime = startTime;
-        if(endTime.isAfter(startTime)) {
+        if(!endTime.isBefore(startTime)) {
             this.endTime = endTime;
         } else {
             this.endTime = startTime;
@@ -31,76 +39,110 @@ public class BaseTimeSlot extends TimeSlot {
         this.day = day;
     }
 
-    public BaseTimeSlot(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day)
-    {
-        super();
-        this.startRepeatDate = startDate;
-        if(endDate.isAfter(startDate)) {
-            this.endRepeatDate = endDate;
-        } else {
-            this.endRepeatDate = startDate;
-        }
-
-        this.startTime = startTime;
-        if(endTime.isAfter(startTime)) {
-            this.endTime = endTime;
-        } else {
-            this.endTime = startTime;
-        }
-        this.day = day;
+    /**
+     * Constructor of a BaseTimeSlot Object without id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     * @param startTime : represent startTime
+     * @param endTime : represent endTime
+     * @param day : represent day
+     */
+    public BaseTimeSlot(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, DayOfWeek day) {
+        this(-1, startDate, endDate, startTime, endTime, day);
     }
 
+    /**
+     * Copy constructor of a BaseTimeSlot Object
+     * @param other represent the BaseTimeSlot object
+     */
+    public BaseTimeSlot(BaseTimeSlot other) {
+        this(other.id, other.startDate, other.endDate, other.startTime, other.endTime, other.day);
+    }
+
+    /**
+     * @return this.day
+     */
     public DayOfWeek getDay() {
         return day;
     }
 
+    /**
+     * @param day represent the new day
+     */
     public void setDay(DayOfWeek day) {
         this.day = day;
     }
 
-    public LocalDate getStartRepeatDate() {
-        return startRepeatDate;
+    /**
+     * @return this.startDate
+     */
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setStartRepeatDate(LocalDate startRepeatDate) {
-        if(startRepeatDate.isBefore(this.endRepeatDate)) {
-            this.startRepeatDate = startRepeatDate;
+    /**
+     * @param startDate represent the new startDate
+     */
+    public void setStartDate(LocalDate startDate) {
+        if(!startDate.isAfter(this.endDate)) {
+            this.startDate = startDate;
         }
     }
 
-    public LocalDate getEndRepeatDate() {
-        return endRepeatDate;
+    /**
+     * @return this.endDate
+     */
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
-    public void setEndRepeatDate(LocalDate endRepeatDate) {
-        if(endRepeatDate.isAfter(this.startRepeatDate)) {
-            this.endRepeatDate = endRepeatDate;
+    /**
+     * @param endDate represent the new endDate
+     */
+    public void setEndDate(LocalDate endDate) {
+        if(!endDate.isBefore(this.startDate)) {
+            this.endDate = endDate;
         }
     }
 
+    /**
+     * @return this.startTime
+     */
     public LocalTime getStartTime() {
         return startTime;
     }
 
+    /**
+     * @param startTime represent the new startTime
+     */
     public void setStartTime(LocalTime startTime) {
         if(startTime.isBefore(this.endTime)) {
             this.startTime = startTime;
         }
     }
 
+    /**
+     * @return this.endTime
+     */
     public LocalTime getEndTime() {
         return endTime;
     }
 
+    /**
+     * @param endTime represent the new endTime
+     */
     public void setEndTime(LocalTime endTime) {
         if(endTime.isAfter(this.startTime)) {
             this.endTime = endTime;
         }
     }
 
+    /**
+     * @return a copy of this BaseTimeSlot Object
+     */
     @Override
     public BaseTimeSlot clone() {
-        return new BaseTimeSlot(super.id, this.startRepeatDate, this.endRepeatDate, this.startTime, this.endTime, this.day);
+        return new BaseTimeSlot(super.id, this.startDate, this.endDate, this.startTime, this.endTime, this.day);
     }
 
     /**
@@ -109,11 +151,9 @@ public class BaseTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps, or false if it doesn't
      */
     public boolean overlaps(BaseTimeSlot timeSlot) {
-        boolean result = false;
-        if(this.day.equals(timeSlot.day) && this.startRepeatDate.isBefore(timeSlot.endRepeatDate) && this.endRepeatDate.isAfter(timeSlot.startRepeatDate)) {
-            result = this.startTime.isBefore(timeSlot.endTime) && this.endTime.isAfter(timeSlot.startTime);
-        }
-        return result;
+        if(timeSlot == null) return false;
+        if(timeSlot == this) return true;
+        return this.day.equals(timeSlot.day) && this.startTime.isBefore(timeSlot.endTime) && this.endTime.isAfter(timeSlot.startTime);
     }
 
     /**
@@ -122,11 +162,11 @@ public class BaseTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps totally, or false if it doesn't
      */
     public boolean overlapsCompletely(BaseTimeSlot timeSlot) {
-        boolean result = false;
-        if(this.day.equals(timeSlot.day) && (this.startRepeatDate.isBefore(timeSlot.startRepeatDate) && this.endRepeatDate.isAfter(timeSlot.endRepeatDate)) || (this.startRepeatDate.isAfter(timeSlot.startRepeatDate) && this.endRepeatDate.isBefore(timeSlot.endRepeatDate))) {
-            result = (this.startTime.isBefore(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime)) || (this.startTime.isAfter(timeSlot.startTime) && this.endTime.isBefore(timeSlot.endTime));
-        }
-        return result;
+        if(timeSlot == null) return false;
+        if(timeSlot == this) return true;
+        return this.day.equals(timeSlot.day)
+                && ((this.startTime.isBefore(timeSlot.startTime) && this.endTime.isAfter(timeSlot.endTime))
+                || (this.startTime.isAfter(timeSlot.startTime) && this.endTime.isBefore(timeSlot.endTime)));
     }
 
     /**
@@ -135,7 +175,7 @@ public class BaseTimeSlot extends TimeSlot {
      */
     @Override
     public String toString() {
-        return "BaseTimeSlot{startRepeatDate=" + this.startRepeatDate.toString() + " endRepeatDate=" + this.endRepeatDate.toString() + " startTime=" + this.startTime.toString() + " endTime=" + this.endTime.toString() + " dayOfWeek=" + this.day + super.toString() + "}";
+        return "BaseTimeSlot{startDate=" + this.startDate.toString() + " endDate=" + this.endDate.toString() + " startTime=" + this.startTime.toString() + " endTime=" + this.endTime.toString() + " dayOfWeek=" + this.day + super.toString() + "}";
     }
 
     /**
@@ -149,15 +189,15 @@ public class BaseTimeSlot extends TimeSlot {
         if (!(o instanceof BaseTimeSlot)) return false;
 
         BaseTimeSlot other = (BaseTimeSlot) o;
-        return this.day.equals(other.day) && this.startRepeatDate.equals(other.startRepeatDate) && this.endRepeatDate.equals(other.endRepeatDate) && this.startTime.equals(other.startTime) && this.endTime.equals(other.endTime);
+        return this.day.equals(other.day) && this.startDate.equals(other.startDate) && this.endDate.equals(other.endDate) && this.startTime.equals(other.startTime) && this.endTime.equals(other.endTime);
     }
 
     /**
      * Return the hashcode of BaseTimeSlot
-     * @return an integer whith is the hashcode of BaseTimeSlot
+     * @return an integer with is the hashcode of BaseTimeSlot
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.startRepeatDate, this.endRepeatDate, this.startTime, this.endTime, this.day);
+        return Objects.hash(this.startDate, this.endDate, this.startTime, this.endTime, this.day);
     }
 }

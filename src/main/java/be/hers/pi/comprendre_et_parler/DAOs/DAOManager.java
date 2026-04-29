@@ -9,8 +9,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOManager extends DAO<Manager> {
@@ -51,12 +51,11 @@ public class DAOManager extends DAO<Manager> {
                 result.getInt(FIELD_HOURQUOTAWEEK),
                 result.getInt(FIELD_HOURQUOTAYEAR),
                 result.getString(FIELD_TRANSPORTATION),
-                DAOAcademicSkill.getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                DAOJobSkill.getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                DAOLocation.find(result.getInt(FIELD_LOCATION)),
-                DAOBaseTimeSlot.findAvailabilities((result.getInt(FIELD_ID)),
-                new DAOExceptionalUnavailability().findByInterpreterLogin(result.getInt(FIELD_ID))
-                )
+                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID)),
+                new DAOExceptionalUnavailability().findForInterpreter(result.getInt(FIELD_ID))
         );
     }
 
@@ -335,13 +334,13 @@ public class DAOManager extends DAO<Manager> {
     }
 
     /**
-     * Return all line of Manager table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * Return all line of Manager table in the database in a Set
+     * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
     @Override
-    public List<Manager> findAll() throws SQLException {
-        List<Manager> managers = new ArrayList<Manager>();
+    public Set<Manager> findAll() throws SQLException {
+        Set<Manager> managers = new HashSet<Manager>();
         String query = String.format("SELECT * FROM %s", TABLE);
         PreparedStatement statement = null;
         ResultSet result = null;
