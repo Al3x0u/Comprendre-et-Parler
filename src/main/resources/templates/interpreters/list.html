@@ -29,7 +29,7 @@
     </div>
 
     <div class="card-body border-bottom">
-      <form method="get" th:action="@{/interpreters}" class="row g-2">
+      <form method="get" th:action="@{/interpretres}" class="row g-2">
 
         <div class="col-12 col-md">
           <label for="keyword" class="form-label">Recherche</label>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="col-12 col-md-auto d-grid align-self-end">
-          <a th:href="@{/interpreters}" class="btn btn-outline-secondary">Réinitialiser</a>
+          <a th:href="@{/interpretres}" class="btn btn-outline-secondary">Réinitialiser</a>
         </div>
 
       </form>
@@ -68,7 +68,7 @@
           </div>
 
           <div>
-            <a th:href="@{/interpreters/profile/{id}(id=${interprete.id})}" class="btn btn-primary btn-sm">Voir le profil</a>
+            <a th:href="@{/interpretres/profil/{id}(id=${interprete.id})}" class="btn btn-primary btn-sm">Voir le profil</a>
           </div>
 
         </div>
@@ -97,15 +97,15 @@
           <ul class="pagination pagination-sm mb-0 flex-wrap">
 
             <li class="page-item" th:classappend="${hasPrevious} ? '' : ' disabled'">
-              <a class="page-link" th:href="@{/interpreters(page=${pageNumber - 1}, keyword=${keyword})}">Précédent</a>
+              <a class="page-link" th:href="@{/interpretres(page=${pageNumber - 1}, keyword=${keyword})}">Précédent</a>
             </li>
 
             <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == pageNumber} ? ' active' : ''">
-              <a class="page-link" th:href="@{/interpreters(page=${i}, keyword=${keyword})}" th:text="${i}"></a>
+              <a class="page-link" th:href="@{/interpretres(page=${i}, keyword=${keyword})}" th:text="${i}"></a>
             </li>
 
             <li class="page-item" th:classappend="${hasNext} ? '' : ' disabled'">
-              <a class="page-link" th:href="@{/interpreters(page=${pageNumber + 1}, keyword=${keyword})}">Suivant</a>
+              <a class="page-link" th:href="@{/interpretres(page=${pageNumber + 1}, keyword=${keyword})}">Suivant</a>
             </li>
 
           </ul>
@@ -119,7 +119,6 @@
 
 </main>
 
-<!-- A UTILISER PLUS TARD PEUT ETRE -->
-<!--<script th:src="@{/js/bootstrap.bundle.min.js}"></script>-->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
