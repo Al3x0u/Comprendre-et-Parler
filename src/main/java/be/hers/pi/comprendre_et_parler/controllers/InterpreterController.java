@@ -21,6 +21,13 @@ import java.util.List;
 @RequestMapping("/interpretres")
 public class InterpreterController {
 
+    /**
+     * Display the InterpreterList (only for manager)
+     * @param page the page which the user arrive
+     * @param keyword the filter option for Interpreters
+     * @param model the model to pass data to the view
+     * @return the interpreters list
+     */
     @GetMapping
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "") String keyword, Model model) {
 
@@ -63,7 +70,12 @@ public class InterpreterController {
 
         return "interpreters/list";
     }
-
+    /**
+     * Display the profile of a specific interpreter
+     * @param id the id of the interpreter
+     * @param model the model to pass data to the view
+     * @return the interpreter profile page
+     */
     @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id, Model model) {
         Interpreter fakeInterpreter = buildFakeInterpreter(id);
@@ -77,6 +89,12 @@ public class InterpreterController {
         return "interpreters/profile";
     }
 
+    /**
+     * Display the edit form for a specific interpreter
+     * @param id the id of the interpreter
+     * @param model the model to pass data to the view
+     * @return the edit interpreter profile page
+     */
     @GetMapping("/profil/{id}/modifier")
     public String showEditInterpreterProfile(@PathVariable int id, Model model) {
         Interpreter fakeInterpreter = buildFakeInterpreter(id);
@@ -87,12 +105,25 @@ public class InterpreterController {
         return "interpreters/edit-profile";
     }
 
+    /**
+     * Update the profile of a specific interpreter
+     * @param id the id of the interpreter
+     * @param formInterpreter the interpreter data from the form
+     * @return redirect to the interpreter profile page
+     */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id, @ModelAttribute("interprete") Interpreter formInterpreter) {
 
 
         return "redirect:/interpreters/profile/" + id;
     }
+
+    /**
+     * Filter interpreters based on a keyword (login, first name, or last name)
+     * @param interpreters the list of interpreters to filter
+     * @param keyword the search keyword
+     * @return the filtered list of interpreters
+     */
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
         List<Interpreter> filteredInterpreters = new ArrayList<>();
 
@@ -115,6 +146,12 @@ public class InterpreterController {
         return filteredInterpreters;
     }
 
+    /**
+     * Calculate the total number of pages for pagination
+     * @param totalItems the total number of items
+     * @param itemsPerPage the number of items per page
+     * @return the total number of pages
+     */
     private int calculateTotalPages(int totalItems, int itemsPerPage) {
         if (totalItems == 0) {
             return 1;
@@ -129,6 +166,13 @@ public class InterpreterController {
         return totalPages;
     }
 
+    /**
+     * Get the list of interpreters for a specific page
+     * @param interpreters the full list of interpreters
+     * @param page the current page number
+     * @param itemsPerPage the number of items per page
+     * @return the list of interpreters for the current page
+     */
     private List<Interpreter> getInterpretersForPage(List<Interpreter> interpreters, int page, int itemsPerPage) {
         List<Interpreter> interpretersForPage = new ArrayList<>();
 
