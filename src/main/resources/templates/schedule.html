@@ -1,26 +1,80 @@
 <!DOCTYPE html>
-<html lang="fr"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/head :: head(#{website.name})}"></head>
 <body>
 
-    <div th:replace="~{common/navbar :: navbar}"></div>
+<!-- Navbar -->
+<div th:replace="~{common/navbar :: navbar}"></div>
 
-    <div id='calendar'></div>
+<!-- Calendar-->
+<div class="px-4 mt-5 mb-1">
+    <div id="calendar"></div>
+</div>
 
-    <!-- Bundle Bootstrap JS -->
-    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
-    <!-- Bundle Fullcalendar JS -->
-    <script th:src="@{/js/fullcalendar.min.js}"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth'
-            });
-            calendar.render();
+<!-- Legend -->
+<div class="d-flex justify-content-center gap-5 py-3 legende">
+    <div class="d-flex align-items-center gap-2">
+        <div class="legende-dot legende-dot-accepted"></div>
+        <span>Demande acceptée</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <div class="legende-dot legende-dot-pending"></div>
+        <span>Demande en attente</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <div class="legende-dot legende-dot-refused"></div>
+        <span>Demande refusée/annulée</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <div class="legende-dot legende-dot-base"></div>
+        <span>Horaire de base</span>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/fullcalendar.min.js}"></script>
+<script th:inline="javascript">
+    const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+            initialView: 'timeGridWeek',
+            height: 'calc(100vh - 200px)',
+            locale: 'fr',
+            firstDay: 1,
+            weekends: false,
+            allDaySlot: false,
+            slotDuration: '00:30:00',
+            slotMinTime: '08:00:00',
+            slotMaxTime: '18:00:00',
+            expandRows: true,
+            events: allEvents,
+            headerToolbar: {
+                start: 'timeGridWeek,timeGridDay',
+                center: 'prev title next',
+                end: 'today'
+            },
+            buttonText: {
+                week: 'Semaine',
+                day: 'Jour',
+                today: 'Aujourd\'hui'
+            },
+            eventContent: function(arg) {
+                const props = arg.event.extendedProps;
+                return {
+                    html: `
+                        <div class="fc-event-content-inner p-1">
+                            <div class="fw-bold">${arg.event.title}</div>
+                            <div>${arg.timeText}</div>
+                            <div>${props.type || ''}</div>
+                            <div><i class="bi bi-pin-map-fill"></i> ${props.room || ''}</div>
+                        </div>
+                    `
+                };
+            }
         });
-    </script>
-
+        calendar.render();
+    });
+</script>
 </body>
 </html>
