@@ -9,10 +9,7 @@ import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @Controller
-@RequestMapping("/interpreters")
+@RequestMapping("/interpretres")
 public class InterpreterController {
 
     @GetMapping
@@ -67,16 +64,35 @@ public class InterpreterController {
         return "interpreters/list";
     }
 
-    @GetMapping("/profile/{id}")
+    @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id, Model model) {
+        Interpreter fakeInterpreter = buildFakeInterpreter(id);
+        int actualWeekQuota = 10;
+        int actualAnnualQuota = 200;
+        model.addAttribute("interprete", fakeInterpreter);
+        model.addAttribute("currentPage", "interpreters");
+        model.addAttribute("actualWeekQuota",actualWeekQuota);
+        model.addAttribute("actualYearQuota",actualAnnualQuota);
+
+        return "interpreters/profile";
+    }
+
+    @GetMapping("/profil/{id}/modifier")
+    public String showEditInterpreterProfile(@PathVariable int id, Model model) {
         Interpreter fakeInterpreter = buildFakeInterpreter(id);
 
         model.addAttribute("interprete", fakeInterpreter);
         model.addAttribute("currentPage", "interpreters");
 
-        return "interpreters/profile";
+        return "interpreters/edit-profile";
     }
 
+    @PostMapping("/profil/{id}/modifier")
+    public String updateInterpreterProfile(@PathVariable int id, @ModelAttribute("interprete") Interpreter formInterpreter) {
+
+
+        return "redirect:/interpreters/profile/" + id;
+    }
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
         List<Interpreter> filteredInterpreters = new ArrayList<>();
 
