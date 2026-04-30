@@ -4,9 +4,23 @@
 <head th:replace="~{common/head :: head(#{website.name})}"></head>
 <body>
 
-<div th:replace="~{common/navbar :: navbar}"></div>
+    <div th:replace="~{common/navbar :: navbar}"></div>
 
-<!-- Bundle Bootstrap JS -->
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <div id='calendar'></div>
+
+    <!-- Bundle Bootstrap JS -->
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <!-- Bundle Fullcalendar JS -->
+    <script th:src="@{/js/fullcalendar.min.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+            });
+            calendar.render();
+        });
+    </script>
+
 </body>
 </html>

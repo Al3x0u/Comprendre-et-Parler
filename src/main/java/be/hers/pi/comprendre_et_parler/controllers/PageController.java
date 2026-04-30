@@ -36,47 +36,6 @@ public class PageController {
     }
 
     /**
-     * Display the schedule page
-     * @param session the current HTTP session
-     * @param model the model to pass data to the view
-     * @return the schedule view or redirect to login if not authenticated
-     */
-    @GetMapping("/schedule")
-    public String showSchedule(HttpSession session, Model model) {
-        // AppliUser user = (AppliUser) session.getAttribute("user");
-        // if (user == null) return "redirect:/login";
-        // model.addAttribute("user", user);
-        model.addAttribute("currentPage", "schedule");
-        return "schedule";
-    }
-
-    /**
-     * Display the interpreters page
-     * @param session the current HTTP session
-     * @return the interpreters view or redirect to login if not authenticated
-     */
-    @GetMapping("/interpreters")
-    public String showInterpreters(HttpSession session, Model model) {
-        // AppliUser user = (AppliUser) session.getAttribute("user");
-        // if (user == null) return "redirect:/login";
-        model.addAttribute("currentPage", "interpreters");
-        return "interpreters";
-    }
-
-    /**
-     * Display the beneficiaries page
-     * @param session the current HTTP session
-     * @return the beneficiaries view or redirect to login if not authenticated
-     */
-    @GetMapping("/beneficiaries")
-    public String showBeneficiaries(HttpSession session, Model model) {
-        // AppliUser user = (AppliUser) session.getAttribute("user");
-        // if (user == null) return "redirect:/login";
-        model.addAttribute("currentPage", "beneficiaries");
-        return "beneficiaries";
-    }
-
-    /**
      * Display the profile page
      * @param session the current HTTP session
      * @return the profile view or redirect to login if not authenticated
