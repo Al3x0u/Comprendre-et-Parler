@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Modifier le profil</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="bg-body-tertiary">
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4 py-md-5">
+
+    <div class="mb-3">
+        <a th:href="@{/interpretres/profil/{id}(id=${interprete.id})}" class="btn btn-outline-secondary btn-lg">Retour au profil</a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Modifier le profil</h1>
+        </div>
+
+        <div class="card-body p-4">
+            <form th:action="@{/interpretres/profil/{id}/modifier(id=${interprete.id})}" th:object="${interprete}" method="post">
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="firstName" class="form-label">Prénom</label>
+                        <input id="firstName" type="text" class="form-control" th:field="*{firstName}">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="lastName" class="form-label">Nom</label>
+                        <input id="lastName" type="text" class="form-control" th:field="*{lastName}">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="email" class="form-label">Adresse mail</label>
+                        <input id="email" type="email" class="form-control" th:field="*{email}">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label for="phoneNumber" class="form-label">Téléphone</label>
+                        <input id="phoneNumber" type="text" class="form-control" th:field="*{phoneNumber}">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="transportMode" class="form-label">Mode de transport</label>
+                    <input id="transportMode" type="text" class="form-control" th:field="*{transportMode}">
+                </div>
+
+                <h2 class="h5 text-primary mb-3">Localisation</h2>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label for="designation" class="form-label">Désignation</label>
+                        <input id="designation" type="text" class="form-control" th:field="*{location.designation}">
+                    </div>
+
+                    <div class="col-12 col-md-8">
+                        <label for="street" class="form-label">Rue</label>
+                        <input id="street" type="text" class="form-control" th:field="*{location.street}">
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <label for="streetNumber" class="form-label">Numéro</label>
+                        <input id="streetNumber" type="text" class="form-control" th:field="*{location.streetNumber}">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-4">
+                        <label for="postalCode" class="form-label">Code postal</label>
+                        <input id="postalCode" type="text" class="form-control" th:field="*{location.city.postalCode}">
+                    </div>
+
+                    <div class="col-12 col-md-8">
+                        <label for="cityDesignation" class="form-label">Ville</label>
+                        <input id="cityDesignation" type="text" class="form-control" th:field="*{location.city.designation}">
+                    </div>
+                </div>
+
+                <div class="d-grid d-md-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Enregistrer</button>
+                    <a th:href="@{/interpretres/profil/{id}(id=${interprete.id})}" class="btn btn-outline-secondary btn-lg">Annuler</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>
