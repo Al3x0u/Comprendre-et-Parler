@@ -21,7 +21,7 @@
 <main class="container py-4 py-md-5">
 
   <div class="mb-3">
-    <a th:href="@{/interpreters}" class="btn btn-outline-secondary btn-lg">Retour à la liste</a>
+    <a th:href="@{/interpretres}" class="btn btn-outline-secondary btn-lg">Retour à la liste</a>
   </div>
 
   <div class="card border-0 shadow-sm mb-4" th:object="${interprete}">
@@ -38,8 +38,7 @@
           <p class="fw-semibold mb-3" th:text="*{login}"></p>
 
           <div class="d-grid d-md-flex gap-2">
-            <a href="#" class="btn btn-light btn-lg text-primary fw-semibold">Modifier le profil</a>
-            <a th:href="@{/interpreters}" class="btn btn-outline-light btn-lg">Retour à la liste</a>
+            <a th:href="@{/interpretres/profil/{id}/modifier(id=${interprete.id})}" class="btn btn-light btn-lg text-primary fw-semibold">Modifier le profil</a>
           </div>
         </div>
 
