@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.*;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +10,6 @@ import java.sql.Date;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.HashSet;
-
 
 public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String TABLE_VIEW = "Beneficiary";
@@ -33,39 +31,31 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     protected boolean checkAlreadyExists(Beneficiary objectToCheck) throws SQLException{
-        boolean exists = false;
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "SELECT COUNT(*) FROM " + TABLE_VIEW + " WHERE " +
-                FIELD_LOGIN + " = ? AND " + FIELD_FIRST_NAME + " = ? AND "
+        String query = "SELECT 1 FROM " + TABLE_VIEW + " WHERE " + FIELD_FIRST_NAME + " = ? AND "
                 + FIELD_LAST_NAME + " = ? AND " + FIELD_BIRTH_DATE + " = ? AND "
                 + FIELD_HASHED_PASSWORD + " = ? AND " + FIELD_EMAIL + " = ? AND "
                 + FIELD_PHONE_NUMBER + " = ? AND " + FIELD_STATUS + " = ? AND "
-                + FIELD_INTERPRETER_REFERENCE + " = ? AND " + FIELD_ID + " != ?";
+                + FIELD_INTERPRETER_REFERENCE + " = ?";
 
         ResultSet result = null;
         PreparedStatement statement = null;
-        try{
-            statement = connection.prepareStatement(query);
-            statement.setString(1, objectToCheck.getLogin());
-            statement.setString(2, objectToCheck.getFirstName());
-            statement.setString(3, objectToCheck.getLastName());
-            statement.setDate(4, Date.valueOf(objectToCheck.getBirthDate()));
-            statement.setString(5, objectToCheck.getHashedPassword());
-            statement.setString(6, objectToCheck.getEmail());
-            statement.setString(7, objectToCheck.getPhoneNumber());
-            statement.setInt(8, objectToCheck.getStatus().getId());
-            statement.setInt(9, objectToCheck.getInterpreterRef().getId());
-            statement.setInt(10, objectToCheck.getId());
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToCheck.getFirstName());
+            statement.setString(2, objectToCheck.getLastName());
+            statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
+            statement.setString(4, objectToCheck.getHashedPassword());
+            statement.setString(5, objectToCheck.getEmail());
+            statement.setString(6, objectToCheck.getPhoneNumber());
+            statement.setInt(7, objectToCheck.getStatus().getId());
+            statement.setInt(8, objectToCheck.getInterpreterRef().getId());
             result = statement.executeQuery();
 
-            if(result.next()){
-                exists = result.getInt(1) > 0;
-            }
-        }finally {
+            return result.next();
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
-        return exists;
     }
 
     /**
@@ -75,8 +65,6 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      */
     @Override
     public Beneficiary find(int id) throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-
         String query = "SELECT * FROM %s WHERE %s = ?";
         query = String.format(query, TABLE_VIEW, FIELD_ID);
 
@@ -84,16 +72,13 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
         ResultSet result = null;
         Beneficiary beneficiary = null;
         try{
-            statement = connection.prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
             result = statement.executeQuery();
 
-            if(result.next()){
+            if(result.next())
                 beneficiary = getResult(result);
-            }else{
-                throw new NoSuchElementException();
-            }
-        }finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
@@ -107,7 +92,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @param result      the ResultSet positioned on the row to read, must not be null
      * @throws SQLException if a database access error occurs while reading the ResultSet
      */
-    public Beneficiary getResult(ResultSet result)throws SQLException{
+    public Beneficiary getResult(ResultSet result) throws SQLException {
         return new Beneficiary(
                 result.getInt(FIELD_ID),
                 result.getString(FIELD_LOGIN),
@@ -129,21 +114,18 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     public Beneficiary find(String login) throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-
         String query = "SELECT * FROM " + TABLE_VIEW + " WHERE " + FIELD_LOGIN + " = ?";
 
         PreparedStatement statement = null;
         ResultSet result = null;
         Beneficiary beneficiary = null;
-        try{
-            statement = connection.prepareStatement(query);
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, login);
             result = statement.executeQuery();
-            if(result.next()){
+            if(result.next())
                 beneficiary = getResult(result);
-            }
-        }finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
@@ -157,41 +139,57 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the insertion failed for any other reason
      */
     @Override
-    public void create(Beneficiary objectToInsert)
-            throws AlreadyExistsException, SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "INSERT INTO " + TABLE_VIEW + " (" + FIELD_LOGIN + ", " +
-                FIELD_FIRST_NAME + ", " + FIELD_LAST_NAME + ", " + FIELD_BIRTH_DATE + ", " +
-                FIELD_HASHED_PASSWORD + ", " + FIELD_EMAIL + ", " + FIELD_PHONE_NUMBER + ", " +
-                FIELD_STATUS + ", " + FIELD_INTERPRETER_REFERENCE + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-
-        ResultSet rs = null;
-        if(find(objectToInsert.getLogin()) != null){
+    public void create(Beneficiary objectToInsert) throws AlreadyExistsException, SQLException {
+        if(find(objectToInsert.getLogin()) != null)
             throw new AlreadyExistsException("Object already exists in database");
-        }
+
+        String query = "INSERT INTO " + TABLE_VIEW + " VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = null;
-
-        try{
-            statement = connection.prepareStatement(query,  new String[]{FIELD_ID});
-
-            statement.setString(1, objectToInsert.getLogin());
-            statement.setString(2, objectToInsert.getFirstName());
-            statement.setString(3, objectToInsert.getLastName());
-            statement.setDate(4, Date.valueOf(objectToInsert.getBirthDate()));
-            statement.setString(5, objectToInsert.getHashedPassword());
-            statement.setString(6, objectToInsert.getEmail());
-            statement.setString(7, objectToInsert.getPhoneNumber());
-            statement.setInt(8, objectToInsert.getStatus().getId());
-            statement.setInt(9, objectToInsert.getInterpreterRef().getId());
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToInsert.getFirstName());
+            statement.setString(2, objectToInsert.getLastName());
+            statement.setDate(3, Date.valueOf(objectToInsert.getBirthDate()));
+            statement.setString(4, objectToInsert.getHashedPassword());
+            statement.setString(5, objectToInsert.getEmail());
+            statement.setString(6, objectToInsert.getPhoneNumber());
+            statement.setInt(7, objectToInsert.getStatus().getId());
+            statement.setInt(8, objectToInsert.getInterpreterRef().getId());
             statement.executeUpdate();
 
-            rs = statement.getGeneratedKeys();
-            if (rs.next()) {
-                objectToInsert.setId(rs.getInt(1));
+            getNewAttributes(objectToInsert);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update the login and the id of the new object inserted in the database
+     * @param newObject the new object inserted in the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void getNewAttributes(Beneficiary newObject) throws SQLException {
+        String query = "SELECT " + FIELD_ID + ", " + FIELD_LOGIN + " FROM AppliUser WHERE " +
+                FIELD_FIRST_NAME + " = ? AND " + FIELD_LAST_NAME + " = ? AND " + FIELD_BIRTH_DATE + " = ? AND " +
+                FIELD_HASHED_PASSWORD + " = ? AND " + FIELD_EMAIL + " = ? AND " + FIELD_PHONE_NUMBER + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, newObject.getFirstName());
+            statement.setString(2, newObject.getLastName());
+            statement.setDate(3, Date.valueOf(newObject.getBirthDate()));
+            statement.setString(4, newObject.getHashedPassword());
+            statement.setString(5, newObject.getEmail());
+            statement.setString(6, newObject.getPhoneNumber());
+
+            result = statement.executeQuery();
+            if(result.next()) {
+                newObject.setId(result.getInt(FIELD_ID));
+                newObject.setLogin(result.getString(FIELD_LOGIN));
             }
-        }finally {
-            closeResultSet(rs);
+        } finally {
+            closeResultSet(result);
             closeStatement(statement);
         }
     }
@@ -205,61 +203,52 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      */
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "UPDATE " + TABLE_VIEW + " SET " + FIELD_LOGIN + " = ?, " +
+        if(checkAlreadyExists(objectToUpdate))
+            throw new AlreadyExistsException("The beneficiary already exists in database.");
+
+        String query = "UPDATE " + TABLE_VIEW + " SET " +
                 FIELD_FIRST_NAME + " = ?, " + FIELD_LAST_NAME + " = ?, " + FIELD_BIRTH_DATE + " = ?, " +
                 FIELD_HASHED_PASSWORD + " = ?, " + FIELD_EMAIL + " = ?, " + FIELD_PHONE_NUMBER + " = ?, " +
-                FIELD_STATUS + " = ?, " + FIELD_INTERPRETER_REFERENCE + " = ? WHERE " + FIELD_ID + " = ? ";
+                FIELD_STATUS + " = ?, " + FIELD_INTERPRETER_REFERENCE + " = ? WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
-        int rowsAffected = 0;
-
-        if(checkAlreadyExists(objectToUpdate)){
-            throw new AlreadyExistsException("The beneficiary already exists in database.");
-        }
 
         try {
-            statement.setString(1, objectToUpdate.getLogin());
-            statement.setString(2, objectToUpdate.getFirstName());
-            statement.setString(3, objectToUpdate.getLastName());
-            statement.setDate(4, Date.valueOf(objectToUpdate.getBirthDate()));
-            statement.setString(5, objectToUpdate.getHashedPassword());
-            statement.setString(6, objectToUpdate.getEmail());
-            statement.setString(7, objectToUpdate.getPhoneNumber());
-            statement.setInt(8, objectToUpdate.getStatus().getId());
-            statement.setInt(9, objectToUpdate.getInterpreterRef().getId());
-            statement.setInt(10, objectToUpdate.getId());
-            rowsAffected = statement.executeUpdate();
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
 
-            if(rowsAffected < 1){
+            statement.setString(1, objectToUpdate.getFirstName());
+            statement.setString(2, objectToUpdate.getLastName());
+            statement.setDate(3, Date.valueOf(objectToUpdate.getBirthDate()));
+            statement.setString(4, objectToUpdate.getHashedPassword());
+            statement.setString(5, objectToUpdate.getEmail());
+            statement.setString(6, objectToUpdate.getPhoneNumber());
+            statement.setInt(7, objectToUpdate.getStatus().getId());
+            statement.setInt(8, objectToUpdate.getInterpreterRef().getId());
+            statement.setInt(9, objectToUpdate.getId());
+
+            if(statement.executeUpdate() == 0)
                 throw new NoSuchElementException("[ERROR] There is no user with the id " + objectToUpdate.getId() + ".");
-            }
         }finally {
             closeStatement(statement);
         }
     }
 
     /**
-     *
-     * @param objectToDelete the object to delete in the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @param idObjectToDelete the ID of the object to delete in the database
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
     @Override
-    public void delete(Beneficiary objectToDelete) throws NoSuchElementException, SQLException {
-        Connection connection = DatabaseConnector.getInstance();
-        String query = "DELETE FROM " + TABLE_VIEW + " WHERE " + FIELD_ID + " = ? ";
-        int rowsAffected = 0;
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM " + TABLE_VIEW + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
-         try{
-             statement = connection.prepareStatement(query);
-             statement.setInt(1, objectToDelete.getId());
-             rowsAffected = statement.executeUpdate();
+         try {
+             statement = DatabaseConnector.getInstance().prepareStatement(query);
+             statement.setInt(1, idObjectToDelete);
 
-             if(rowsAffected  < 1){
-                 throw new NoSuchElementException("[ERROR] There is no user with the id " + objectToDelete.getId() + ".");
-             }
-         }finally {
+             if(statement.executeUpdate()  == 0)
+                 throw new NoSuchElementException("[ERROR] There is no beneficiary with the id " + idObjectToDelete);
+         } finally {
              closeStatement(statement);
          }
     }
@@ -271,20 +260,18 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      */
     @Override
     public Set<Beneficiary> findAll() throws SQLException {
-        Connection connection = DatabaseConnector.getInstance();
         String query = "SELECT *  FROM " + TABLE_VIEW;
 
-        Set<Beneficiary> beneficiaries = new HashSet<>();
+        Set<Beneficiary> beneficiaries = new HashSet<Beneficiary>();
         PreparedStatement statement = null;
         ResultSet result = null;
-        try{
-            statement = connection.prepareStatement(query);
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             result = statement.executeQuery();
 
-            while(result.next()){
+            while(result.next())
                 beneficiaries.add(getResult(result));
-            }
-        }finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
@@ -299,25 +286,21 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     public Set<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getInstance();
-        Set<Beneficiary> beneficiaries = new HashSet<>();
-        String query = "SELECT * FROM " + TABLE_VIEW + " WHERE " + FIELD_INTERPRETER_REFERENCE + " = ?";
-
-        if(new DAOInterpreter().find(idInterpreter) == null ){
+        if(new DAOInterpreter().find(idInterpreter) == null )
             throw new NoSuchElementException("[ERROR] There is no interpreter with the id " + idInterpreter);
-        }
+        Set<Beneficiary> beneficiaries = new HashSet<Beneficiary>();
+        String query = "SELECT * FROM " + TABLE_VIEW + " WHERE " + FIELD_INTERPRETER_REFERENCE + " = ?";
 
         PreparedStatement statement = null;
         ResultSet result = null;
-        try{
-            statement = connection.prepareStatement(query);
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, idInterpreter);
             result = statement.executeQuery();
 
-            while(result.next()){
+            while(result.next())
                 beneficiaries.add(getResult(result));
-            }
-        }finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
@@ -332,27 +315,24 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @return a Set of Beneficiary who have the id having the given idStatus,or an empty Set if no beneficiaries having this Status
      */
     public Set<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
-        Connection connection = DatabaseConnector.getInstance();
+        if(new DAOInterpreter().find(idStatus) == null )
+            throw new NoSuchElementException("[ERROR] There is no status with the id " + idStatus);
+
         Set<Beneficiary> beneficiaries = new HashSet<>();
         String query = "SELECT * FROM " + TABLE_VIEW + " WHERE " + FIELD_STATUS + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
-        if(new DAOInterpreter().find(idStatus) == null ){
-            throw new NoSuchElementException("[ERROR] There is no status with the id " + idStatus);
-        }
-        try{
-            statement = connection.prepareStatement(query);
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, idStatus);
             result = statement.executeQuery();
 
-            while(result.next()){
+            while(result.next())
                 beneficiaries.add(getResult(result));
-            }
-        }finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
         return beneficiaries;
     }
-
 }

@@ -3,22 +3,58 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.ExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOExceptionalUnavailability extends DAO<ExceptionalUnavailability> {
+public class DAOExceptionalUnavailability {
+    protected static final String TABLE = "Unavailability";
+    protected static final String FIELD_ID_INTERPRETER = "interpreter";
+    protected static final String FIELD_ID_TIMESLOT = "timeSlot";
+    protected static final String FIELD_REASON = "reason";
 
     /**
      * Search for a ExceptionalUnavailability in the database with the int parameter
-     * @param id the primary key of the object to find in database
+     * @param idInterpreter the primary key of the Interpreter for which one finds the unavailability in the database
+     * @param idTimeSlot the primary key of the PunctualTimeSlot for which one finds the unavailability in the database
      * @return the object identified by id in database, or null if none was present
      * @throws SQLException if the database could not be reached
      */
-    @Override
-    public ExceptionalUnavailability find(int id) throws SQLException {
-        return null;
+    public ExceptionalUnavailability find(int idInterpreter, int idTimeSlot) throws SQLException {
+        String query = String.format(
+                "SELECT * FROM %s WHERE %s = ? AND %s = ?",
+                TABLE, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        ExceptionalUnavailability unavailability = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idInterpreter);
+            statement.setInt(2, idTimeSlot);
+            result = statement.executeQuery();
+            if (result.next())
+                unavailability = getResult(result);
+        }
+        finally {
+            if(result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return unavailability;
     }
 
     /**
@@ -28,9 +64,28 @@ public class DAOExceptionalUnavailability extends DAO<ExceptionalUnavailability>
      * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
-    @Override
-    public void create(ExceptionalUnavailability objectToInsert)
-            throws AlreadyExistsException, SQLException {
+    public void create(ExceptionalUnavailability objectToInsert) throws AlreadyExistsException, SQLException {
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("An unavailability for this interpreter at this time slot already exists in the database");
+
+        String query = String.format("INSERT INTO %s VALUES (?, ?, ?)", TABLE);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, objectToInsert.getInterpreter().getId());
+            statement.setInt(2, objectToInsert.getTimeSlot().getId());
+            statement.setString(3, objectToInsert.getReason());
+
+            statement.executeUpdate();
+        } finally {
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
@@ -40,21 +95,63 @@ public class DAOExceptionalUnavailability extends DAO<ExceptionalUnavailability>
      * @throws SQLException if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
-    @Override
-    public void update(ExceptionalUnavailability objectToUpdate)
-            throws AlreadyExistsException, NoSuchElementException, SQLException {
+    public void update(ExceptionalUnavailability objectToUpdate) throws NoSuchElementException, SQLException {
+        String query = String.format(
+                "UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?",
+                TABLE, FIELD_REASON, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+            statement.setString(1, objectToUpdate.getReason());
+            statement.setInt(2, objectToUpdate.getInterpreter().getId());
+            statement.setInt(3, objectToUpdate.getTimeSlot().getId());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("Unavailability not found in database");
+        } finally {
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
      * Delete a ExceptionalUnavailability line in the table in the database
-     * @param objectToDelete the object to delete in the database
+     * @param idInterpreter the primary key of the Interpreter for which one delete the unavailability in the database
+     * @param idTimeSlot the primary key of the PunctualTimeSlot for which one delete the unavailability in the database
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
      * @throws SQLException if the database could not be reached
      * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
      */
-    @Override
-    public void delete(ExceptionalUnavailability objectToDelete)
-            throws NoSuchElementException, SQLException {
+    public void delete(int idInterpreter, int idTimeSlot) throws NoSuchElementException, SQLException {
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ? AND %s = ?",
+                TABLE, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT
+        );
+        PreparedStatement statement = null;
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idInterpreter);
+            statement.setInt(2, idTimeSlot);
+
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("Unavailability not found in database");
+        } finally {
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
@@ -62,29 +159,118 @@ public class DAOExceptionalUnavailability extends DAO<ExceptionalUnavailability>
      * @return every object of the corresponding type present in database (possibly an empty Set)
      * @throws SQLException if the database could not be reached
      */
-    @Override
     public Set<ExceptionalUnavailability> findAll() throws SQLException {
-        return Set.of();
+        Set<ExceptionalUnavailability> unavailability = new HashSet<ExceptionalUnavailability>();
+        String query = String.format("SELECT * FROM %s", TABLE);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+
+            while (result.next())
+                unavailability.add(getResult(result));
+        } finally {
+            if(result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return unavailability;
     }
 
-    @Override
-    protected boolean checkAlreadyExists(ExceptionalUnavailability object) throws SQLException {
-        return false;
+    protected boolean checkAlreadyExists(ExceptionalUnavailability objectToCheck) throws SQLException {
+        String query = String.format(
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
+                TABLE,
+                FIELD_ID_INTERPRETER,
+                FIELD_ID_TIMESLOT
+        );
+
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+            statement.setInt(1, objectToCheck.getInterpreter().getId());
+            statement.setInt(2, objectToCheck.getTimeSlot().getId());
+
+            result = statement.executeQuery();
+            return result.next();
+        } finally {
+            if(result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
-    @Override
     protected ExceptionalUnavailability getResult(ResultSet result) throws SQLException {
-        return null;
+        return new ExceptionalUnavailability(
+                result.getString(FIELD_REASON),
+                new DAOPunctualTimeSlot().find(result.getInt(FIELD_ID_TIMESLOT)),
+                new DAOInterpreter().find(result.getInt(FIELD_ID_INTERPRETER))
+        );
     }
 
     /**
      * Return all ExceptionalUnavailability of an Interpreter with the given id
-     * @param idInterpreter the id of an Interpreter
+     * @param idInterpreter he primary key of the interpreter for which one finds all unavailability in the database
      * @return a Set of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty Set if none exist
-     * @throws NoSuchElementException if there are not an Interpreter with the given id
+     * @throws SQLException if the database could not be reached
      */
-    public Set<ExceptionalUnavailability> findForInterpreter(int idInterpreter)
-            throws NoSuchElementException {
-        return null;
+    public Set<ExceptionalUnavailability> findForInterpreter(int idInterpreter) throws SQLException {
+        Set<ExceptionalUnavailability> unavailability = new HashSet<ExceptionalUnavailability>();
+        String query = String.format("SELECT * FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID_INTERPRETER
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idInterpreter);
+            result = statement.executeQuery();
+
+            while (result.next())
+                unavailability.add(getResult(result));
+        }finally {
+            if(result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return unavailability;
     }
 }

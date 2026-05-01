@@ -5,12 +5,14 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class DAOMission extends DAO<Mission> {
     protected static final String TABLE = "mission";
@@ -77,11 +79,20 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(2, objectToInsert.getStateOfMission().getValue());
             statement.setString(3, objectToInsert.getCommentary());
             statement.setInt(4, objectToInsert.getTimeSlot().getId());
-            statement.setInt(5, objectToInsert.getBeneficiary().getId());
+            if(objectToInsert.getBeneficiary() != null)
+                statement.setInt(5, objectToInsert.getBeneficiary().getId());
+            else
+                statement.setNull(5, Types.INTEGER);
             statement.setInt(6, objectToInsert.getLocation().getId());
             statement.setString(7, objectToInsert.getRoom());
-            statement.setInt(8, objectToInsert.getJobSkill().getId());
-            statement.setInt(9, objectToInsert.getAcademicSkill().getId());
+            if(objectToInsert.getJobSkill() != null)
+                statement.setInt(8, objectToInsert.getJobSkill().getId());
+            else
+                statement.setNull(8, Types.INTEGER);
+            if(objectToInsert.getAcademicSkill() != null)
+                statement.setInt(9, objectToInsert.getAcademicSkill().getId());
+            else
+                statement.setNull(9, Types.INTEGER);
             statement.setInt(10, objectToInsert.getImportance());
             statement.executeUpdate();
 
@@ -110,6 +121,9 @@ public class DAOMission extends DAO<Mission> {
      */
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
         if (checkAlreadyExists(objectToUpdate))
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
@@ -125,44 +139,48 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(4, objectToUpdate.getTimeSlot().getId());
             statement.setInt(5, objectToUpdate.getLocation().getId());
             statement.setString(6, objectToUpdate.getRoom());
-            statement.setInt(7, objectToUpdate.getJobSkill().getId());
-            statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
+            if(objectToUpdate.getJobSkill() != null)
+                statement.setInt(7, objectToUpdate.getJobSkill().getId());
+            else
+                statement.setNull(7, Types.INTEGER);
+            if(objectToUpdate.getJobSkill() != null)
+                statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
+            else
+                statement.setNull(8, Types.INTEGER);
             statement.setInt(9, objectToUpdate.getImportance());
             statement.setInt(10, objectToUpdate.getId());
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
+            statement.executeUpdate();
 
             if (objectToUpdate.getInterpreters() != null) {
                 deleteAllInterpretersFromMission(objectToUpdate.getId());
                 for (Interpreter interpreter : objectToUpdate.getInterpreters())
                     addInterpreterToMission(objectToUpdate.getId(), interpreter.getId());
             }
-        }
-        finally {
+        } finally {
             closeStatement(statement);
         }
     }
 
     /**
      * Delete a Mission line in the table in the database
-     * @param objectToDelete the object to delete in the database
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @param idObjectToDelete the object to delete in the database
+     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
      * @throws SQLException if the database could not be reached
-     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * @post the object ID matching objectToDelete has been deleted from the database,
      * and the change was commited
      */
     @Override
-    public void delete(Mission objectToDelete) throws NoSuchElementException, SQLException {
-        String query = "DELETE FROM %s WHERE %s = ?";
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ? ";
         query = String.format(query, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, objectToDelete.getId());
+            statement.setInt(1, idObjectToDelete);
+
             if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("Mission " + objectToDelete.getSubject() + " was not found in database");
-        }
-        finally {
+                throw new NoSuchElementException("Mission " + idObjectToDelete + " was not found in database");
+        } finally {
             closeStatement(statement);
         }
     }
@@ -230,7 +248,7 @@ public class DAOMission extends DAO<Mission> {
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, date.getDayOfWeek().getValue() - 1);
+            statement.setInt(1, date.getDayOfWeek().getValue());
             statement.setDate(2, java.sql.Date.valueOf(date));
             statement.setInt(3, idUser);
             statement.setInt(4, idUser);
@@ -332,32 +350,35 @@ public class DAOMission extends DAO<Mission> {
      */
     @Override
     protected boolean checkAlreadyExists(Mission mission) throws SQLException {
-        String query = "SELECT COUNT(*) FROM " + TABLE + " m " +
-                        "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                        "JOIN TimeSlot tsNew ON tsNew.id = ? " +
-                        "WHERE ts.startTime < tsNew.endTime AND ts.endTime > tsNew.startTime " +
-                        "AND (m." + FIELD_BENEFICIARY + " = ? " +
-                        "OR m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter IN " +
-                        "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)))";
+        String benef = "";
+        if(mission.getBeneficiary() == null)
+            benef = FIELD_BENEFICIARY + " IS NULL OR ";
+        String query = "SELECT 1 FROM " + TABLE + " m " +
+                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
+                "JOIN TimeSlot tsNew ON tsNew.id = ? " +
+                "WHERE m." + FIELD_ID + " != ? " +
+                "AND ts.startDateTime < tsNew.endDateTime AND ts.endDateTime > tsNew.startDateTime " +
+                "AND (" + benef + FIELD_BENEFICIARY + " = ? " +
+                "OR m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter IN " +
+                "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)))";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, mission.getTimeSlot().getId());
-            statement.setInt(2, mission.getBeneficiary().getId());
-            statement.setInt(3, mission.getId());
+            statement.setInt(2, mission.getId());
+            if(mission.getBeneficiary() != null)
+                statement.setInt(3, mission.getBeneficiary().getId());
+            else
+                statement.setNull(3, Types.INTEGER);
+            statement.setInt(4, mission.getId());
             result = statement.executeQuery();
-            if (result.next())
-                return result.getInt(1) > 0;
+
+            return result.next();
         } finally {
-            if (result != null) {
-                try { result.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
+            closeResultSet(result);
+            closeStatement(statement);
         }
-        return false;
     }
 
     /**

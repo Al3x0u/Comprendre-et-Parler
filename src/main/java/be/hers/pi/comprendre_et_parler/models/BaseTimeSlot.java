@@ -30,11 +30,11 @@ public class BaseTimeSlot extends TimeSlot {
             this.endDate = startDate;
         }
 
-        this.startTime = startTime;
+        this.startTime = startTime.withNano(0).withSecond(0);
         if(!endTime.isBefore(startTime)) {
-            this.endTime = endTime;
+            this.endTime = endTime.withNano(0).withSecond(0);
         } else {
-            this.endTime = startTime;
+            this.endTime = this.startTime;
         }
         this.day = day;
     }
@@ -117,7 +117,7 @@ public class BaseTimeSlot extends TimeSlot {
      */
     public void setStartTime(LocalTime startTime) {
         if(startTime.isBefore(this.endTime)) {
-            this.startTime = startTime;
+            this.startTime = startTime.withNano(0).withSecond(0);
         }
     }
 
@@ -133,7 +133,7 @@ public class BaseTimeSlot extends TimeSlot {
      */
     public void setEndTime(LocalTime endTime) {
         if(endTime.isAfter(this.startTime)) {
-            this.endTime = endTime;
+            this.endTime = endTime.withNano(0).withSecond(0);
         }
     }
 
