@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.DAOs;
+package be.hers.pi.comprendre_et_parler.DAOs.services.wrappers;
 
 import java.sql.SQLException;
 
