@@ -150,6 +150,21 @@ body {
     display: inline-block;
 }
 
+.fc-filterBtn-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button:hover {
+    background-color: var(--oc-blue-2) !important;
+}
+
+.fc-filterBtn-button:focus {
+    box-shadow: none !important;
+}
+
 .fc-prev-button,
 .fc-next-button {
     background-color: transparent !important;
@@ -187,6 +202,13 @@ body {
     color: var(--oc-blue-9) !important;
 }
 
+.fc-timeGridWeek-button:hover,
+.fc-timeGridDay-button:hover {
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+}
+
+
 .fc-today-button {
     background-color: transparent !important;
     border-color: var(--bs-secondary) !important;
@@ -211,4 +233,9 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.fc-col-header-cell-cushion {
+    text-decoration: none !important;
+    color: var(--oc-blue-9) !important;
 }
