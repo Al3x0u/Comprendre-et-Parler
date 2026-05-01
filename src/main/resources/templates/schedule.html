@@ -6,6 +6,36 @@
 <!-- Navbar -->
 <div th:replace="~{common/navbar :: navbar}"></div>
 
+<!-- Filters : just visual -->
+<div id="dropdown-filtre" class="dropdown-menu">
+    <!-- By user (only for Manager) -->
+    <th:block th:if="${userRole == 'MANAGER'}">
+        <h6 class="dropdown-header">Par utilisateur</h6>
+        <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
+            <i class="bi bi-person me-2"></i>J. DuBuisson
+        </a>
+        <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
+            <i class="bi bi-person me-2"></i>A. Charpentier
+        </a>
+        <hr class="dropdown-divider">
+    </th:block>
+
+    <!-- By status -->
+    <h6 class="dropdown-header">Par statut</h6>
+    <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Acceptée">
+        <div style="width:12px;height:12px;background:#40c057;border-radius:3px"></div>Acceptée
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="En attente">
+        <div style="width:12px;height:12px;background:#fab005;border-radius:3px"></div>En attente
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Refusée">
+        <div style="width:12px;height:12px;background:#fa5252;border-radius:3px"></div>Refusée/Annulée
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Horaire de base">
+        <div style="width:12px;height:12px;background:#4dabf7;border-radius:3px"></div>Horaire de base
+    </a>
+</div>
+
 <!-- Calendar-->
 <div class="px-4 mt-5 mb-1">
     <div id="calendar"></div>
@@ -35,6 +65,19 @@
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
     const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
+    const userRole = /*[[${userRole}]]*/ 'MANAGER';
+    const customButtons = {
+        filterBtn: {
+            text: 'Filtre ▾',
+            click: function() {
+                const btn = document.querySelector('.fc-filterBtn-button');
+                const rect = btn.getBoundingClientRect();
+                const dropdown = document.getElementById('dropdown-filtre');
+                dropdown.style.cssText = `position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
+                dropdown.classList.toggle('show');
+            }
+        }
+    };
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -49,8 +92,9 @@
             slotMaxTime: '18:00:00',
             expandRows: true,
             events: allEvents,
+            customButtons: customButtons,
             headerToolbar: {
-                start: 'timeGridWeek,timeGridDay',
+                start: 'timeGridWeek,timeGridDay filterBtn',
                 center: 'prev title next',
                 end: 'today'
             },
