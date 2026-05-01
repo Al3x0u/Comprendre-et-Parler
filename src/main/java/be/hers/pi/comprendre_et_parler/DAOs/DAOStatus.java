@@ -24,14 +24,20 @@ public class DAOStatus extends DAO<Status> {
     @Override
     public Status find(int id) throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
         Status ret = null;
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) {
-                    ret = getResult(result);
-                }
+            result = statement.executeQuery();
+            if (result.next()) {
+                ret = getResult(result);
             }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
@@ -47,18 +53,23 @@ public class DAOStatus extends DAO<Status> {
         if (checkAlreadyExists(objectToInsert))
             throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() +  " already exists");
 
-
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
             statement.setInt(2, objectToInsert.getHourQuota());
             statement.executeUpdate();
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    objectToInsert.setId(generatedKeys.getInt(1));
-                }
-            }
+
+            generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+        }
+        finally {
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -72,40 +83,42 @@ public class DAOStatus extends DAO<Status> {
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
         if (checkAlreadyExists(objectToUpdate))
-            throw new AlreadyExistsException("Status" + objectToUpdate.getDesignation() + " already exists");
+            throw new AlreadyExistsException("Status " + objectToUpdate.getDesignation() + " already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA, FIELD_ID);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getHourQuota());
             statement.setInt(3, objectToUpdate.getId());
-            if (statement.executeUpdate() == 0)
+            if(statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
+        }
+        finally {
+            closeStatement(statement);
         }
     }
 
     /**
-     * @param objectToDelete the object to delete in the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @param idObjectToDelete the object to delete in the database
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
     @Override
-    public void delete(Status objectToDelete) throws NoSuchElementException, SQLException {
-        Status objectInDB = find(objectToDelete.getId());
-        if (objectInDB == null)
-            throw new NoSuchElementException("No object of id " + objectToDelete.getId() + " could be found in database");
-        if (!objectInDB.equals(objectToDelete))
-            throw new NoSuchElementException("An object of id " + objectToDelete.getId() + " was found in database, but its attributes do not match those of objectToDelete");
-
-        String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
-            statement.setInt(1, objectToDelete.getId());
-            statement.setString(2, objectToDelete.getDesignation());
-            statement.setInt(3, objectToDelete.getHourQuota());
-            statement.executeUpdate();
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_ID);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("Status " + idObjectToDelete + " was not found in database");
+        } finally {
+            closeStatement(statement);
         }
     }
 
@@ -116,32 +129,39 @@ public class DAOStatus extends DAO<Status> {
     @Override
     public Set<Status> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE;
-        Set<Status> ret = new HashSet<>();
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    ret.add(getResult(result));
-                }
-            }
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<Status> ret = new HashSet<Status>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            while (result.next())
+                ret.add(getResult(result));
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
 
     @Override
     protected boolean checkAlreadyExists(Status object) throws SQLException {
-        String query = "SELECT * FROM %s WHERE %s = ? AND %s = ? ";
+        String query = "SELECT 1 FROM %s WHERE %s = ? AND %s = ? ";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, object.getDesignation());
             statement.setInt(2, object.getHourQuota());
-            statement.executeUpdate();
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) {
-                    return true;
-                }
-            }
+
+            result = statement.executeQuery();
+            return result.next();
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
-        return false;
     }
 
     @Override

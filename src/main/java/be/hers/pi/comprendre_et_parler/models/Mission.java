@@ -345,8 +345,8 @@
                     && (beneficiary == null ? other.beneficiary == null : beneficiary.equals(other.beneficiary))
                     && (interpreters == null ? other.interpreters == null : interpreters.equals(other.interpreters))
                     && location.equals(other.location)
-                    && jobSkill.equals(other.jobSkill)
-                    && academicSkill.equals(other.academicSkill)
+                    && (jobSkill == null ? other.jobSkill == null : jobSkill.equals(other.jobSkill))
+                    && (academicSkill == null ? other.academicSkill == null : academicSkill.equals(other.academicSkill))
                     && (room == null ? other.room == null : room.equals(other.room))
                     && importance == other.importance;
         }
