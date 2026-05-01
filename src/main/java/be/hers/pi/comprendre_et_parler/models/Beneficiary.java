@@ -10,25 +10,6 @@ import java.util.Objects;
 public class Beneficiary extends AppliUser {
     private Status status;
     private Interpreter interpreterRef;
-    
-    /**
-     * Constructor of a Beneficiary extends User without id
-     * @param login          represent the login
-     * @param firstName      represent the firstname
-     * @param lastName       represent he lastname
-     * @param birthDate      represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email          represent the email
-     * @param phoneNumber    represent the phone number
-     * @param status         represent the status
-     */
-    public Beneficiary(String login, String firstName, String lastName,
-                       LocalDate birthDate, String hashedPassword, String email,
-                       String phoneNumber, Status status, Interpreter interpreterRef) {
-        super(login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
-        this.status = status;
-        this.interpreterRef = interpreterRef;
-    }
 
     /**
      * Constructor of a Beneficiary extends User with id
@@ -41,6 +22,7 @@ public class Beneficiary extends AppliUser {
      * @param email          represent the email
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
+     * @param interpreterRef represent the reference interpreter
      */
     public Beneficiary(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -48,6 +30,24 @@ public class Beneficiary extends AppliUser {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         this.status = status;
         this.interpreterRef = interpreterRef;
+    }
+
+    /**
+     * Constructor of a Beneficiary extends User without id
+     * @param login          represent the login
+     * @param firstName      represent the firstname
+     * @param lastName       represent he lastname
+     * @param birthDate      represent the birthdate
+     * @param hashedPassword represent the hashed password
+     * @param email          represent the email
+     * @param phoneNumber    represent the phone number
+     * @param status         represent the status
+     * @param interpreterRef represent the reference interpreter
+     */
+    public Beneficiary(String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, Status status, Interpreter interpreterRef) {
+        this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, status, interpreterRef);
     }
 
     /**
@@ -59,11 +59,13 @@ public class Beneficiary extends AppliUser {
      * @param other the Beneficiary to copy, must not be null
      */
     public Beneficiary(Beneficiary other) {
-        super(other.getLogin(), other.getFirstName(), other.getLastName(),
+        this(other.getId(), other.getLogin(), other.getFirstName(), other.getLastName(),
                 other.getBirthDate(), other.getHashedPassword(), other.getEmail(),
-                other.getPhoneNumber());
-        this.status = new Status(other.status);
-        this.interpreterRef = new Interpreter(other.interpreterRef);
+                other.getPhoneNumber(), new Status(other.status), new Interpreter(other.interpreterRef));
+    }
+
+    public Beneficiary clone() {
+        return new Beneficiary(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, new Status(status), new Interpreter(interpreterRef));
     }
 
     /**
@@ -107,8 +109,8 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
-     * Computes a hash code for this Interpreter based on its attributes.
-     * two Interpreter objects that are equal according to equals() will have the same hash code.
+     * Computes a hash code for this Beneficiary based on its attributes.
+     * two Beneficiary objects that are equal according to equals() will have the same hash code.
      * @return an integer hash code representing this Beneficiary
      */
     @Override
@@ -127,6 +129,6 @@ public class Beneficiary extends AppliUser {
     @Override
     public String toString() {
         return "Beneficiary " + super.toString() + ", status = " + status.getDesignation()
-                + ", reference Interpreter login = " + interpreterRef.toString() + "}";
+                + ", reference Interpreter login = " + interpreterRef.getLogin() + "}";
     }
 }

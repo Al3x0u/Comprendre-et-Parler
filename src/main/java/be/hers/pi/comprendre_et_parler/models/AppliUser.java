@@ -194,20 +194,19 @@ public abstract class AppliUser {
         if (this == other) return true;
         if(!(other instanceof AppliUser) ) return false;
         AppliUser user = (AppliUser) other;
-        return (Objects.equals(login, user.login) && Objects.equals(firstName, user.firstName)  && Objects.equals(lastName, user.lastName) &&
+        return (Objects.equals(firstName, user.firstName)  && Objects.equals(lastName, user.lastName) &&
                 Objects.equals(birthDate, user.birthDate) && Objects.equals(hashedPassword, user.hashedPassword) &&
                 Objects.equals(email,user.email) && Objects.equals(phoneNumber,user.phoneNumber));
     }
 
     /**
-     * Computes a hash code for this Interpreter based on its attributes.
-     * two Interpreter objects that are equal according to equals() will have the same hash code.
+     * Computes a hash code for this AppliUser based on its attributes.
+     * two AppliUser objects that are equal according to equals() will have the same hash code.
      * @return an integer hash code representing this AppliUser
      */
     @Override
     public int hashCode() {
         return Objects.hash(
-                login,
                 firstName,
                 lastName,
                 birthDate,

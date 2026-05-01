@@ -15,12 +15,12 @@ public class PunctualTimeSlot extends TimeSlot {
      */
     public PunctualTimeSlot(int id, LocalDateTime startDate, LocalDateTime endDate) {
         super(id);
-        this.startDate = startDate;
+        this.startDate = startDate.withNano(0).withSecond(0);
 
         if (endDate.isAfter(startDate)) {
-            this.endDate = endDate;
+            this.endDate = endDate.withNano(0).withSecond(0);
         } else {
-            this.endDate = startDate;
+            this.endDate = this.startDate;
         }
     }
 
@@ -53,7 +53,7 @@ public class PunctualTimeSlot extends TimeSlot {
      */
     public void setStartDate(LocalDateTime startDate) {
         if (startDate.isBefore(this.endDate)) {
-            this.startDate = startDate;
+            this.startDate = startDate.withNano(0).withSecond(0);
         }
     }
 
@@ -69,7 +69,7 @@ public class PunctualTimeSlot extends TimeSlot {
      */
     public void setEndDate(LocalDateTime endDate) {
         if (endDate.isAfter(this.startDate)) {
-            this.endDate = endDate;
+            this.endDate = endDate.withNano(0).withSecond(0);
         }
     }
 

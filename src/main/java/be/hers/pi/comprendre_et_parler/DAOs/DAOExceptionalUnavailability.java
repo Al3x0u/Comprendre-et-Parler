@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.ExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +13,7 @@ import java.util.NoSuchElementException;
 public class DAOExceptionalUnavailability {
     protected static final String TABLE = "Unavailability";
     protected static final String FIELD_ID_INTERPRETER = "interpreter";
-    protected static final String FIELD_ID_TIMESLOT = "punctualTimeSlot";
+    protected static final String FIELD_ID_TIMESLOT = "timeSlot";
     protected static final String FIELD_REASON = "reason";
 
     /**
@@ -35,11 +34,11 @@ public class DAOExceptionalUnavailability {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, idInterpreter);
             statement.setInt(2, idTimeSlot);
-
             result = statement.executeQuery();
             if (result.next())
                 unavailability = getResult(result);
-        } finally {
+        }
+        finally {
             if(result != null) {
                 try {
                     result.close();
@@ -61,21 +60,19 @@ public class DAOExceptionalUnavailability {
     /**
      * Insert a ExceptionalUnavailability object in the database
      * @param objectToInsert an object of type ExceptionalUnavailability to add to the database
-     * @param interpreter the interpreter who is unavailable
      * @throws AlreadyExistsException if objectToInsert is already present in database
      * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
-    public void create(ExceptionalUnavailability objectToInsert, Interpreter interpreter) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert, interpreter))
-            throw new AlreadyExistsException("An unavailability for interpreter " + interpreter.getId()
-                    + " at time slot " + objectToInsert.getTimeSlot().getId()+ " already exists in the database");
+    public void create(ExceptionalUnavailability objectToInsert) throws AlreadyExistsException, SQLException {
+        if (checkAlreadyExists(objectToInsert))
+            throw new AlreadyExistsException("An unavailability for this interpreter at this time slot already exists in the database");
 
         String query = String.format("INSERT INTO %s VALUES (?, ?, ?)", TABLE);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, interpreter.getId());
+            statement.setInt(1, objectToInsert.getInterpreter().getId());
             statement.setInt(2, objectToInsert.getTimeSlot().getId());
             statement.setString(3, objectToInsert.getReason());
 
@@ -94,12 +91,11 @@ public class DAOExceptionalUnavailability {
     /**
      * Update a ExceptionalUnavailability line who already exist in the database
      * @param objectToUpdate the object to edit in the database
-     * @param interpreter the interpreter who is unavailable
      * @throws NoSuchElementException if no object matching objectToUpdate's id was present in the database
      * @throws SQLException if the database could not be reached
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
-    public void update(ExceptionalUnavailability objectToUpdate, Interpreter interpreter) throws NoSuchElementException, SQLException {
+    public void update(ExceptionalUnavailability objectToUpdate) throws NoSuchElementException, SQLException {
         String query = String.format(
                 "UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?",
                 TABLE, FIELD_REASON, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT
@@ -107,13 +103,13 @@ public class DAOExceptionalUnavailability {
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
+
             statement.setString(1, objectToUpdate.getReason());
-            statement.setInt(2, interpreter.getId());
+            statement.setInt(2, objectToUpdate.getInterpreter().getId());
             statement.setInt(3, objectToUpdate.getTimeSlot().getId());
 
             if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] The Interpreter " + interpreter.getId()
-                        + " is not linked to the TimeSLot " + objectToUpdate.getTimeSlot().getId());
+                throw new NoSuchElementException("Unavailability not found in database");
         } finally {
             if(statement != null) {
                 try {
@@ -146,8 +142,7 @@ public class DAOExceptionalUnavailability {
             statement.setInt(2, idTimeSlot);
 
             if(statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] The Interpreter " + idInterpreter + " is not linked to the TimeSLot " + idTimeSlot);
-
+                throw new NoSuchElementException("Unavailability not found in database");
         } finally {
             if(statement != null) {
                 try {
@@ -172,8 +167,8 @@ public class DAOExceptionalUnavailability {
 
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-
             result = statement.executeQuery();
+
             while (result.next())
                 unavailability.add(getResult(result));
         } finally {
@@ -195,25 +190,20 @@ public class DAOExceptionalUnavailability {
         return unavailability;
     }
 
-    /**
-     * Check if an ExceptionalUnavailability already exists in the database
-     * @param objectToCheck the ExceptionalUnavailability to check
-     * @param interpreter the interpreter who is unavailable
-     * @return true if the ExceptionalUnavailability already exists, else false
-     * @throws SQLException if the database could not be reached
-     */
-    protected boolean checkAlreadyExists(ExceptionalUnavailability objectToCheck, Interpreter interpreter) throws SQLException {
+    protected boolean checkAlreadyExists(ExceptionalUnavailability objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
                 TABLE,
                 FIELD_ID_INTERPRETER,
                 FIELD_ID_TIMESLOT
         );
+
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, interpreter.getId());
+
+            statement.setInt(1, objectToCheck.getInterpreter().getId());
             statement.setInt(2, objectToCheck.getTimeSlot().getId());
 
             result = statement.executeQuery();
@@ -236,16 +226,11 @@ public class DAOExceptionalUnavailability {
         }
     }
 
-    /**
-     * Build an ExceptionalUnavailability from a ResultSet
-     * @param result the ResultSet to read from
-     * @return an ExceptionalUnavailability built from the ResultSet
-     * @throws SQLException if the database could not be reached
-     */
     protected ExceptionalUnavailability getResult(ResultSet result) throws SQLException {
         return new ExceptionalUnavailability(
                 result.getString(FIELD_REASON),
-                new DAOPunctualTimeSlot().find(result.getInt(FIELD_ID_TIMESLOT))
+                new DAOPunctualTimeSlot().find(result.getInt(FIELD_ID_TIMESLOT)),
+                new DAOInterpreter().find(result.getInt(FIELD_ID_INTERPRETER))
         );
     }
 
@@ -262,14 +247,15 @@ public class DAOExceptionalUnavailability {
         );
         PreparedStatement statement = null;
         ResultSet result = null;
+
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, idInterpreter);
-
             result = statement.executeQuery();
+
             while (result.next())
                 unavailability.add(getResult(result));
-        } finally {
+        }finally {
             if(result != null) {
                 try {
                     result.close();

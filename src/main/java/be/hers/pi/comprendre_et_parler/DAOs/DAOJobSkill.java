@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.JobSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
@@ -106,25 +105,22 @@ public class DAOJobSkill extends DAO<JobSkill> {
 
     /**
      * Delete a JobSkill line in the table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
+     * @param idObjectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the JobSkill object in the database
      * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(JobSkill objectToDelete) throws NoSuchElementException, SQLException {
-        String query = "DELETE FROM %s WHERE %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION);
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, objectToDelete.getId());
-            statement.setString(2, objectToDelete.getDesignation());
-            if(statement.executeUpdate() == 0){
-                throw new NoSuchElementException("JobSkill " + objectToDelete.getDesignation() + " was not found in database");
-            }
-        }
-        finally {
+            statement.setInt(1, idObjectToDelete);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("JobSkill " + idObjectToDelete + " was not found in database");
+        } finally {
             closeStatement(statement);
         }
     }
@@ -163,7 +159,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
      */
     @Override
     protected boolean checkAlreadyExists(JobSkill object) throws SQLException {
-        String query = "SELECT * FROM %s WHERE %s = ?";
+        String query = "SELECT 1 FROM %s WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION);
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -171,10 +167,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, object.getDesignation());
             result = statement.executeQuery();
-            if (result.next()) {
-                return true;
-            }
-            return false;
+            return result.next();
         }finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -203,9 +196,8 @@ public class DAOJobSkill extends DAO<JobSkill> {
      * @throws SQLException if the database could not be reached
      */
     public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws SQLException{
-        String query = "SELECT a." + FIELD_ID +", a."+ FIELD_DESIGNATION+" FROM " + TABLE
-                + " a JOIN JobSkillInterpreter asi ON a."+ FIELD_ID+" = asi.skill WHERE " +
-                "asi.interpreter = ?";
+        String query = "SELECT a." + FIELD_ID + ", a." + FIELD_DESIGNATION + " FROM " + TABLE + " a " +
+                "JOIN JobSkillInterpreter asi ON a." + FIELD_ID + " = asi.skill WHERE asi.interpreter = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Set<JobSkill> ret = new HashSet<>();
@@ -222,7 +214,6 @@ public class DAOJobSkill extends DAO<JobSkill> {
             closeResultSet(result);
             closeStatement(statement);
         }
-
         return ret;
     }
 }
