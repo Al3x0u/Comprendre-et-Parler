@@ -75,9 +75,28 @@
                 const dropdown = document.getElementById('dropdown-filtre');
                 dropdown.style.cssText = `position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
                 dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
             }
         }
     };
+
+    if (userRole === 'BENEFICIARY') {
+        customButtons.newRequest = {
+            text: '+ Nouvelle demande',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
+    }
+
+    if (userRole === 'MANAGER') {
+        customButtons.newMission = {
+            text: '+ Nouvelle mission',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -96,7 +115,7 @@
             headerToolbar: {
                 start: 'timeGridWeek,timeGridDay filterBtn',
                 center: 'prev title next',
-                end: 'today'
+                end: userRole === 'MANAGER' ? 'newMission today' : userRole === 'BENEFICIARY' ? 'newRequest today' : 'today'
             },
             buttonText: {
                 week: 'Semaine',
@@ -117,6 +136,14 @@
                 };
             }
         });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.fc-filterBtn-button') && !e.target.closest('#dropdown-filtre')) {
+                document.getElementById('dropdown-filtre').classList.remove('show');
+                document.querySelector('.fc-filterBtn-button').classList.remove('active');
+            }
+        });
+
         calendar.render();
     });
 </script>

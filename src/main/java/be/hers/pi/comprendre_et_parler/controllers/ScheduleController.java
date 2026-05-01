@@ -62,7 +62,7 @@ public class ScheduleController {
         return "schedule";
     }
 
-    // Temporaire - user hardcodé
+    // Temporary - user hardcoded
     private AppliUser getHardcodedUser() {
         Manager m1 = new Manager(
                 "M001",
@@ -136,10 +136,10 @@ public class ScheduleController {
                 i2
         );
 
-        return b1;
+        return m1;
     }
 
-    //Temporaire pour créer des missions
+    //Temporary to create missions
     private List<Map<String, String>> getHardcodedMissions() {
         List<Map<String, String>> events = new ArrayList<>();
 
