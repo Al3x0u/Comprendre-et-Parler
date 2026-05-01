@@ -158,11 +158,17 @@ body {
 }
 
 .fc-filterBtn-button:hover {
-    background-color: var(--oc-blue-2) !important;
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
 }
 
 .fc-filterBtn-button:focus {
     box-shadow: none !important;
+}
+
+.fc-filterBtn-button.active {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
 }
 
 .fc-prev-button,
@@ -238,4 +244,36 @@ body {
 .fc-col-header-cell-cushion {
     text-decoration: none !important;
     color: var(--oc-blue-9) !important;
+}
+
+.fc-newRequest-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-newRequest-button:hover {
+    color: white !important;
+    background-color: var(--oc-blue-9) !important;
+}
+
+.fc-newRequest-button:focus {
+    box-shadow: none !important;
+}
+
+.fc-newMission-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-newMission-button:hover {
+    color: white !important;
+    background-color: var(--oc-blue-9) !important;
+}
+
+.fc-newMission-button:focus {
+    box-shadow: none !important;
 }
