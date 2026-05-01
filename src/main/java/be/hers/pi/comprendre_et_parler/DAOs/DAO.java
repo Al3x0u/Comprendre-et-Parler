@@ -4,85 +4,11 @@ import java.sql.*;
 import java.util.NoSuchElementException;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 
-import javax.xml.crypto.Data;
 import java.util.Set;
 
 
 public abstract class DAO<T> {
-
-    /**
-     * Wraps a DAO method in an SQL transaction and single out connection exceptions
-     * @param daoMethod the method to call
-     * @param param the parameter to pass to the method
-     * @param useTransaction specifies whether to run the method within an SQL transaction (default: True)
-     * @return the method's return value
-     * @param <T> the method's input parameter type
-     * @param <R> the method's return type
-     * @throws ConnectionException if a connection error occurred (SQL state 08xxx)
-     * @throws SQLException if any other error occurred
-     */
-    public static <T, R> R call(FunctionWithSQLException<T, R> daoMethod, T param, boolean useTransaction) throws SQLException, ConnectionException {
-        try {
-            if (useTransaction) {
-                DatabaseConnector.getInstance().setAutoCommit(false);
-                Savepoint sp = DatabaseConnector.getInstance().setSavepoint();
-                try {
-                    R ret = daoMethod.apply(param);
-                    DatabaseConnector.getInstance().commit();
-                    return ret;
-                }
-                catch (Exception e) {
-                    DatabaseConnector.getInstance().rollback(sp);
-                    throw e;
-                }
-                finally {
-                    DatabaseConnector.getInstance().setAutoCommit(true);
-                    try {
-                        DatabaseConnector.getInstance().releaseSavepoint(sp);
-                    }
-                    catch (SQLFeatureNotSupportedException e) {
-                        System.err.println("Warning: " + e.getMessage());
-                    }
-                }
-            }
-            else {
-                return daoMethod.apply(param);
-            }
-        }
-        catch (SQLException e) {
-            if (e.getSQLState().matches("^08")) {
-                throw new ConnectionException("Could not connect to database");
-            }
-            throw e;
-        }
-    }
-
-    public static <T, R> R call(FunctionWithSQLException<T, R> func, T param) throws SQLException {
-        return call(func, param, true);
-    }
-
-    public static <T, U, R> R call(BiFunctionWithSQLException<T, U, R> func, T param1, U param2, boolean noSavePoint) {
-        throw new UnsupportedOperationException();
-    }
-    public static <T, U, R> R call(BiFunctionWithSQLException<T, U, R> func, T param1, U param2) {
-        return call(func, param1, param2, false);
-    }
-
-    public static <T> void call(ConsumerWithSQLException<T> cons, T param, boolean noSavePoint) {
-        throw new UnsupportedOperationException();
-    }
-    public static <T, U> void call(ConsumerWithSQLException<T> cons, T param1, U param2) {
-        call(cons, param1, false);
-    }
-
-    public static <T, U> void call(BiConsumerWithSQLException<T, U> cons, T param1, U param2, boolean noSavePoint) {
-        throw new UnsupportedOperationException();
-    }
-    public static <P> void call(ConsumerWithSQLException<P> cons, P param) {
-        call(cons, param, false);
-    }
 
     /**
      * @param id the primary key of the object to find in database

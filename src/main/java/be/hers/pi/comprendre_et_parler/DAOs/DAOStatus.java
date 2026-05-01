@@ -23,7 +23,6 @@ public class DAOStatus extends DAO<Status> {
      */
     @Override
     public Status find(int id) throws SQLException {
-        System.out.println("DAOStatus.find()");
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
         Status ret = null;
         try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
