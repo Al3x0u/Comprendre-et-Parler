@@ -4,5 +4,5 @@ import java.sql.SQLException;
 
 @FunctionalInterface
 public interface ConsumerWithSQLException<T> {
-    void accept(T arg) throws SQLException;
+    void apply(T arg) throws SQLException;
 }
