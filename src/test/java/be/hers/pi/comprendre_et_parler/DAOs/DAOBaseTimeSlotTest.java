@@ -2,6 +2,9 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
+import be.hers.pi.comprendre_et_parler.models.City;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
+import be.hers.pi.comprendre_et_parler.models.Location;
 import org.junit.jupiter.api.*;
 
 import java.sql.PreparedStatement;
@@ -9,6 +12,7 @@ import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -108,7 +112,7 @@ class DAOBaseTimeSlotTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             baseTimeSlotDAO.delete(b2.getId());
@@ -134,5 +138,39 @@ class DAOBaseTimeSlotTest {
         assertEquals(2, baseTimeSlots.size(), "There are two objects in the database.");
         assertTrue(baseTimeSlots.contains(b1));
         assertTrue(baseTimeSlots.contains(b2));
+    }
+
+    @Test
+    @Order(5)
+    public void testFindAvailabilities() throws SQLException {
+        City c1 = new City(1, "Bruxelles", 1000);
+        new DAOCity().create(c1);
+        Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
+        new DAOLocation().create(l1);
+        HashSet<BaseTimeSlot> group1 = new HashSet<>();
+        group1.add(b1);
+        group1.add(b2);
+        HashSet<BaseTimeSlot> group2 = new HashSet<>();
+        group2.add(b3);
+
+        Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
+                "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
+                "Auto", new HashSet<>(), new HashSet<>(), l1, group1);
+        Interpreter i2 = new Interpreter(1, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
+                "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
+                "Auto", new HashSet<>(), new HashSet<>(), l1, group2);
+
+        DAO<Interpreter> dao = new DAOInterpreter();
+        dao.create(i1);
+        dao.create(i2);
+
+        Set<BaseTimeSlot> av1 = baseTimeSlotDAO.findAvailabilities(i1);
+        assertEquals(2, av1.size(), "There are two objects in the result set.");
+        assertTrue(av1.contains(b1));
+        assertTrue(av1.contains(b2));
+
+        Set<BaseTimeSlot> av2 = baseTimeSlotDAO.findAvailabilities(i2);
+        assertEquals(1, av1.size(), "There is one object in the result set.");
+        assertTrue(av1.contains(b3));
     }
 }
