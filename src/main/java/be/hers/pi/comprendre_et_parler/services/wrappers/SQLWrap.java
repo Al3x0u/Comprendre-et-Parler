@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.DAOs.services.wrappers;
+package be.hers.pi.comprendre_et_parler.services.wrappers;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DatabaseConnector;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
@@ -7,7 +7,21 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 
-public class Transaction {
+public class SQLWrap {
+    /**
+     * Wraps a method in an SQL transaction and single out connection exceptions
+     * @param function the method to call. Must match a FunctionWithSQLException with 1 parameter
+     * @param param the parameter to pass to the method
+     * @return the method's return value
+     * @param <T> the method's input parameter type
+     * @param <R> the method's return type
+     * @throws ConnectionException if a connection error occurred (SQL state 08xxx)
+     * @throws SQLException if any other error occurred
+     */
+    public static <T, R> R callTransaction(FunctionWithSQLException<T, R> function, T param) throws SQLException, ConnectionException {
+        return call((p) -> performTransaction(function, p), param);
+    }
+
     /**
      * Wraps a method and single out connection exceptions
      * @param function the method to call. Must match a FunctionWithSQLException with 1 parameter
@@ -28,20 +42,6 @@ public class Transaction {
             }
             throw e;
         }
-    }
-
-    /**
-     * Wraps a method in an SQL transaction and single out connection exceptions
-     * @param function the method to call. Must match a FunctionWithSQLException with 1 parameter
-     * @param param the parameter to pass to the method
-     * @return the method's return value
-     * @param <T> the method's input parameter type
-     * @param <R> the method's return type
-     * @throws ConnectionException if a connection error occurred (SQL state 08xxx)
-     * @throws SQLException if any other error occurred
-     */
-    public static <T, R> R callTransaction(FunctionWithSQLException<T, R> function, T param) throws SQLException, ConnectionException {
-        return call((p) -> performTransaction(function, p), param);
     }
 
     /**
