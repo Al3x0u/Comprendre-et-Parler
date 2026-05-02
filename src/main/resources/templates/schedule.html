@@ -37,7 +37,7 @@
 </div>
 
 <!-- Calendar-->
-<div class="px-4 mt-5 mb-1">
+<div class="px-4 mt-4 mb-1">
     <div id="calendar"></div>
 </div>
 
@@ -89,10 +89,25 @@
         };
     }
 
+    if (userRole === 'INTERPRETER') {
+        customButtons.newUnavailability = {
+            text: '+ Nouvelle indisponibilité',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
+    }
+
     if (userRole === 'MANAGER') {
+        customButtons.newUnavailability = {
+            text: '+ Nouvelle indisponibilité',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
         customButtons.newMission = {
             text: '+ Nouvelle mission',
-            click: function() {
+            click: function () {
                 // TODO: ouvrir modal de création
             }
         };
@@ -101,21 +116,24 @@
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'timeGridWeek',
-            height: 'calc(100vh - 200px)',
+            height: 'calc(100vh - 220px)',
+            contentHeight: 'auto',
             locale: 'fr',
             firstDay: 1,
-            weekends: false,
+            weekends: true,
             allDaySlot: false,
             slotDuration: '00:30:00',
-            slotMinTime: '08:00:00',
-            slotMaxTime: '18:00:00',
+            slotMinTime: '07:00:00',
+            slotMaxTime: '22:00:00',
             expandRows: true,
             events: allEvents,
             customButtons: customButtons,
             headerToolbar: {
                 start: 'timeGridWeek,timeGridDay filterBtn',
                 center: 'prev title next',
-                end: userRole === 'MANAGER' ? 'newMission today' : userRole === 'BENEFICIARY' ? 'newRequest today' : 'today'
+                end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
+                    : userRole === 'INTERPRETER' ? 'newUnavailability today'
+                    : 'newRequest today'
             },
             buttonText: {
                 week: 'Semaine',
