@@ -116,14 +116,18 @@
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'timeGridWeek',
-            height: 'calc(100vh - 220px)',
-            contentHeight: 'auto',
+            height: '83vh',
             locale: 'fr',
             firstDay: 1,
             weekends: true,
             allDaySlot: false,
+            businessHours: {
+                daysOfWeek: [ 1, 2, 3, 4, 5 ], // Monday - Thursday
+                startTime: '00:00',
+                endTime: '23:59',
+            },
             slotDuration: '00:30:00',
-            slotMinTime: '07:00:00',
+            slotMinTime: '08:00:00',
             slotMaxTime: '22:00:00',
             expandRows: true,
             events: allEvents,
