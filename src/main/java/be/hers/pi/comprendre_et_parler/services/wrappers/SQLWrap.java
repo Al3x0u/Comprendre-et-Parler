@@ -8,6 +8,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 
 public class SQLWrap {
+    static boolean unimplementedReleaseSavepointWarning = true;
     /**
      * Wraps a method in an SQL transaction and single out connection exceptions
      * @param supplier the method to call. Must match a SupplierWithSQLException
@@ -291,7 +292,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }
             }
         }
     }
@@ -323,7 +327,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }
             }
         }
     }
@@ -357,8 +364,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
-            }
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }            }
         }
     }
 
@@ -393,8 +402,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
-            }
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }            }
         }
     }
 
@@ -422,8 +433,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
-            }
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }            }
         }
     }
 
@@ -453,8 +466,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
-            }
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }            }
         }
     }
 
@@ -484,8 +499,10 @@ public class SQLWrap {
                 DatabaseConnector.getInstance().releaseSavepoint(sp);
             }
             catch (SQLFeatureNotSupportedException e) {
-                System.err.println("Warning: " + e.getMessage());
-            }
+                if (unimplementedReleaseSavepointWarning) {
+                    System.err.println("Warning: " + e.getMessage());
+                    unimplementedReleaseSavepointWarning = false;
+                }            }
         }
     }
 }
