@@ -4,11 +4,9 @@ import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.Interpreter;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
+import java.sql.*;
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
@@ -17,8 +15,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     protected static final String TABLE = "timeslot";
     protected static final String FIELD_ID = "id";
-    protected static final String FIELD_START_TIME = "startTime";
-    protected static final String FIELD_END_TIME = "endTime";
+    protected static final String FIELD_START_TIME = "startDateTime";
+    protected static final String FIELD_END_TIME = "endDateTime";
     protected static final String FIELD_DAY = "day";
 
     protected static final String TABLE_AVAILABILITY = "availability";
@@ -33,14 +31,21 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     public BaseTimeSlot find(int id) throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NOT NULL AND " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
         BaseTimeSlot ret = null;
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) {
-                    ret = getResult(result);
-                }
+            result = statement.executeQuery();
+            if (result.next()) {
+                ret = getResult(result);
             }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
@@ -58,16 +63,21 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
         String query = "INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
-            statement.setTime(1, Time.valueOf(objectToInsert.getStartTime()));
-            statement.setTime(2, Time.valueOf(objectToInsert.getEndTime()));
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(objectToInsert.getStartDate(), objectToInsert.getStartTime())));
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(objectToInsert.getEndDate(), objectToInsert.getEndTime())));
             statement.setInt(3, objectToInsert.getDay().getValue());
             statement.executeUpdate();
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    objectToInsert.setId(generatedKeys.getInt(1));
-                }
-            }
+            generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+        }
+        finally {
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -81,39 +91,44 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         if (checkAlreadyExists(objectToUpdate))
-            throw new AlreadyExistsException("BaseTimeSlot" + objectToUpdate.getDay() + " already exists");
+            throw new AlreadyExistsException("This BaseTimeSlot already exists");
 
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY, FIELD_ID);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            statement.setTime(1, Time.valueOf(objectToUpdate.getStartTime()));
-            statement.setTime(2, Time.valueOf(objectToUpdate.getEndTime()));
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(objectToUpdate.getStartDate(), objectToUpdate.getStartTime())));
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(objectToUpdate.getEndDate(), objectToUpdate.getEndTime())));
             statement.setInt(3, objectToUpdate.getDay().getValue());
             statement.setInt(4, objectToUpdate.getId());
-            if (statement.executeUpdate() == 0)
+            if(statement.executeUpdate() == 0){
                 throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
+            }
+        }
+        finally {
+            closeStatement(statement);
         }
     }
 
     /**
-     * @param objectToDelete the object to delete in the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @param idObjectToDelete the ID of the object to delete in the database
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
     @Override
-    public void delete(BaseTimeSlot objectToDelete) throws NoSuchElementException, SQLException {
-        BaseTimeSlot objectInDB = find(objectToDelete.getId());
-        if (objectInDB == null)
-            throw new NoSuchElementException("No object of id " + objectToDelete.getId() + " could be found in database");
-        if (!objectInDB.equals(objectToDelete))
-            throw new NoSuchElementException("An object of id " + objectToDelete.getId() + " was found in database, but its attributes do not match those of objectToDelete");
-
-        String query = "DELETE FROM %s WHERE %s = ?";
-        query = String.format(query, TABLE, FIELD_ID);;
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
-            statement.setInt(1, objectToDelete.getId());
-            statement.executeUpdate();
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ? AND %s IS NOT NULL";
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DAY);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("BaseTimeSlot " + idObjectToDelete + " was not found in database");
+        } finally {
+            closeStatement(statement);
         }
     }
 
@@ -124,13 +139,19 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     public Set<BaseTimeSlot> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NOT NULL";
+        PreparedStatement statement = null;
+        ResultSet result = null;
         Set<BaseTimeSlot> ret = new HashSet<>();
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    ret.add(getResult(result));
-                }
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            while (result.next()) {
+                ret.add(getResult(result));
             }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
@@ -173,19 +194,22 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     protected boolean checkAlreadyExists(BaseTimeSlot object) throws SQLException {
-        String query = "SELECT * FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?";
+        String query = "SELECT 1 FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?";
         query = String.format(query, TABLE, FIELD_DAY, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, object.getDay().getValue());
-            statement.setTime(2, Time.valueOf(object.getStartTime()));
-            statement.setTime(3, Time.valueOf(object.getEndTime()));
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) {
-                    return true;
-                }
-            }
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(object.getStartDate(), object.getStartTime())));
+            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.of(object.getEndDate(), object.getEndTime())));
+            result = statement.executeQuery();
+
+            return result.next();
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
-        return false;
     }
 
     @Override
@@ -201,6 +225,6 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     }
 
     public Set<BaseTimeSlot> findForInterpreter(int idInterpreter) throws SQLException, NoSuchElementException {
-        return null;
+        return new HashSet<>();
     }
 }

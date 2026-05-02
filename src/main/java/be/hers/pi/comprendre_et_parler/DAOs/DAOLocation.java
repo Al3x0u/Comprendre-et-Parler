@@ -75,8 +75,7 @@ public class DAOLocation extends DAO<Location> {
             generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
-        }
-        finally {
+        } finally {
             closeResultSet(generatedKeys);
             closeStatement(statement);
         }
@@ -109,37 +108,30 @@ public class DAOLocation extends DAO<Location> {
             statement.setInt(6, objectToUpdate.getId());
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("Location " + objectToUpdate.getDesignation() + " of id " + objectToUpdate.getId() + " could not be found in database");
-        }
-        finally {
+        } finally {
             closeStatement(statement);
         }
     }
 
     /**
      * Delete a line in the Location table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
+     * @param idObjectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the Location object in the database
      * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * @post the object ID matching objectToDelete has been deleted from the database,
      * and the change was commited
      */
     @Override
-    public void delete(Location objectToDelete) throws NoSuchElementException, SQLException {
-        String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX);
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, objectToDelete.getId());
-            statement.setString(2, objectToDelete.getDesignation());
-            statement.setInt(3, objectToDelete.getCity().getId());
-            statement.setString(4, objectToDelete.getStreet());
-            statement.setString(5, objectToDelete.getStreetNumber());
-            statement.setInt(6, objectToDelete.getBox());
+            statement.setInt(1, idObjectToDelete);
             if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("Location " + objectToDelete.getDesignation() + " was not found in database");
-        }
-        finally {
+                throw new NoSuchElementException("Location " + idObjectToDelete + " was not found in database");
+        } finally {
             closeStatement(statement);
         }
     }
@@ -177,7 +169,7 @@ public class DAOLocation extends DAO<Location> {
      */
     @Override
     protected boolean checkAlreadyExists(Location location) throws SQLException {
-        String query = "SELECT COUNT(*) FROM " + TABLE +
+        String query = "SELECT 1 FROM " + TABLE +
                 " WHERE " + FIELD_DESIGNATION + " = ? AND " + FIELD_CITY + " = ? AND " +
                 FIELD_STREET + " = ? AND " + FIELD_STREET_NUMBER + " = ? AND " + FIELD_BOX + " = ?";
         PreparedStatement statement = null;
@@ -190,13 +182,11 @@ public class DAOLocation extends DAO<Location> {
             statement.setString(4, location.getStreetNumber());
             statement.setInt(5, location.getBox());
             result = statement.executeQuery();
-            if (result.next())
-                return result.getInt(1) > 0;
+            return result.next();
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
-        return false;
     }
 
     /**

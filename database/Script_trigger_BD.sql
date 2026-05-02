@@ -10,6 +10,7 @@ DROP TRIGGER IDR_DeleteManager;
 DROP TRIGGER IUR_UpdateTransportModeManager;
 DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
+DROP TRIGGER IUR_UpdateBeneficiary;
 DROP TRIGGER IIR_InsertionTransportationView;
 
 
@@ -30,17 +31,15 @@ FOR EACH ROW
 DECLARE
     numeroMax INTEGER;
     beginLogin VARCHAR2(7 CHAR);
-    currentYear VARCHAR2(2 CHAR);
 BEGIN
-    SELECT to_char(SYSDATE, 'YY') INTO currentYear from DUAL;
-    beginLogin := CONCAT('_', currentYear);
-    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+')))
-    INTO numeroMax FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
+    SELECT to_char(SYSDATE, 'YY') INTO beginLogin FROM DUAL;
+    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
+    FROM AppliUserT WHERE login LIKE CONCAT(CONCAT('_', beginLogin), '%');
 
     IF(numeroMax IS NULL) THEN
-    :NEW.login := CONCAT(REPLACE(beginLogin, '_', :NEW.login), '0001');
+        :NEW.login := CONCAT(CONCAT(:NEW.login, beginLogin), '0001');
     ELSE
-    :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
+        :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
     END IF;
 END;
 /
@@ -189,6 +188,16 @@ INSTEAD OF DELETE ON Beneficiary
 FOR EACH ROW
 BEGIN
     DELETE FROM AppliUser WHERE login = :OLD.login;
+END;
+/
+
+CREATE TRIGGER IUR_UpdateBeneficiary
+INSTEAD OF UPDATE ON Beneficiary
+FOR EACH ROW
+BEGIN
+    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
+    hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
+    UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
 END;
 /
 

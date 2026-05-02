@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -30,11 +29,9 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
             result = statement.executeQuery();
-            if (result.next()) {
+            if (result.next())
                 ret = getResult(result);
-            }
-        }
-        finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
@@ -65,8 +62,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
-        }
-        finally {
+        } finally {
             closeResultSet(generatedKeys);
             closeStatement(statement);
         }
@@ -82,9 +78,8 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
      */
     @Override
     public void update(AcademicSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate)) {
+        if (checkAlreadyExists(objectToUpdate))
             throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists" );
-        }
 
         String query = "UPDATE %s SET %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION, FIELD_ID);
@@ -96,36 +91,30 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             if(statement.executeUpdate() == 0){
                 throw new NoSuchElementException("AcademicSkill " + objectToUpdate.getDesignation() + " was not found in database");
             }
-        }
-        finally {
+        } finally {
             closeStatement(statement);
-
         }
     }
 
     /**
      * Delete a AcademicSkill line in the table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
+     * @param idObjectToDelete : object with the ID of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the AcademicSkill object in the database
      * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
      */
     @Override
-    public void delete(AcademicSkill objectToDelete) throws NoSuchElementException, SQLException {
-        String query = "DELETE FROM %s WHERE %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION);
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, objectToDelete.getId());
-            statement.setString(2, objectToDelete.getDesignation());
-            if(statement.executeUpdate() == 0){
-                throw new NoSuchElementException("AcademicSkill " + objectToDelete.getDesignation() + " was not found in database");
-            }
-        }
-        finally {
+            statement.setInt(1, idObjectToDelete);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("AcademicSkill " + idObjectToDelete + " was not found in database");
+        } finally {
             closeStatement(statement);
-
         }
     }
 
@@ -163,7 +152,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
      */
     @Override
     protected  boolean checkAlreadyExists(AcademicSkill object) throws SQLException{
-        String query = "SELECT * FROM %s WHERE %s = ?";
+        String query = "SELECT 1 FROM %s WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_DESIGNATION);
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -171,15 +160,11 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, object.getDesignation());
             result = statement.executeQuery();
-            if (result.next()) {
-                return true;
-            }
-            return false;
+            return result.next();
         }finally {
             closeResultSet(result);
             closeStatement(statement);
         }
-
     }
 
     /**
@@ -202,15 +187,10 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
      * @param idInterpreter represent the id of the interpreter that we want the Academic Skill
      * @return  a Set who represent the Academic Skill of the interpreter
      * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if the idInterpreter doesn't correspond to an Interpreter
      */
-    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException, NoSuchElementException{
-        DAOInterpreter daoInterpreter = new DAOInterpreter();
-        Interpreter interpreter = daoInterpreter.find(idInterpreter);
-        if (interpreter == null) {
-            throw new NoSuchElementException("Interpreter with id " + idInterpreter + " not found");
-        }
-        String query = "SELECT a." + FIELD_ID +", a."+ FIELD_DESIGNATION+" FROM " + TABLE + " a JOIN AcademicSkillInterpreter asi ON a."+ FIELD_ID+" = asi.idAcademicSkill WHERE asi.idInterpreter = ?";
+    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException{
+        String query = "SELECT a." + FIELD_ID + ", a." + FIELD_DESIGNATION + " FROM " + TABLE + " a " +
+                "JOIN AcademicSkillInterpreter asi ON a."+ FIELD_ID + " = asi.skill WHERE asi.interpreter = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Set<AcademicSkill> ret = new HashSet<>();
@@ -227,12 +207,6 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             closeResultSet(result);
             closeStatement(statement);
         }
-
         return ret;
     }
-
-
-
-
-
 }

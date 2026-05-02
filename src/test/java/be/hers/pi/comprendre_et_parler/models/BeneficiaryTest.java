@@ -12,9 +12,9 @@ class BeneficiaryTest {
 
     @BeforeAll
     public static void init() {
-        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
-                "test@gmail.com", "123/45.67.89", 10, 120,
-                "Auto", null, null, null, null, null);
+        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(),
+                "1234", "test@gmail.com", "123/45.67.89", 10, 120,
+                "Auto", null, null, null, null);
         b1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(),
                 "1234", "test@gmail.com", "123/45.67.89",
                 new Status(1, "test", 10), i1);

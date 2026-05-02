@@ -22,6 +22,7 @@ public class Beneficiary extends AppliUser {
      * @param email          represent the email
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
+     * @param interpreterRef represent the reference interpreter
      */
     public Beneficiary(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -41,6 +42,7 @@ public class Beneficiary extends AppliUser {
      * @param email          represent the email
      * @param phoneNumber    represent the phone number
      * @param status         represent the status
+     * @param interpreterRef represent the reference interpreter
      */
     public Beneficiary(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -107,8 +109,8 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
-     * Computes a hash code for this Interpreter based on its attributes.
-     * two Interpreter objects that are equal according to equals() will have the same hash code.
+     * Computes a hash code for this Beneficiary based on its attributes.
+     * two Beneficiary objects that are equal according to equals() will have the same hash code.
      * @return an integer hash code representing this Beneficiary
      */
     @Override
