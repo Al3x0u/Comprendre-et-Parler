@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.models.Location;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -110,26 +109,23 @@ public class DAOCity extends DAO<City> {
 
     /**
      * Delete a line in the City table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
+     * @param idObjectToDelete : object with the information of the line who need to be deleted
      * @throws NoSuchElementException if we couldn't find the City object in the database
      * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database,
+     * @post the object ID matching objectToDelete has been deleted from the database,
      * and the change was commited
      */
     @Override
-    public void delete(City objectToDelete) throws NoSuchElementException, SQLException {
-        String query = "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_ID, FIELD_DESIGNATION, FIELD_POSTAL_CODE);
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ?";
+        query = String.format(query, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, objectToDelete.getId());
-            statement.setString(2, objectToDelete.getDesignation());
-            statement.setInt(3, objectToDelete.getPostalCode());
+            statement.setInt(1, idObjectToDelete);
             if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("City " + objectToDelete.getDesignation() + " was not found in database");
-        }
-        finally {
+                throw new NoSuchElementException("City " + idObjectToDelete + " was not found in database");
+        } finally {
             closeStatement(statement);
         }
     }
@@ -167,7 +163,7 @@ public class DAOCity extends DAO<City> {
      */
     @Override
     protected boolean checkAlreadyExists(City city) throws SQLException {
-        String query = "SELECT COUNT(*) FROM " + TABLE +
+        String query = "SELECT 1 FROM " + TABLE +
                 " WHERE " + FIELD_DESIGNATION + " = ? AND " + FIELD_POSTAL_CODE + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -176,13 +172,11 @@ public class DAOCity extends DAO<City> {
             statement.setString(1, city.getDesignation());
             statement.setInt(2, city.getPostalCode());
             result = statement.executeQuery();
-            if (result.next())
-                return result.getInt(1) > 0;
+            return result.next();
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
-        return false;
     }
 
     /**

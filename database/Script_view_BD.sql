@@ -2,8 +2,6 @@ DROP VIEW AppliUser;
 DROP VIEW Beneficiary;
 DROP VIEW Interpreter;
 DROP VIEW Manager;
-DROP VIEW BaseTimeSlot;
-DROP VIEW PunctualTimeSlot;
 DROP VIEW TransportationView;
 
 
@@ -42,24 +40,6 @@ FROM
    Interpreter i, ManagerT m
 WHERE
     i.id = m.id;
-
-CREATE VIEW BaseTimeSlot
-    (id, startDateTime, endDateTime, day)
-AS SELECT
-    *
-FROM
-    TimeSlot
-WHERE
-    day IS NOT NULL;
-
-CREATE VIEW PunctualTimeSlot
-    (id, startDateTime, endDateTime)
-AS SELECT
-    id, startDateTime, endDateTime
-FROM
-    TimeSlot
-WHERE
-    day IS NULL;
 
 CREATE VIEW TransportationView
     (id, designation)

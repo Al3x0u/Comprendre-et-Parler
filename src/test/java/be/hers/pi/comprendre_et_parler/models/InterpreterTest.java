@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,8 +15,8 @@ class InterpreterTest {
     public static void init() {
         i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
-                "Velo", new HashSet<>(), new HashSet<>(),
-                new Location(1, "Test", new City(1, "test", 5000), "test", "test", 10), new HashSet<>(), new HashSet<>());
+                "Auto", new HashSet<>(), new HashSet<>(),
+                new Location(1, "Test", new City(1, "test", 5000), "test", "test", 10), new HashSet<>());
     }
 
     @Test

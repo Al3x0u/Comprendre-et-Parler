@@ -35,14 +35,12 @@ public class Interpreter extends AppliUser{
      * @param job                represent the set of job skills of the interpreter
      * @param location           represent the location of the interpreter
      * @param time               represent the set of punctual time slots of the interpreter
-     * @param unavailability     represent the set of exceptional unavailabilities of the interpreter
-     * @throws IllegalArgumentException if hQW or hQY is negative
      */
     public Interpreter(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, int hQW, int hQY, String transportMode,
                        Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
-                       Set<BaseTimeSlot> time, Set<ExceptionalUnavailability> unavailability) {
+                       Set<BaseTimeSlot> time) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
         if (hQW >= 0) hourQuotaWeek = hQW;
         if (hQY >= 0) hourQuotaYear = hQY;
@@ -53,7 +51,34 @@ public class Interpreter extends AppliUser{
         missions = null;
         availability = time;
         this.location = location;
-        this.unavailability = unavailability;
+        unavailability = null;
+    }
+
+    /**
+     * Constructor of an Interpreter object without id,
+     * beneficiaries and missions are initialized with null
+     * @param login              represent the login
+     * @param firstName          represent the firstname of the interpreter
+     * @param lastName           represent the lastname of the interpreter
+     * @param birthDate          represent the birthdate of the interpreter
+     * @param hashedPassword     represent the hashed password of the interpreter
+     * @param email              represent the email of the interpreter
+     * @param phoneNumber        represent the phone number of the interpreter
+     * @param hQW                represent the hour quota per week
+     * @param hQY                represent the hour quota per year
+     * @param transportMode      represent the transport mode of the interpreter
+     * @param academic           represent the set of academic skills of the interpreter
+     * @param job                represent the set of job skills of the interpreter
+     * @param location           represent the location of the interpreter
+     * @param time               represent the set of punctual time slots of the interpreter
+     */
+    public Interpreter(String login, String firstName, String lastName,
+                       LocalDate birthDate, String hashedPassword, String email,
+                       String phoneNumber, int hQW, int hQY, String transportMode,
+                       Set<AcademicSkill> academic, Set<JobSkill> job, Location location,
+                       Set<BaseTimeSlot> time) {
+        this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, hQW,
+            hQY, transportMode, academic, job, location, time);
     }
 
     /**
@@ -326,7 +351,7 @@ public class Interpreter extends AppliUser{
      */
     @Override
     public String toString() {
-        return super.toString() + " is an interpreter.";
+        return super.toString() + ", hourQuotaWeek="  + hourQuotaWeek +  ", hourQuotaYear="  + hourQuotaYear + ", transportMode=" + transportMode + " is an interpreter.";
 
     }
 }

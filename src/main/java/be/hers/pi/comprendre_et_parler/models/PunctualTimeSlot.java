@@ -1,58 +1,75 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class PunctualTimeSlot extends TimeSlot {
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 
-    public PunctualTimeSlot(int id, LocalTime beginTime, LocalTime endTime, LocalDate startDate, LocalDate endDate)
-    {
-        super(id, beginTime, endTime);
-        this.startDate = startDate;
+    /**
+     * Constructor of a PunctualTimeSlot Object
+     * @param id : represent id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     */
+    public PunctualTimeSlot(int id, LocalDateTime startDate, LocalDateTime endDate) {
+        super(id);
+        this.startDate = startDate.withNano(0).withSecond(0);
 
         if (endDate.isAfter(startDate)) {
-            this.endDate = endDate;
+            this.endDate = endDate.withNano(0).withSecond(0);
         } else {
-            this.endDate = startDate;
+            this.endDate = this.startDate;
         }
     }
 
-    public PunctualTimeSlot(LocalTime beginTime, LocalTime endTime, LocalDate startDate, LocalDate endDate)
-    {
-        super(beginTime, endTime);
-        this.startDate = startDate;
-
-        if (endDate.isAfter(startDate)) {
-            this.endDate = endDate;
-        } else {
-            this.endDate = startDate;
-        }
+    /**
+     * Constructor of a PunctualTimeSlot Object without id
+     * @param startDate : represent startDate
+     * @param endDate : represent endDate
+     */
+    public PunctualTimeSlot(LocalDateTime startDate, LocalDateTime endDate) {
+        this(-1, startDate, endDate);
     }
 
-    public PunctualTimeSlot(PunctualTimeSlot p) {
-        this(p.id, p.startTime, p.endTime, p.startDate, p.endDate);
+    /**
+     * Copy constructor of a PunctualTimeSlot Object
+     * @param other represent the PunctualTimeSlot object
+     */
+    public PunctualTimeSlot(PunctualTimeSlot other) {
+        this(other.id, other.startDate,other.endDate);
     }
 
-    public LocalDate getStartDate() {
+    /**
+     * @return this.startDate
+     */
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    /**
+     * @param startDate represent the new startDate
+     */
+    public void setStartDate(LocalDateTime startDate) {
         if (startDate.isBefore(this.endDate)) {
-            this.startDate = startDate;
+            this.startDate = startDate.withNano(0).withSecond(0);
         }
     }
 
-    public LocalDate getEndDate() {
+    /**
+     * @return this.endDate
+     */
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    /**
+     * @param endDate represent the new endDate
+     */
+    public void setEndDate(LocalDateTime endDate) {
         if (endDate.isAfter(this.startDate)) {
-            this.endDate = endDate;
+            this.endDate = endDate.withNano(0).withSecond(0);
         }
     }
 
@@ -62,17 +79,9 @@ public class PunctualTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps, or false if it doesn't
      */
     public boolean overlaps(PunctualTimeSlot timeSlot) {
-        boolean result = false;
-        if(this.startDate.isBefore(timeSlot.endDate) && this.endDate.isAfter(timeSlot.startDate)) {
-            result = true;
-        } else if(this.endDate.equals(timeSlot.startDate) && super.endTime.isAfter(timeSlot.startTime)) {
-            result = true;
-        } else if(this.startDate.equals(timeSlot.endDate) && super.startTime.isAfter(timeSlot.endTime)) {
-            result = true;
-        } else if(this.startDate.equals(timeSlot.startDate) || this.endDate.equals(timeSlot.endDate)) {
-            result = super.overlaps(timeSlot);
-        }
-        return result;
+        if(timeSlot == null) return false;
+        if(timeSlot == this) return true;
+        return this.startDate.isBefore(timeSlot.endDate) && this.endDate.isAfter(timeSlot.startDate);
     }
 
     /**
@@ -81,26 +90,18 @@ public class PunctualTimeSlot extends TimeSlot {
      * @return true if the 2 time slots overlaps totally, or false if it doesn't
      */
     public boolean overlapsCompletely(PunctualTimeSlot timeSlot) {
-        boolean result = false;
-        if ((this.startDate.isBefore(timeSlot.startDate) && this.endDate.isAfter(timeSlot.endDate)) || (this.startDate.isAfter(timeSlot.startDate) && this.endDate.isBefore(timeSlot.endDate))) {
-            result = true;
-        } else if(this.endDate.equals(timeSlot.startDate) && super.endTime.isBefore(timeSlot.endTime) && this.startDate.isBefore(timeSlot.startDate)) {
-            result = true;
-        } else if(this.endDate.equals(timeSlot.startDate) && super.startTime.isBefore(timeSlot.startTime) && this.endDate.isAfter(timeSlot.endDate)) {
-            result = true;
-        } else if(this.startDate.equals(timeSlot.endDate) && super.endTime.isAfter(timeSlot.endTime) && this.startDate.isAfter(timeSlot.startDate)) {
-            result = true;
-        } else if(this.startDate.equals(timeSlot.endDate) && super.startTime.isAfter(timeSlot.startTime) && this.endDate.isBefore(timeSlot.endDate)) {
-            result = true;
-        } else if(this.startDate.equals(timeSlot.startDate) || this.endDate.equals(timeSlot.endDate)) {
-            result = super.overlapsCompletely(timeSlot);
-        }
-        return result;
+        if(timeSlot == null) return false;
+        if(timeSlot == this) return true;
+        return (this.startDate.isBefore(timeSlot.startDate) && this.endDate.isAfter(timeSlot.endDate))
+                || (this.startDate.isAfter(timeSlot.startDate) && this.endDate.isBefore(timeSlot.endDate));
     }
 
+    /**
+     * @return a copy of this PunctualTimeSlot Object
+     */
     @Override
     public PunctualTimeSlot clone() {
-        return new PunctualTimeSlot(super.id, super.startTime, super.endTime, this.startDate, this.endDate);
+        return new PunctualTimeSlot(super.id, this.startDate, this.endDate);
     }
 
     /**
@@ -123,7 +124,7 @@ public class PunctualTimeSlot extends TimeSlot {
         if (!(o instanceof PunctualTimeSlot)) return false;
 
         PunctualTimeSlot other = (PunctualTimeSlot) o;
-        return super.equals(other) && this.startDate.equals(other.startDate) && this.endDate.equals(other.endDate);
+        return this.startDate.equals(other.startDate) && this.endDate.equals(other.endDate);
     }
 
     /**
@@ -132,6 +133,6 @@ public class PunctualTimeSlot extends TimeSlot {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), this.startDate, this.endDate);
+        return Objects.hash(this.startDate, this.endDate);
     }
 }

@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
-import java.time.LocalDateTime;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,8 +15,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     protected static final String TABLE = "timeslot";
     protected static final String FIELD_ID = "id";
-    protected static final String FIELD_START_TIME = "startTime";
-    protected static final String FIELD_END_TIME = "endTime";
+    protected static final String FIELD_START_TIME = "startDateTime";
+    protected static final String FIELD_END_TIME = "endDateTime";
     protected static final String FIELD_DAY = "day";
 
     /**
@@ -28,14 +27,20 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     @Override
     public PunctualTimeSlot find(int id) throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NULL AND " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
         PunctualTimeSlot ret = null;
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query);) {
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) {
-                    ret = getResult(result);
-                }
+            result = statement.executeQuery();
+            if (result.next()) {
+                ret = getResult(result);
             }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
@@ -53,17 +58,21 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
         String query = "INSERT INTO %s(%s, %s) VALUES(?, ?)";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID})) {
-            LocalDateTime beginning = LocalDateTime.of(objectToInsert.getStartDate(), objectToInsert.getStartTime());
-            LocalDateTime end = LocalDateTime.of(objectToInsert.getEndDate(), objectToInsert.getEndTime());
-            statement.setTimestamp(1, Timestamp.valueOf(beginning));
-            statement.setTimestamp(2, Timestamp.valueOf(end));
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement.setTimestamp(1, Timestamp.valueOf(objectToInsert.getStartDate()));
+            statement.setTimestamp(2, Timestamp.valueOf(objectToInsert.getEndDate()));
             statement.executeUpdate();
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next()) {
+            generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
-            }
+        }
+        finally {
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
         }
     }
 
@@ -81,36 +90,40 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
         String query = "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            LocalDateTime beginning = LocalDateTime.of(objectToUpdate.getStartDate(), objectToUpdate.getStartTime());
-            LocalDateTime end = LocalDateTime.of(objectToUpdate.getEndDate(), objectToUpdate.getEndTime());
-            statement.setTimestamp(1, Timestamp.valueOf(beginning));
-            statement.setTimestamp(2, Timestamp.valueOf(end));
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setTimestamp(1, Timestamp.valueOf(objectToUpdate.getStartDate()));
+            statement.setTimestamp(2, Timestamp.valueOf(objectToUpdate.getEndDate()));
             statement.setInt(3, objectToUpdate.getId());
-            if (statement.executeUpdate() == 0)
+            if(statement.executeUpdate() == 0){
                 throw new NoSuchElementException("Object of id " + objectToUpdate.getId() + "could not be found in database");
+            }
+        }
+        finally {
+            closeStatement(statement);
         }
     }
 
     /**
-     * @param objectToDelete the object to delete in the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @param idObjectToDelete the object to delete in the database
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
     @Override
-    public void delete(PunctualTimeSlot objectToDelete) throws NoSuchElementException, SQLException {
-        PunctualTimeSlot objectInDB = find(objectToDelete.getId());
-        if (objectInDB == null)
-            throw new NoSuchElementException("No object of id " + objectToDelete.getId() + " could be found in database");
-        if (!objectInDB.equals(objectToDelete))
-            throw new NoSuchElementException("An object of id " + objectToDelete.getId() + " was found in database, but its attributes do not match those of objectToDelete");
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = "DELETE FROM %s WHERE %s = ? AND %s IS NULL";
+        query = String.format(query, TABLE, FIELD_ID, FIELD_DAY);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
 
-        String query = "DELETE FROM %s WHERE %s = ?";
-        query = String.format(query, TABLE, FIELD_ID);;
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
-            statement.setInt(1, objectToDelete.getId());
-            statement.executeUpdate();
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("PunctualTimeSlot " + idObjectToDelete + " was not found in database");
+        } finally {
+            closeStatement(statement);
         }
     }
 
@@ -121,43 +134,47 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     @Override
     public Set<PunctualTimeSlot> findAll() throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_DAY + " IS NULL";
+        PreparedStatement statement = null;
+        ResultSet result = null;
         Set<PunctualTimeSlot> ret = new HashSet<>();
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    ret.add(getResult(result));
-                }
-            }
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            while (result.next())
+                ret.add(getResult(result));
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
 
     @Override
     protected boolean checkAlreadyExists(PunctualTimeSlot object) throws SQLException {
-        String query = "SELECT * FROM %s WHERE %s IS NULL AND %s = ? AND %s = ?";
-        query = String.format(query, TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)){
-            LocalDateTime beginning = LocalDateTime.of(object.getStartDate(), object.getStartTime());
-            LocalDateTime end = LocalDateTime.of(object.getEndDate(), object.getEndTime());
-            statement.setTimestamp(1, Timestamp.valueOf(beginning));
-            statement.setTimestamp(2, Timestamp.valueOf(end));
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) {
-                    return true;
-                }
-            }
+        String query = String.format("SELECT 1 FROM %s WHERE %s IS NULL AND %s = ? AND %s = ?",
+                TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setTimestamp(1, Timestamp.valueOf(object.getStartDate()));
+            statement.setTimestamp(2, Timestamp.valueOf(object.getEndDate()));
+
+            result = statement.executeQuery();
+            return result.next();
+        }finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
-        return false;
     }
 
     @Override
     protected PunctualTimeSlot getResult(ResultSet result) throws SQLException {
         return new PunctualTimeSlot(
                 result.getInt(FIELD_ID),
-                result.getTime(FIELD_START_TIME).toLocalTime(),
-                result.getTime(FIELD_END_TIME).toLocalTime(),
-                result.getDate(FIELD_START_TIME).toLocalDate(),
-                result.getDate(FIELD_END_TIME).toLocalDate()
+                result.getTimestamp(FIELD_START_TIME).toLocalDateTime(),
+                result.getTimestamp(FIELD_END_TIME).toLocalDateTime()
         );
     }
 }

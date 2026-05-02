@@ -1,12 +1,12 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.NoSuchElementException;
-
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.util.Set;
-
 
 public abstract class DAO<T> {
 
@@ -37,12 +37,12 @@ public abstract class DAO<T> {
     public abstract void update(T objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException;
 
     /**
-     * @param objectToDelete the object to delete in the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @param idObjectToDelete the ID of the object to delete in the database
+     * @post the object ID matching objectToDelete has been deleted from the database, and the change was commited
+     * @throws NoSuchElementException if no object ID matching objectToDelete was present in the database
      * @throws SQLException if the deletion failed for any other reason
      */
-    public abstract void delete(T objectToDelete) throws NoSuchElementException, SQLException;
+    public abstract void delete(int idObjectToDelete) throws NoSuchElementException, SQLException;
 
     /**
      * @return every object of the corresponding type present in database (possibly an empty list)
