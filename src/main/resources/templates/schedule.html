@@ -11,12 +11,18 @@
     <!-- By user (only for Manager) -->
     <th:block th:if="${userRole == 'MANAGER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
-        <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
-            <i class="bi bi-person me-2"></i>J. DuBuisson
-        </a>
-        <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
-            <i class="bi bi-person me-2"></i>A. Charpentier
-        </a>
+        <div class="px-3 pb-2">
+            <input type="text" id="search-interpreter" class="form-control form-control-sm"
+                   placeholder="Rechercher un utilisateur...">
+        </div>
+        <div id="interpreter-list">
+            <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
+                <i class="bi bi-person me-2"></i>J. DuBuisson
+            </a>
+            <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
+                <i class="bi bi-person me-2"></i>A. Charpentier
+            </a>
+        </div>
         <hr class="dropdown-divider">
     </th:block>
 
@@ -164,6 +170,16 @@
                 document.getElementById('dropdown-filtre').classList.remove('show');
                 document.querySelector('.fc-filterBtn-button').classList.remove('active');
             }
+        });
+        document.getElementById('search-interpreter')?.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll('#interpreter-list .filter-interpreter').forEach(item => {
+                const name = item.dataset.value.toLowerCase();
+                item.style.display = name.includes(query) ? '' : 'none';
+            });
+        });
+        document.getElementById('search-interpreter')?.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
 
         calendar.render();
