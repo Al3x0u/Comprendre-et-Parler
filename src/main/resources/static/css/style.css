@@ -246,34 +246,24 @@ body {
     color: var(--oc-blue-9) !important;
 }
 
-.fc-newRequest-button {
+.fc-newMission-button,
+.fc-newRequest-button,
+.fc-newUnavailability-button {
     background-color: var(--oc-blue-1) !important;
     border-color: var(--oc-blue-9) !important;
     color: var(--oc-blue-9) !important;
     box-shadow: none !important;
 }
 
-.fc-newRequest-button:hover {
+.fc-newMission-button:hover,
+.fc-newRequest-button:hover,
+.fc-newUnavailability-button:hover {
     color: white !important;
     background-color: var(--oc-blue-9) !important;
 }
 
-.fc-newRequest-button:focus {
-    box-shadow: none !important;
-}
-
-.fc-newMission-button {
-    background-color: var(--oc-blue-1) !important;
-    border-color: var(--oc-blue-9) !important;
-    color: var(--oc-blue-9) !important;
-    box-shadow: none !important;
-}
-
-.fc-newMission-button:hover {
-    color: white !important;
-    background-color: var(--oc-blue-9) !important;
-}
-
-.fc-newMission-button:focus {
+.fc-newMission-button:focus,
+.fc-newRequest-button:focus,
+.fc-newUnavailability-button:focus{
     box-shadow: none !important;
 }
