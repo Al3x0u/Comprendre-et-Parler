@@ -170,15 +170,44 @@
             eventClick: function(info) {
                 const event = info.event;
                 const props = event.extendedProps;
+                const start = event.start;
+                const end = event.end;
 
+                const timeFormatter = new Intl.DateTimeFormat('fr-BE', {hour: '2-digit', minute: '2-digit'});
+
+                let timeText = '';
+
+                if (start) {
+                    timeText = timeFormatter.format(start);
+
+                    if (end) {
+                        timeText += ' - ' + timeFormatter.format(end);
+                    }
+                }
                 document.getElementById('modalTitle').innerText = event.title || '';
-                document.getElementById('modalTime').innerText = info.timeText || '';
+                document.getElementById('modalTime').innerText = timeText || '';
                 document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
                 document.getElementById('modalType').innerText = props.type || '';
                 document.getElementById('modalLocation').innerText = props.room || '';
                 document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
                 document.getElementById('modalComment').innerText = props.comment || '';
                 document.getElementById('modalStatus').innerText = props.status || '';
+                const actions = document.getElementById('modalActions');
+                actions.innerHTML = '';
+
+                const type = (props.type || '').toLowerCase();
+                const status = (props.status || '').toLowerCase();
+
+                if (status.includes('en attente')) {
+                    actions.innerHTML = `
+                    <button type="button" class="btn btn-danger">Annuler la demande</button>
+                    <button type="button" class="btn btn-primary">Modifier la demande</button>
+                `;
+                } else if (status.includes('accept')) {
+                    actions.innerHTML = `
+                    <button type="button" class="btn btn-warning text-white">Signaler un retard</button>
+                `;
+                }
 
                 document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
                 const modal = new bootstrap.Modal(document.getElementById('eventModal'));
@@ -255,6 +284,8 @@
                     <strong>Interprète :</strong>
                     <span id="modalInterpreter" class="fst-italic text-muted"></span>
                 </div>
+                <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
+
 
             </div>
 
