@@ -107,11 +107,12 @@
                 const props = arg.event.extendedProps;
                 return {
                     html: `
-                        <div class="fc-event-content-inner p-1">
+                        <div class="fc-event-content-inner p-1 clickable-event" onclick="alert('salut')" style="cursor:pointer;">
                             <div class="fw-bold">${arg.event.title}</div>
                             <div>${arg.timeText}</div>
                             <div>${props.type || ''}</div>
                             <div><i class="bi bi-pin-map-fill"></i> ${props.room || ''}</div>
+
                         </div>
                     `
                 };
