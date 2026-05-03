@@ -193,6 +193,53 @@ public class DAOMission extends DAO<Mission> {
     }
 
     /**
+     * Return the schedule for a specific week
+     * @param year represent the year of the week
+     * @param weekNumber represent the week number in the year (1-52)
+     * @return a Set of Mission which compose the schedule OF the given week, or an empty Set if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getAllMissionsForWeek(int year, int weekNumber) throws SQLException {
+
+        LocalDate start = LocalDate.ofYearDay(year, 1).with(WeekFields.ISO.weekOfYear(), weekNumber).with(DayOfWeek.MONDAY);
+
+        LocalDate end = start.plusDays(6);
+
+        Set<Mission> missions = new HashSet<>();
+
+        String query = "SELECT m.id FROM " + TABLE + " m " +
+                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
+                "WHERE ( " +
+                "(ts.day IS NOT NULL) " +
+                "OR (ts.day IS NULL AND TRUNC(ts.startTime) BETWEEN ? AND ?) " +
+                ")";
+
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setDate(1, java.sql.Date.valueOf(start));
+            statement.setDate(2, java.sql.Date.valueOf(end));
+
+            result = statement.executeQuery();
+
+            while (result.next()) {
+                Mission mission = find(result.getInt("id"));
+                if (mission != null){
+                    missions.add(mission);
+                }
+
+            }
+
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+
+        return missions;
+    }
+    /**
      * Return the schedule of the user with the given id for a specific week
      * @param idUser represent the id of the user which we want the schedule
      * @param year represent the year of the week
