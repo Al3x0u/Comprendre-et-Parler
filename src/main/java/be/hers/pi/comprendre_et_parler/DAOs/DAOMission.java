@@ -243,11 +243,11 @@ public class DAOMission extends DAO<Mission> {
 
         Set<Mission> missions = new HashSet<>();
 
-        String query = "SELECT m.id FROM " + TABLE + " m " +
+        String query = "SELECT m.* FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE ( " +
-                "(ts.day IS NOT NULL) " +
-                "OR (ts.day IS NULL AND TRUNC(ts.startTime) BETWEEN ? AND ?) " +
+                "(ts.day IS NOT NULL)" +
+                "OR (ts.day IS NULL AND ts.startDateTime BETWEEN ? AND ?)" +
                 ")";
 
         PreparedStatement statement = null;
@@ -261,11 +261,7 @@ public class DAOMission extends DAO<Mission> {
             result = statement.executeQuery();
 
             while (result.next()) {
-                Mission mission = find(result.getInt("id"));
-                if (mission != null){
-                    missions.add(mission);
-                }
-
+                missions.add(getResult(result));
             }
 
         } finally {
@@ -275,6 +271,8 @@ public class DAOMission extends DAO<Mission> {
 
         return missions;
     }
+
+
     /**
      * Return the schedule of the user with the given id for a specific week
      * @param idUser represent the id of the user which we want the schedule
