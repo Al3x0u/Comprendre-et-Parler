@@ -72,6 +72,7 @@
 <script th:inline="javascript">
     const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
     const userRole = /*[[${userRole}]]*/ 'MANAGER';
+
     const customButtons = {
         filterBtn: {
             text: 'Filtre ▾',
@@ -79,7 +80,9 @@
                 const btn = document.querySelector('.fc-filterBtn-button');
                 const rect = btn.getBoundingClientRect();
                 const dropdown = document.getElementById('dropdown-filtre');
-                dropdown.style.cssText = `position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
+
+                dropdown.style.cssText = ` position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
+
                 dropdown.classList.toggle('show');
                 btn.classList.toggle('active');
             }
@@ -143,7 +146,7 @@
                 center: 'prev title next',
                 end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
                     : userRole === 'INTERPRETER' ? 'newUnavailability today'
-                    : 'newRequest today'
+                        : 'newRequest today'
             },
             buttonText: {
                 week: 'Semaine',
@@ -154,15 +157,32 @@
                 const props = arg.event.extendedProps;
                 return {
                     html: `
-                        <div class="fc-event-content-inner p-1 clickable-event" onclick="alert('salut')" style="cursor:pointer;">
+                        <div class="fc-event-content-inner p-1">
                             <div class="fw-bold">${arg.event.title}</div>
                             <div>${arg.timeText}</div>
                             <div>${props.type || ''}</div>
                             <div><i class="bi bi-pin-map-fill"></i> ${props.room || ''}</div>
-
                         </div>
                     `
                 };
+            },
+
+            eventClick: function(info) {
+                const event = info.event;
+                const props = event.extendedProps;
+
+                document.getElementById('modalTitle').innerText = event.title || '';
+                document.getElementById('modalTime').innerText = info.timeText || '';
+                document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
+                document.getElementById('modalType').innerText = props.type || '';
+                document.getElementById('modalLocation').innerText = props.room || '';
+                document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
+                document.getElementById('modalComment').innerText = props.comment || '';
+                document.getElementById('modalStatus').innerText = props.status || '';
+
+                document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
+                const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+                modal.show();
             }
         });
 
@@ -172,6 +192,7 @@
                 document.querySelector('.fc-filterBtn-button').classList.remove('active');
             }
         });
+
         document.getElementById('search-interpreter')?.addEventListener('input', function() {
             const query = this.value.toLowerCase();
             document.querySelectorAll('#interpreter-list .filter-interpreter').forEach(item => {
@@ -179,6 +200,7 @@
                 item.style.display = name.includes(query) ? '' : 'none';
             });
         });
+
         document.getElementById('search-interpreter')?.addEventListener('click', function(e) {
             e.stopPropagation();
         });
@@ -186,5 +208,59 @@
         calendar.render();
     });
 </script>
+
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+
+            <!-- Header -->
+            <div class="modal-header border-0">
+                <h4 class="modal-title fw-bold" id="modalTitle"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <div class="mb-2">
+                    <i class="bi bi-calendar"></i>
+                    <span id="modalDate"></span>
+                    <i class="bi bi-clock ms-2"></i>
+                    <span id="modalTime"></span>
+                </div>
+
+                <div class="mb-2">
+                    <i class="bi bi-geo-alt"></i>
+                    <span id="modalLocation"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Bénéficiaire - </strong>
+                    <span id="modalBeneficiary" class="fst-italic text-muted"></span>
+                </div>
+
+                <div class="mb-2" id="modalType"></div>
+
+                <div class="mb-2">
+                    <strong>Commentaire :</strong>
+                    <span id="modalComment" class="fst-italic text-muted"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Statut :</strong>
+                    <span id="modalStatus"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Interprète :</strong>
+                    <span id="modalInterpreter" class="fst-italic text-muted"></span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
