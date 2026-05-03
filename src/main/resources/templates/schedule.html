@@ -11,12 +11,18 @@
     <!-- By user (only for Manager) -->
     <th:block th:if="${userRole == 'MANAGER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
-        <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
-            <i class="bi bi-person me-2"></i>J. DuBuisson
-        </a>
-        <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
-            <i class="bi bi-person me-2"></i>A. Charpentier
-        </a>
+        <div class="px-3 pb-2">
+            <input type="text" id="search-interpreter" class="form-control form-control-sm"
+                   placeholder="Rechercher un utilisateur...">
+        </div>
+        <div id="interpreter-list">
+            <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
+                <i class="bi bi-person me-2"></i>J. DuBuisson
+            </a>
+            <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
+                <i class="bi bi-person me-2"></i>A. Charpentier
+            </a>
+        </div>
         <hr class="dropdown-divider">
     </th:block>
 
@@ -37,7 +43,7 @@
 </div>
 
 <!-- Calendar-->
-<div class="px-4 mt-5 mb-1">
+<div class="px-4 mt-4 mb-1">
     <div id="calendar"></div>
 </div>
 
@@ -75,28 +81,69 @@
                 const dropdown = document.getElementById('dropdown-filtre');
                 dropdown.style.cssText = `position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
                 dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
             }
         }
     };
 
+    if (userRole === 'BENEFICIARY') {
+        customButtons.newRequest = {
+            text: '+ Nouvelle demande',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
+    }
+
+    if (userRole === 'INTERPRETER') {
+        customButtons.newUnavailability = {
+            text: '+ Nouvelle indisponibilité',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
+    }
+
+    if (userRole === 'MANAGER') {
+        customButtons.newUnavailability = {
+            text: '+ Nouvelle indisponibilité',
+            click: function() {
+                // TODO: ouvrir modal de création
+            }
+        };
+        customButtons.newMission = {
+            text: '+ Nouvelle mission',
+            click: function () {
+                // TODO: ouvrir modal de création
+            }
+        };
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'timeGridWeek',
-            height: 'calc(100vh - 200px)',
+            height: '83vh',
             locale: 'fr',
             firstDay: 1,
-            weekends: false,
+            weekends: true,
             allDaySlot: false,
+            businessHours: {
+                daysOfWeek: [ 1, 2, 3, 4, 5 ], // Monday - Thursday
+                startTime: '00:00',
+                endTime: '23:59',
+            },
             slotDuration: '00:30:00',
             slotMinTime: '08:00:00',
-            slotMaxTime: '18:00:00',
+            slotMaxTime: '22:00:00',
             expandRows: true,
             events: allEvents,
             customButtons: customButtons,
             headerToolbar: {
                 start: 'timeGridWeek,timeGridDay filterBtn',
                 center: 'prev title next',
-                end: 'today'
+                end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
+                    : userRole === 'INTERPRETER' ? 'newUnavailability today'
+                    : 'newRequest today'
             },
             buttonText: {
                 week: 'Semaine',
@@ -118,6 +165,24 @@
                 };
             }
         });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.fc-filterBtn-button') && !e.target.closest('#dropdown-filtre')) {
+                document.getElementById('dropdown-filtre').classList.remove('show');
+                document.querySelector('.fc-filterBtn-button').classList.remove('active');
+            }
+        });
+        document.getElementById('search-interpreter')?.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll('#interpreter-list .filter-interpreter').forEach(item => {
+                const name = item.dataset.value.toLowerCase();
+                item.style.display = name.includes(query) ? '' : 'none';
+            });
+        });
+        document.getElementById('search-interpreter')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
         calendar.render();
     });
 </script>

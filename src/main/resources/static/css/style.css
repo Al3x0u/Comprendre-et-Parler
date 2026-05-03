@@ -158,11 +158,17 @@ body {
 }
 
 .fc-filterBtn-button:hover {
-    background-color: var(--oc-blue-2) !important;
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
 }
 
 .fc-filterBtn-button:focus {
     box-shadow: none !important;
+}
+
+.fc-filterBtn-button.active {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
 }
 
 .fc-prev-button,
@@ -238,4 +244,26 @@ body {
 .fc-col-header-cell-cushion {
     text-decoration: none !important;
     color: var(--oc-blue-9) !important;
+}
+
+.fc-newMission-button,
+.fc-newRequest-button,
+.fc-newUnavailability-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-newMission-button:hover,
+.fc-newRequest-button:hover,
+.fc-newUnavailability-button:hover {
+    color: white !important;
+    background-color: var(--oc-blue-9) !important;
+}
+
+.fc-newMission-button:focus,
+.fc-newRequest-button:focus,
+.fc-newUnavailability-button:focus{
+    box-shadow: none !important;
 }
