@@ -200,13 +200,23 @@
 
                 if (status.includes('en attente')) {
                     actions.innerHTML = `
-                    <button type="button" class="btn btn-danger">Annuler la demande</button>
+                    <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
                     <button type="button" class="btn btn-primary">Modifier la demande</button>
                 `;
+
+
                 } else if (status.includes('accept')) {
                     actions.innerHTML = `
                     <button type="button" class="btn btn-warning text-white">Signaler un retard</button>
                 `;
+                }
+                const cancelBtn = document.getElementById('btnCancelRequest');
+
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        const confirmModal = new bootstrap.Modal(document.getElementById('confirmCancelModal'));
+                        confirmModal.show();
+                    });
                 }
 
                 document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
@@ -293,5 +303,34 @@
     </div>
 </div>
 
+<!-- CONFIRMATION ANNULATION -->
+
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
+                    Annulation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0">
+                    Voulez-vous vraiment annuler cette demande ?
+                </p>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Non
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
+                    Oui, annuler
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
