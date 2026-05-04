@@ -74,6 +74,92 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+
+            <!-- Header -->
+            <div class="modal-header border-0">
+                <h4 class="modal-title fw-bold" id="modalTitle"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+
+                <div class="mb-2">
+                    <i class="bi bi-calendar"></i>
+                    <span id="modalDate"></span>
+                    <i class="bi bi-clock ms-2"></i>
+                    <span id="modalTime"></span>
+                </div>
+
+                <div class="mb-2">
+                    <i class="bi bi-geo-alt"></i>
+                    <span id="modalLocation"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Bénéficiaire - </strong>
+                    <span id="modalBeneficiary" class="fst-italic text-muted"></span>
+                </div>
+
+                <div class="mb-2" id="modalType"></div>
+
+                <div class="mb-2">
+                    <strong>Commentaire :</strong>
+                    <span id="modalComment" class="fst-italic text-muted"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Statut :</strong>
+                    <span id="modalStatus"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Interprète :</strong>
+                    <span id="modalInterpreter" class="fst-italic text-muted"></span>
+                </div>
+                <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRMATION ANNULATION -->
+
+<div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
+                    Annulation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0">
+                    Voulez-vous vraiment annuler cette demande ?
+                </p>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    Non
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
+                    Oui, annuler
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
@@ -205,6 +291,10 @@
                 const type = (props.type || '').toLowerCase();
                 const status = (props.status || '').toLowerCase();
 
+                const now = new Date();
+                const isSameDay =   now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
+                const isBeforeEnd = now < end;
+
                 if (status.includes('en attente')) {
                     actions.innerHTML = `
                     <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
@@ -212,7 +302,7 @@
                 `;
 
 
-                } else if (status.includes('accept')) {
+                } else if (status.includes('accept') && isSameDay && isBeforeEnd) {
                     actions.innerHTML = `
                     <button type="button" class="btn btn-warning text-white">Signaler un retard</button>
                 `;
@@ -255,89 +345,6 @@
     });
 </script>
 
-<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content custom-modal">
 
-            <!-- Header -->
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="modalTitle"></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-
-            <!-- Body -->
-            <div class="modal-body">
-
-                <div class="mb-2">
-                    <i class="bi bi-calendar"></i>
-                    <span id="modalDate"></span>
-                    <i class="bi bi-clock ms-2"></i>
-                    <span id="modalTime"></span>
-                </div>
-
-                <div class="mb-2">
-                    <i class="bi bi-geo-alt"></i>
-                    <span id="modalLocation"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Bénéficiaire - </strong>
-                    <span id="modalBeneficiary" class="fst-italic text-muted"></span>
-                </div>
-
-                <div class="mb-2" id="modalType"></div>
-
-                <div class="mb-2">
-                    <strong>Commentaire :</strong>
-                    <span id="modalComment" class="fst-italic text-muted"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Statut :</strong>
-                    <span id="modalStatus"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Interprète :</strong>
-                    <span id="modalInterpreter" class="fst-italic text-muted"></span>
-                </div>
-                <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
-
-
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- CONFIRMATION ANNULATION -->
-
-<div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-0 shadow">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
-                    Annulation
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-
-            <div class="modal-body">
-                <p class="mb-0">
-                    Voulez-vous vraiment annuler cette demande ?
-                </p>
-            </div>
-
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                    Non
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
-                    Oui, annuler
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 </body>
 </html>
