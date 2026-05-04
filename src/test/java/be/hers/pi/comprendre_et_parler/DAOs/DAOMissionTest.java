@@ -131,6 +131,8 @@ class DAOMissionTest {
         assertEquals(m3, m4, "Find the updated object.");
 
         Mission m5 = missionDAO.find(2);
+        assertNotEquals(m2, m5, "Find the unchanged object but the interpreter set was not initialized.");
+        m5.setInterpreters(new DAOInterpreter().findAllByMissionId(m5.getId()));
         assertEquals(m2, m5, "Find the unchanged object.");
 
         assertNull(missionDAO.find(3), "There is no object with this ID.");
@@ -200,11 +202,16 @@ class DAOMissionTest {
         assertEquals(2, missions.size(), "There are two objects in the database.");
         System.out.println(missions);
 
-        for(Mission m : missions) {
+        Set<Mission> missionsUpdated = new HashSet<>();
+        for(Mission m : missions){
             m.setInterpreters(new DAOInterpreter().findAllByMissionId(m.getId()));
+            missionsUpdated.add(m);
         }
-        //The test fails because the list of interpreters is not updated.
-        assertTrue(missions.contains(m1));
-        assertTrue(missions.contains(m2));
+
+        assertTrue(missionsUpdated.contains(m1));
+        assertFalse(missionsUpdated.contains(m2));
+
+        m2.setInterpreters(new HashSet<>());
+        assertTrue(missionsUpdated.contains(m2));
     }
 }
