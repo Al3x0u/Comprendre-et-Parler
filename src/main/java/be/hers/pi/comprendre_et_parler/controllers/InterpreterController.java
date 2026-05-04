@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 
 @Controller
-@RequestMapping("/interpretres")
+@RequestMapping("interpretes")
 public class InterpreterController {
 
     /**
@@ -28,7 +28,7 @@ public class InterpreterController {
      * @param model the model to pass data to the view
      * @return the interpreters list
      */
-    @GetMapping
+    @GetMapping("")
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "") String keyword, Model model) {
 
         int interpretersPerPage = 10;
