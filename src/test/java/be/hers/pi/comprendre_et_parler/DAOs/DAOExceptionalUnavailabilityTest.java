@@ -26,7 +26,7 @@ class DAOExceptionalUnavailabilityTest {
 
     @BeforeAll
     public static void init() throws SQLException {
-        DatabaseConnector.initialize("login", "password");
+        DatabaseConnector.initialize();
         City c1 = new City(1, "Bruxelles", 1000);
         new DAOCity().create(c1);
         Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);

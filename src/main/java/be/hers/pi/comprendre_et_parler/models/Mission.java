@@ -159,13 +159,6 @@
         }
 
         /**
-         * @param state represent the new mission state
-         */
-        public void setStateOfMission(MissionState state){
-            this.stateOfMission = state;
-        }
-
-        /**
          * @return this.commentary
          */
         public String getCommentary() {
