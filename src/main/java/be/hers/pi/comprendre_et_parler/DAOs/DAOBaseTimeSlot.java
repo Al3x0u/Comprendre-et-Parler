@@ -11,8 +11,9 @@ import java.util.Set;
 import java.util.NoSuchElementException;
 
 public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
-    protected static final String TABLE = "timeslot";
+    protected static final String TABLE = "BaseTimeSlotView";
     protected static final String FIELD_ID = "id";
+    protected static final String FIELD_TIME_SLOT = "timeSLot";
     protected static final String FIELD_START_TIME = "startDateTime";
     protected static final String FIELD_END_TIME = "endDateTime";
     protected static final String FIELD_DAY = "day";
@@ -20,8 +21,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     public BaseTimeSlot find(int id) throws SQLException {
         String query = String.format(
-                "SELECT * FROM %s WHERE %s IS NOT NULL AND %s = ?",
-                TABLE, FIELD_DAY, FIELD_ID
+                "SELECT * FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -43,23 +44,46 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
         if (checkAlreadyExists(objectToInsert))
-            throw new AlreadyExistsException("BaseTimeSlot" + objectToInsert.getDay() + " already exists");
+            throw new AlreadyExistsException("BaseTimeSlot " + objectToInsert.getDay() + " already exists");
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, ?)", TABLE);
         PreparedStatement statement = null;
-        ResultSet generatedKeys = null;
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(objectToInsert.getStartDate(), objectToInsert.getStartTime())));
             statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(objectToInsert.getEndDate(), objectToInsert.getEndTime())));
             statement.setInt(3, objectToInsert.getDay().getValue());
 
             statement.executeUpdate();
-            generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next())
-                objectToInsert.setId(generatedKeys.getInt(1));
+            getNewAttributes(objectToInsert);
         } finally {
-            closeResultSet(generatedKeys);
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update the id of the new object inserted in the database
+     * @param newObject the new object inserted in the database
+     * @throws SQLException if the database could not be reached
+     */
+    private void getNewAttributes(BaseTimeSlot newObject) throws SQLException {
+        String query = String.format(
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(newObject.getStartDate(), newObject.getStartTime())));
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(newObject.getEndDate(), newObject.getEndTime())));
+            statement.setInt(3, newObject.getDay().getValue());
+
+            result = statement.executeQuery();
+            if (result.next())
+                newObject.setId(result.getInt(FIELD_ID));
+        } finally {
+            closeResultSet(result);
             closeStatement(statement);
         }
     }
@@ -91,8 +115,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
         String query = String.format(
-                "DELETE FROM %s WHERE %s = ? AND %s IS NOT NULL",
-                TABLE, FIELD_ID, FIELD_DAY
+                "DELETE FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
         );
         PreparedStatement statement = null;
         try {
@@ -108,10 +132,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public Set<BaseTimeSlot> findAll() throws SQLException {
-        String query = String.format(
-                "SELECT * FROM %s WHERE %s IS NOT NULL",
-                TABLE, FIELD_DAY
-        );
+        String query = String.format("SELECT * FROM %s", TABLE);
         PreparedStatement statement = null;
         ResultSet result = null;
         Set<BaseTimeSlot> ret = new HashSet<>();
@@ -131,8 +152,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     protected boolean checkAlreadyExists(BaseTimeSlot objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s IS NOT NULL AND %s = ? AND %s = ? AND %s = ?",
-                TABLE, FIELD_DAY, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
+                TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME
         );
         PreparedStatement statement = null;
         ResultSet result = null;
