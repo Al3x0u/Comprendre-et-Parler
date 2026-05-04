@@ -28,7 +28,6 @@ if [ "$1" = "test" ]; then
 
     echo "Lancement des tests..."
     mvn clean test -e
-    git restore "$PROPS"
 
 else
     # Mode application
@@ -46,5 +45,4 @@ else
 
     echo "Lancement de l'application..."
     mvn spring-boot:run
-    git restore "$PROPS"
 fi
