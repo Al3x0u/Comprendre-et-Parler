@@ -6,7 +6,7 @@
 
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<main class="container py-4 py-md-5">
+<main class="container py-4 md-5">
 
   <!-- Back to list Button -->
   <div class="mb-3">
@@ -14,8 +14,8 @@
   </div>
 
   <!-- Profile Header -->
-  <div class="card border-0 shadow-sm mb-4" th:object="${interprete}">
-    <div class="card-body bg-primary text-white rounded p-4 p-md-5">
+  <div class="card border-0 shadow-sm mb-4 rounded-4 " th:object="${interprete}">
+    <div class="card-body bg-primary text-white rounded-4 p-4 md-5">
       <div class="row align-items-center g-4">
 
         <div class="col-12 col-md-auto text-center">
@@ -28,7 +28,8 @@
           <p class="fw-semibold mb-3" th:text="*{login}"></p>
 
           <div class="d-grid d-md-flex gap-2">
-            <a th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}" class="btn btn-light btn-lg text-primary fw-semibold">Modifier le profil</a>
+            <a th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}" class="btn btn-light btn-lg text-primary fw-semibold">
+              <i class="bi bi-pencil-fill me-2"></i>Modifier le profil</a>
           </div>
         </div>
 

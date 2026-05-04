@@ -1,55 +1,70 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Modifier le profil</title>
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-</head>
-<body class="bg-body-tertiary">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
 
+<body>
+
+<!-- Navbar -->
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<main class="container py-4 py-md-5">
+<main class="container py-4 md-5">
 
-    <div class="mb-3">
-        <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" class="btn btn-outline-secondary btn-lg">Retour au profil</a>
-    </div>
+    <div class="card border-0 rounded-4 shadow-sm">
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h1 class="h3 mb-0">Modifier le profil</h1>
+        <!-- Header -->
+        <div class="card-header rounded-top-4 bg-primary text-white p-3">
+            <h1 class="h3 mb-0 py-1"><i class="bi bi-pencil-fill me-2"></i>Modifier le profil</h1>
         </div>
 
-        <div class="card-body p-4">
+        <!-- Modifications Form -->
+        <div class="card-body p-5">
             <form th:action="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}" th:object="${interprete}" method="post">
 
-                <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-6">
-                        <label for="firstName" class="form-label">Prénom</label>
-                        <input id="firstName" type="text" class="form-control" th:field="*{firstName}">
+                <div class="row align-items-center g-4 mb-4">
+
+                    <!-- Avatar -->
+                    <div class="col-12 col-md-6 py-3 text-center bg-light rounded-4">
+                        <label for="avatar-input" style="cursor:pointer">
+                            <img th:src="@{/images/avatar_01.png}" alt="Avatar interprète"
+                                 class="profile-avatar rounded-circle border shadow">
+                            <div class="mt-2">
+                                <span class="badge bg-primary p-2 rounded-4">
+                                    <i class="bi bi-pencil-fill me-1"></i>Modifier
+                                </span>
+                            </div>
+                        </label>
+                        <input type="file" id="avatar-input" name="avatar" accept="image/*" class="d-none">
                     </div>
 
+                    <!-- Lastname and firstname -->
                     <div class="col-12 col-md-6">
-                        <label for="lastName" class="form-label">Nom</label>
-                        <input id="lastName" type="text" class="form-control" th:field="*{lastName}">
+                        <div class="d-flex flex-column gap-3">
+                            <div>
+                                <label for="firstName" class="form-label">Prénom</label>
+                                <input id="firstName" type="text" class="form-control" th:field="*{firstName}" required>
+                            </div>
+                            <div>
+                                <label for="lastName" class="form-label">Nom</label>
+                                <input id="lastName" type="text" class="form-control" th:field="*{lastName}" required>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
-                        <label for="email" class="form-label">Adresse mail</label>
+                        <label for="email" class="form-label"><i class="bi bi-envelope me-2"></i>Adresse mail</label>
                         <input id="email" type="email" class="form-control" th:field="*{email}">
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label for="phoneNumber" class="form-label">Téléphone</label>
+                        <label for="phoneNumber" class="form-label"><i class="bi bi-telephone me-2"></i>Téléphone</label>
                         <input id="phoneNumber" type="text" class="form-control" th:field="*{phoneNumber}">
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="transportMode" class="form-label">Mode de transport</label>
+                    <label for="transportMode" class="form-label"><i class="bi bi-bus-front me-2"></i>Mobilité</label>
                     <input id="transportMode" type="text" class="form-control" th:field="*{transportMode}">
                 </div>
 
@@ -85,7 +100,7 @@
                 </div>
 
                 <div class="d-grid d-md-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-lg">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Enregistrer</button>
                     <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" class="btn btn-outline-secondary btn-lg">Annuler</a>
                 </div>
 
@@ -94,6 +109,7 @@
     </div>
 
 </main>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 
 </body>
 </html>
