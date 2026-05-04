@@ -248,9 +248,17 @@
             },
             eventContent: function(arg) {
                 const props = arg.event.extendedProps;
+                const importance = parseInt(props.importance);
+                var stars = '';
+                for(var i = 0; i < importance && i < 3; i++){
+                    stars += '★';
+                }
                 return {
                     html: `
                         <div class="fc-event-content-inner p-1">
+                        <div class="position-absolute top-0 end-0 pe-1 text-warning fw-bold">
+                    ${stars}
+                </div>
                             <div class="fw-bold">${arg.event.title}</div>
                             <div>${arg.timeText}</div>
                             <div>${props.type || ''}</div>
