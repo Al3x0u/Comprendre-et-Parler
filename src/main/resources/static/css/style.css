@@ -276,3 +276,10 @@ body {
 .interprete-id:hover {
     text-decoration: underline !important;
 }
+
+/* ─── Profile ────────────────────────────────────── */
+.profile-avatar {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+}

@@ -1,12 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
-import be.hers.pi.comprendre_et_parler.models.City;
-import be.hers.pi.comprendre_et_parler.models.ExceptionalUnavailability;
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
-import be.hers.pi.comprendre_et_parler.models.JobSkill;
-import be.hers.pi.comprendre_et_parler.models.Location;
-import be.hers.pi.comprendre_et_parler.models.PunctualTimeSlot;
+import be.hers.pi.comprendre_et_parler.models.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -81,10 +75,15 @@ public class InterpreterController {
         Interpreter fakeInterpreter = buildFakeInterpreter(id);
         int actualWeekQuota = 10;
         int actualAnnualQuota = 200;
+
+        // Hardcoded Beneficiaries
+        List<Beneficiary> beneficiaries = getHardcodedBeneficiaries(fakeInterpreter);
+
         model.addAttribute("interprete", fakeInterpreter);
+        model.addAttribute("beneficiaries", beneficiaries);
         model.addAttribute("currentPage", "interpreters");
-        model.addAttribute("actualWeekQuota",actualWeekQuota);
-        model.addAttribute("actualYearQuota",actualAnnualQuota);
+        model.addAttribute("actualWeekQuota", 10);
+        model.addAttribute("actualYearQuota", 200);
 
         return "interpreters/profile";
     }
@@ -281,5 +280,22 @@ public class InterpreterController {
         fakeInterpreter.setUnavailability(unavailabilities);
 
         return fakeInterpreter;
+    }
+
+    private List<Beneficiary> getHardcodedBeneficiaries(Interpreter fakeInterpreter) {
+        List<Beneficiary> beneficiaries = new ArrayList<>();
+        beneficiaries.add(new Beneficiary(
+                1, "B001", "Lucas", "Martin",
+                LocalDate.of(2005, 3, 15),
+                "hashed", "lucas@hers.be", "0470000002",
+                null, fakeInterpreter
+        ));
+        beneficiaries.add(new Beneficiary(
+                2, "B002", "Emma", "Dupont",
+                LocalDate.of(2006, 5, 20),
+                "hashed", "emma@hers.be", "0470000003",
+                null, fakeInterpreter
+        ));
+        return beneficiaries;
     }
 }
