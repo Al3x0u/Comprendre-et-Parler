@@ -8,8 +8,7 @@ public enum MissionState {
     ACCEPTED(1),
     DENIED(2),
     PROGRESSING(3),
-    REGULAR(4),
-    CANCELED(5);
+    CANCELED(4);
 
     private final int value;
 
