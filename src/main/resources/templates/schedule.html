@@ -6,6 +6,8 @@
         .modal-backdrop.show {
             opacity: 0.7;
         }
+
+
     </style>
 </head>
 <body>
@@ -134,7 +136,7 @@
 
 <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-dark text-white border-0 shadow">
+        <div class="modal-content  border-0 shadow">
             <div class="modal-header border-0">
                 <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
                     Annulation
@@ -149,7 +151,7 @@
             </div>
 
             <div class="modal-footer border-0 fs-5">
-                <button type="button" class="btn btn-light fs-3" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-light fs-3" id="cancelConfirmBackBtn">
                     Non
                 </button>
                 <button type="button" class="btn btn-danger fs-3" id="confirmCancelBtn">
@@ -246,6 +248,7 @@
                 day: 'Jour',
                 today: 'Aujourd\'hui'
             },
+
             eventContent: function(arg) {
                 const props = arg.event.extendedProps;
                 const importance = parseInt(props.importance);
@@ -319,8 +322,11 @@
 
                 if (cancelBtn) {
                     cancelBtn.addEventListener('click', function() {
-                        const confirmModal = new bootstrap.Modal(document.getElementById('confirmCancelModal'));
-                        confirmModal.show();
+                        const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
+                        const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
+
+                        eventModal.hide();
+                        confirmCancelModal.show();
                     });
                 }
 
@@ -349,6 +355,13 @@
             e.stopPropagation();
         });
 
+        document.getElementById('cancelConfirmBackBtn').addEventListener('click', function(){
+            const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
+            const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
+
+            confirmCancelModal.hide();
+            eventModal.show();
+        });
         calendar.render();
     });
 </script>
