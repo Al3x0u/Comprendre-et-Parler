@@ -153,6 +153,8 @@ public class ScheduleController {
         e1.put("interpreter", "Alice Charpentier");
         e1.put("beneficiary", "Lucas Martin");
         e1.put("status", "Acceptée");
+        e1.put("comment", "ATTENTION HEIN");
+
         events.add(e1);
 
         Map<String, String> e2 = new HashMap<>();
@@ -165,6 +167,8 @@ public class ScheduleController {
         e2.put("interpreter", "Jessica DuBuisson");
         e2.put("beneficiary", "Emma Dupont");
         e2.put("status", "En attente");
+        e2.put("comment", "Demande en attente de validation");
+
         events.add(e2);
 
         Map<String, String> e3 = new HashMap<>();
@@ -177,6 +181,8 @@ public class ScheduleController {
         e3.put("interpreter", "Jessica DuBuisson");
         e3.put("beneficiary", "Lucas Martin");
         e3.put("status", "Acceptée");
+        e3.put("comment", "Présence confirmée");
+
         events.add(e3);
 
         Map<String, String> e4 = new HashMap<>();

@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<head>
+    <th:block th:replace="~{common/head :: head(#{website.name})}"></th:block>
+    <style>
+        .modal-backdrop.show {
+            opacity: 0.7;
+        }
+    </style>
+</head>
 <body>
 
 <!-- Navbar -->
@@ -307,7 +314,7 @@
 
 <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content bg-dark text-white border-0 shadow">
             <div class="modal-header border-0">
                 <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
                     Annulation
