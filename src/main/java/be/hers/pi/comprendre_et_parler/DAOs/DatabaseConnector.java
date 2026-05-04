@@ -26,11 +26,9 @@ public class DatabaseConnector {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             connection = DriverManager.getConnection(URL, login, password);
-        }
-        catch( ClassNotFoundException e) {
+        } catch( ClassNotFoundException e) {
             throw new ConnectionException("Failed to load oracle.jdbc.driver.OracleDriver: " + e);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ConnectionException("Login failed: " + e);
         }
     }
@@ -42,9 +40,8 @@ public class DatabaseConnector {
      */
     public static void initialize() throws ConnectionException {
         Console cons = System.console();
-        if (cons == null) {
+        if (cons == null)
             System.out.println("WARNING : Could not open a console. Your password will not be hidden. Please make sure you're not in public or run this from a terminal.");
-        }
         Scanner keyb = new Scanner(System.in);
         System.out.println("Login :");
         String login = keyb.nextLine();

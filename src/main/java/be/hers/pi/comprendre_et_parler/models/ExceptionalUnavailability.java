@@ -5,26 +5,23 @@ import java.util.Objects;
 public class ExceptionalUnavailability {
     private String reason;
     private PunctualTimeSlot timeSlot;
-    private Interpreter interpreter;
 
     /**
-     * Constructor of a ExceptionalUnavailability Object
-     * @param reason : represent reason
-     * @param timeSlot : represent timeSlot
-     * @param interpreter : represent interpreter
+     * Constructor of a ExceptionalUnavailability
+     * @param reason represent the reason
+     * @param timeSlot represent the timeSlot
      */
-    public ExceptionalUnavailability(String reason, PunctualTimeSlot timeSlot, Interpreter interpreter) {
+    public ExceptionalUnavailability(String reason, PunctualTimeSlot timeSlot) {
         this.reason = reason;
-        this.timeSlot = timeSlot.clone();
-        this.interpreter = interpreter;
+        this.timeSlot = timeSlot;
     }
 
     /**
-     * Copy constructor of a ExceptionalUnavailability Object
-     * @param other represent the PunctualTimeSlot object
+     * Copy constructor of a ExceptionalUnavailability
+     * @param other the ExceptionalUnavailability to copy, must not be null
      */
     public ExceptionalUnavailability(ExceptionalUnavailability other) {
-        this(other.reason, new PunctualTimeSlot(other.timeSlot), new Interpreter(other.interpreter));
+        this(other.reason, new PunctualTimeSlot(other.timeSlot));
     }
 
     /**
@@ -56,32 +53,9 @@ public class ExceptionalUnavailability {
     }
 
     /**
-     * @return this.interpreter
-     */
-    public Interpreter getInterpreter() {
-        return this.interpreter;
-    }
-
-    /**
-     * @param interpreter represent the new interpreter
-     */
-    public void setInterpreter(Interpreter interpreter) {
-        this.interpreter = interpreter;
-    }
-
-    /**
-     * Return a String representation of the ExeptionalUnavailability containing all fields
-     * @return formatted string with reason, timeSlot and interpreter
-     */
-    @Override
-    public String toString() {
-        return "ExeptionnalUnavailability{ reason=" + this.reason + " timeSlot=" + this.timeSlot.toString() + " interpreter=" + this.interpreter.toString() + "}";
-    }
-
-    /**
-     * Check if the unavailability have the same data as the current one
-     * @param o to compare
-     * @return true if it's the same, else false
+     * Compare this ExceptionalUnavailability with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical reason and timeSlot
      */
     @Override
     public boolean equals(Object o) {
@@ -89,15 +63,25 @@ public class ExceptionalUnavailability {
         if (!(o instanceof ExceptionalUnavailability)) return false;
 
         ExceptionalUnavailability other = (ExceptionalUnavailability) o;
-        return this.reason.equals(other.reason) && this.timeSlot.equals(other.timeSlot) && this.interpreter.equals(other.interpreter);
+        return this.reason.equals(other.reason) && this.timeSlot.equals(other.timeSlot);
     }
 
     /**
-     * Return the hashcode of ExeptionnalUnavailability
-     * @return an integer which is the hashcode of ExeptionnalUnavailability
+     * Computes the hash code of this ExeptionnalUnavailability
+     * two ExeptionnalUnavailability objects that are equal according to equals() will have the same hash code
+     * @return an integer hash code representing this ExeptionnalUnavailability
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.reason, this.timeSlot, this.interpreter);
+        return Objects.hash(this.reason, this.timeSlot);
+    }
+
+    /**
+     * Return a String representation of this ExeptionnalUnavailability containing all fields
+     * @return formatted string with reason and timeSlot
+     */
+    @Override
+    public String toString() {
+        return "ExeptionnalUnavailability{reason = " + reason + ", timeSlot = " + timeSlot + "}";
     }
 }

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PunctualTimeSlotTest {
     private PunctualTimeSlot p1;
-    private final LocalDateTime today = LocalDateTime.now();
+    private final LocalDateTime today = LocalDateTime.now().withNano(0).withSecond(0);
 
     @BeforeEach
     public void init() {
