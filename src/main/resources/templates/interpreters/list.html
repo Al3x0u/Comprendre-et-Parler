@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{common/head :: head(#{website.name})}"></head>
-<body class="bg-body-tertiary">
+<body>
 
 <div th:replace="~{common/navbar :: navbar}"></div>
 
@@ -13,7 +13,7 @@
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
 
         <div>
-          <h1 class="h3 mb-1">Liste des interprètes</h1>
+          <h1 class="h3 mb-2 mt-2">Liste des interprètes</h1>
         </div>
 
         <div>
@@ -47,23 +47,21 @@
     <div th:if="${interpretes != null and !#lists.isEmpty(interpretes)}">
       <div class="list-group list-group-flush">
 
-        <div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" th:each="interprete : ${interpretes}">
+        <div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-3" th:each="interprete : ${interpretes}">
 
           <div class="d-flex align-items-center gap-3">
-
-            <div>
+            <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" style="text-decoration: none">
               <img th:src="@{/images/avatar.png}" alt="Avatar interprète" width="52" height="52" class="rounded-circle border">
-            </div>
+            </a>
 
-            <div>
-              <div class="fw-bold text-primary" th:text="${interprete.login}"></div>
-              <div th:text="${interprete.firstName + ' ' + interprete.lastName}"></div>
-            </div>
-
+            <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" class="d-flex flex-column interprete-id">
+              <div class="fw-bold text-primary" th:text="${interprete.firstName + ' ' + interprete.lastName}"></div>
+              <div th:text="${interprete.login}"></div>
+            </a>
           </div>
 
           <div>
-            <a th:href="@{interpretes/profil/{id}(id=${interprete.id})}" class="btn btn-primary btn-sm">Voir le profil</a>
+            <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" class="btn btn-primary btn-sm py-1">Voir le profil</a>
           </div>
 
         </div>

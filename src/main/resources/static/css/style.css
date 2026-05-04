@@ -267,3 +267,12 @@ body {
 .fc-newUnavailability-button:focus{
     box-shadow: none !important;
 }
+
+/* ─── Interpreters List ───────────────────────────────── */
+.interprete-id {
+    text-decoration: none;
+}
+
+.interprete-id:hover {
+    text-decoration: underline !important;
+}
