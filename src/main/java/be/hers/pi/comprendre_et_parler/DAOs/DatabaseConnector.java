@@ -1,15 +1,13 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 
-import java.util.Properties;
+import java.util.Scanner;
+import java.io.Console;
 
 public class DatabaseConnector {
     static final String URL = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
@@ -41,18 +39,15 @@ public class DatabaseConnector {
      * @throws ConnectionException if the connection failed
      */
     public static void initialize() throws ConnectionException {
-        try {
-            Properties props = new Properties();
-            InputStream input = DatabaseConnector.class
-                    .getClassLoader()
-                    .getResourceAsStream("application.properties");
-            props.load(input);
-            String login = props.getProperty("db.login");
-            String password = props.getProperty("db.password");
-            initialize(login, password);
-        } catch (IOException e) {
-            throw new ConnectionException("Could not read application.properties: " + e);
-        }
+        Console cons = System.console();
+        if (cons == null)
+            System.out.println("WARNING : Could not open a console. Your password will not be hidden. Please make sure you're not in public or run this from a terminal.");
+        Scanner keyb = new Scanner(System.in);
+        System.out.println("Login :");
+        String login = keyb.nextLine();
+        System.out.println("Password :");
+        String password = (cons != null) ? String.valueOf(cons.readPassword()) : keyb.nextLine();
+        initialize(login, password);
     }
 
     /**

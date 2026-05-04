@@ -19,6 +19,8 @@ class DAOExceptionalUnavailabilityTest {
     public static ExceptionalUnavailability u1;
     public static ExceptionalUnavailability u2;
     public static ExceptionalUnavailability u3;
+    public static Interpreter i1;
+    public static Interpreter i2;
     public final static DAOExceptionalUnavailability unavailabilityDAO = new DAOExceptionalUnavailability();
     public final static LocalDateTime today = LocalDateTime.now();
 
@@ -29,10 +31,10 @@ class DAOExceptionalUnavailabilityTest {
         new DAOCity().create(c1);
         Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
         new DAOLocation().create(l1);
-        Interpreter i1 = new Interpreter(1, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
+        i1 = new Interpreter(1, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
-        Interpreter i2 = new Interpreter(2, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
+        i2 = new Interpreter(2, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
         new DAOInterpreter().create(i1);
@@ -43,9 +45,9 @@ class DAOExceptionalUnavailabilityTest {
         new DAOPunctualTimeSlot().create(p1);
         new DAOPunctualTimeSlot().create(p2);
 
-        u1 = new ExceptionalUnavailability("Sick", p1, i1);
-        u2 = new ExceptionalUnavailability("Party", p2, i1);
-        u3 = new ExceptionalUnavailability("Vacancy", p1, i2);
+        u1 = new ExceptionalUnavailability("Sick", p1);
+        u2 = new ExceptionalUnavailability("Party", p2);
+        u3 = new ExceptionalUnavailability("Vacancy", p1);
     }
 
     @AfterAll
@@ -109,16 +111,16 @@ class DAOExceptionalUnavailabilityTest {
     @Order(1)
     public void testCreate() {
         assertDoesNotThrow(() -> {
-            unavailabilityDAO.create(u1);
+            unavailabilityDAO.create(u1, i1);
         }, "Create a object in the database.");
 
         u1.setReason("Lazy");
         assertThrows(AlreadyExistsException.class, () -> {
-            unavailabilityDAO.create(u1);
+            unavailabilityDAO.create(u1, i1);
         }, "This object already exists in the database with another reason.");
 
         assertDoesNotThrow(() -> {
-            unavailabilityDAO.create(u2);
+            unavailabilityDAO.create(u2, i1);
         }, "Create another object in the database.");
     }
 
@@ -127,11 +129,11 @@ class DAOExceptionalUnavailabilityTest {
     public void testUpdate() {
         u1.setReason("Lazy");
         assertDoesNotThrow(() -> {
-            unavailabilityDAO.update(u1);
+            unavailabilityDAO.update(u1, i1);
         }, "The object has been updated.");
 
         assertThrows(NoSuchElementException.class, () -> {
-            unavailabilityDAO.update(u3);
+            unavailabilityDAO.update(u3, i2);
         }, "There is no object with this Interpreter ID.");
     }
 

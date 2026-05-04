@@ -5,102 +5,110 @@ import java.util.Objects;
 public class Status {
     private int id = -1;
     private String designation;
-    private int hourQuota;
+    private int hourQuota = 0;
 
     /**
-     * Constructor of a Status object
-     * @param designation the name or description of the status
-     * @param hourQuota the associated hour quota (will be 0 if negative)
-     */
-    public Status(String designation, int hourQuota) {
-        this.designation = designation;
-        setHourQuota(hourQuota);
-    }
-
-    /**
-     * Constructor of a Status object
-     * @param designation the name or description of the status
-     * @param hourQuota the associated hour quota (will be 0 if negative)
+     * Constructor of a Status
+     * @param id represent the id
+     * @param designation represent the designation
+     * @param hourQuota represent the hourQuota
      */
     public Status(int id, String designation, int hourQuota) {
-        this(designation, hourQuota);
-        this.id = id;
+        if (id >= 0) this.id = id;
+        this.designation = designation;
+        if (hourQuota >= 0) this.hourQuota = hourQuota;
     }
 
     /**
-     * Copy constructor of a Status object
-     * @param other the object to copy
+     Constructor of a Status without id
+     @param designation represent the designation
+     @param hourQuota represent the hourQuota
+     */
+    public Status(String designation, int hourQuota) {
+        this(-1, designation, hourQuota);
+    }
+
+    /**
+     * Copy constructor of a Status
+     * @param other the Status to copy, must not be null
      */
     public Status(Status other) {
-        this.id = other.getId();
-        this.designation = other.getDesignation();
-        this.hourQuota = other.getHourQuota();
+        this(other.id, other.designation, other.hourQuota);
     }
 
     /**
-     * @return the unique identifier of the status
+     * @return this.id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * @return the name or description of the status
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        if (id >= 0) this.id = id;
+    }
+
+    /**
+     * @return this.designation
      */
     public String getDesignation() {
         return designation;
     }
 
     /**
-     * @param designation the new name or description of the status
+     * @param designation represent the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;
     }
 
     /**
-     * @return the associated hour quota
+     * @return this.hourQuota
      */
     public int getHourQuota() {
         return hourQuota;
     }
 
     /**
-     * @param id the new id
+     * @param hourQuota represent the new hourQuota
      */
-    public void setId(int id) { if (id >= 0) this.id = id; }
+    public void setHourQuota(int hourQuota) {
+        if (hourQuota >= 0) this.hourQuota = hourQuota;
+    }
+
 
     /**
-     * @param hourQuota the new associated hour quota
-     */
-    public void setHourQuota(int hourQuota)  { if (hourQuota >= 0) this.hourQuota = hourQuota; }
-
-    /**
-     * Compare this Status with another Status for equality
-     * @param other the Status object to compare with
-     * @return true if both objects are of type Status and have identical attributes except for id
+     * Compare this Status with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical designation and hourQuota
      */
     @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        Status o = (Status) other;
-        return (designation.equals(o.getDesignation()) && Objects.equals(hourQuota, o.getHourQuota()));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Status)) return false;
+
+        Status other = (Status) o;
+        return (Objects.equals(designation, other.designation) && Objects.equals(hourQuota, other.hourQuota));
     }
 
     /**
-     * Computes the hash code of this Mission.
-     * @return an integer hash code value based on designation and hourQuota
+     * Computes the hash code of this Status
+     * two Status objects that are equal according to equals() will have the same hash code
+     * @return an integer hash code representing this Status (id is not taken into account)
      */
     @Override
     public int hashCode() {
         return Objects.hash(designation, hourQuota);
     }
+
     /**
-     * Return a String representation of the Status containing all fields
+     * Return a String representation of this Status containing all fields
      * @return formatted string with id, designation and hourQuota
      */
     @Override
     public String toString() {
-        return "Status{id=" + id + ", designation=" + designation + ", hourQuota:" + hourQuota +"}";
+        return "Status{id = " + id + ", designation = " + designation + ", hourQuota = " + hourQuota +"}";
     }
 }
