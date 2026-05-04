@@ -1,5 +1,5 @@
 package be.hers.pi.comprendre_et_parler.controllers;
-import be.hers.pi.comprendre_et_parler.models.AppliUser;
+import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 
 import jakarta.servlet.http.HttpSession;
@@ -24,13 +24,17 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String getUserLogin(@RequestParam String login, @RequestParam String password, Model model,  HttpSession session){
+    public String getUserLogin(@RequestParam String login, @RequestParam String password, Model model, HttpSession session){
         AppliUser user = loginService.getUserData(login, password);
-        if( user != null ){
+        if(user != null){
             session.setAttribute("user", user);
-            return "redirect:/home";
-        }else{
-            model.addAttribute("error", "Identidiants incorrects");
+            if(user instanceof Manager){
+                return "redirect:/dashboard";
+            } else {
+                return "redirect:/schedule";
+            }
+        } else {
+            model.addAttribute("error", "Identifiants incorrects");
             return "login";
         }
     }
