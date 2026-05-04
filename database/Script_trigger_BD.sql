@@ -12,6 +12,9 @@ DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
 DROP TRIGGER IUR_UpdateBeneficiary;
 DROP TRIGGER IIR_InsertionTransportationView;
+DROP TRIGGER IIR_InsertionBaseTimeSlotView;
+DROP TRIGGER IDR_DeleteBaseTimeSlotView;
+DROP TRIGGER IUR_UpdateBaseTimeSlotView;
 
 
 CREATE TRIGGER IIR_InsertionAppliUser
@@ -217,3 +220,41 @@ BEGIN
     END IF;
 END;
 /
+
+CREATE TRIGGER IIR_InsertionBaseTimeSlotView
+INSTEAD OF INSERT ON BaseTimeSlotView
+FOR EACH ROW
+DECLARE
+    newID INTEGER;
+BEGIN
+    INSERT INTO TimeSlot
+    VALUES
+        (NULL, :NEW.startDateTime, :NEW.endDateTime);
+    SELECT id INTO newID
+    FROM TimeSlot
+    WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
+    INSERT INTO BaseTimeSlot 
+    VALUES
+        (NULL, newID, :NEW.day);
+END;
+/
+
+CREATE TRIGGER IDR_DeleteBaseTimeSlotView
+INSTEAD OF DELETE ON BaseTimeSlotView
+FOR EACH ROW
+BEGIN
+    DELETE FROM TimeSlot WHERE id = :OLD.id;
+END;
+/
+
+CREATE TRIGGER IUR_UpdateBaseTimeSlotView
+INSTEAD OF UPDATE ON BaseTimeSlotView
+FOR EACH ROW
+BEGIN
+    UPDATE TimeSlot SET startDateTime = :NEW.startDateTime, endDateTime = :NEW.endDateTime WHERE id = :OLD.id;
+    UPDATE BaseTimeSlot SET day = :NEW.day WHERE timeSlot = :OLD.id;
+END;
+/
+
+
+commit;

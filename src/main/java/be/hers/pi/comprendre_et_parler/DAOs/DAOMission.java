@@ -55,30 +55,16 @@ public class DAOMission extends DAO<Mission> {
         if (checkAlreadyExists(objectToInsert))
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
-        String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
+        String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?, ?, ?, ?)", TABLE);
         PreparedStatement statement = null;
         ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
-            if (objectToInsert.getBeneficiary() != null)
-                statement.setInt(1, objectToInsert.getBeneficiary().getId());
-            else
-                statement.setNull(1, Types.INTEGER);
-            statement.setInt(2, objectToInsert.getImportance());
-            statement.setString(3, objectToInsert.getSubject());
-            statement.setInt(4, objectToInsert.getStateOfMission().getValue());
-            statement.setString(5, objectToInsert.getCommentary());
-            statement.setInt(6, objectToInsert.getTimeSlot().getId());
-            if (objectToInsert.getJobSkill() != null)
-                statement.setInt(7, objectToInsert.getJobSkill().getId());
-            else
-                statement.setNull(7, Types.INTEGER);
-            if (objectToInsert.getAcademicSkill() != null)
-                statement.setInt(8, objectToInsert.getAcademicSkill().getId());
-            else
-                statement.setNull(8, Types.INTEGER);
-            statement.setInt(9, objectToInsert.getLocation().getId());
-            statement.setString(10, objectToInsert.getRoom());
+            statement.setInt(1, objectToInsert.getImportance());
+            statement.setString(2, objectToInsert.getSubject());
+            statement.setString(3, objectToInsert.getCommentary());
+            statement.setInt(4, objectToInsert.getLocation().getId());
+            statement.setString(5, objectToInsert.getRoom());
 
             statement.executeUpdate();
             generatedKeys = statement.getGeneratedKeys();
@@ -104,31 +90,21 @@ public class DAOMission extends DAO<Mission> {
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
         
         String query = String.format(
-                "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
-                TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
-                FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID
+                "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
+                TABLE, FIELD_SUBJECT, FIELD_COMMENTARY, FIELD_LOCATION,
+                FIELD_ROOM, FIELD_IMPORTANCE, FIELD_ID
         );
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getSubject());
-            statement.setInt(2, objectToUpdate.getStateOfMission().getValue());
-            statement.setString(3, objectToUpdate.getCommentary());
-            statement.setInt(4, objectToUpdate.getTimeSlot().getId());
-            statement.setInt(5, objectToUpdate.getLocation().getId());
-            statement.setString(6, objectToUpdate.getRoom());
-            if (objectToUpdate.getJobSkill() != null)
-                statement.setInt(7, objectToUpdate.getJobSkill().getId());
-            else
-                statement.setNull(7, Types.INTEGER);
-            if (objectToUpdate.getJobSkill() != null)
-                statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
-            else
-                statement.setNull(8, Types.INTEGER);
-            statement.setInt(9, objectToUpdate.getImportance());
-            statement.setInt(10, objectToUpdate.getId());
-            statement.executeUpdate();
+            statement.setString(2, objectToUpdate.getCommentary());
+            statement.setInt(3, objectToUpdate.getLocation().getId());
+            statement.setString(4, objectToUpdate.getRoom());
+            statement.setInt(5, objectToUpdate.getImportance());
+            statement.setInt(6, objectToUpdate.getId());
 
+            statement.executeUpdate();
             if (objectToUpdate.getInterpreters() != null) {
                 deleteAllInterpretersFromMission(objectToUpdate.getId());
                 for (Interpreter interpreter : objectToUpdate.getInterpreters())
@@ -165,6 +141,7 @@ public class DAOMission extends DAO<Mission> {
         Set<Mission> missions = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
+
             result = statement.executeQuery();
             while (result.next())
                 missions.add(getResult(result));
@@ -176,34 +153,23 @@ public class DAOMission extends DAO<Mission> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Mission mission) throws SQLException {
-        String beneficiary = "";
-        if(mission.getBeneficiary() == null)
-            beneficiary = FIELD_BENEFICIARY + " IS NULL OR";
+    protected boolean checkAlreadyExists(Mission objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s m " +
-                "JOIN TimeSlot ts ON m.%s = ts.id " + 
-                "JOIN TimeSlot tsNew ON tsNew.id = ? " +
-                "WHERE m.%s != ? " +
-                "AND ts.startDateTime < tsNew.endDateTime AND ts.endDateTime > tsNew.startDateTime " +
-                "AND (%s %s = ? " +
-                "OR m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter IN " +
-                "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)))",
-                TABLE, FIELD_TIME_SLOT, FIELD_ID, beneficiary, FIELD_BENEFICIARY
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
+                TABLE, FIELD_SUBJECT, FIELD_COMMENTARY,
+                FIELD_LOCATION, FIELD_ROOM, FIELD_IMPORTANCE
         );
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, mission.getTimeSlot().getId());
-            statement.setInt(2, mission.getId());
-            if (mission.getBeneficiary() != null)
-                statement.setInt(3, mission.getBeneficiary().getId());
-            else
-                statement.setNull(3, Types.INTEGER);
-            statement.setInt(4, mission.getId());
-            result = statement.executeQuery();
+            statement.setString(1, objectToCheck.getSubject());
+            statement.setString(2, objectToCheck.getCommentary());
+            statement.setInt(3, objectToCheck.getLocation().getId());
+            statement.setString(4, objectToCheck.getRoom());
+            statement.setInt(5, objectToCheck.getImportance());
 
+            result = statement.executeQuery();
             return result.next();
         } finally {
             closeResultSet(result);
@@ -213,26 +179,54 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     protected Mission getResult(ResultSet result) throws SQLException {
-        MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
-        TimeSlot timeSlot;
-        if (state == MissionState.REGULAR)
-            timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-        else
-            timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        int id = result.getInt(FIELD_ID);
         return new Mission(
-                result.getInt(FIELD_ID),
+                id,
                 result.getString(FIELD_SUBJECT),
-                state,
                 result.getString(FIELD_COMMENTARY),
-                timeSlot,
-                new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
+                findTimeSlot(id),
+                null,
                 new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
-                new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
+                null,
+                null,
                 result.getString(FIELD_ROOM),
                 result.getInt(FIELD_IMPORTANCE)
         );
     }
+
+    /**
+     * Get the set of time slots for a mission
+     * @param idMission the mission for which to have the time slots
+     * @return the set of time slots for the mission
+     * @throws SQLException if the database could not be reached
+     */
+    private Set<TimeSlot> findTimeSlot(int idMission) throws SQLException {
+        String queryPunctualTimeSlot = "SELECT * FROM PunctualMission WHERE mission = ?";
+        String queryBaseTimeSLot = "SELECT * FROM RegularMission WHERE mission = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<TimeSlot> timeSlots = new HashSet<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(queryPunctualTimeSlot);
+            statement.setInt(1, idMission);
+            result = statement.executeQuery();
+            while (result.next()) {
+                PunctualTimeSlot p = new DAOPunctualTimeSlot().find(result.getInt("punctualTimeSlot"));
+                timeSlots.add(new RegularMission(p, MissionState.fromValue(result.getInt(FIELD_STATE))));
+            }
+
+            statement = DatabaseConnector.getInstance().prepareStatement(queryBaseTimeSLot);
+            statement.setInt(1, idMission);
+            result = statement.executeQuery();
+            while (result.next())
+                timeSlots.add(new DAOBaseTimeSlot().find(result.getInt("baseTimeSlot")));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return timeSlots;
+    }
+
 
     /**
      * Return the schedule of the user with the given id for a specific week

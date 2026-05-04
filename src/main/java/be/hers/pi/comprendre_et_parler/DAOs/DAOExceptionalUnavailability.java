@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 public class DAOExceptionalUnavailability {
     protected static final String TABLE = "Unavailability";
     protected static final String FIELD_ID_INTERPRETER = "interpreter";
-    protected static final String FIELD_ID_TIMESLOT = "timeSlot";
+    protected static final String FIELD_ID_TIMESLOT = "punctualTimeSlot";
     protected static final String FIELD_REASON = "reason";
 
     /**
