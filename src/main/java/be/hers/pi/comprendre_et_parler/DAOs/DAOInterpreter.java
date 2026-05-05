@@ -17,10 +17,6 @@ import java.util.NoSuchElementException;
 
 public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String TABLE = "Interpreter";
-    protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
-    protected static final String TABLE_JOB_SKILL_INTERPRETER = "JobSkillInterpreter";
-    protected static final String TABLE_AVAILABILITY = "Availability";
-    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission";
     protected static final String FIELD_SKILL = "skill";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
@@ -36,11 +32,21 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String FIELD_TRANSPORT_MODE = "transportMode";
     protected static final String FIELD_LOCATION = "location";
     protected static final String FIELD_MISSION = "mission";
+
+    protected static final String TABLE_AVAILABILITY = "Availability";
     protected static final String AVAILABILITY_REF_INTERPRETER = "interpreter";
     protected static final String AVAILABILITY_REF_TIMESLOT = "baseTimeSlot";
     protected static final String AVAILABILITY_REF_DAY = "baseTimeSlotDay";
 
+    protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
+    protected static final String ACADEMIC_SKILL_REF_INTERPRETER = "interpreter";
+    protected static final String ACADEMIC_SKILL_REF_SKILL = "skill";
 
+    protected static final String TABLE_JOB_SKILL_INTERPRETER = "JobSkillInterpreter";
+    protected static final String JOB_SKILL_REF_INTERPRETER = "interpreter";
+    protected static final String JOB_SKILL_REF_SKILL = "skill";
+
+    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission"; // Complete or delete depending on whether this or DAOMission handles the table
 
     @Override
     public Interpreter find(int id) throws SQLException {
@@ -134,6 +140,12 @@ public class DAOInterpreter extends DAO<Interpreter> {
                     new DAOExceptionalUnavailability().create(eu, objectToInsert);
                 }
                 catch(AlreadyExistsException e) {}
+            }
+        }
+
+        if (objectToInsert.getJobSkills() != null) {
+            for (JobSkill skill : objectToInsert.getJobSkills()) {
+                // TODO
             }
         }
     }
