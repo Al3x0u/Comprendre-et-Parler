@@ -71,7 +71,7 @@ public class InterpreterController {
      * @return the interpreter profile page
      */
     @GetMapping("/profil/{id}")
-    public String showInterpreterProfile(@PathVariable int id, Model model) {
+    public String showInterpreterProfile(@PathVariable int id, @RequestParam(required = false) Integer fromBeneficiary, Model model) {
         List<Interpreter> allInterpreters = buildFakeInterpreters();
 
         Interpreter interpreter = allInterpreters.stream()
@@ -88,6 +88,7 @@ public class InterpreterController {
         model.addAttribute("currentPage", "interpreters");
         model.addAttribute("actualWeekQuota", 10);
         model.addAttribute("actualYearQuota", 200);
+        model.addAttribute("fromBeneficiary", fromBeneficiary);
 
         return "interpreters/profile";
     }

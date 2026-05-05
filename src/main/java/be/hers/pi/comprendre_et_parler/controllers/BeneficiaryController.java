@@ -65,7 +65,7 @@ public class BeneficiaryController {
      * @return the beneficiary profile page
      */
     @GetMapping("/profil/{id}")
-    public String showBeneficiaryProfile(@PathVariable int id, Model model) {
+    public String showBeneficiaryProfile(@PathVariable int id, @RequestParam(required = false) Integer fromInterpreter, Model model) {
         List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
 
         Beneficiary beneficiary = allBeneficiaries.stream()
@@ -78,6 +78,7 @@ public class BeneficiaryController {
         model.addAttribute("beneficiaire", beneficiary);
         model.addAttribute("currentPage", "beneficiaries");
         model.addAttribute("interpreters", getHardcodedInterpreters());
+        model.addAttribute("fromInterpreter", fromInterpreter);
 
         return "beneficiaries/profile";
     }

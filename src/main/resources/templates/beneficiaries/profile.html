@@ -8,7 +8,16 @@
 <main class="container py-4 md-5">
 
     <div class="mb-3">
-        <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-arrow-left me-2"></i>Retour à la liste</a>
+        <a th:if="${fromInterpreter != null}"
+           th:href="@{/interpretes/profil/{id}(id=${fromInterpreter})}"
+           class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-left me-2"></i>Retour au profil
+        </a>
+        <a th:unless="${fromInterpreter != null}"
+           th:href="@{/beneficiaires}"
+           class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+        </a>
     </div>
 
     <!-- Profile Header -->
@@ -73,11 +82,11 @@
 
                     <!-- Vue normale -->
                     <div id="interpreter-view" th:if="*{interpreterRef != null}" class="bg-light rounded p-3 d-flex align-items-center gap-3">
-                        <a th:href="@{/interpretes/profil/{id}(id=${beneficiaire.interpreterRef.id})}">
+                        <a th:href="@{/interpretes/profil/{id}(id=${beneficiaire.interpreterRef.id}, fromBeneficiary=${beneficiaire.id})}">
                             <img th:src="@{/images/avatar.png}" alt="Avatar" width="40" height="40" class="rounded-circle border">
                         </a>
                         <div>
-                            <a th:href="@{/interpretes/profil/{id}(id=${beneficiaire.interpreterRef.id})}"
+                            <a th:href="@{/interpretes/profil/{id}(id=${beneficiaire.interpreterRef.id}, fromBeneficiary=${beneficiaire.id})}"
                                class="fw-semibold text-primary text-decoration-none"
                                th:text="*{interpreterRef.firstName + ' ' + interpreterRef.lastName}"></a>
                             <p class="text-muted small mb-0" th:text="*{interpreterRef.login}"></p>
@@ -118,7 +127,6 @@
 
         <div class="col-12 col-lg-4">
 
-            <!-- Status -->
             <!-- Status -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">

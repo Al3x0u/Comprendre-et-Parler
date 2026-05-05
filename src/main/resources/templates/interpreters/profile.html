@@ -10,7 +10,16 @@
 
   <!-- Back to list Button -->
   <div class="mb-3">
-    <a th:href="@{/interpretes}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-arrow-left me-2"></i>Retour à la liste</a>
+    <a th:if="${fromBeneficiary != null}"
+       th:href="@{/beneficiaires/profil/{id}(id=${fromBeneficiary})}"
+       class="btn btn-outline-secondary btn-lg">
+      <i class="bi bi-arrow-left me-2"></i>Retour au profil
+    </a>
+    <a th:unless="${fromBeneficiary != null}"
+       th:href="@{/interpretes}"
+       class="btn btn-outline-secondary btn-lg">
+      <i class="bi bi-arrow-left me-2"></i>Retour à la liste
+    </a>
   </div>
 
   <!-- Profile Header -->
@@ -203,13 +212,14 @@
 
           <div class="d-flex flex-column gap-2">
             <div th:each="b : ${beneficiaries}" class="bg-light rounded p-3 d-flex justify-content-between align-items-center gap-3">
-              <div class="d-flex align-items-center gap-3">
+              <a th:href="@{/beneficiaires/profil/{id}(id=${b.id}, fromInterpreter=${interprete.id})}"
+                 class="d-flex align-items-center gap-3 text-decoration-none">
                 <img th:src="@{/images/avatar.png}" alt="Avatar" width="40" height="40" class="rounded-circle border">
                 <div>
-                  <p class="fw-semibold mb-0" th:text="${b.firstName + ' ' + b.lastName}"></p>
+                  <p class="fw-semibold mb-0 text-primary" th:text="${b.firstName + ' ' + b.lastName}"></p>
                   <p class="text-muted small mb-0" th:text="${b.login}"></p>
                 </div>
-              </div>
+              </a>
               <button class="btn btn-outline-danger btn-sm beneficiary-delete d-none">
                 <i class="bi bi-trash"></i>
               </button>
