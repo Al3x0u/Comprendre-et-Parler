@@ -128,14 +128,16 @@ public class DAOInterpreter extends DAO<Interpreter> {
             closeStatement(statement);
         }
 
-        if (objectToInsert.getAvailability() != null) {
-            for (BaseTimeSlot av : objectToInsert.getAvailability()) {
+        Set<BaseTimeSlot> availability = objectToInsert.getAvailability();
+        if (availability != null) {
+            for (BaseTimeSlot av : availability) {
                 createAvailability(objectToInsert, av);
             }
         }
 
-        if (objectToInsert.getUnavailability() != null) {
-            for (ExceptionalUnavailability eu : objectToInsert.getUnavailability()) {
+        Set<ExceptionalUnavailability> unavailabilities = objectToInsert.getUnavailability();
+        if (unavailabilities != null) {
+            for (ExceptionalUnavailability eu : unavailabilities) {
                 try {
                     new DAOExceptionalUnavailability().create(eu, objectToInsert);
                 }
@@ -143,9 +145,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
             }
         }
 
-        if (objectToInsert.getJobSkills() != null) {
-            for (JobSkill skill : objectToInsert.getJobSkills()) {
-                // TODO
+        Set<AcademicSkill> academicSkills = objectToInsert.getAcademicSkills();
+        if (academicSkills != null) {
+            for (AcademicSkill skill : academicSkills) {
+                createAcademicSkillLink(objectToInsert, skill);
             }
         }
     }
@@ -308,10 +311,18 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 new DAOBaseTimeSlot().findAvailabilities(id)
         );
         ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+        ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
 
         return ret;
     }
 
+    /**
+     * Check if a time slot is already registered as an interpreter's availability in DB
+     * @param interpreter the Interpreter
+     * @param slot the BaseTimeSlot
+     * @return true if the availability is already registered in DB
+     * @throws SQLException if a database exception occurs
+     */
     public boolean availabilityExists(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
@@ -380,7 +391,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
      * @throws NoSuchElementException if the availability does not exist in DB
      * @throws SQLException if a database error occurs
      */
-    public void deleteAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
+    public void deleteAvailability(Interpreter interpreter, BaseTimeSlot slot) throws NoSuchElementException, SQLException {
         String query = String.format(
                 "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
                 TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
@@ -398,6 +409,76 @@ public class DAOInterpreter extends DAO<Interpreter> {
         } finally {
             closeStatement(statement);
         }
+    }
+
+    /**
+     * Check if an academic skill is already registered to an interpreter in DB
+     * @param interpreter the Interpreter
+     * @param skill the AcademicSkill
+     * @return true if the link is already registered in DB
+     * @throws SQLException if a database exception occurs
+     */
+    public boolean academicSkillLinkExists(Interpreter interpreter, AcademicSkill skill) throws SQLException {
+        String query = String.format(
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_ACADEMIC_SKILL_INTERPRETER, ACADEMIC_SKILL_REF_INTERPRETER, ACADEMIC_SKILL_REF_SKILL
+        );
+        ResultSet result = null;
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreter.getId());
+            statement.setInt(2, skill.getId());
+
+            result = statement.executeQuery();
+            return result.next();
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Link an interpreter to an academic skill in DB, and create them if either of them doesn't exist
+     * @param interpreter the interpreter for whom to add an AcademicSkill in DB
+     * @param skill the AcademicSkill to add
+     * @throws SQLException if a database error occurs
+     */
+    public void createAcademicSkillLink(Interpreter interpreter, AcademicSkill skill) throws SQLException {
+        if (academicSkillLinkExists(interpreter, skill))
+            return;
+
+        int interpreterRef = new DAOInterpreter().checkAlreadyExists(interpreter);
+        if (interpreterRef < 0) {
+            new DAOInterpreter().create(interpreter);
+            interpreterRef = interpreter.getId();
+        }
+
+        int skillRef = new DAOAcademicSkill().checkAlreadyExists(skill);
+        if (skillRef < 0) {
+            new DAOAcademicSkill().create(skill);
+            skillRef = skill.getId();
+        }
+
+        String query = String.format("INSERT INTO %s(%s, %s) VALUES(?, ?)",
+                TABLE_ACADEMIC_SKILL_INTERPRETER, ACADEMIC_SKILL_REF_INTERPRETER, ACADEMIC_SKILL_REF_SKILL
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterRef);
+            statement.setInt(2, skillRef);
+
+            statement.executeUpdate();
+        }
+        finally {
+            closeStatement(statement);
+        }
+    }
+
+
+    public void deleteAcademicSkillLink(Interpreter interpreter, AcademicSkill skill) throws NoSuchElementException, SQLException {
+        // TODO
     }
 
     /**
