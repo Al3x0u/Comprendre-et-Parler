@@ -272,7 +272,6 @@ public class InterpreterController {
                 academicSkills,
                 jobSkills,
                 location,
-                new HashSet<>(),
                 new HashSet<>()
         );
 
@@ -290,14 +289,12 @@ public class InterpreterController {
 
         ExceptionalUnavailability unavailability1 = new ExceptionalUnavailability(
                 "Rendez-vous médical",
-                slot1,
-                fakeInterpreter
+                slot1
         );
 
         ExceptionalUnavailability unavailability2 = new ExceptionalUnavailability(
                 "Congé maladie",
-                slot2,
-                fakeInterpreter
+                slot2
         );
 
         unavailabilities.add(unavailability1);

@@ -189,7 +189,7 @@ public class BeneficiaryController {
                 1, "i0001", "Jessica", "DuBuisson",
                 LocalDate.of(1990, 1, 1), "hashed",
                 "jessica@test.be", "0470000000",
-                0, 0, null, null, null, null, null, null
+                0, 0, null, null, null, null, null
         );
 
         List<Beneficiary> beneficiaries = new ArrayList<>();
@@ -231,21 +231,21 @@ public class BeneficiaryController {
     // FONCTION TEMPORAIRE
     private List<Interpreter> getHardcodedInterpreters() {
         List<Interpreter> interpreters = new ArrayList<>();
-        interpreters.add(new Interpreter(1, "i0001", "Roberto", "Dupont", LocalDate.of(1998, 5, 14), "hashed", "roberto.dupont@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(2, "i0002", "Julie", "Leroy", LocalDate.of(1998, 5, 14), "hashed", "julie.leroy@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(3, "i0003", "Amine", "Bernard", LocalDate.of(1998, 5, 14), "hashed", "amine.bernard@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(4, "i0004", "Sarah", "Simon", LocalDate.of(1998, 5, 14), "hashed", "sarah.simon@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(5, "i0005", "Nicolas", "Legrand", LocalDate.of(1998, 5, 14), "hashed", "nicolas.legrand@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(6, "i0006", "Emma", "Lambert", LocalDate.of(1998, 5, 14), "hashed", "emma.lambert@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(7, "i0007", "Louis", "Fontaine", LocalDate.of(1998, 5, 14), "hashed", "louis.fontaine@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(8, "i0008", "Ines", "Leclercq", LocalDate.of(1998, 5, 14), "hashed", "ines.leclercq@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(9, "i0009", "Thomas", "Remy", LocalDate.of(1998, 5, 14), "hashed", "thomas.remy@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(10, "i0010", "Lina", "Petit", LocalDate.of(1998, 5, 14), "hashed", "lina.petit@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(11, "i0011", "Hugo", "Marchal", LocalDate.of(1998, 5, 14), "hashed", "hugo.marchal@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(12, "i0012", "Nora", "Colin", LocalDate.of(1998, 5, 14), "hashed", "nora.colin@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(13, "i0013", "Lucas", "Hubert", LocalDate.of(1998, 5, 14), "hashed", "lucas.hubert@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(14, "i0014", "Jade", "Henry", LocalDate.of(1998, 5, 14), "hashed", "jade.henry@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(15, "i0015", "Noah", "Mertens", LocalDate.of(1998, 5, 14), "hashed", "noah.mertens@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
+        interpreters.add(new Interpreter(1, "i0001", "Roberto", "Dupont", LocalDate.of(1998, 5, 14), "hashed", "roberto.dupont@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(2, "i0002", "Julie", "Leroy", LocalDate.of(1998, 5, 14), "hashed", "julie.leroy@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(3, "i0003", "Amine", "Bernard", LocalDate.of(1998, 5, 14), "hashed", "amine.bernard@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(4, "i0004", "Sarah", "Simon", LocalDate.of(1998, 5, 14), "hashed", "sarah.simon@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(5, "i0005", "Nicolas", "Legrand", LocalDate.of(1998, 5, 14), "hashed", "nicolas.legrand@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(6, "i0006", "Emma", "Lambert", LocalDate.of(1998, 5, 14), "hashed", "emma.lambert@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(7, "i0007", "Louis", "Fontaine", LocalDate.of(1998, 5, 14), "hashed", "louis.fontaine@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(8, "i0008", "Ines", "Leclercq", LocalDate.of(1998, 5, 14), "hashed", "ines.leclercq@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(9, "i0009", "Thomas", "Remy", LocalDate.of(1998, 5, 14), "hashed", "thomas.remy@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(10, "i0010", "Lina", "Petit", LocalDate.of(1998, 5, 14), "hashed", "lina.petit@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(11, "i0011", "Hugo", "Marchal", LocalDate.of(1998, 5, 14), "hashed", "hugo.marchal@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(12, "i0012", "Nora", "Colin", LocalDate.of(1998, 5, 14), "hashed", "nora.colin@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(13, "i0013", "Lucas", "Hubert", LocalDate.of(1998, 5, 14), "hashed", "lucas.hubert@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(14, "i0014", "Jade", "Henry", LocalDate.of(1998, 5, 14), "hashed", "jade.henry@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(15, "i0015", "Noah", "Mertens", LocalDate.of(1998, 5, 14), "hashed", "noah.mertens@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
         return interpreters;
     }
 }

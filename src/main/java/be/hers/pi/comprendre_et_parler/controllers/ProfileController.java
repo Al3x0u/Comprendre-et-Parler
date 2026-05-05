@@ -54,8 +54,10 @@ public class ProfileController {
     // FONCTION TEMPORAIRE
     private List<Interpreter> getHardcodedInterpreters() {
         List<Interpreter> interpreters = new ArrayList<>();
-        interpreters.add(new Interpreter(1, "i0001", "Roberto", "Dupont", LocalDate.of(1998, 5, 14), "hashed", "roberto.dupont@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
-        interpreters.add(new Interpreter(2, "i0002", "Julie", "Leroy", LocalDate.of(1998, 5, 14), "hashed", "julie.leroy@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null, null));
+        interpreters.add(new Interpreter(1, "i0001", "Roberto", "Dupont", LocalDate.of(1998, 5, 14), "hashed",
+                "roberto.dupont@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
+        interpreters.add(new Interpreter(2, "i0002", "Julie", "Leroy", LocalDate.of(1998, 5, 14), "hashed",
+                "julie.leroy@test.be", "0470/12.34.56", 0, 0, null, null, null, null, null));
         return interpreters;
     }
 }
