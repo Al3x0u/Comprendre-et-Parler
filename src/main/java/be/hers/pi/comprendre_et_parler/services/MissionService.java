@@ -22,7 +22,7 @@ public class MissionService {
         DAOMission daoMission = new DAOMission();
 
         int yearNumber = weekStart.getYear();
-        int weekNumber = weekStart.get(java.time.temporal.WeekFields.of(java.util.Locale.getDefault()).weekOfWeekBasedYear());
+        int weekNumber = weekStart.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
 
         Set<Mission> missions;
 
