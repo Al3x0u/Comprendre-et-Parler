@@ -155,8 +155,8 @@ public class DAOMission extends DAO<Mission> {
     @Override
     protected int checkAlreadyExists(Mission objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                TABLE, FIELD_SUBJECT, FIELD_COMMENTARY,
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_SUBJECT, FIELD_COMMENTARY,
                 FIELD_LOCATION, FIELD_ROOM, FIELD_IMPORTANCE
         );
         PreparedStatement statement = null;

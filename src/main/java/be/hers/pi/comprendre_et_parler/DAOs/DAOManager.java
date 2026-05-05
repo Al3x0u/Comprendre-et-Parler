@@ -209,9 +209,9 @@ public class DAOManager extends DAO<Manager> {
     @Override
     protected int checkAlreadyExists(Manager objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE " +
+                "SELECT %s FROM %s WHERE " +
                         "%s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                TABLE, FIELD_FIRSTNAME, FIELD_LASTNAME, FIELD_BIRTHDATE, FIELD_PASSWORD, FIELD_EMAIL,
+                FIELD_ID, TABLE, FIELD_FIRSTNAME, FIELD_LASTNAME, FIELD_BIRTHDATE, FIELD_PASSWORD, FIELD_EMAIL,
                 FIELD_PHONE, FIELD_HOURQUOTAWEEK, FIELD_HOURQUOTAYEAR, FIELD_TRANSPORTATION, FIELD_LOCATION
         );
 

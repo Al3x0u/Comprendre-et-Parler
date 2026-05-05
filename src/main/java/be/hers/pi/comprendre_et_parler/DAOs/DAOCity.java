@@ -125,8 +125,8 @@ public class DAOCity extends DAO<City> {
     @Override
     protected int checkAlreadyExists(City objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
-                TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE
         );
         PreparedStatement statement = null;
         ResultSet result = null;

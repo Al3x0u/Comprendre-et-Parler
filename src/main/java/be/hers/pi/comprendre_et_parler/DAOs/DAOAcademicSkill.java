@@ -120,8 +120,8 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
     @Override
     protected int checkAlreadyExists(AcademicSkill objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ?",
-                TABLE, FIELD_DESIGNATION
+                "SELECT %s FROM %s WHERE %s = ?",
+                FIELD_ID, TABLE, FIELD_DESIGNATION
         );
         PreparedStatement statement = null;
         ResultSet result = null;

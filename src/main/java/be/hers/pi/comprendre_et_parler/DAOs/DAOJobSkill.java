@@ -122,8 +122,8 @@ public class DAOJobSkill extends DAO<JobSkill> {
     @Override
     protected int checkAlreadyExists(JobSkill object) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ?",
-                TABLE, FIELD_DESIGNATION
+                "SELECT %s FROM %s WHERE %s = ?",
+                FIELD_ID, TABLE, FIELD_DESIGNATION
         );
         PreparedStatement statement = null;
         ResultSet result = null;

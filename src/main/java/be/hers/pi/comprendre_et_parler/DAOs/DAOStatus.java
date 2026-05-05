@@ -125,8 +125,8 @@ public class DAOStatus extends DAO<Status> {
     @Override
     protected int checkAlreadyExists(Status object) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? ",
-                TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? ",
+                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA
         );
         PreparedStatement statement = null;
         ResultSet result = null;
