@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4 md-5">
+
+    <div class="mb-3">
+        <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-arrow-left me-2"></i>Retour à la liste</a>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="card border-0 shadow-sm mb-4 rounded-4" th:object="${beneficiaire}">
+        <div class="card-body bg-primary text-white rounded-4 p-4 md-5">
+            <div class="row align-items-center g-4">
+
+                <div class="col-12 col-md-auto text-center">
+                    <img th:src="@{/images/avatar_01.png}" alt="Avatar bénéficiaire" class="profile-avatar rounded-circle border border-4 border-white shadow">
+                </div>
+
+                <div class="col-12 col-md">
+                    <p class="text-white-50 mb-1">Profil bénéficiaire</p>
+                    <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
+                    <p class="fw-semibold mb-3" th:text="*{login}"></p>
+
+                    <div class="d-grid d-md-flex gap-2">
+                        <a th:href="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}" class="btn btn-light btn-lg text-primary fw-semibold">
+                            <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" th:object="${beneficiaire}">
+
+        <div class="col-12 col-lg-8">
+
+            <!-- Contact -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 text-primary mb-4">Informations de contact</h2>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-envelope-fill me-2"></i>Adresse mail</p>
+                                <p class="mb-0" th:text="*{email}"></p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-telephone-fill me-2"></i>Téléphone</p>
+                                <p class="mb-0" th:text="*{phoneNumber}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referent Interpreter -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 text-primary mb-4">Interprète de référence</h2>
+                    <div th:if="*{interpreterRef != null}" class="bg-light rounded p-3 d-flex align-items-center gap-3">
+                        <a th:href="@{/interpretes/profil/{id}(id=${beneficiaire.interpreterRef.id})}">
+                            <img th:src="@{/images/avatar.png}" alt="Avatar" width="40" height="40" class="rounded-circle border">
+                        </a>
+                        <div>
+                            <a th:href="@{/interpretes/profil/{id}(id=${beneficiaire.interpreterRef.id})}"
+                               class="fw-semibold text-primary text-decoration-none"
+                               th:text="*{interpreterRef.firstName + ' ' + interpreterRef.lastName}"></a>
+                            <p class="text-muted small mb-0" th:text="*{interpreterRef.login}"></p>
+                        </div>
+                    </div>
+                    <p th:unless="*{interpreterRef != null}" class="text-muted mb-0">Aucun interprète assigné</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-4">
+
+            <!-- Status -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 text-primary mb-4">Statut</h2>
+                    <div class="bg-light rounded p-3">
+                        <p class="mb-0" th:if="*{status != null}" th:text="*{status.designation}"></p>
+                        <p class="text-muted mb-0" th:unless="*{status != null}">Non renseigné</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
