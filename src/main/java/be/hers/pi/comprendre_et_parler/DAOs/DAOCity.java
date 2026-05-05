@@ -3,67 +3,154 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOCity implements DAO<City> {
+public class DAOCity extends DAO<City> {
+    protected static final String TABLE = "city";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_DESIGNATION = "designation";
+    protected static final String FIELD_POSTAL_CODE = "postalCode";
 
-    /**
-     * Search for a City in the database with the int parameter
-     * @param id : identification of the city
-     * @return City object who correspond to the given id else null
-     * @throws SQLException if the database couldn't be reached
-     */
     @Override
     public City find(int id) throws SQLException {
-        return null;
+        String query = String.format(
+                "SELECT * FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        City city = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+
+            result = statement.executeQuery();
+            if (result.next())
+                city = getResult(result);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return city;
     }
 
-    /**
-     * Insert a City Object in the database
-     * @param objectToInsert : Object that we gonna insert
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws SQLException if the database could not be reached
-     */
     @Override
-    public void create(City objectToInsert)
-            throws AlreadyExistsException, SQLException {
+    public void create(City objectToInsert) throws AlreadyExistsException, SQLException {
+        if (checkAlreadyExists(objectToInsert) >= 0)
+            throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists");
 
+        String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?)", TABLE);
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement.setString(1, objectToInsert.getDesignation());
+            statement.setInt(2, objectToInsert.getPostalCode());
+
+            statement.executeUpdate();
+            generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+        } finally {
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Update a City line who already exist in the database
-     * @param objectToUpdate : object with the news information
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws NoSuchElementException if there are not the element to update in the database
-     * @throws SQLException if there are an error during the connection to the database
-     */
     @Override
-    public void update(City objectToUpdate)
-            throws AlreadyExistsException, NoSuchElementException, SQLException {
+    public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (checkAlreadyExists(objectToUpdate) >= 0)
+            throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists");
 
+        String query = String.format(
+                "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
+                TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToUpdate.getDesignation());
+            statement.setInt(2, objectToUpdate.getPostalCode());
+            statement.setInt(3, objectToUpdate.getId());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no City with the id " + objectToUpdate.getId());
+        } finally {
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Delete a line in the City table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
-     * @throws NoSuchElementException if we couldn't find the Location object in the database
-     * @throws SQLException if we couldn't connect to the database
-     */
     @Override
-    public void delete(City objectToDelete)
-            throws NoSuchElementException, SQLException {
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
 
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no City with the id " + idObjectToDelete);
+        } finally {
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Return all line of City table in the database in City Object in a List
-     * @return a List who contains City Object, if database is empty, an empty list
-     * @throws SQLException if the database could not be reached
-     */
     @Override
-    public List<City> findAll() throws SQLException {
-        return List.of();
+    public Set<City> findAll() throws SQLException {
+        String query = String.format("SELECT * FROM %s", TABLE);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<City> cities = new HashSet<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+            result = statement.executeQuery();
+            while (result.next())
+                cities.add(getResult(result));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return cities;
+    }
+
+    @Override
+    protected int checkAlreadyExists(City objectToCheck) throws SQLException {
+        String query = String.format(
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToCheck.getDesignation());
+            statement.setInt(2, objectToCheck.getPostalCode());
+
+            result = statement.executeQuery();
+            if(result.next())
+                return result.getInt(FIELD_ID);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return -1;
+    }
+
+    @Override
+    protected City getResult(ResultSet result) throws SQLException {
+        return new City(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION),
+                result.getInt(FIELD_POSTAL_CODE)
+        );
     }
 }

@@ -1,13 +1,15 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverManager;
 
-import java.util.Scanner;
-import java.io.Console;
+import java.util.Properties;
 
 public class DatabaseConnector {
     static final String URL = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
@@ -26,11 +28,9 @@ public class DatabaseConnector {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             connection = DriverManager.getConnection(URL, login, password);
-        }
-        catch( ClassNotFoundException e) {
+        } catch( ClassNotFoundException e) {
             throw new ConnectionException("Failed to load oracle.jdbc.driver.OracleDriver: " + e);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new ConnectionException("Login failed: " + e);
         }
     }
@@ -41,16 +41,18 @@ public class DatabaseConnector {
      * @throws ConnectionException if the connection failed
      */
     public static void initialize() throws ConnectionException {
-        Console cons = System.console();
-        if (cons == null) {
-            System.out.println("WARNING : Could not open a console. Your password will not be hidden. Please make sure you're not in public or run this from a terminal.");
+        try {
+            Properties props = new Properties();
+            InputStream input = DatabaseConnector.class
+                    .getClassLoader()
+                    .getResourceAsStream("application.properties");
+            props.load(input);
+            String login = props.getProperty("db.login");
+            String password = props.getProperty("db.password");
+            initialize(login, password);
+        } catch (IOException e) {
+            throw new ConnectionException("Could not read application.properties: " + e);
         }
-        Scanner keyb = new Scanner(System.in);
-        System.out.println("Login :");
-        String login = keyb.nextLine();
-        System.out.println("Password :");
-        String password = (cons != null) ? String.valueOf(cons.readPassword()) : keyb.nextLine();
-        initialize(login, password);
     }
 
     /**
@@ -60,10 +62,15 @@ public class DatabaseConnector {
      * @throws ConnectionException if the connection failed
      */
     public static Connection getInstance() throws ConnectionException {
-        if (connection == null) {
-            initialize();
+        try {
+            if (connection == null || connection.isClosed()) {
+                initialize();
+            }
+            return connection;
         }
-        return connection;
+        catch (SQLException e) {
+            throw new ConnectionException("Could not connect to database");
+        }
     }
 
     /**

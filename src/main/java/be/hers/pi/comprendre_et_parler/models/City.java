@@ -1,48 +1,60 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class City {
-    private int id;
+    private int id = -1;
     private String designation;
-    private int postalCode;
+    private int postalCode = 1000;
 
     /**
-        Constructor of a City Object
-        @param id : represent the id
-        @param d : represent the designation
-        @param pC : represent the postal code
+        Constructor of a City
+        @param id represent the id
+        @param designation represent the designation
+        @param postalCode represent the postal code
      */
-    public City(int id, String d, int pC ){
-        this.id = id;
-        this.designation = d;
-        this.postalCode = pC;
+    public City(int id, String designation, int postalCode) {
+        if (id > 0) this.id = id;
+        this.designation = designation;
+        if (postalCode >= 1000 && postalCode < 10000) this.postalCode = postalCode;
     }
 
     /**
-        @return this.postalCode
+     Constructor of a City without id
+     @param designation represent the designation
+     @param postalCode represent the postal code
      */
-    public int getPostalCode() {
-        return postalCode;
+    public City(String designation, int postalCode ){
+        this(-1, designation, postalCode);
     }
 
     /**
-        @return this.designation
+     * Copy constructor of a City
+     * @param other the City to copy, must not be null
      */
-    public String getDesignation() {
-        return designation;
+    public City(City other) {
+        this(other.id, other.designation, other.postalCode);
     }
 
     /**
-        @return this.id
+     * @return this.id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * @param postalCode represent the new postal code
+     * @param id represent the new id
      */
-    public void setPostalCode(int postalCode) {
-        this.postalCode = postalCode;
+    public void setId(int id) {
+        if (id >= 0) this.id = id;
+    }
+
+    /**
+     * @return this.designation
+     */
+    public String getDesignation() {
+        return designation;
     }
 
     /**
@@ -53,27 +65,66 @@ public class City {
     }
 
     /**
-     * @param id represent the new id
+     * @return this.postalCode
      */
-    public void setId(int id) {
-        this.id = id;
+    public int getPostalCode() {
+        return postalCode;
     }
 
     /**
-     * Compare this City with another City for equality
-     * @param other the City object to compare with
-     * @return true if both City objects have identical id, designation and postalCode
+     * @param postalCode represent the new postal code
      */
-    public boolean equals(City other) {
-        return (id == other.id && designation == other.designation && postalCode == other.postalCode);
+    public void setPostalCode(int postalCode) {
+        if (postalCode >= 1000 && postalCode < 10000) this.postalCode = postalCode;
     }
 
     /**
-     * Return a String representation of the City containing all fields
+     * Compare this City with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical designation and postalCode
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof City)) return false;
+
+        City other = (City) o;
+        return Objects.equals(designation, other.designation) && Objects.equals(postalCode, other.postalCode);
+    }
+
+    /**
+     * Computes the hash code of this City
+     * two City objects that are equal according to equals() will have the same hash code
+     * @return an integer hash code representing this City (id is not taken into account)
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, postalCode);
+    }
+
+    /**
+     * Compare 2 cities based on the postal code and the city name
+     * @param city the City object to compare with
+     * @post city is unchanged
+     * @return 0 if this == city based on postal code and city name,
+     *         1 if this > city based on postal code and city name,
+     *         else -1
+     */
+    public int compareTo(City city) {
+        if (this == city) return 0;
+
+        int postalCodeComparison = Integer.compare(this.postalCode, city.postalCode);
+        if (postalCodeComparison != 0)
+            return postalCodeComparison;
+        return this.designation.compareTo(city.designation);
+    }
+
+    /**
+     * Return a String representation of this City containing all fields
      * @return formatted string with id, designation and postalCode
      */
     @Override
     public String toString() {
-        return null;
+        return "City{id = " + id + ", designation = " + designation + ", postalCode = " + postalCode + "}";
     }
 }

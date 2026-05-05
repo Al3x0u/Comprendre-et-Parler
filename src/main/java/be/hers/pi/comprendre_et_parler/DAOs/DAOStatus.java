@@ -3,68 +3,154 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.Status;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.NoSuchElementException;
 import java.sql.SQLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-public class DAOStatus implements DAO<Status> {
-    static final String TABLE = "status";
-    static final String FIELD_ID = "id";
-    static final String FIELD_DESIGNATION = "designation";
-    static final String FIELD_HOURQUOTA = "hourquota";
+public class DAOStatus extends DAO<Status> {
+    protected static final String TABLE = "status";
+    protected static final String FIELD_ID = "id";
+    protected static final String FIELD_DESIGNATION = "designation";
+    protected static final String FIELD_HOUR_QUOTA = "hourquota";
 
-    /**
-     * Search for a Transportation in the database with the int parameter
-     * @param id the primary key of the object to find in database
-     * @return the object identified by id in database, or null if none was present
-     * @throws SQLException if the database could not be reached
-     */
     @Override
     public Status find(int id) throws SQLException {
-        return null;
+        String query = String.format(
+                "SELECT * FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Status ret = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+
+            result = statement.executeQuery();
+            if (result.next())
+                ret = getResult(result);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return ret;
     }
 
-    /**
-     * Insert a Transportation Object in the database
-     * @param objectToInsert : Object that we gonna insert
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws SQLException if we couldn't connect to the database
-     * @post objectToInsert has been added to the database, and the change was commited
-     */
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
+        if (checkAlreadyExists(objectToInsert) >= 0)
+            throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() +  " already exists");
+
+        String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?)", TABLE);
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement.setString(1, objectToInsert.getDesignation());
+            statement.setInt(2, objectToInsert.getHourQuota());
+
+            statement.executeUpdate();
+            generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+        } finally {
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Update a Transportation line who already exist in the database
-     * @param objectToUpdate : object with the news information
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws NoSuchElementException if there are not the element to update in the database
-     * @throws SQLException if there are an error during the connection to the database
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
-     */
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
+        if (checkAlreadyExists(objectToUpdate) >= 0)
+            throw new AlreadyExistsException("Status " + objectToUpdate.getDesignation() + " already exists");
+
+        String query = String.format(
+                "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
+                TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToUpdate.getDesignation());
+            statement.setInt(2, objectToUpdate.getHourQuota());
+            statement.setInt(3, objectToUpdate.getId());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no Status with the id " + objectToUpdate.getId());
+        } finally {
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Delete a Transportation line in the table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
-     * @throws NoSuchElementException if we couldn't find the Transportation object in the database
-     * @throws SQLException if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     */
     @Override
-    public void delete(Status objectToDelete) throws NoSuchElementException, SQLException {
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no Status with the id " + idObjectToDelete);
+        } finally {
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Return all line of Transportation table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
-     * @throws SQLException if the database could not be reached
-     */
     @Override
-    public List<Status> findAll() throws SQLException {
-        return null;
+    public Set<Status> findAll() throws SQLException {
+        String query = String.format("SELECT * FROM %s", TABLE);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<Status> ret = new HashSet<Status>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+            result = statement.executeQuery();
+            while (result.next())
+                ret.add(getResult(result));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return ret;
+    }
+
+    @Override
+    protected int checkAlreadyExists(Status object) throws SQLException {
+        String query = String.format(
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? ",
+                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, object.getDesignation());
+            statement.setInt(2, object.getHourQuota());
+
+            result = statement.executeQuery();
+            if(result.next())
+                return result.getInt(FIELD_ID);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return -1;
+    }
+
+    @Override
+    protected Status getResult(ResultSet result) throws SQLException {
+        return new Status(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION),
+                result.getInt(FIELD_HOUR_QUOTA)
+        );
     }
 }

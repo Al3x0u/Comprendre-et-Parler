@@ -1,81 +1,51 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import java.time.LocalTime;
-
 public abstract class TimeSlot {
-    private int id;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    protected int id = -1;
 
     /**
-        Constructor of a TimeSlot object
-        @param id represent the id
-        @param startTime represent the hour at which start
-        @param endTime represent the hour at which finish
+     * Constructor of a TimeSlot
+     * @param id represent the id
      */
-    public TimeSlot(int id, LocalTime startTime, LocalTime endTime) {
-        this.id = id;
-        this.startTime = startTime;
-        this.endTime = endTime;
+    public TimeSlot(int id) {
+        if (id >= 0)
+            this.id = id;
     }
 
     /**
-        @return this.id
+     * Constructor of a TimeSlot without id
+     */
+    public TimeSlot() {}
+
+    /**
+     * @return this.id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * @param id represent the new startTime
+     * @param id represent the new id
      */
-    public void setId(int id){
-        this.id = id;
+    public void setId(int id) {
+        if (id >= 0)
+            this.id = id;
     }
 
-    /**
-        @return this.startTime
-     */
-    public LocalTime getStartTime() {
-        return startTime;
-    }
+    public abstract TimeSlot clone();
 
-    /**
-     * @param startTime represent the new startTime
-     */
-    public void setStartTime(LocalTime startTime){
-        this.startTime = startTime;
-    }
+    @Override
+    public abstract boolean equals(Object o);
 
-    /**
-     * @param endTime represent the new endTime
-     */
-    public void setEndTime(LocalTime endTime){
-        this.endTime = endTime;
-    }
-
-    /**
-        @return this.startTime
-     */
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    /**
-     * Compare this TimeSlot with another TimeSlot for equality
-     * @param other the TimeSlot object to compare with
-     * @return true if both TimeSlot objects have identical id, startTime and endTime
-     */
-    public boolean equals(TimeSlot other) {
-        return (id == other.id && startTime == other.startTime && endTime == other.endTime);
-    }
+    @Override
+    public abstract int hashCode();
 
     /**
      * Return a String representation of the TimeSlot containing all fields
-     * @return formatted string with id, startTime and endTime
+     * @return formatted string with id
      */
     @Override
     public String toString() {
-        return null;
+        return "TimeSlot{id = " + id + "}";
     }
 }

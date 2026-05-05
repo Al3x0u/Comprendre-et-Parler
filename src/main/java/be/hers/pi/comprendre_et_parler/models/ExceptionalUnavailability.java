@@ -1,83 +1,87 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-public class ExceptionalUnavailability  {
-    private int id;
+import java.util.Objects;
+
+public class ExceptionalUnavailability {
     private String reason;
-    private PunctualTimeSlot ponctualTimeSlot;
-    private Interpreter interpreter;
+    private PunctualTimeSlot timeSlot;
 
     /**
-     * Constructor of a PunctualTimeSlot w
-     * @param id            represent the id
-     * @param reason        represent the reason of the exceptional unavailability
-     * @param interpreter   represent the interpreter which concern this exceptional unavailability
-     * @param ponctualTimeSlot represent the ponctual time slot which concern this exceptional unavailability
+     * Constructor of a ExceptionalUnavailability
+     * @param reason represent the reason
+     * @param timeSlot represent the timeSlot
      */
-    public ExceptionalUnavailability(int id, String reason, Interpreter interpreter, PunctualTimeSlot ponctualTimeSlot) {
-        this.id = id;
+    public ExceptionalUnavailability(String reason, PunctualTimeSlot timeSlot) {
         this.reason = reason;
-        this.interpreter = interpreter;
-        this.ponctualTimeSlot = ponctualTimeSlot;
+        this.timeSlot = timeSlot;
+    }
+
+    /**
+     * Copy constructor of a ExceptionalUnavailability
+     * @param other the ExceptionalUnavailability to copy, must not be null
+     */
+    public ExceptionalUnavailability(ExceptionalUnavailability other) {
+        this(other.reason, new PunctualTimeSlot(other.timeSlot));
     }
 
     /**
      * @return this.reason
      */
     public String getReason() {
-        return this.reason;
+        return reason;
     }
 
     /**
-     * @param reason  is new the reason
+     * @param reason represent the new reason
      */
-    public void setReason(String reason){
+    public void setReason(String reason) {
         this.reason = reason;
     }
 
     /**
-     * @return this.ponctualTimeSlot
+     * @return this.timeSlot
      */
-    public PunctualTimeSlot getPonctualTimeSlot() {
-        return this.ponctualTimeSlot;
+    public PunctualTimeSlot getTimeSlot() {
+        return timeSlot;
     }
 
     /**
-     * @return this.interpreter
+     * @param timeSlot represent the new timeSlot
      */
-    public Interpreter getInterpreter(){
-        return this.interpreter;
+    public void setTimeSlot(PunctualTimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
     }
 
     /**
-     * @return this.id
+     * Compare this ExceptionalUnavailability with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical reason and timeSlot
      */
-    public int getId() {
-        return id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExceptionalUnavailability)) return false;
+
+        ExceptionalUnavailability other = (ExceptionalUnavailability) o;
+        return this.reason.equals(other.reason) && this.timeSlot.equals(other.timeSlot);
     }
 
     /**
-     * @param id    represent the new id
+     * Computes the hash code of this ExeptionnalUnavailability
+     * two ExeptionnalUnavailability objects that are equal according to equals() will have the same hash code
+     * @return an integer hash code representing this ExeptionnalUnavailability
      */
-    public void setId(int id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.reason, this.timeSlot);
     }
 
     /**
-     * Compare this ExceptionalUnavailability with another ExceptionalUnavailability for equality
-     * @param other the ExceptionalUnavailability object to compare with
-     * @return true if both ExceptionalUnavailability objects have identical id, reason, ponctualTimeSlot and interpreter
-     */
-    public boolean equals(ExceptionalUnavailability other) {
-        return (id == other.id && reason == other.reason &&
-                ponctualTimeSlot == other.ponctualTimeSlot && interpreter == other.interpreter);
-    }
-
-    /**
-     * Return a String representation of the ExceptionalUnavailability containing all fields
-     * @return formatted string with id, reason, ponctualTimeSlot and interpreter
+     * Return a String representation of this ExeptionnalUnavailability containing all fields
+     * @return formatted string with reason and timeSlot
      */
     @Override
     public String toString() {
-        return null;
+        return "ExeptionnalUnavailability{reason = " + reason + ", timeSlot = " + timeSlot + "}";
     }
 }
