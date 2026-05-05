@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ComprendreEtParlerApplication {
 
     public static void main(String[] args) {
-        //DatabaseConnector.initialize();
+        DatabaseConnector.initialize();
         SpringApplication.run(ComprendreEtParlerApplication.class, args);
     }
     @GetMapping("/")

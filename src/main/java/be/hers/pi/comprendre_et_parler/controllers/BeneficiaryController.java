@@ -65,7 +65,9 @@ public class BeneficiaryController {
      * @return the beneficiary profile page
      */
     @GetMapping("/profil/{id}")
-    public String showBeneficiaryProfile(@PathVariable int id, @RequestParam(required = false) Integer fromInterpreter, Model model) {
+    public String showBeneficiaryProfile(@PathVariable int id,
+                                         @RequestHeader(value = "Referer", required = false) String referer,
+                                         Model model) {
         List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
 
         Beneficiary beneficiary = allBeneficiaries.stream()
@@ -78,7 +80,7 @@ public class BeneficiaryController {
         model.addAttribute("beneficiaire", beneficiary);
         model.addAttribute("currentPage", "beneficiaries");
         model.addAttribute("interpreters", getHardcodedInterpreters());
-        model.addAttribute("fromInterpreter", fromInterpreter);
+        model.addAttribute("referer", referer);
         model.addAttribute("age", java.time.Period.between(beneficiary.getBirthDate(), java.time.LocalDate.now()).getYears());
 
         return "beneficiaries/profile";
@@ -91,7 +93,9 @@ public class BeneficiaryController {
      * @return the edit beneficiary profile page
      */
     @GetMapping("/profil/{id}/modifier")
-    public String showEditBeneficiaryProfile(@PathVariable int id, Model model) {
+    public String showEditBeneficiaryProfile(@PathVariable int id,
+                                             @RequestHeader(value = "Referer", required = false) String referer,
+                                             Model model) {
         List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
 
         Beneficiary beneficiary = allBeneficiaries.stream()
@@ -103,6 +107,7 @@ public class BeneficiaryController {
 
         model.addAttribute("beneficiaire", beneficiary);
         model.addAttribute("currentPage", "beneficiaries");
+        model.addAttribute("referer", referer);
 
         return "beneficiaries/edit-profile";
     }

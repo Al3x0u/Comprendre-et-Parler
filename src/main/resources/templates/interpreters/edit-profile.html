@@ -101,7 +101,8 @@
 
                 <div class="d-grid d-md-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Enregistrer</button>
-                    <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" class="btn btn-outline-secondary btn-lg">Annuler</a>
+                    <a th:href="${referer != null} ? ${referer} : @{/interpretes}"
+                       class="btn btn-outline-secondary btn-lg">Annuler</a>
                 </div>
 
             </form>

@@ -71,7 +71,9 @@ public class InterpreterController {
      * @return the interpreter profile page
      */
     @GetMapping("/profil/{id}")
-    public String showInterpreterProfile(@PathVariable int id, @RequestParam(required = false) Integer fromBeneficiary, Model model) {
+    public String showInterpreterProfile(@PathVariable int id,
+                                         @RequestHeader(value = "Referer", required = false) String referer,
+                                         Model model) {
         List<Interpreter> allInterpreters = buildFakeInterpreters();
 
         Interpreter interpreter = allInterpreters.stream()
@@ -88,7 +90,7 @@ public class InterpreterController {
         model.addAttribute("currentPage", "interpreters");
         model.addAttribute("actualWeekQuota", 10);
         model.addAttribute("actualYearQuota", 200);
-        model.addAttribute("fromBeneficiary", fromBeneficiary);
+        model.addAttribute("referer", referer);
 
         return "interpreters/profile";
     }
@@ -100,7 +102,9 @@ public class InterpreterController {
      * @return the edit interpreter profile page
      */
     @GetMapping("/profil/{id}/modifier")
-    public String showEditInterpreterProfile(@PathVariable int id, Model model) {
+    public String showEditInterpreterProfile(@PathVariable int id,
+                                             @RequestHeader(value = "Referer", required = false) String referer,
+                                             Model model) {
         List<Interpreter> allInterpreters = buildFakeInterpreters();
 
         Interpreter interpreter = allInterpreters.stream()
@@ -112,6 +116,7 @@ public class InterpreterController {
 
         model.addAttribute("interprete", interpreter);
         model.addAttribute("currentPage", "interpreters");
+        model.addAttribute("referer", referer);
 
         return "interpreters/edit-profile";
     }
