@@ -268,12 +268,9 @@ body {
     box-shadow: none !important;
 }
 
-/* ─── Interpreters List ───────────────────────────────── */
-.interprete-id {
-    text-decoration: none;
-}
-
-.interprete-id:hover {
+/* ─── Users List ───────────────────────────────── */
+.interprete-id:hover,
+.beneficiaire-id:hover {
     text-decoration: underline !important;
 }
 

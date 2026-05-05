@@ -38,10 +38,10 @@
             <div class="list-group list-group-flush">
                 <div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-3" th:each="beneficiaire : ${beneficiaires}">
                     <div class="d-flex align-items-center gap-3">
-                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" style="text-decoration: none">
+                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="text-decoration-none">
                             <img th:src="@{/images/avatar.png}" alt="Avatar bénéficiaire" width="52" height="52" class="rounded-circle border">
                         </a>
-                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="d-flex flex-column beneficiaire-id">
+                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="d-flex flex-column beneficiaire-id text-decoration-none">
                             <div class="fw-bold text-primary" th:text="${beneficiaire.firstName + ' ' + beneficiaire.lastName}"></div>
                             <div th:text="${beneficiaire.login}"></div>
                         </a>
