@@ -13,7 +13,6 @@ DROP TRIGGER IDR_DeleteBeneficiary;
 DROP TRIGGER IUR_UpdateBeneficiary;
 DROP TRIGGER IIR_InsertionTransportationView;
 DROP TRIGGER IIR_InsertionBaseTimeSlotView;
-DROP TRIGGER IDR_DeleteBaseTimeSlotView;
 DROP TRIGGER IUR_UpdateBaseTimeSlotView;
 
 
@@ -213,7 +212,7 @@ BEGIN
     SELECT count(id) INTO alreadyExist
     FROM TransportationView
     WHERE designation = INITCAP(:NEW.designation);
-    if(alreadyExist = 0) THEN
+    IF(alreadyExist = 0) THEN
         INSERT INTO Transportation
         VALUES
             (NULL, INITCAP(:NEW.designation));
@@ -226,24 +225,20 @@ INSTEAD OF INSERT ON BaseTimeSlotView
 FOR EACH ROW
 DECLARE
     newID INTEGER;
+    alreadyExist INTEGER;
 BEGIN
-    INSERT INTO TimeSlot
-    VALUES
-        (NULL, :NEW.startDateTime, :NEW.endDateTime);
+    SELECT count(id) INTO alreadyExist
+    FROM TimeSlot
+    WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
+    IF(alreadyExist = 0) THEN
+        INSERT INTO TimeSlot
+        VALUES
+            (NULL, :NEW.startDateTime, :NEW.endDateTime);
+    END IF;
     SELECT id INTO newID
     FROM TimeSlot
     WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
-    INSERT INTO BaseTimeSlot 
-    VALUES
-        (NULL, newID, :NEW.day);
-END;
-/
-
-CREATE TRIGGER IDR_DeleteBaseTimeSlotView
-INSTEAD OF DELETE ON BaseTimeSlotView
-FOR EACH ROW
-BEGIN
-    DELETE FROM TimeSlot WHERE id = :OLD.id;
+    INSERT INTO BaseTimeSlot VALUES (newID, :NEW.day);
 END;
 /
 
@@ -251,8 +246,8 @@ CREATE TRIGGER IUR_UpdateBaseTimeSlotView
 INSTEAD OF UPDATE ON BaseTimeSlotView
 FOR EACH ROW
 BEGIN
-    UPDATE TimeSlot SET startDateTime = :NEW.startDateTime, endDateTime = :NEW.endDateTime WHERE id = :OLD.id;
-    UPDATE BaseTimeSlot SET day = :NEW.day WHERE timeSlot = :OLD.id;
+    INSERT INTO BaseTimeSlotView VALUES (NULL, :NEW.startDateTime, :NEW.endDateTime, :NEW.day);
+    DELETE FROM BaseTimeSlot WHERE timeSlot = :OLD.id AND day = :OLD.day;
 END;
 /
 
