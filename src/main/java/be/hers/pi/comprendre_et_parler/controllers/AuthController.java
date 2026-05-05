@@ -18,6 +18,16 @@ public class AuthController {
         this.loginService = loginService;
     }
 
+
+    /**
+     * Redirect root to login page
+     * @return redirect to login page
+     */
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/login";
+    }
+
     /**
      * Display the login page
      * @return the login view
