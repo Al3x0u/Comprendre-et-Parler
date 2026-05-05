@@ -1,47 +1,69 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Location {
-    private int id;
+    private int id = -1;
     private String designation;
     private City city;
     private String street;
     private String streetNumber;
-    private int box;
+    private int box = 0;
 
     /**
-     Constructor of a Location Object
-     @param id : represent id
-     @param d : represent designation
-     @param c : represent the City object
-     @param s : represent the street name
-     @param sN : represent the street number
-     @param box : represent the new box
+     Constructor of a Location
+     @param id represent the id
+     @param designation represent the designation
+     @param city represent the City
+     @param street represent the street name
+     @param streetNumber represent the street number
+     @param box represent the box
      */
-    public Location(int id, String d, City c, String s, String sN, int box){
-        this.id = id;
-        this.designation = d;
-        this.city = c;
-        this.street = s;
-        this.streetNumber = sN;
-        this.box = box;
-    }
-
-    /**
-     @return a City which contains the city of the Location
-     */
-    public City getCity() {
-        return city;
-    }
-
-    /**
-     * @param city represent the new City object
-     */
-    public void setCity(City city) {
+    public Location(int id, String designation, City city, String street, String streetNumber, int box){
+        if (id > 0) this.id = id;
+        this.designation = designation;
         this.city = city;
+        this.street = street;
+        this.streetNumber = streetNumber;
+        if (box > 0) this.box = box;
     }
 
     /**
-     @return a String which contains the designation of the Location
+     Constructor of a Location without id
+     @param designation represent the designation
+     @param city represent the City object
+     @param street represent the street name
+     @param streetNumber represent the street number
+     @param box represent the box
+     */
+    public Location(String designation, City city, String street, String streetNumber, int box){
+        this(-1, designation, city, street, streetNumber, box);
+    }
+
+    /**
+     * Copy constructor of a Location
+     * @param other the Location to copy, must not be null
+     */
+    public Location(Location other){
+        this(other.id, other.designation, new City(other.city), other.street, other.streetNumber, other.box);
+    }
+
+    /**
+     * @return this.id
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        if (id >= 0) this.id = id;
+    }
+
+    /**
+     * @return this.id
      */
     public String getDesignation() {
         return designation;
@@ -55,21 +77,21 @@ public class Location {
     }
 
     /**
-     @return a String which contains the street number of the Location
+     * @return this.city
      */
-    public String getStreetNumber() {
-        return streetNumber;
+    public City getCity() {
+        return city;
     }
 
     /**
-     * @param streetNumber represent the new street number
+     * @param city represent the new city
      */
-    public void setStreetNumber(String streetNumber) {
-        this.streetNumber = streetNumber;
+    public void setCity(City city) {
+        this.city = city;
     }
 
     /**
-     @return a String which contains the street of the Location
+     * @return this.street
      */
     public String getStreet() {
         return street;
@@ -83,48 +105,79 @@ public class Location {
     }
 
     /**
-     @return this.id
+     * @return this.streetNumber
      */
-    public int getId() {
-        return id;
+    public String getStreetNumber() {
+        return streetNumber;
     }
 
     /**
-     * @param id represent the new id
+     * @param streetNumber represent the new streetNumber
      */
-    public void setId(int id) {
-        this.id = id;
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
     }
 
     /**
-     * @return an int which contains the box of the Location (can be null)
+     * @return this.box
      */
     public int getBox() {
         return box;
     }
 
     /**
-     * @param box a new String which contains the box of the Location (can be null)
+     * @param box represent the new box
      */
     public void setBox(int box) {
-        this.box = box;
+        if (box >= 0) this.box = box;
     }
 
     /**
-     * Compare this Location with another Location for equality
-     * @param other the Location object to compare with
-     * @return true if both Location objects have identical id, designation, city, street, streetNumber and box
+     * Compare this Location with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical designation,
+     * city, street, streetNumber and box
      */
-    public boolean equals(Location other) {
-        return (id == other.id && designation == other.designation && city == other.city &&
-                street == other.street && streetNumber == other.streetNumber && box == other.box);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Location)) return false;
+
+        Location other = (Location) o;
+        return Objects.equals(designation, other.designation) && Objects.equals(city, other.city)
+                && Objects.equals(street, other.street) && Objects.equals(streetNumber, other.streetNumber)
+                && Objects.equals(box, other.box);
     }
+
+    /**
+     * Computes the hash code of this Location
+     * two AcademicSkill objects that are equal according to equals() will have the same hash code
+     * @return an integer hash code representing this AcademicSkill (id is not taken into account)
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, city, street, streetNumber, box);
+    }
+
+    /**
+     * Compare 2 locations based on the city
+     * @param l
+     * @post l is unchanged
+     * @return 0 if this == l based on city,
+     *         1 if this > l based on city,
+     *         else -1
+     */
+    public int compareTo(Location l) {
+        if (this == l) return 0;
+        return this.city.compareTo(l.city);
+    }
+
     /**
      * Return a String representation of the Location containing all fields
      * @return formatted string with id, designation, city, street, streetNumber and box
      */
-    @Override
-    public String toString() {
-        return null;
+    public String toString(){
+        return "Location{id = " + id + ", designation = " + designation + ", city = " + city +
+                ", street = " + street + ", streetNumber = " + streetNumber + ", box = " + box + "}";
     }
 }

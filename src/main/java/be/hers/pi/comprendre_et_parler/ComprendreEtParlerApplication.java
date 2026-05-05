@@ -1,23 +1,34 @@
 package be.hers.pi.comprendre_et_parler;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DatabaseConnector;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.SQLException;
 
 @SpringBootApplication
-@RestController
 public class ComprendreEtParlerApplication {
+    @Value("${db.login}")
+    private String dbLogin;
+
+    @Value("${db.password}")
+    private String dbPassword;
 
     public static void main(String[] args) {
-        DatabaseConnector.initialize();
         SpringApplication.run(ComprendreEtParlerApplication.class, args);
     }
-    @GetMapping("/")
-    public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return String.format("<html><body><h1>Hello %s!</h1></body></html>", name);
+
+    @PostConstruct
+    public void init(){
+        DatabaseConnector.initialize(dbLogin, dbPassword);
+    }
+
+    @PreDestroy
+    public void cleanup() throws SQLException {
+        DatabaseConnector.closeInstance();
     }
 
 }

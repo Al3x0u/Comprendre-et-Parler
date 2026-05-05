@@ -4,69 +4,174 @@ import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-public class DAOAcademicSkill implements DAO<AcademicSkill> {
-    public final String table = "academicskill";
-    public final String field_id = "id";
-    public final String field_designation = "designation";
+public class DAOAcademicSkill extends DAO<AcademicSkill> {
+    protected final String TABLE = "academicskill";
+    protected final String FIELD_ID = "id";
+    protected final String FIELD_DESIGNATION = "designation";
 
-    /**
-     * Search for an AcademicSkill in the database with the int parameter
-     * @param id : identification of the AcademicSkill
-     * @return AcademicSkill object who correspond to the given id else null
-     * @throws SQLException if the database could not be reached
-     */
     @Override
     public AcademicSkill find(int id) throws SQLException {
-        return null;
+        String query = String.format(
+                "SELECT * FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        AcademicSkill ret = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+
+            result = statement.executeQuery();
+            if (result.next())
+                ret = getResult(result);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return ret;
     }
 
-    /**
-     * Insert an AcademicSkill object in the database
-     * @param objectToInsert : Object that we gonna insert
-     * @throws AlreadyExistsException       if there are already a line with there information
-     * @throws SQLException                 if we couldn't connect to the database
-     * @post objectToInsert has been added to the database, and the change was commited
-     */
     @Override
     public void create(AcademicSkill objectToInsert) throws AlreadyExistsException, SQLException {
+        if (checkAlreadyExists(objectToInsert) >= 0)
+            throw new AlreadyExistsException("AcademicSkill " + objectToInsert.getDesignation() + " already exists" );
 
+        String query = String.format("INSERT INTO %s VALUES(NULL, ?)", TABLE);
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
+            statement.setString(1, objectToInsert.getDesignation());
+
+            statement.executeUpdate();
+            generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next())
+                objectToInsert.setId(generatedKeys.getInt(1));
+        } finally {
+            closeResultSet(generatedKeys);
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Update an AcademicSkill line who already exist in the database
-     * @param objectToUpdate : object with the news information
-     * @throws AlreadyExistsException if there are already a line with there information
-     * @throws NoSuchElementException if there are not the element to update in the database
-     * @throws SQLException           if there are an error during the connection to the database
-     * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
-     */
     @Override
     public void update(AcademicSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (checkAlreadyExists(objectToUpdate) >= 0)
+            throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists" );
 
+        String query = String.format(
+                "UPDATE %s SET %s = ? WHERE %s = ?",
+                TABLE, FIELD_DESIGNATION, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToUpdate.getDesignation());
+            statement.setInt(2, objectToUpdate.getId());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + objectToUpdate.getId());
+        } finally {
+            closeStatement(statement);
+        }
     }
 
-    /**
-     * Delete an AcademicSkill line in the table in the database
-     * @param objectToDelete : object with the information of the line who need to be deleted
-     * @throws NoSuchElementException if we couldn't find the AcademicSkill object in the database
-     * @throws SQLException           if we couldn't connect to the database
-     * @post the object matching every attribute of objectToDelete has been deleted from the database, and the change was commited
-     */
     @Override
-    public void delete(AcademicSkill objectToDelete) throws NoSuchElementException, SQLException {
+    public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
 
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + idObjectToDelete);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    @Override
+    public Set<AcademicSkill> findAll() throws SQLException {
+        String query = String.format("SELECT * FROM %s", TABLE);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<AcademicSkill> ret = new HashSet<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+
+            result = statement.executeQuery();
+            while (result.next())
+                ret.add(getResult(result));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return ret;
+    }
+
+    @Override
+    protected int checkAlreadyExists(AcademicSkill objectToCheck) throws SQLException {
+        String query = String.format(
+                "SELECT %s FROM %s WHERE %s = ?",
+                FIELD_ID, TABLE, FIELD_DESIGNATION
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, objectToCheck.getDesignation());
+
+            result = statement.executeQuery();
+            if(result.next())
+                return result.getInt(FIELD_ID);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return -1;
+    }
+
+    @Override
+    protected AcademicSkill getResult(ResultSet result) throws SQLException {
+        return new AcademicSkill(
+                result.getInt(FIELD_ID),
+                result.getString(FIELD_DESIGNATION)
+        );
     }
 
     /**
-     * Return all line of AcademicSkill table in the database in a List
-     * @return every object of the corresponding type present in database (possibly an empty list)
+     * Return all AcademicSkill of An Interpreter
+     * @param idInterpreter represent the id of the interpreter that we want the AcademicSkill
+     * @return  a Set who represent the AcademicSkill of the interpreter
      * @throws SQLException if the database could not be reached
      */
-    @Override
-    public List<AcademicSkill> findAll() throws SQLException {
-        return null;
+    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException {
+        String query = String.format(
+                "SELECT a.* FROM %s a JOIN AcademicSkillInterpreter asi ON a.%s = asi.skill WHERE asi.interpreter = ?",
+                TABLE, FIELD_ID
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<AcademicSkill> ret = new HashSet<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idInterpreter);
+
+            result = statement.executeQuery();
+            while (result.next())
+                ret.add(getResult(result));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return ret;
     }
 }

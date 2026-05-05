@@ -1,72 +1,114 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import java.util.Objects;
+
 public class Status {
-    private int id;
+    private int id = -1;
     private String designation;
-    private int hourQuota;
+    private int hourQuota = 0;
 
     /**
-     * Constructor of a Status object
-     * @param id the unique identifier of the status
-     * @param designation the name or description of the status
-     * @param hourQuota the associated hour quota
+     * Constructor of a Status
+     * @param id represent the id
+     * @param designation represent the designation
+     * @param hourQuota represent the hourQuota
      */
     public Status(int id, String designation, int hourQuota) {
-        this.id = id;
+        if (id >= 0) this.id = id;
         this.designation = designation;
-        this.hourQuota = hourQuota;
+        if (hourQuota >= 0) this.hourQuota = hourQuota;
     }
 
     /**
-     * @return the unique identifier of the status
+     Constructor of a Status without id
+     @param designation represent the designation
+     @param hourQuota represent the hourQuota
+     */
+    public Status(String designation, int hourQuota) {
+        this(-1, designation, hourQuota);
+    }
+
+    /**
+     * Copy constructor of a Status
+     * @param other the Status to copy, must not be null
+     */
+    public Status(Status other) {
+        this(other.id, other.designation, other.hourQuota);
+    }
+
+    /**
+     * @return this.id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * @return the name or description of the status
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        if (id >= 0) this.id = id;
+    }
+
+    /**
+     * @return this.designation
      */
     public String getDesignation() {
         return designation;
     }
 
     /**
-     * @param designation the new name or description of the status
+     * @param designation represent the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;
     }
 
     /**
-     * @return the associated hour quota
+     * @return this.hourQuota
      */
     public int getHourQuota() {
         return hourQuota;
     }
 
     /**
-     * @param hourQuota the new associated hour quota
+     * @param hourQuota represent the new hourQuota
      */
     public void setHourQuota(int hourQuota) {
-        this.hourQuota = hourQuota;
+        if (hourQuota >= 0) this.hourQuota = hourQuota;
     }
 
+
     /**
-     * Compare this Status with another Status for equality
-     * @param other the Status object to compare with
-     * @return true if both Status objects have identical id, designation and hourQuota
+     * Compare this Status with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical designation and hourQuota
      */
-    public boolean equals(Status other) {
-        return (id == other.id && designation == other.designation && hourQuota == other.hourQuota);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Status)) return false;
+
+        Status other = (Status) o;
+        return (Objects.equals(designation, other.designation) && Objects.equals(hourQuota, other.hourQuota));
     }
 
     /**
-     * Return a String representation of the Status containing all fields
+     * Computes the hash code of this Status
+     * two Status objects that are equal according to equals() will have the same hash code
+     * @return an integer hash code representing this Status (id is not taken into account)
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(designation, hourQuota);
+    }
+
+    /**
+     * Return a String representation of this Status containing all fields
      * @return formatted string with id, designation and hourQuota
      */
     @Override
     public String toString() {
-        return null;
+        return "Status{id = " + id + ", designation = " + designation + ", hourQuota = " + hourQuota +"}";
     }
 }
