@@ -155,8 +155,9 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
      */
     public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException {
         String query = String.format(
-                "SELECT a.* FROM %s a JOIN AcademicSkillInterpreter asi ON a.%s = asi.skill WHERE asi.interpreter = ?",
-                TABLE, FIELD_ID
+                "SELECT a.* FROM %s a JOIN %s asi ON a.%s = asi.%s WHERE asi.%s = ?",
+                TABLE, DAOInterpreter.TABLE_ACADEMIC_SKILL_INTERPRETER, DAOInterpreter.ACADEMIC_SKILL_REF_SKILL,
+                DAOInterpreter.ACADEMIC_SKILL_REF_INTERPRETER, FIELD_ID
         );
         PreparedStatement statement = null;
         ResultSet result = null;
