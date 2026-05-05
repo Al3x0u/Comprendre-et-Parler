@@ -38,7 +38,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
 
     @Override
     public void create(AcademicSkill objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("AcademicSkill " + objectToInsert.getDesignation() + " already exists" );
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?)", TABLE);
@@ -60,7 +60,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
 
     @Override
     public void update(AcademicSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists" );
 
         String query = String.format(
@@ -118,7 +118,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(AcademicSkill objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(AcademicSkill objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ?",
                 TABLE, FIELD_DESIGNATION
@@ -130,11 +130,13 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             statement.setString(1, objectToCheck.getDesignation());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

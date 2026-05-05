@@ -40,7 +40,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
 
     @Override
     public void create(JobSkill objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("JobSkill " + objectToInsert.getDesignation() + " already exists" );
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?)", TABLE);
@@ -62,7 +62,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
 
     @Override
     public void update(JobSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("JobSkill " + objectToUpdate.getDesignation() + " already exists" );
 
         String query = String.format(
@@ -120,7 +120,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(JobSkill object) throws SQLException {
+    protected int checkAlreadyExists(JobSkill object) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ?",
                 TABLE, FIELD_DESIGNATION
@@ -132,11 +132,13 @@ public class DAOJobSkill extends DAO<JobSkill> {
             statement.setString(1, object.getDesignation());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override
