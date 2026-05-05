@@ -7,6 +7,9 @@ public class MissionFilter {
     private AcademicSkill academicSkill;
     private Location location;
     private Integer minImportance;
+    private MissionState stateOfMission;
+
+    public MissionFilter() {}
 
     public Beneficiary getBeneficiary(){
         return beneficiary;
@@ -54,5 +57,13 @@ public class MissionFilter {
 
     public void setMinImportance(Integer minImportance){
         this.minImportance = minImportance;
+    }
+
+    public MissionState getStateOfMission() {
+        return stateOfMission;
+    }
+
+    public void setStateOfMission(MissionState stateOfMission) {
+        this.stateOfMission = stateOfMission;
     }
 }
