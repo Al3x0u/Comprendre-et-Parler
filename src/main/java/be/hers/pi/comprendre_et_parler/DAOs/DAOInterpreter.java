@@ -129,43 +129,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
     }
 
-    /**
-     *
-     * @param slot
-     * @param interpreter
-     */
-    public void createAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
-        DAOInterpreter daoInt = new DAOInterpreter();
-        int interpreterRef = daoInt.checkAlreadyExists(interpreter);
-        if (interpreterRef < 0) {
-            daoInt.create(interpreter);
-            interpreterRef = interpreter.getId();
-        }
-
-        DAOBaseTimeSlot daoSlot = new DAOBaseTimeSlot();
-        int timeSlotRef = daoSlot.checkAlreadyExists(slot);
-        if (timeSlotRef < 0 ) {
-            daoSlot.create(slot);
-            timeSlotRef = slot.getId();
-        }
-
-        String query = String.format("INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)",
-                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
-        );
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, interpreterRef);
-            statement.setInt(2, timeSlotRef);
-            statement.setInt(3, slot.getDay().getValue());
-
-            statement.executeUpdate();
-        }
-        finally {
-            closeStatement(statement);
-        }
-
-    }
 
     /**
      * Update the login and the id of the new object inserted in the database
@@ -323,6 +286,70 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 new DAOLocation().find(result.getInt(FIELD_LOCATION)),
                 new DAOBaseTimeSlot().findAvailabilities(id)
         );
+    }
+
+    /**
+     *
+     * @param interpreter the interpreter for whom to add an availability slot in DB
+     * @param slot the BaseTimeSlot representing the availability
+     * @throws SQLException if a database error occurs
+     */
+    public void createAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
+        DAOInterpreter daoInt = new DAOInterpreter();
+        int interpreterRef = daoInt.checkAlreadyExists(interpreter);
+        if (interpreterRef < 0) {
+            daoInt.create(interpreter);
+            interpreterRef = interpreter.getId();
+        }
+
+        DAOBaseTimeSlot daoSlot = new DAOBaseTimeSlot();
+        int timeSlotRef = daoSlot.checkAlreadyExists(slot);
+        if (timeSlotRef < 0 ) {
+            daoSlot.create(slot);
+            timeSlotRef = slot.getId();
+        }
+
+        String query = String.format("INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterRef);
+            statement.setInt(2, timeSlotRef);
+            statement.setInt(3, slot.getDay().getValue());
+
+            statement.executeUpdate();
+        }
+        finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     *
+     * @param interpreter the interpreter for whom to delete an availability in DB
+     * @param slot the BaseTimeSlot representing the availability
+     * @throws SQLException if a database error occurs
+     */
+    public void deleteAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreter.getId());
+            statement.setInt(2, slot.getId());
+            statement.setInt(3, slot.getDay().getValue());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] Availability (" + interpreter.getId() + ", " + slot.getId()
+                        + ", " + slot.getDay().getValue() + " does not exist in DB.");
+        } finally {
+            closeStatement(statement);
+        }
     }
 
     /**
