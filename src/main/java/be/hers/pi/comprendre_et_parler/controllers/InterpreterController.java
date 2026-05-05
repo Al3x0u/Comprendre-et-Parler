@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +24,13 @@ public class InterpreterController {
      * @return the interpreters list
      */
     @GetMapping("")
-    public String showInterpreterList(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "") String keyword, Model model) {
-
+    public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
+                                      @RequestParam(defaultValue = "") String keyword,
+                                      HttpSession session,
+                                      Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager)) return "redirect:/horaire";
         int interpretersPerPage = 10;
 
         List<Interpreter> allInterpreters = buildFakeInterpreters();
@@ -73,7 +79,10 @@ public class InterpreterController {
     @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
+                                         HttpSession session,
                                          Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
         List<Interpreter> allInterpreters = buildFakeInterpreters();
 
         Interpreter interpreter = allInterpreters.stream()
@@ -104,7 +113,10 @@ public class InterpreterController {
     @GetMapping("/profil/{id}/modifier")
     public String showEditInterpreterProfile(@PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
+                                             HttpSession session,
                                              Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
         List<Interpreter> allInterpreters = buildFakeInterpreters();
 
         Interpreter interpreter = allInterpreters.stream()
@@ -128,10 +140,13 @@ public class InterpreterController {
      * @return redirect to the interpreter profile page
      */
     @PostMapping("/profil/{id}/modifier")
-    public String updateInterpreterProfile(@PathVariable int id, @ModelAttribute("interprete") Interpreter formInterpreter) {
-
-
-        return "redirect:/interpreters/profile/" + id;
+    public String updateInterpreterProfile(@PathVariable int id,
+                                           @ModelAttribute("interprete") Interpreter formInterpreter,
+                                           @RequestParam(required = false) String returnUrl,
+                                           HttpSession session) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
     }
 
     /**
@@ -227,12 +242,6 @@ public class InterpreterController {
         interpreters.add(buildFakeInterpreter(15, "Noah", "Mertens"));
 
         return interpreters;
-    }
-
-    //FONCTION TEMPORAIRE
-
-    private Interpreter buildFakeInterpreter(int id) {
-        return buildFakeInterpreter(id, "Roberto", "Dupont");
     }
 
     //FONCTION TEMPORAIRE

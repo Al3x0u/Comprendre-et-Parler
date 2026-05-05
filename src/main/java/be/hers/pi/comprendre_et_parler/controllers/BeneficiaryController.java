@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,13 @@ public class BeneficiaryController {
      * @return the beneficiaries list
      */
     @GetMapping("")
-    public String showBeneficiaryList(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "") String keyword, Model model) {
+    public String showBeneficiaryList(@RequestParam(defaultValue = "1") int page,
+                                      @RequestParam(defaultValue = "") String keyword,
+                                      HttpSession session,
+                                      Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager)) return "redirect:/horaire";
 
         int beneficiariesPerPage = 10;
 
@@ -67,7 +74,10 @@ public class BeneficiaryController {
     @GetMapping("/profil/{id}")
     public String showBeneficiaryProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
+                                         HttpSession session,
                                          Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
         List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
 
         Beneficiary beneficiary = allBeneficiaries.stream()
@@ -95,7 +105,10 @@ public class BeneficiaryController {
     @GetMapping("/profil/{id}/modifier")
     public String showEditBeneficiaryProfile(@PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
+                                             HttpSession session,
                                              Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
         List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
 
         Beneficiary beneficiary = allBeneficiaries.stream()
@@ -119,8 +132,13 @@ public class BeneficiaryController {
      * @return redirect to the beneficiary profile page
      */
     @PostMapping("/profil/{id}/modifier")
-    public String updateBeneficiaryProfile(@PathVariable int id, @ModelAttribute("beneficiaire") Beneficiary formBeneficiary) {
-        return "redirect:/beneficiaires/profil/" + id;
+    public String updateBeneficiaryProfile(@PathVariable int id,
+                                           @ModelAttribute("beneficiaire") Beneficiary formBeneficiary,
+                                           @RequestParam(required = false) String returnUrl,
+                                           HttpSession session) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/beneficiaires/profil/" + id;
     }
 
     /**
