@@ -5,7 +5,7 @@
 <body class="vh-100">
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<h2 class="text-center mt-5 mb-5" th:text="'Bonjour ' + ${managerFirstName} + ' !'"></h2>
+<h2 class="text-center mt-5 mb-5" th:text="'Bonjour ' + ${user.getFirstName()} + ' !'"></h2>
 
 <div class="dashboard-grid">
 

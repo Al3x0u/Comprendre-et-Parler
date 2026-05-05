@@ -38,6 +38,7 @@ public class LoginService {
         if(user == null || !checkUserLogin(user, login, password) ) {
             return null;
         }
+
         return user;
     }
 

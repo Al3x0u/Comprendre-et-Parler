@@ -60,17 +60,17 @@ public class DAOManager extends DAO<Manager> {
         String query = String.format(
                 "SELECT * FROM %s WHERE %s = ?",
                 TABLE, FIELD_LOGIN
-        );
-        PreparedStatement statement = null;
+        );PreparedStatement statement = null;
         ResultSet result = null;
         Manager ret = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, login);
+            statement.setString(1, login.trim());
 
             result = statement.executeQuery();
-            if (result.next())
+            if (result.next()) {
                 ret = getResult(result);
+            }
         } finally {
             closeResultSet(result);
             closeStatement(statement);

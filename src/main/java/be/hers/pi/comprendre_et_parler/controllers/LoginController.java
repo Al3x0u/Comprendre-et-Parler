@@ -23,6 +23,11 @@ public class LoginController {
         return "redirect:/login";
     }
 
+    @GetMapping("/login")
+    public String loginPage(){
+        return "login";
+    }
+
     @PostMapping("/login")
     public String getUserLogin(@RequestParam String login, @RequestParam String password, Model model, HttpSession session){
         AppliUser user = loginService.getUserData(login, password);
@@ -31,7 +36,7 @@ public class LoginController {
             if(user instanceof Manager){
                 return "redirect:/dashboard";
             } else {
-                return "redirect:/schedule";
+                return "redirect:/horaire";
             }
         } else {
             model.addAttribute("error", "Identifiants incorrects");
@@ -39,8 +44,5 @@ public class LoginController {
         }
     }
 
-    @GetMapping("/login")
-    public String loginPage(){
-        return "login";
-    }
+
 }
