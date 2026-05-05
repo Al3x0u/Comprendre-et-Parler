@@ -153,12 +153,12 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     /**
      * @param  id the id of the interpreter to retrieve the availabilities of
      * @return a list of time slots during which interpreter is normally available
-     * @throws IllegalArgumentException if interpreter's id does not match anything in database
+     * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if a database error occurs
      */
     public Set<BaseTimeSlot> findAvailabilities(int id) throws IllegalArgumentException, SQLException {
-        if (id < 0 || find(id) == null)
-            throw new IllegalArgumentException("No object of id " + id + " could be found in database.");
+        if (id < 0)
+            throw new IllegalArgumentException("Invalid id : " + id);
 
         Set<BaseTimeSlot> ret = new HashSet<>();
         String query = "SELECT ts.%s, ts.%s, ts.%s, ts.%s " +
