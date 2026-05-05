@@ -58,10 +58,10 @@ public abstract class DAO<T> {
     /**
      * Check if an object already exists in the database
      * @param objectToCheck the object to check
-     * @return true if the object already exists, else false
+     * @return the id of the object found in DB, or -1 if none was found
      * @throws SQLException if the database could not be reached
      */
-    protected abstract boolean checkAlreadyExists(T objectToCheck) throws SQLException;
+    protected abstract int checkAlreadyExists(T objectToCheck) throws SQLException;
 
     /**
      * Build an object from a ResultSet

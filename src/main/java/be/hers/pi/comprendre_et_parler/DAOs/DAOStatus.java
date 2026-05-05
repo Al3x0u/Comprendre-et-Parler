@@ -41,7 +41,7 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() +  " already exists");
 
         String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?)", TABLE);
@@ -64,7 +64,7 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("Status " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
@@ -123,7 +123,7 @@ public class DAOStatus extends DAO<Status> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Status object) throws SQLException {
+    protected int checkAlreadyExists(Status object) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ? ",
                 TABLE, FIELD_DESIGNATION, FIELD_HOUR_QUOTA
@@ -136,11 +136,13 @@ public class DAOStatus extends DAO<Status> {
             statement.setInt(2, object.getHourQuota());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

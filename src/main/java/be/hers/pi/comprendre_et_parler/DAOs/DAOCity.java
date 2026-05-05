@@ -41,7 +41,7 @@ public class DAOCity extends DAO<City> {
 
     @Override
     public void create(City objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists");
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?)", TABLE);
@@ -64,7 +64,7 @@ public class DAOCity extends DAO<City> {
 
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
@@ -123,7 +123,7 @@ public class DAOCity extends DAO<City> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(City objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(City objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
                 TABLE, FIELD_DESIGNATION, FIELD_POSTAL_CODE
@@ -136,11 +136,13 @@ public class DAOCity extends DAO<City> {
             statement.setInt(2, objectToCheck.getPostalCode());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

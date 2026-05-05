@@ -80,7 +80,7 @@ public class DAOManager extends DAO<Manager> {
 
     @Override
     public void create(Manager objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Manager with same data already exists");
 
         String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
@@ -140,7 +140,7 @@ public class DAOManager extends DAO<Manager> {
 
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("Manager with same data already exists");
 
         String query = String.format(
@@ -207,7 +207,7 @@ public class DAOManager extends DAO<Manager> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Manager objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(Manager objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE " +
                         "%s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
@@ -231,11 +231,13 @@ public class DAOManager extends DAO<Manager> {
             statement.setInt(10, objectToCheck.getLocation().getId());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     protected Manager getResult(ResultSet result) throws SQLException {

@@ -43,7 +43,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("BaseTimeSlot " + objectToInsert.getDay() + " already exists");
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, ?)", TABLE);
@@ -90,7 +90,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("This BaseTimeSlot already exists");
 
         String query = String.format(
@@ -150,7 +150,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(BaseTimeSlot objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(BaseTimeSlot objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
                 TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME
@@ -164,11 +164,13 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
             statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.of(objectToCheck.getEndDate(), objectToCheck.getEndTime())));
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

@@ -43,7 +43,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("PunctualTimeSlot" + objectToInsert.getStartDate() + " to " + objectToInsert.getEndDate() +  " already exists");
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?)", TABLE);
@@ -66,7 +66,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("PunctualTimeSlot" + objectToUpdate.getStartDate() + " to " + objectToUpdate.getEndDate() +  " already exists");
 
         String query = String.format(
@@ -125,7 +125,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(PunctualTimeSlot object) throws SQLException {
+    protected int checkAlreadyExists(PunctualTimeSlot object) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
                 TABLE, FIELD_START_TIME, FIELD_END_TIME
@@ -138,11 +138,13 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
             statement.setTimestamp(2, Timestamp.valueOf(object.getEndDate()));
 
             result = statement.executeQuery();
-            return result.next();
+            if (result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

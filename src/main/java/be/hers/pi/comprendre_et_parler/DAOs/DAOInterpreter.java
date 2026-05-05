@@ -90,7 +90,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void create(Interpreter objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("The interpreter already exists in the database");
 
         String query = String.format(
@@ -153,7 +153,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
 
         String query = String.format(
@@ -222,7 +222,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Interpreter objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(Interpreter objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? " +
                         "AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
@@ -245,11 +245,13 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setInt(10, objectToCheck.getLocation().getId());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

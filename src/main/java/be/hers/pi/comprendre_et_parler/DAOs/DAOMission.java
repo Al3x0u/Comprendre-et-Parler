@@ -52,7 +52,7 @@ public class DAOMission extends DAO<Mission> {
     
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?, ?, ?, ?)", TABLE);
@@ -86,7 +86,7 @@ public class DAOMission extends DAO<Mission> {
         if (find(objectToUpdate.getId()) == null)
             throw new NoSuchElementException("[ERROR] There is no Mission with the id " + objectToUpdate.getId());
         
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
         
         String query = String.format(
@@ -153,7 +153,7 @@ public class DAOMission extends DAO<Mission> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Mission objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(Mission objectToCheck) throws SQLException {
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
                 TABLE, FIELD_SUBJECT, FIELD_COMMENTARY,
@@ -170,11 +170,13 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(5, objectToCheck.getImportance());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override
