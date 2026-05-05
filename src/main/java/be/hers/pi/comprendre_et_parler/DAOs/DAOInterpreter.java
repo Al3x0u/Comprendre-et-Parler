@@ -305,8 +305,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public Interpreter getResult(ResultSet result) throws SQLException {
+        int id = result.getInt(FIELD_ID);
         return new Interpreter(
-                result.getInt(FIELD_ID),
+                id,
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
                 result.getString(FIELD_LAST_NAME),
@@ -317,10 +318,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 result.getInt(FIELD_WEEK_QUOTA),
                 result.getInt(FIELD_YEAR_QUOTA),
                 result.getString(FIELD_TRANSPORT_MODE),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
+                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
+                new DAOJobSkill().getJobSkillOfAnInterpreter(id),
                 new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID))
+                new DAOBaseTimeSlot().findAvailabilities(id)
         );
     }
 
