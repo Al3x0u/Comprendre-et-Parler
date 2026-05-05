@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PunctualTimeSlotTest {
     private PunctualTimeSlot p1;
-    private final LocalDateTime today = LocalDateTime.now();
+    private final LocalDateTime today = LocalDateTime.now().withNano(0).withSecond(0);
 
     @BeforeEach
     public void init() {
@@ -19,7 +19,7 @@ class PunctualTimeSlotTest {
     @Test
     public void testSetStartDate() {
         p1.setStartDate(today.plusDays(1));
-        assertEquals(today, p1.getStartDate(), "startDate cannot be after endDate.");
+        assertEquals(today, p1.getStartDate(),"startDate cannot be after endDate.");
         p1.setStartDate(today.minusDays(10));
         assertEquals(today.minusDays(10), p1.getStartDate(), "startDate has to change.");
     }

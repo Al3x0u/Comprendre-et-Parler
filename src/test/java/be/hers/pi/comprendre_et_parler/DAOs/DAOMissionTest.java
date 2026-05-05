@@ -1,0 +1,173 @@
+package be.hers.pi.comprendre_et_parler.DAOs;
+
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.models.*;
+import org.junit.jupiter.api.*;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class DAOMissionTest {
+    public static Mission m1;
+    public static Mission m2;
+    public static Mission m3;
+    public final static DAOMission missionDAO = new DAOMission();
+
+    ///Tests on the find methods do not pass because the set of time slots is not initialized in DAOMission.
+
+    @BeforeAll
+    public static void init() throws SQLException {
+        DatabaseConnector.initialize();
+        City c1 = new City(1, "Bruxelles", 1000);
+        new DAOCity().create(c1);
+        Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
+        new DAOLocation().create(l1);
+
+        Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
+                "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
+                "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        Interpreter i2 = new Interpreter(1, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
+                "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
+                "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        new DAOInterpreter().create(i1);
+        new DAOInterpreter().create(i2);
+
+        PunctualTimeSlot t1 = new PunctualTimeSlot(1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(10));
+        BaseTimeSlot t2 = new BaseTimeSlot(2, LocalDate.now(), LocalDate.now(), LocalTime.NOON,
+                LocalTime.NOON.plusHours(1), DayOfWeek.MONDAY);
+        new DAOPunctualTimeSlot().create(t1);
+        new DAOBaseTimeSlot().create(t2);
+        Set<TimeSlot> t3 = new HashSet<>();
+        t3.add(t1);
+        Set<TimeSlot> t4 = new HashSet<>();
+        t4.add(t2);
+
+        Status s1 = new Status(1, "Test", 50);
+        new DAOStatus().create(s1);
+        Beneficiary b1 = new Beneficiary(2, "test1", "Toto", "Toto", LocalDate.now().minusYears(10),
+                "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
+        new DAOBeneficiary().create(b1);
+
+        m1 = new Mission(75, "Regular mission", "regular", t4,
+                l1, new HashSet<>(), "B7", 2);
+        m1.addInterpreter(i1);
+        m2 = new Mission(2, "Pending mission", "pending", t3,
+                b1, l1, null, null, "ABC", 0);
+        m3 = new Mission(4, "Accepted mission", "accepted", t3,
+                l1, new HashSet<>(), "A34", 3);
+        m3.addInterpreter(i2);
+    }
+
+    @AfterAll
+    public static void close() throws SQLException {
+        try {
+            TestDatabaseHelper.resetDatabase();
+        }catch (URISyntaxException | IOException e){
+            e.printStackTrace();
+        } finally {
+            DatabaseConnector.closeInstance();
+        }
+    }
+
+    @Test
+    @Order(4)
+    public void testFind() throws SQLException {
+        Mission m4 = missionDAO.find(1);
+        m4.setInterpreters(new DAOInterpreter().findAllByMissionId(m4.getId()));
+        assertEquals(m3, m4, "Find the updated object.");
+
+        Mission m5 = missionDAO.find(2);
+        assertNotEquals(m2, m5, "Find the unchanged object but the interpreter set was not initialized.");
+        m5.setInterpreters(new DAOInterpreter().findAllByMissionId(m5.getId()));
+        assertEquals(m2, m5, "Find the unchanged object.");
+
+        assertNull(missionDAO.find(3), "There is no object with this ID.");
+    }
+
+    @Test
+    @Order(1)
+    public void testCreate() {
+        assertDoesNotThrow(() -> {
+            missionDAO.create(m1);
+        }, "Create a object in the database.");
+        assertEquals(1, m1.getId(), "The ID must have been changed.");
+
+        m1.setId(20);
+        assertThrows(AlreadyExistsException.class, () -> {
+            missionDAO.create(m1);
+        }, "This object already exists in the database with another ID.");
+
+        assertDoesNotThrow(() -> {
+            missionDAO.create(m2);
+        }, "Create another object in the database.");
+        assertEquals(2, m2.getId(), "The ID must have been changed.");
+    }
+
+    @Test
+    @Order(3)
+    public void testUpdate() {
+        assertThrows(NoSuchElementException.class, () -> {
+            missionDAO.update(m3);
+        }, "There are no objects with this ID.");
+
+        m3.setId(1);
+        assertDoesNotThrow(() -> {
+            missionDAO.update(m3);
+        }, "The object has been updated.");
+
+        m3.setId(2);
+        assertThrows(AlreadyExistsException.class, () -> {
+            missionDAO.update(m3);
+        }, "This object already exists in the database with another ID.");
+    }
+
+    @Test
+    @Order(5)
+    public void testDelete() {
+        assertDoesNotThrow(() -> {
+            missionDAO.delete(m2.getId());
+        }, "The object has been removed from the database.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            missionDAO.delete(m2.getId());
+        }, "The object has already been removed from the database.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            missionDAO.delete(50);
+        }, "There is no object with this ID.");
+
+        assertDoesNotThrow(() -> {
+            missionDAO.delete(1);
+        }, "The object has been removed from the database.");
+    }
+
+    @Test
+    @Order(2)
+    public void testFindAll() throws SQLException {
+        Set<Mission> missions = missionDAO.findAll();
+        assertEquals(2, missions.size(), "There are two objects in the database.");
+
+        Set<Mission> missionsUpdated = new HashSet<>();
+        for(Mission m : missions){
+            m.setInterpreters(new DAOInterpreter().findAllByMissionId(m.getId()));
+            missionsUpdated.add(m);
+        }
+
+        assertTrue(missionsUpdated.contains(m1));
+        assertFalse(missionsUpdated.contains(m2));
+
+        m2.setInterpreters(new HashSet<>());
+        assertTrue(missionsUpdated.contains(m2));
+    }
+}
