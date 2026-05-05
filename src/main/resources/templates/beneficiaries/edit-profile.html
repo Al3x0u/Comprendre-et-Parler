@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4 md-5">
+
+    <div class="card border-0 rounded-4 shadow-sm">
+
+        <div class="card-header rounded-top-4 bg-primary text-white p-3">
+            <h1 class="h3 mb-0 py-1"><i class="bi bi-pencil-fill me-2"></i>Modifier le profil</h1>
+        </div>
+
+        <div class="card-body p-5">
+            <form th:action="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}" th:object="${beneficiaire}" method="post">
+
+                <div class="row align-items-center g-4 mb-4">
+
+                    <!-- Avatar -->
+                    <div class="col-12 col-md-6 py-3 text-center bg-light rounded-4">
+                        <label for="avatar-input" style="cursor:pointer">
+                            <img th:src="@{/images/avatar.png}" alt="Avatar bénéficiaire"
+                                 class="profile-avatar rounded-circle border shadow">
+                            <div class="mt-2">
+                                <span class="badge bg-primary p-2 rounded-4">
+                                    <i class="bi bi-pencil-fill me-1"></i>Modifier
+                                </span>
+                            </div>
+                        </label>
+                        <input type="file" id="avatar-input" name="avatar" accept="image/*" class="d-none">
+                    </div>
+
+                    <!-- Prénom et nom -->
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex flex-column gap-3">
+                            <div>
+                                <label for="firstName" class="form-label">Prénom</label>
+                                <input id="firstName" type="text" class="form-control" th:field="*{firstName}" required>
+                            </div>
+                            <div>
+                                <label for="lastName" class="form-label">Nom</label>
+                                <input id="lastName" type="text" class="form-control" th:field="*{lastName}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="email" class="form-label"><i class="bi bi-envelope me-2"></i>Adresse mail</label>
+                        <input id="email" type="email" class="form-control" th:field="*{email}">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="phoneNumber" class="form-label"><i class="bi bi-telephone me-2"></i>Téléphone</label>
+                        <input id="phoneNumber" type="text" class="form-control" th:field="*{phoneNumber}">
+                    </div>
+                </div>
+
+
+                <div class="d-grid d-md-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Enregistrer</button>
+                    <a th:href="${referer != null} ? ${referer} : @{/beneficiaires}"
+                       class="btn btn-outline-secondary btn-lg">Annuler</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</main>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

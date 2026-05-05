@@ -22,19 +22,19 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/schedule}"
+                    <a class="nav-link" th:href="@{/horaire}"
                        th:classappend="${currentPage == 'schedule'} ? 'active' : ''">
                         Horaire
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/interpreters}"
+                    <a class="nav-link" th:href="@{/interpretes}"
                        th:classappend="${currentPage == 'interpreters'} ? 'active' : ''">
                         Interprètes
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/beneficiaries}"
+                    <a class="nav-link" th:href="@{/beneficiaires}"
                        th:classappend="${currentPage == 'beneficiaries'} ? 'active' : ''">
                         Bénéficiaires
                     </a>
@@ -49,7 +49,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <a class="dropdown-item" th:href="@{/profile}">
+                            <a class="dropdown-item" th:href="@{/profil}">
                                 <i class="bi bi-person me-2"></i>Mon profil
                             </a>
                         </li>

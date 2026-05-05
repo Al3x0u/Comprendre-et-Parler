@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4">
+
+  <div class="mb-3" th:if="${referer != null}">
+    <a th:href="${referer}" class="btn btn-outline-secondary btn-lg">
+      <i class="bi bi-arrow-left me-2"></i>Retour
+    </a>
+  </div>
+
+  <div th:replace="~{common/profile-interpreter :: profile}"></div>
+
+</main>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+  function toggleEditIndispo() {
+    const btn = document.getElementById('btn-edit-indispo');
+    const deleteButtons = document.querySelectorAll('.indispo-delete');
+    const addButton = document.getElementById('btn-add-indispo');
+    const isEditing = btn.classList.contains('editing');
+
+    if (isEditing) {
+      btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+      btn.classList.remove('editing', 'btn-outline-success');
+      btn.classList.add('btn-outline-primary');
+      deleteButtons.forEach(b => b.classList.add('d-none'));
+      addButton.classList.add('d-none');
+    } else {
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+      btn.classList.add('editing', 'btn-outline-success');
+      btn.classList.remove('btn-outline-primary');
+      deleteButtons.forEach(b => b.classList.remove('d-none'));
+      addButton.classList.remove('d-none');
+    }
+  }
+
+  function toggleEditSkills(type) {
+    const btn = document.getElementById('btn-edit-' + type);
+    const deleteIcons = document.querySelectorAll('.' + type + '-delete');
+    const addButton = document.getElementById('btn-add-' + type);
+    const isEditing = btn.classList.contains('editing');
+
+    if (isEditing) {
+      btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+      btn.classList.remove('editing', 'btn-outline-success');
+      btn.classList.add('btn-outline-primary');
+      deleteIcons.forEach(i => i.classList.add('d-none'));
+      addButton.classList.add('d-none');
+    } else {
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+      btn.classList.add('editing', 'btn-outline-success');
+      btn.classList.remove('btn-outline-primary');
+      deleteIcons.forEach(i => i.classList.remove('d-none'));
+      addButton.classList.remove('d-none');
+    }
+  }
+
+  function toggleEditBeneficiaries() {
+    const btn = document.getElementById('btn-edit-beneficiaries');
+    const deleteButtons = document.querySelectorAll('.beneficiary-delete');
+    const addButton = document.getElementById('btn-add-beneficiary');
+    const isEditing = btn.classList.contains('editing');
+
+    if (isEditing) {
+      btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+      btn.classList.remove('editing', 'btn-outline-success');
+      btn.classList.add('btn-outline-primary');
+      deleteButtons.forEach(b => b.classList.add('d-none'));
+      addButton.classList.add('d-none');
+    } else {
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+      btn.classList.add('editing', 'btn-outline-success');
+      btn.classList.remove('btn-outline-primary');
+      deleteButtons.forEach(b => b.classList.remove('d-none'));
+      addButton.classList.remove('d-none');
+    }
+  }
+</script>
+</body>
+</html>

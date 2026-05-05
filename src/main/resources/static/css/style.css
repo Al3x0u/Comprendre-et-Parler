@@ -108,3 +108,175 @@ body {
     transition: transform 0.2s ease;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* ─── Legend Calendar ───────────────────────────────────── */
+.legende-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legende-dot-accepted {
+    background: #40c057;
+}
+
+.legende-dot-pending {
+    background: #fab005;
+}
+
+.legende-dot-refused {
+    background: #fa5252;
+}
+
+.legende-dot-base {
+    background: #4dabf7;
+}
+
+/* ─── Fullcalendar ───────────────────────────────── */
+.fc-toolbar-chunk:first-child,
+.fc-toolbar-chunk:last-child {
+    flex: 1;
+}
+
+.fc-toolbar-chunk:last-child {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.fc-toolbar-title {
+    min-width: 280px;
+    text-align: center;
+    display: inline-block;
+}
+
+.fc-filterBtn-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button:hover {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
+}
+
+.fc-filterBtn-button:focus {
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button.active {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
+}
+
+.fc-prev-button,
+.fc-next-button {
+    background-color: transparent !important;
+    border: 1px solid var(--oc-gray-4) !important;
+    color: var(--oc-gray-8) !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    box-shadow: none !important;
+}
+
+.fc-prev-button:hover,
+.fc-next-button:hover {
+    background-color: var(--oc-gray-2) !important;
+    border-color: var(--oc-gray-5) !important;
+}
+
+.fc-prev-button:focus,
+.fc-next-button:focus,
+.fc-today-button:focus {
+    box-shadow: none !important;
+}
+
+.fc-timeGridWeek-button,
+.fc-timeGridDay-button {
+    background-color: transparent !important;
+    border-color: var(--oc-gray-5) !important;
+    color: var(--oc-gray-5) !important;
+    box-shadow: none !important;
+}
+
+.fc-timeGridWeek-button.fc-button-active,
+.fc-timeGridDay-button.fc-button-active {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+}
+
+.fc-timeGridWeek-button:hover,
+.fc-timeGridDay-button:hover {
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+}
+
+
+.fc-today-button {
+    background-color: transparent !important;
+    border-color: var(--bs-secondary) !important;
+    color: var(--bs-dark) !important;
+    box-shadow: none !important;
+}
+
+.fc-today-button:hover {
+    background-color: var(--oc-gray-1) !important;
+}
+
+.fc-today-button:disabled {
+    opacity: 0.5 !important;
+}
+
+.fc-event-content-inner {
+    overflow: hidden;
+    height: 100%;
+}
+
+.fc-event-content-inner div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fc-col-header-cell-cushion {
+    text-decoration: none !important;
+    color: var(--oc-blue-9) !important;
+}
+
+.fc-newMission-button,
+.fc-newRequest-button,
+.fc-newUnavailability-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-newMission-button:hover,
+.fc-newRequest-button:hover,
+.fc-newUnavailability-button:hover {
+    color: white !important;
+    background-color: var(--oc-blue-9) !important;
+}
+
+.fc-newMission-button:focus,
+.fc-newRequest-button:focus,
+.fc-newUnavailability-button:focus{
+    box-shadow: none !important;
+}
+
+/* ─── Users List ───────────────────────────────── */
+.interprete-id:hover,
+.beneficiaire-id:hover {
+    text-decoration: underline !important;
+}
+
+/* ─── Profile ────────────────────────────────────── */
+.profile-avatar {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+}
