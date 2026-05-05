@@ -44,7 +44,7 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert))
+        if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists");
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, ?, ?, ?)", TABLE);
@@ -70,7 +70,7 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
@@ -132,10 +132,10 @@ public class DAOLocation extends DAO<Location> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Location location) throws SQLException {
+    protected int checkAlreadyExists(Location location) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -148,11 +148,13 @@ public class DAOLocation extends DAO<Location> {
             statement.setInt(5, location.getBox());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override

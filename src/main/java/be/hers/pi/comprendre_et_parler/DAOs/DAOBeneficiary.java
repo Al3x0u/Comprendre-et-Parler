@@ -135,7 +135,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate))
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("The beneficiary already exists in database.");
 
         String query = String.format(
@@ -201,10 +201,10 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     }
 
     @Override
-    protected boolean checkAlreadyExists(Beneficiary objectToCheck) throws SQLException {
+    protected int checkAlreadyExists(Beneficiary objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
                 FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
         );
         ResultSet result = null;
@@ -221,11 +221,13 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setInt(8, objectToCheck.getInterpreterRef().getId());
 
             result = statement.executeQuery();
-            return result.next();
+            if(result.next())
+                return result.getInt(FIELD_ID);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+        return -1;
     }
 
     @Override
