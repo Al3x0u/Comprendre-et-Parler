@@ -130,7 +130,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     /**
      * @param  id the id of the interpreter to retrieve the availabilities of
-     * @return a list of time slots during which interpreter is normally available
+     * @return a set of time slots during which the interpreter is normally available
      * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if a database error occurs
      */
@@ -147,24 +147,29 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
                 DAOInterpreter.TABLE, DAOInterpreter.TABLE_AVAILABILITY, TABLE,
                 DAOInterpreter.FIELD_ID, DAOInterpreter.FIELD_ID, DAOInterpreter.AVAILABILITY_REF_INTERPRETER,
                 DAOInterpreter.AVAILABILITY_REF_TIMESLOT, FIELD_ID);
-        try (PreparedStatement statement = DatabaseConnector.getInstance().prepareStatement(query)) {
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    ret.add(new BaseTimeSlot(
-                            result.getInt(FIELD_ID),
-                            result.getDate(FIELD_START_TIME).toLocalDate(),
-                            result.getDate(FIELD_END_TIME).toLocalDate(),
-                            result.getTime(FIELD_START_TIME).toLocalTime(),
-                            result.getTime(FIELD_END_TIME).toLocalTime(),
-                            DayOfWeek.of(result.getInt(FIELD_DAY))
-                    ));
-                }
+            result = statement.executeQuery();
+            while (result.next()) {
+                ret.add(new BaseTimeSlot(
+                        result.getInt(FIELD_ID),
+                        result.getDate(FIELD_START_TIME).toLocalDate(),
+                        result.getDate(FIELD_END_TIME).toLocalDate(),
+                        result.getTime(FIELD_START_TIME).toLocalTime(),
+                        result.getTime(FIELD_END_TIME).toLocalTime(),
+                        DayOfWeek.of(result.getInt(FIELD_DAY))
+                ));
             }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
         }
         return ret;
     }
-
 
     @Override
     protected int checkAlreadyExists(BaseTimeSlot objectToCheck) throws SQLException {
