@@ -72,14 +72,18 @@ public class InterpreterController {
      */
     @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id, Model model) {
-        Interpreter fakeInterpreter = buildFakeInterpreter(id);
-        int actualWeekQuota = 10;
-        int actualAnnualQuota = 200;
+        List<Interpreter> allInterpreters = buildFakeInterpreters();
 
-        // Hardcoded Beneficiaries
-        List<Beneficiary> beneficiaries = getHardcodedBeneficiaries(fakeInterpreter);
+        Interpreter interpreter = allInterpreters.stream()
+                .filter(i -> i.getId() == id)
+                .findFirst()
+                .orElse(null);
 
-        model.addAttribute("interprete", fakeInterpreter);
+        if (interpreter == null) return "redirect:/interpretes";
+
+        List<Beneficiary> beneficiaries = getHardcodedBeneficiaries(interpreter);
+
+        model.addAttribute("interprete", interpreter);
         model.addAttribute("beneficiaries", beneficiaries);
         model.addAttribute("currentPage", "interpreters");
         model.addAttribute("actualWeekQuota", 10);
@@ -96,9 +100,16 @@ public class InterpreterController {
      */
     @GetMapping("/profil/{id}/modifier")
     public String showEditInterpreterProfile(@PathVariable int id, Model model) {
-        Interpreter fakeInterpreter = buildFakeInterpreter(id);
+        List<Interpreter> allInterpreters = buildFakeInterpreters();
 
-        model.addAttribute("interprete", fakeInterpreter);
+        Interpreter interpreter = allInterpreters.stream()
+                .filter(i -> i.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (interpreter == null) return "redirect:/interpretes";
+
+        model.addAttribute("interprete", interpreter);
         model.addAttribute("currentPage", "interpreters");
 
         return "interpreters/edit-profile";
