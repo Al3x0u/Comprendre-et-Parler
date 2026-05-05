@@ -288,17 +288,40 @@ public class DAOInterpreter extends DAO<Interpreter> {
         );
     }
 
+    public boolean availabilityExists(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
+        String query = String.format(
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+        );
+        ResultSet result = null;
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreter.getId());
+            statement.setInt(2, slot.getId());
+            statement.setInt(3, slot.getDay().getValue());
+
+            result = statement.executeQuery();
+            return result.next();
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
+
     /**
-     *
+     * Create an availability in DB if it doesn't exist yet
      * @param interpreter the interpreter for whom to add an availability slot in DB
      * @param slot the BaseTimeSlot representing the availability
      * @throws SQLException if a database error occurs
      */
     public void createAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
-        DAOInterpreter daoInt = new DAOInterpreter();
-        int interpreterRef = daoInt.checkAlreadyExists(interpreter);
+        if (availabilityExists(interpreter, slot))
+            return;
+
+        int interpreterRef = checkAlreadyExists(interpreter);
         if (interpreterRef < 0) {
-            daoInt.create(interpreter);
+            create(interpreter);
             interpreterRef = interpreter.getId();
         }
 
@@ -327,9 +350,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     *
+     * Delete an availability in DB
      * @param interpreter the interpreter for whom to delete an availability in DB
      * @param slot the BaseTimeSlot representing the availability
+     * @throws NoSuchElementException if the availability does not exist in DB
      * @throws SQLException if a database error occurs
      */
     public void deleteAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
@@ -356,8 +380,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
      * finds all the interpreter who have the same mission
      * @param idMission the id of the Mission
      * @return the set of the interpreter who have the mission with the idMission for id or an empty set
-     * @throws SQLException if the database could not be reached
      * @throws NoSuchElementException if no object matching every attribute of objectToDelete was present in the database
+     * @throws SQLException if the database could not be reached
      */
     public Set<Interpreter> findAllByMissionId(int idMission) throws SQLException, NoSuchElementException {
         if (new DAOMission().find(idMission) == null)
