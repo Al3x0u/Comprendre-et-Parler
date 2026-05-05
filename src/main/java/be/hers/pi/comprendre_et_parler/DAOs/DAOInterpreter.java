@@ -36,6 +36,11 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String FIELD_TRANSPORT_MODE = "transportMode";
     protected static final String FIELD_LOCATION = "location";
     protected static final String FIELD_MISSION = "mission";
+    protected static final String AVAILABILITY_REF_INTERPRETER = "interpreter";
+    protected static final String AVAILABILITY_REF_TIMESLOT = "baseTimeSlot";
+    protected static final String AVAILABILITY_REF_DAY = "baseTimeSlotDay";
+
+
 
     @Override
     public Interpreter find(int id) throws SQLException {
@@ -116,6 +121,50 @@ public class DAOInterpreter extends DAO<Interpreter> {
         } finally {
             closeStatement(statement);
         }
+
+        if (objectToInsert.getAvailability() != null) {
+            for (BaseTimeSlot av : objectToInsert.getAvailability()) {
+                createAvailability(objectToInsert, av);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param slot
+     * @param interpreter
+     */
+    public void createAvailability(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
+        DAOInterpreter daoInt = new DAOInterpreter();
+        int interpreterRef = daoInt.checkAlreadyExists(interpreter);
+        if (interpreterRef < 0) {
+            daoInt.create(interpreter);
+            interpreterRef = interpreter.getId();
+        }
+
+        DAOBaseTimeSlot daoSlot = new DAOBaseTimeSlot();
+        int timeSlotRef = daoSlot.checkAlreadyExists(slot);
+        if (timeSlotRef < 0 ) {
+            daoSlot.create(slot);
+            timeSlotRef = slot.getId();
+        }
+
+        String query = String.format("INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterRef);
+            statement.setInt(2, timeSlotRef);
+            statement.setInt(3, slot.getDay().getValue());
+
+            statement.executeUpdate();
+        }
+        finally {
+            closeStatement(statement);
+        }
+
     }
 
     /**
