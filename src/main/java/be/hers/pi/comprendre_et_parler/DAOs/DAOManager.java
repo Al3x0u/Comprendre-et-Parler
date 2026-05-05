@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOManager extends DAO<Manager> {
+public class    DAOManager extends DAO<Manager> {
     protected static final String TABLE = "Manager";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
