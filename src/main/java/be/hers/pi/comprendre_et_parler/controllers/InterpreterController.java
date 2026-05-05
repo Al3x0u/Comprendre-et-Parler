@@ -117,17 +117,25 @@ public class InterpreterController {
                                              Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        List<Interpreter> allInterpreters = buildFakeInterpreters();
+        Interpreter interpreter;
 
-        Interpreter interpreter = allInterpreters.stream()
-                .filter(i -> i.getId() == id)
-                .findFirst()
-                .orElse(null);
+        if (user instanceof Interpreter i && i.getId() == id) {
+            interpreter = i;
+            model.addAttribute("currentPage", "profile");
+        } else if (user instanceof Manager) {
+            List<Interpreter> allInterpreters = buildFakeInterpreters();
+            interpreter = allInterpreters.stream()
+                    .filter(i -> i.getId() == id)
+                    .findFirst()
+                    .orElse(null);
+            model.addAttribute("currentPage", "interpreters");
+        } else {
+            return "redirect:/interpretes";
+        }
 
         if (interpreter == null) return "redirect:/interpretes";
 
         model.addAttribute("interprete", interpreter);
-        model.addAttribute("currentPage", "interpreters");
         model.addAttribute("referer", referer);
 
         return "interpreters/edit-profile";

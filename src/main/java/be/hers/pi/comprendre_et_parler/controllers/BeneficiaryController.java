@@ -109,17 +109,27 @@ public class BeneficiaryController {
                                              Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
+        Beneficiary beneficiary;
 
-        Beneficiary beneficiary = allBeneficiaries.stream()
-                .filter(b -> b.getId() == id)
-                .findFirst()
-                .orElse(null);
+        // Si c'est le bénéficiaire connecté qui modifie son propre profil
+        if (user instanceof Beneficiary b && b.getId() == id) {
+            beneficiary = b;
+            model.addAttribute("currentPage", "profile");
+        } else if (user instanceof Manager) {
+            // Manager qui modifie un bénéficiaire
+            List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
+            beneficiary = allBeneficiaries.stream()
+                    .filter(b -> b.getId() == id)
+                    .findFirst()
+                    .orElse(null);
+            model.addAttribute("currentPage", "beneficiaries");
+        } else {
+            return "redirect:/beneficiaires";
+        }
 
         if (beneficiary == null) return "redirect:/beneficiaires";
 
         model.addAttribute("beneficiaire", beneficiary);
-        model.addAttribute("currentPage", "beneficiaries");
         model.addAttribute("referer", referer);
 
         return "beneficiaries/edit-profile";
