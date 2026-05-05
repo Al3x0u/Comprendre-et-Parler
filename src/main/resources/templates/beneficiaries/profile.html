@@ -31,8 +31,12 @@
 
                 <div class="col-12 col-md">
                     <p class="text-white-50 mb-1">Profil bénéficiaire</p>
-                    <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
-                    <p class="fw-semibold mb-3" th:text="*{login}"></p>
+                    <h1 class="h2 mb-1 me-2" th:text="*{firstName + ' ' + lastName}"></h1>
+                    <div class="d-flex">
+                        <p class="fw-semibold mb-1 me-3" th:text="*{login}"></p>
+                        <span class="text-white-50" th:text="${age} + ' ans'"></span>
+                    </div>
+
 
                     <div class="d-grid d-md-flex gap-2">
                         <a th:href="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}" class="btn btn-light btn-lg text-primary fw-semibold">

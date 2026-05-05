@@ -79,6 +79,7 @@ public class BeneficiaryController {
         model.addAttribute("currentPage", "beneficiaries");
         model.addAttribute("interpreters", getHardcodedInterpreters());
         model.addAttribute("fromInterpreter", fromInterpreter);
+        model.addAttribute("age", java.time.Period.between(beneficiary.getBirthDate(), java.time.LocalDate.now()).getYears());
 
         return "beneficiaries/profile";
     }
