@@ -152,8 +152,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     @Override
     protected int checkAlreadyExists(BaseTimeSlot objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
-                TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_DAY, FIELD_START_TIME, FIELD_END_TIME
         );
         PreparedStatement statement = null;
         ResultSet result = null;

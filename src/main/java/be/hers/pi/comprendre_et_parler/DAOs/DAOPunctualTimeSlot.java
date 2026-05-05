@@ -127,8 +127,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     @Override
     protected int checkAlreadyExists(PunctualTimeSlot object) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
-                TABLE, FIELD_START_TIME, FIELD_END_TIME
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ?",
+                FIELD_ID, TABLE, FIELD_START_TIME, FIELD_END_TIME
         );
         PreparedStatement statement = null;
         ResultSet result = null;
