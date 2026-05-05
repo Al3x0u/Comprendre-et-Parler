@@ -127,6 +127,15 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 createAvailability(objectToInsert, av);
             }
         }
+
+        if (objectToInsert.getUnavailability() != null) {
+            for (ExceptionalUnavailability eu : objectToInsert.getUnavailability()) {
+                try {
+                    new DAOExceptionalUnavailability().create(eu, objectToInsert);
+                }
+                catch(AlreadyExistsException e) {}
+            }
+        }
     }
 
 
@@ -269,7 +278,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     @Override
     public Interpreter getResult(ResultSet result) throws SQLException {
         int id = result.getInt(FIELD_ID);
-        return new Interpreter(
+        Interpreter ret = new Interpreter(
                 id,
                 result.getString(FIELD_LOGIN),
                 result.getString(FIELD_FIRST_NAME),
@@ -286,6 +295,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 new DAOLocation().find(result.getInt(FIELD_LOCATION)),
                 new DAOBaseTimeSlot().findAvailabilities(id)
         );
+        ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+
+        return ret;
     }
 
     public boolean availabilityExists(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
