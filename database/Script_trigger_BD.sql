@@ -10,7 +10,10 @@ DROP TRIGGER IDR_DeleteManager;
 DROP TRIGGER IUR_UpdateTransportModeManager;
 DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
+DROP TRIGGER IUR_UpdateBeneficiary;
 DROP TRIGGER IIR_InsertionTransportationView;
+DROP TRIGGER IIR_InsertionBaseTimeSlotView;
+DROP TRIGGER IUR_UpdateBaseTimeSlotView;
 
 
 CREATE TRIGGER IIR_InsertionAppliUser
@@ -30,17 +33,15 @@ FOR EACH ROW
 DECLARE
     numeroMax INTEGER;
     beginLogin VARCHAR2(7 CHAR);
-    currentYear VARCHAR2(2 CHAR);
 BEGIN
-    SELECT to_char(SYSDATE, 'YY') INTO currentYear from DUAL;
-    beginLogin := CONCAT('_', currentYear);
-    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+')))
-    INTO numeroMax FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
+    SELECT to_char(SYSDATE, 'YY') INTO beginLogin FROM DUAL;
+    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
+    FROM AppliUserT WHERE login LIKE CONCAT(CONCAT('_', beginLogin), '%');
 
     IF(numeroMax IS NULL) THEN
-    :NEW.login := CONCAT(REPLACE(beginLogin, '_', :NEW.login), '0001');
+        :NEW.login := CONCAT(CONCAT(:NEW.login, beginLogin), '0001');
     ELSE
-    :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
+        :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
     END IF;
 END;
 /
@@ -192,6 +193,16 @@ BEGIN
 END;
 /
 
+CREATE TRIGGER IUR_UpdateBeneficiary
+INSTEAD OF UPDATE ON Beneficiary
+FOR EACH ROW
+BEGIN
+    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
+    hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
+    UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
+END;
+/
+
 CREATE TRIGGER IIR_InsertionTransportationView
 INSTEAD OF INSERT ON TransportationView
 FOR EACH ROW
@@ -201,10 +212,44 @@ BEGIN
     SELECT count(id) INTO alreadyExist
     FROM TransportationView
     WHERE designation = INITCAP(:NEW.designation);
-    if(alreadyExist = 0) THEN
+    IF(alreadyExist = 0) THEN
         INSERT INTO Transportation
         VALUES
             (NULL, INITCAP(:NEW.designation));
     END IF;
 END;
 /
+
+CREATE TRIGGER IIR_InsertionBaseTimeSlotView
+INSTEAD OF INSERT ON BaseTimeSlotView
+FOR EACH ROW
+DECLARE
+    newID INTEGER;
+    alreadyExist INTEGER;
+BEGIN
+    SELECT count(id) INTO alreadyExist
+    FROM TimeSlot
+    WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
+    IF(alreadyExist = 0) THEN
+        INSERT INTO TimeSlot
+        VALUES
+            (NULL, :NEW.startDateTime, :NEW.endDateTime);
+    END IF;
+    SELECT id INTO newID
+    FROM TimeSlot
+    WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
+    INSERT INTO BaseTimeSlot VALUES (newID, :NEW.day);
+END;
+/
+
+CREATE TRIGGER IUR_UpdateBaseTimeSlotView
+INSTEAD OF UPDATE ON BaseTimeSlotView
+FOR EACH ROW
+BEGIN
+    INSERT INTO BaseTimeSlotView VALUES (NULL, :NEW.startDateTime, :NEW.endDateTime, :NEW.day);
+    DELETE FROM BaseTimeSlot WHERE timeSlot = :OLD.id AND day = :OLD.day;
+END;
+/
+
+
+commit;
