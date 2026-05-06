@@ -388,7 +388,6 @@
                 const status = (props.status || '').toLowerCase();
                 const now = new Date();
 
-                const hasStarted = start && now >= start;
                 const beforeStart = start && now < start;
                 const isManager = userRole === 'MANAGER';
                 const isPending = status.includes('en attente');
@@ -435,17 +434,9 @@
                             <button type="button" class="btn btn-danger fs-5" id="btnRefuseMission">Refuser</button>
                             <button type="button" class="btn btn-success fs-5" id="btnAcceptMission">Accepter</button>
                         `;
-                    } else if (isPending && hasStarted) {
-                        footer.innerHTML = `
-                            <span class="text-muted fs-6">Cette mission a déjà commencé : elle ne peut plus être acceptée ou refusée.</span>
-                        `;
-                    } else if (isAccepted && beforeStart) {
+                    } else  {
                         footer.innerHTML = `
                             <button type="button" class="btn btn-danger fs-5" id="btnCancelAcceptedMission">Annuler la mission</button>
-                        `;
-                    } else if (isAccepted && hasStarted) {
-                        footer.innerHTML = `
-                            <span class="text-muted fs-6">Cette mission a déjà commencé : elle ne peut plus être annulée.</span>
                         `;
                     }
 
@@ -467,9 +458,15 @@
                         });
                     }
 
+
+
                     if (cancelAcceptedBtn) {
                         cancelAcceptedBtn.addEventListener('click', function() {
-                            // TODO BACKEND : annuler la mission acceptée
+                            const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
+                            const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
+
+                            managerPendingModal.hide();
+                            confirmCancelModal.show();
                         });
                     }
 
@@ -510,24 +507,22 @@
 
                 if (delayBtn) {
                     delayBtn.addEventListener('click', function() {
-                        const eventModal = bootstrap.Modal.getOrCreateInstance( document.getElementById('eventModal'));
+                        const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
                         const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
-
 
                         eventModal.hide();
                         delayModal.show();
                     });
                 }
-
                 if (cancelBtn) {
                     cancelBtn.addEventListener('click', function() {
                         const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
                         const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-
                         eventModal.hide();
                         confirmCancelModal.show();
                     });
                 }
+
 
                 document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
                 const modal = new bootstrap.Modal(document.getElementById('eventModal'));
@@ -554,12 +549,18 @@
             e.stopPropagation();
         });
 
-        document.getElementById('cancelConfirmBackBtn').addEventListener('click', function(){
+        document.getElementById('cancelConfirmBackBtn').addEventListener('click', function() {
             const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-            const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
 
             confirmCancelModal.hide();
-            eventModal.show();
+
+            if (userRole === 'MANAGER') {
+                const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
+                managerPendingModal.show();
+            } else {
+                const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
+                eventModal.show();
+            }
         });
 
         const eventModalEl = document.getElementById('eventModal');
