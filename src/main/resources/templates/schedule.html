@@ -386,11 +386,17 @@
                 const start = event.start;
                 const end = event.end;
                 const status = (props.status || '').toLowerCase();
+                const now = new Date();
 
+                const hasStarted = start && now >= start;
+                const beforeStart = start && now < start;
                 const isManager = userRole === 'MANAGER';
                 const isPending = status.includes('en attente');
                 const isAccepted = status.includes('accept');
-
+                const interpreterSelect = document.getElementById('managerPendingInterpreter');
+                const canChangeInterpreter = isPending && beforeStart;
+                interpreterSelect.value = props.interpreter || '';
+                interpreterSelect.disabled = !canChangeInterpreter;
                 const timeFormatter = new Intl.DateTimeFormat('fr-BE', {hour: '2-digit', minute: '2-digit'});
 
                 let timeText = '';
@@ -403,22 +409,70 @@
                     }
                 }
                 if (isManager && (isPending || isAccepted)) {
-                    let importanceText = '';
+                    let importanceStars = '';
                     const importance = parseInt(props.importance || '0', 10);
-                    if (importance > 0) {
-                        importanceText = '⚠ Important';
+
+                    for (let i = 0; i < importance && i < 5; i++) {
+                        importanceStars += '★';
                     }
 
+                    document.getElementById('managerPendingImportance').innerText = importanceStars;
                     document.getElementById('managerPendingTitle').innerText = event.title || '';
                     document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
                     document.getElementById('managerPendingTime').innerText = timeText || '';
-                    document.getElementById('managerPendingImportance').innerText = importanceText;
                     document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
                     document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || '';
                     document.getElementById('managerPendingType').innerText = props.type || '';
                     document.getElementById('managerPendingComment').innerText = props.comment || '';
                     document.getElementById('managerPendingStatus').innerText = props.status || '';
                     document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
+
+                    
+                    const footer = document.querySelector('#managerPendingModal .modal-footer');
+                    footer.innerHTML = '';
+
+                    if (isPending && beforeStart) {
+                        footer.innerHTML = `
+                            <button type="button" class="btn btn-danger fs-5" id="btnRefuseMission">Refuser</button>
+                            <button type="button" class="btn btn-success fs-5" id="btnAcceptMission">Accepter</button>
+                        `;
+                    } else if (isPending && hasStarted) {
+                        footer.innerHTML = `
+                            <span class="text-muted fs-6">Cette mission a déjà commencé : elle ne peut plus être acceptée ou refusée.</span>
+                        `;
+                    } else if (isAccepted && beforeStart) {
+                        footer.innerHTML = `
+                            <button type="button" class="btn btn-danger fs-5" id="btnCancelAcceptedMission">Annuler la mission</button>
+                        `;
+                    } else if (isAccepted && hasStarted) {
+                        footer.innerHTML = `
+                            <span class="text-muted fs-6">Cette mission a déjà commencé : elle ne peut plus être annulée.</span>
+                        `;
+                    }
+
+                    const acceptBtn = document.getElementById('btnAcceptMission');
+                    const refuseBtn = document.getElementById('btnRefuseMission');
+                    const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
+
+                    if (acceptBtn) {
+                        acceptBtn.addEventListener('click', function() {
+                            const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
+
+                            // TODO BACKEND : accepter la mission
+                        });
+                    }
+
+                    if (refuseBtn) {
+                        refuseBtn.addEventListener('click', function() {
+                            // TODO BACKEND : refuser la mission
+                        });
+                    }
+
+                    if (cancelAcceptedBtn) {
+                        cancelAcceptedBtn.addEventListener('click', function() {
+                            // TODO BACKEND : annuler la mission acceptée
+                        });
+                    }
 
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
                     return;
@@ -437,7 +491,6 @@
 
                 const type = (props.type || '').toLowerCase();
 
-                const now = new Date();
                 const isSameDay =   now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
                 const isBeforeEnd = now < end;
 
