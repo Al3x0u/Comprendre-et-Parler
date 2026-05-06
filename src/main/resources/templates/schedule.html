@@ -361,14 +361,14 @@
             eventContent: function(arg) {
                 const props = arg.event.extendedProps;
                 const importance = parseInt(props.importance);
-                var stars = '';
-                for(var i = 0; i < importance && i < 3; i++){
-                    stars += '★';
+                let stars = '';
+                for(let i = 0; i < importance && i < 3; i++){
+                    stars += `<i class="bi bi-star-fill me-1"></i>`;
                 }
                 return {
                     html: `
                         <div class="fc-event-content-inner p-1">
-                        <div class="position-absolute top-0 end-0 pe-1 text-warning fw-bold">
+                        <div class="position-absolute top-0 end-0 pe-1 text-white fw-bold">
                     ${stars}
                 </div>
                             <div class="fw-bold">${arg.event.title}</div>
@@ -413,10 +413,9 @@
                     const importance = parseInt(props.importance || '0', 10);
 
                     for (let i = 0; i < importance && i < 5; i++) {
-                        importanceStars += '★';
+                        importanceStars += `<i class="bi bi-star-fill me-1"></i>`;
                     }
-
-                    document.getElementById('managerPendingImportance').innerText = importanceStars;
+                    document.getElementById('managerPendingImportance').innerHTML = importanceStars;
                     document.getElementById('managerPendingTitle').innerText = event.title || '';
                     document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
                     document.getElementById('managerPendingTime').innerText = timeText || '';
@@ -427,7 +426,7 @@
                     document.getElementById('managerPendingStatus').innerText = props.status || '';
                     document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
 
-                    
+
                     const footer = document.querySelector('#managerPendingModal .modal-footer');
                     footer.innerHTML = '';
 
