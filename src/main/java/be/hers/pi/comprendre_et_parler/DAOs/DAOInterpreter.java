@@ -130,9 +130,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
         Set<BaseTimeSlot> availability = objectToInsert.getAvailability();
         if (availability != null) {
-            for (BaseTimeSlot av : availability) {
+            for (BaseTimeSlot av : availability)
                 createAvailability(objectToInsert, av);
-            }
         }
 
         Set<ExceptionalUnavailability> unavailabilities = objectToInsert.getUnavailability();
@@ -147,9 +146,14 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
         Set<AcademicSkill> academicSkills = objectToInsert.getAcademicSkills();
         if (academicSkills != null) {
-            for (AcademicSkill skill : academicSkills) {
+            for (AcademicSkill skill : academicSkills)
                 createAcademicSkillLink(objectToInsert, skill);
-            }
+        }
+
+        Set<JobSkill> jobSkills = objectToInsert.getJobSkills();
+        if (jobSkills != null) {
+            for (JobSkill skill : jobSkills)
+                createJobSkillLink(objectToInsert, skill);
         }
     }
 
@@ -312,7 +316,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
         );
         ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
         ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
-
+        ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
         return ret;
     }
 
@@ -498,6 +502,71 @@ public class DAOInterpreter extends DAO<Interpreter> {
                 throw new NoSuchElementException("[ERROR] InterpreterAcademicSkill link (" + interpreter.getFullName() + ", "
                         + skill.getDesignation() + " does not exist in DB.");
         } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Check if a job skill is already registered to an interpreter in DB
+     * @param interpreter the Interpreter
+     * @param skill the JobSkill
+     * @return true if the link is already registered in DB
+     * @throws SQLException if a database exception occurs
+     */
+    public boolean jobSkillLinkExists(Interpreter interpreter, JobSkill skill) throws SQLException {
+        String query = String.format(
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_JOB_SKILL_INTERPRETER, JOB_SKILL_REF_INTERPRETER, JOB_SKILL_REF_SKILL
+        );
+        ResultSet result = null;
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreter.getId());
+            statement.setInt(2, skill.getId());
+
+            result = statement.executeQuery();
+            return result.next();
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Link an interpreter to a job skill in DB, and create them if either of them doesn't exist
+     * @param interpreter the interpreter for whom to add a JobSkill in DB
+     * @param skill the JobSkill to add
+     * @throws SQLException if a database error occurs
+     */
+    public void createJobSkillLink(Interpreter interpreter, JobSkill skill) throws SQLException {
+        if (jobSkillLinkExists(interpreter, skill))
+            return;
+
+        int interpreterRef = new DAOInterpreter().checkAlreadyExists(interpreter);
+        if (interpreterRef < 0) {
+            new DAOInterpreter().create(interpreter);
+            interpreterRef = interpreter.getId();
+        }
+
+        int skillRef = new DAOJobSkill().checkAlreadyExists(skill);
+        if (skillRef < 0) {
+            new DAOJobSkill().create(skill);
+            skillRef = skill.getId();
+        }
+
+        String query = String.format("INSERT INTO %s(%s, %s) VALUES(?, ?)",
+                TABLE_JOB_SKILL_INTERPRETER, JOB_SKILL_REF_INTERPRETER, JOB_SKILL_REF_SKILL
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterRef);
+            statement.setInt(2, skillRef);
+
+            statement.executeUpdate();
+        }
+        finally {
             closeStatement(statement);
         }
     }
