@@ -36,6 +36,10 @@ public class ScheduleController {
 
         List<Map<String, String>> missions = getHardcodedMissions();
         List<Interpreter> interpreters = getHardcodedInterpreters();
+        List<Beneficiary> beneficiaries = getHardcodedBeneficiaries();
+
+        model.addAttribute("beneficiaries", beneficiaries);
+
         ObjectMapper mapper = new ObjectMapper();
         try {
             if (user instanceof Manager) {
@@ -181,6 +185,72 @@ public class ScheduleController {
         return interpreters;
     }
 
+    //FONCTION TEMPORAIRE
+    private List<Beneficiary> getHardcodedBeneficiaries() {
+        List<Beneficiary> beneficiaries = new ArrayList<>();
+
+        Interpreter i1 = new Interpreter(
+                "I001",
+                "Jessica",
+                "DuBuisson",
+                LocalDate.of(1980, 1, 1),
+                "hashed",
+                "jessica@hers.be",
+                "0470000001",
+                0, 0,
+                null,
+                null, null,
+                null,
+                null,
+                null
+        );
+
+        Interpreter i2 = new Interpreter(
+                "I002",
+                "Alice",
+                "Charpentier",
+                LocalDate.of(1980, 1, 1),
+                "hashed",
+                "alice@hers.be",
+                "0470000002",
+                0, 0,
+                null,
+                null, null,
+                null,
+                null,
+                null
+        );
+
+        Beneficiary b1 = new Beneficiary(
+                "B001",
+                "Lucas",
+                "Martin",
+                LocalDate.of(2005, 3, 15),
+                "hashed",
+                "lucas@hers.be",
+                "0470000003",
+                null,
+                i1
+        );
+
+        Beneficiary b2 = new Beneficiary(
+                "B002",
+                "Emma",
+                "Dupont",
+                LocalDate.of(2006, 5, 20),
+                "hashed",
+                "emma@hers.be",
+                "0470000004",
+                null,
+                i2
+        );
+
+        beneficiaries.add(b1);
+        beneficiaries.add(b2);
+
+        return beneficiaries;
+    }
+
     //Temporary to create missions
     private List<Map<String, String>> getHardcodedMissions() {
         List<Map<String, String>> events = new ArrayList<>();
@@ -217,8 +287,8 @@ public class ScheduleController {
 
         Map<String, String> e3 = new HashMap<>();
         e3.put("title", "Anglais");
-        e3.put("start", "2026-05-06T10:00:00"); // avant 13h30
-        e3.put("end", "2026-05-06T12:00:00");
+        e3.put("start", "2026-05-06T15:00:00"); // avant 13h30
+        e3.put("end", "2026-05-06T17:00:00");
         e3.put("color", getColor("Acceptée"));
         e3.put("type", "Translitération");
         e3.put("room", "A6");
