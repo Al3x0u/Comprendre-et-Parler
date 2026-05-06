@@ -8,19 +8,17 @@ public enum MissionState {
     ACCEPTED(1),
     DENIED(2),
     PROGRESSING(3),
-    CANCELED(4);
+    REGULAR(4),
+    CANCELED(5);
 
     private final int value;
 
-    /**
-     * @param value represent the new value
-     */
     MissionState(int value) {
         this.value = value;
     }
 
     /**
-     * @return this.value
+     * @return the integer value associated with this MissionState
      */
     public int getValue() {
         return value;
