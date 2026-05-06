@@ -21,6 +21,8 @@
 <script>
   function toggleEditIndispo() {
     const btn = document.getElementById('btn-edit-indispo');
+    const btnCancel = document.getElementById('btn-cancel-indispo');
+    const modifyButtons = document.querySelectorAll('.indispo-modify');
     const deleteButtons = document.querySelectorAll('.indispo-delete');
     const addButton = document.getElementById('btn-add-indispo');
     const isEditing = btn.classList.contains('editing');
@@ -29,12 +31,16 @@
       btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
       btn.classList.remove('editing', 'btn-outline-success');
       btn.classList.add('btn-outline-primary');
+      btnCancel.classList.add('d-none');
+      modifyButtons.forEach(b => b.classList.add('d-none'));
       deleteButtons.forEach(b => b.classList.add('d-none'));
       addButton.classList.add('d-none');
     } else {
       btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
       btn.classList.add('editing', 'btn-outline-success');
       btn.classList.remove('btn-outline-primary');
+      btnCancel.classList.remove('d-none');
+      modifyButtons.forEach(b => b.classList.remove('d-none'));
       deleteButtons.forEach(b => b.classList.remove('d-none'));
       addButton.classList.remove('d-none');
     }
@@ -42,6 +48,7 @@
 
   function toggleEditSkills(type) {
     const btn = document.getElementById('btn-edit-' + type);
+    const btnCancel = document.getElementById('btn-cancel-' + type);
     const deleteIcons = document.querySelectorAll('.' + type + '-delete');
     const addButton = document.getElementById('btn-add-' + type);
     const isEditing = btn.classList.contains('editing');
@@ -50,12 +57,14 @@
       btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
       btn.classList.remove('editing', 'btn-outline-success');
       btn.classList.add('btn-outline-primary');
+      btnCancel.classList.add('d-none');
       deleteIcons.forEach(i => i.classList.add('d-none'));
       addButton.classList.add('d-none');
     } else {
       btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
       btn.classList.add('editing', 'btn-outline-success');
       btn.classList.remove('btn-outline-primary');
+      btnCancel.classList.remove('d-none');
       deleteIcons.forEach(i => i.classList.remove('d-none'));
       addButton.classList.remove('d-none');
     }

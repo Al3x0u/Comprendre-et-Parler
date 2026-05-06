@@ -82,11 +82,16 @@
             <!-- Unavailabilities -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Indisponibilités</h2>
-                        <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-indispo" onclick="toggleEditIndispo()">
-                            <i class="bi bi-pencil me-1"></i>Modifier
-                        </button>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-indispo" onclick="toggleEditIndispo()">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-indispo" onclick="toggleEditIndispo()">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
                     </div>
                     <div th:if="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="d-flex flex-column gap-3">
                         <div th:each="u : *{unavailability}" class="bg-light rounded p-3 border d-flex justify-content-between align-items-center">
@@ -101,9 +106,14 @@
                                     <span th:text="${#temporals.format(u.timeSlot.endDate, 'dd/MM/yyyy HH:mm')}"></span>
                                 </p>
                             </div>
-                            <button class="btn btn-outline-danger btn-sm indispo-delete d-none">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm indispo-modify d-none">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm indispo-delete d-none">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div th:unless="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="text-muted">
@@ -122,11 +132,16 @@
             <!-- Academic Skills -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Compétences académiques</h2>
-                        <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-academic" onclick="toggleEditSkills('academic')">
-                            <i class="bi bi-pencil me-1"></i>Modifier
-                        </button>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-academic" onclick="toggleEditSkills('academic')">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-academic" onclick="toggleEditSkills('academic')">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
                     </div>
                     <div th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="d-flex flex-wrap gap-2" id="academic-skills">
                         <span th:each="skill : *{academicSkills}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
@@ -146,11 +161,16 @@
             <!-- Job Skills -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Compétences métier</h2>
-                        <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-job" onclick="toggleEditSkills('job')">
-                            <i class="bi bi-pencil me-1"></i>Modifier
-                        </button>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-job" onclick="toggleEditSkills('job')">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-job" onclick="toggleEditSkills('job')">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
                     </div>
                     <div th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="d-flex flex-wrap gap-2" id="job-skills">
                         <span th:each="skill : *{jobSkills}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
