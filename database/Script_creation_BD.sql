@@ -156,7 +156,7 @@ CREATE TABLE InterpreterMission (
 );
 
 
-ALTER TABLE Location ADD CONSTRAINT BoxValue CHECK (box NULL OR box >= 0);
+ALTER TABLE Location ADD CONSTRAINT BoxValue CHECK (box IS NULL OR box >= 0);
 
 ALTER TABLE Status ADD CONSTRAINT QuotaValue CHECK (hourQuota >= 0);
 
