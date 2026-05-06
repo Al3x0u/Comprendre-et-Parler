@@ -115,6 +115,7 @@ public class BeneficiaryController {
         if (user instanceof Beneficiary b && b.getId() == id) {
             beneficiary = b;
             model.addAttribute("currentPage", "profile");
+            model.addAttribute("isOwnProfile", true);
         } else if (user instanceof Manager) {
             // Manager qui modifie un bénéficiaire
             List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
@@ -123,6 +124,7 @@ public class BeneficiaryController {
                     .findFirst()
                     .orElse(null);
             model.addAttribute("currentPage", "beneficiaries");
+            model.addAttribute("isOwnProfile", false);
         } else {
             return "redirect:/beneficiaires";
         }

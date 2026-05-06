@@ -121,6 +121,7 @@ public class InterpreterController {
 
         if (user instanceof Interpreter i && i.getId() == id) {
             interpreter = i;
+            model.addAttribute("isOwnProfile", true);
             model.addAttribute("currentPage", "profile");
         } else if (user instanceof Manager) {
             List<Interpreter> allInterpreters = buildFakeInterpreters();
@@ -129,6 +130,7 @@ public class InterpreterController {
                     .findFirst()
                     .orElse(null);
             model.addAttribute("currentPage", "interpreters");
+            model.addAttribute("isOwnProfile", false);
         } else {
             return "redirect:/interpretes";
         }
