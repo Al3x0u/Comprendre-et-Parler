@@ -364,10 +364,25 @@
 
                 } else if (status.includes('accept') && isSameDay && isBeforeEnd) {
                     actions.innerHTML = `
-                    <button type="button" class="btn btn-warning text-white">Signaler un retard</button>
-                `;
+                        <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
+                    `;
                 }
                 const cancelBtn = document.getElementById('btnCancelRequest');
+                const delayBtn = document.getElementById('btnDelayReport');
+
+                if (delayBtn) {
+                    delayBtn.addEventListener('click', function() {
+                        const eventModalEl = document.getElementById('eventModal');
+                        const eventModal = bootstrap.Modal.getOrCreateInstance(eventModalEl);
+                        const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
+
+                        eventModalEl.addEventListener('hidden.bs.modal', function openDelayOnce() {
+                            delayModal.show();
+                        }, { once: true });
+
+                        eventModal.hide();
+                    });
+                }
 
                 if (cancelBtn) {
                     cancelBtn.addEventListener('click', function() {
@@ -410,6 +425,36 @@
 
             confirmCancelModal.hide();
             eventModal.show();
+        });
+
+        const eventModalEl = document.getElementById('eventModal');
+        const delayModalEl = document.getElementById('delayModal');
+
+        const eventModalInstance = bootstrap.Modal.getOrCreateInstance(eventModalEl);
+        const delayModalInstance = bootstrap.Modal.getOrCreateInstance(delayModalEl);
+
+
+
+        function reopenEventModalFromDelay() {
+            delayModalInstance.hide();
+            eventModalInstance.show();
+        }
+
+        document.getElementById('cancelDelayModalBtn').addEventListener('click', function() {
+            reopenEventModalFromDelay();
+        });
+
+        document.getElementById('closeDelayModalBtn').addEventListener('click', function() {
+            reopenEventModalFromDelay();
+        });
+
+        document.getElementById('sendDelayBtn').addEventListener('click', function() {
+            const minutes = document.getElementById('delayMinutes').value;
+            const absent = document.getElementById('delayAbsent').checked;
+
+            delayModalInstance.hide();
+
+            //TODO BACKEND
         });
         calendar.render();
     });
