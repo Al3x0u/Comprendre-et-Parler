@@ -54,12 +54,12 @@
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="email" class="form-label"><i class="bi bi-envelope me-2"></i>Adresse mail</label>
-                        <input id="email" type="email" class="form-control" th:field="*{email}">
+                        <input id="email" type="email" class="form-control" th:field="*{email}" required>
                     </div>
 
                     <div class="col-12 col-md-6">
                         <label for="phoneNumber" class="form-label"><i class="bi bi-telephone me-2"></i>Téléphone</label>
-                        <input id="phoneNumber" type="text" class="form-control" th:field="*{phoneNumber}">
+                        <input id="phoneNumber" type="text" class="form-control" th:field="*{phoneNumber}" pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+">
                     </div>
                 </div>
 
@@ -78,24 +78,29 @@
 
                     <div class="col-12 col-md-8">
                         <label for="street" class="form-label">Rue</label>
-                        <input id="street" type="text" class="form-control" th:field="*{location.street}">
+                        <input id="street" type="text" class="form-control" th:field="*{location.street}" required>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-2">
                         <label for="streetNumber" class="form-label">Numéro</label>
                         <input id="streetNumber" type="text" class="form-control" th:field="*{location.streetNumber}">
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <label for="box" class="form-label">Boîte</label>
+                        <input id="box" type="number" min="0" class="form-control" th:field="*{location.box}">
                     </div>
                 </div>
 
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-4">
                         <label for="postalCode" class="form-label">Code postal</label>
-                        <input id="postalCode" type="text" class="form-control" th:field="*{location.city.postalCode}">
+                        <input id="postalCode" type="number" min="1000" max="9999" class="form-control" th:field="*{location.city.postalCode}" required>
                     </div>
 
                     <div class="col-12 col-md-8">
                         <label for="cityDesignation" class="form-label">Ville</label>
-                        <input id="cityDesignation" type="text" class="form-control" th:field="*{location.city.designation}">
+                        <input id="cityDesignation" type="text" class="form-control" th:field="*{location.city.designation}" required>
                     </div>
                 </div>
 
