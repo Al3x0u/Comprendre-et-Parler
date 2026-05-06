@@ -1,11 +1,10 @@
 package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
-import be.hers.pi.comprendre_et_parler.models.AppliUser;
-import be.hers.pi.comprendre_et_parler.models.Manager;
-import be.hers.pi.comprendre_et_parler.models.Mission;
-import be.hers.pi.comprendre_et_parler.models.MissionFilter;
+import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
@@ -69,5 +68,69 @@ public class MissionService {
         return new ArrayList<>(missions);
     }
 
+    public void createMission(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
+        if (mission.getInterpreters() != null){
+            for (Interpreter interpreter : mission.getInterpreters()){
+                checkInterpreterConflict(interpreter, mission.getTimeSlot());
+            }
+        }
+
+        mission.setStateOfMission(MissionState.ACCEPTED);
+        daoMission.create(mission);
+    }
+
+
+    public void createRequest(Mission mission) throws AlreadyExistsException, SQLException {
+        mission.setStateOfMission(MissionState.PENDING);
+        daoMission.create(mission);
+    }
+
+
+    private void checkInterpreterConflict(Interpreter interpreter, TimeSlot slot) throws ConflictException, SQLException {
+        for (LocalDate date : getDates(slot)){
+            for (Mission existing : daoMission.getScheduleForDay(interpreter.getId(), date)){
+                if (hasConflict(slot, existing.getTimeSlot())){
+                    throw new ConflictException("Conflit d'hiraire pour " + interpreter.getId());
+                }
+
+            }
+
+
+        }
+
+    }
+
+    private List<LocalDate> getDates(TimeSlot ts) {
+        List<LocalDate> dates = new ArrayList<>();
+
+        if (ts instanceof PunctualTimeSlot) {
+            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) ts;
+            dates.add(punctualTimeSlot.getStartDate().toLocalDate());
+
+        } else if (ts instanceof BaseTimeSlot) {
+            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) ts;
+
+            LocalDate cursorStart = baseTimeSlot.getStartDate();
+            while (!cursorStart.getDayOfWeek().equals(baseTimeSlot.getDay()))
+                cursorStart = cursorStart.plusDays(1);
+
+            while (!cursorStart.isAfter(baseTimeSlot.getEndDate())) {
+                dates.add(cursorStart);
+                cursorStart = cursorStart.plusWeeks(1);
+            }
+        }
+
+        return dates;
+    }
+
+    private boolean hasConflict(TimeSlot firstTS, TimeSlot secondTS) {
+        if (firstTS instanceof PunctualTimeSlot && secondTS instanceof PunctualTimeSlot) {
+            return ((PunctualTimeSlot) firstTS).overlaps((PunctualTimeSlot) secondTS);
+        }
+        if (firstTS instanceof BaseTimeSlot && secondTS instanceof BaseTimeSlot) {
+            return ((BaseTimeSlot) firstTS).overlaps((BaseTimeSlot) secondTS);
+        }
+        return false;
+    }
 
 }
