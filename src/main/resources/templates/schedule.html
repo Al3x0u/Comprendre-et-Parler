@@ -211,6 +211,66 @@
     </div>
 </div>
 
+<!-- POPUP MANAGER - DEMANDE EN ATTENTE -->
+<div class="modal fade" id="managerPendingModal" tabindex="-1" aria-labelledby="managerPendingTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header border-0">
+                <h4 class="modal-title fw-bold fs-3" id="managerPendingTitle"></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body fs-5">
+                <div class="mb-2">
+                    <i class="bi bi-calendar"></i>
+                    <span id="managerPendingDate"></span>
+                    <i class="bi bi-clock ms-2"></i>
+                    <span id="managerPendingTime"></span>
+                    <span class="ms-3" id="managerPendingImportance"></span>
+                </div>
+
+                <div class="mb-2">
+                    <i class="bi bi-geo-alt"></i>
+                    <span id="managerPendingLocation"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Bénéficiaire - </strong>
+                    <span id="managerPendingBeneficiary" class="fst-italic text-muted"></span>
+                </div>
+
+                <div class="mb-2" id="managerPendingType"></div>
+
+                <div class="mb-2">
+                    <strong>Commentaire :</strong>
+                    <span id="managerPendingComment" class="fst-italic text-muted"></span>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Statut :</strong>
+                    <span id="managerPendingStatus"></span>
+                </div>
+
+                <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
+                    <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète*</label>
+                    <select id="managerPendingInterpreter" class="form-select w-auto">
+                        <option value="">Sélectionner</option>
+                        <option value="Jessica DuBuisson">Jessica DuBuisson</option>
+                        <option value="Alice Charpentier">Alice Charpentier</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger fs-5" id="btnRefuseMission">Refuser</button>
+                <button type="button" class="btn btn-success fs-5" id="btnAcceptMission">Accepter</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
@@ -325,6 +385,11 @@
                 const props = event.extendedProps;
                 const start = event.start;
                 const end = event.end;
+                const status = (props.status || '').toLowerCase();
+
+                const isManager = userRole === 'MANAGER';
+                const isPending = status.includes('en attente');
+                const isAccepted = status.includes('accept');
 
                 const timeFormatter = new Intl.DateTimeFormat('fr-BE', {hour: '2-digit', minute: '2-digit'});
 
@@ -337,6 +402,28 @@
                         timeText += ' - ' + timeFormatter.format(end);
                     }
                 }
+                if (isManager && (isPending || isAccepted)) {
+                    let importanceText = '';
+                    const importance = parseInt(props.importance || '0', 10);
+                    if (importance > 0) {
+                        importanceText = '⚠ Important';
+                    }
+
+                    document.getElementById('managerPendingTitle').innerText = event.title || '';
+                    document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
+                    document.getElementById('managerPendingTime').innerText = timeText || '';
+                    document.getElementById('managerPendingImportance').innerText = importanceText;
+                    document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
+                    document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || '';
+                    document.getElementById('managerPendingType').innerText = props.type || '';
+                    document.getElementById('managerPendingComment').innerText = props.comment || '';
+                    document.getElementById('managerPendingStatus').innerText = props.status || '';
+                    document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
+
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
+                    return;
+                }
+
                 document.getElementById('modalTitle').innerText = event.title || '';
                 document.getElementById('modalTime').innerText = timeText || '';
                 document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
@@ -349,20 +436,19 @@
                 actions.innerHTML = '';
 
                 const type = (props.type || '').toLowerCase();
-                const status = (props.status || '').toLowerCase();
 
                 const now = new Date();
                 const isSameDay =   now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
                 const isBeforeEnd = now < end;
 
-                if (status.includes('en attente')) {
+                if (isPending) {
                     actions.innerHTML = `
                     <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
                     <button type="button" class="btn btn-primary">Modifier la demande</button>
                 `;
 
 
-                } else if (status.includes('accept') && isSameDay && isBeforeEnd) {
+                } else if (isAccepted && isSameDay && isBeforeEnd) {
                     actions.innerHTML = `
                         <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
                     `;
@@ -375,7 +461,7 @@
                         const eventModal = bootstrap.Modal.getOrCreateInstance( document.getElementById('eventModal'));
                         const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
 
-                       
+
                         eventModal.hide();
                         delayModal.show();
                     });
@@ -441,7 +527,7 @@
             const minutes = document.getElementById('delayMinutes').value;
             const absent = document.getElementById('delayAbsent').checked;
 
-            delayModalInstance.hide();
+            const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
 
             //TODO BACKEND
         });
