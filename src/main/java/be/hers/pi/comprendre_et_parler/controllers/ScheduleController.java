@@ -35,6 +35,7 @@ public class ScheduleController {
         model.addAttribute("currentPage", "schedule");
 
         List<Map<String, String>> missions = getHardcodedMissions();
+        List<Interpreter> interpreters = getHardcodedInterpreters();
         ObjectMapper mapper = new ObjectMapper();
         try {
             if (user instanceof Manager) {
@@ -139,14 +140,55 @@ public class ScheduleController {
         return m1;
     }
 
+    private List<Interpreter> getHardcodedInterpreters() {
+        List<Interpreter> interpreters = new ArrayList<>();
+
+        Interpreter i1 = new Interpreter(
+                "I001",
+                "Jessica",
+                "DuBuisson",
+                LocalDate.of(1980, 1, 1),
+                "hashed",
+                "jessica@hers.be",
+                "0470000001",
+                0, 0,
+                null,
+                null, null,
+                null,
+                null,
+                null
+        );
+
+        Interpreter i2 = new Interpreter(
+                "I002",
+                "Alice",
+                "Charpentier",
+                LocalDate.of(1980, 1, 1),
+                "hashed",
+                "alice@hers.be",
+                "0470000002",
+                0, 0,
+                null,
+                null, null,
+                null,
+                null,
+                null
+        );
+
+        interpreters.add(i1);
+        interpreters.add(i2);
+
+        return interpreters;
+    }
+
     //Temporary to create missions
     private List<Map<String, String>> getHardcodedMissions() {
         List<Map<String, String>> events = new ArrayList<>();
 
         Map<String, String> e1 = new HashMap<>();
         e1.put("title", "Mathématique");
-        e1.put("start", "2026-04-27T09:00:00");
-        e1.put("end", "2026-04-27T10:30:00");
+        e1.put("start", "2026-05-05T09:00:00"); // jour avant
+        e1.put("end", "2026-05-05T10:30:00");
         e1.put("color", getColor("Acceptée"));
         e1.put("type", "Translitération");
         e1.put("room", "M2");
@@ -154,13 +196,14 @@ public class ScheduleController {
         e1.put("beneficiary", "Lucas Martin");
         e1.put("status", "Acceptée");
         e1.put("comment", "ATTENTION HEIN");
-
+        e1.put("address", "RUE DES JARDINEURS 2883 LIBRAMONT");
+        e1.put("importance", "3");
         events.add(e1);
 
         Map<String, String> e2 = new HashMap<>();
         e2.put("title", "Physique");
-        e2.put("start", "2026-04-27T11:00:00");
-        e2.put("end", "2026-04-27T12:30:00");
+        e2.put("start", "2026-05-06T08:00:00"); // avant 13h30
+        e2.put("end", "2026-05-06T09:30:00");
         e2.put("color", getColor("En attente"));
         e2.put("type", "Transcription");
         e2.put("room", "A6");
@@ -168,13 +211,14 @@ public class ScheduleController {
         e2.put("beneficiary", "Emma Dupont");
         e2.put("status", "En attente");
         e2.put("comment", "Demande en attente de validation");
-
+        e2.put("address", "Rue des problèmes 83 LIBRAMONT");
+        e2.put("importance", "1");
         events.add(e2);
 
         Map<String, String> e3 = new HashMap<>();
         e3.put("title", "Anglais");
-        e3.put("start", "2026-04-27T13:30:00");
-        e3.put("end", "2026-04-27T15:30:00");
+        e3.put("start", "2026-05-06T10:00:00"); // avant 13h30
+        e3.put("end", "2026-05-06T12:00:00");
         e3.put("color", getColor("Acceptée"));
         e3.put("type", "Translitération");
         e3.put("room", "A6");
@@ -182,25 +226,27 @@ public class ScheduleController {
         e3.put("beneficiary", "Lucas Martin");
         e3.put("status", "Acceptée");
         e3.put("comment", "Présence confirmée");
-
+        e3.put("address", "Rue des fauchers 28 LIBRAMONT");
+        e3.put("importance", "2");
         events.add(e3);
 
         Map<String, String> e4 = new HashMap<>();
         e4.put("title", "Anglais");
-        e4.put("start", "2026-04-28T10:30:00");
-        e4.put("end", "2026-04-28T12:30:00");
+        e4.put("start", "2026-05-07T10:30:00"); // jour suivant
+        e4.put("end", "2026-05-07T12:30:00");
         e4.put("color", getColor("Acceptée"));
         e4.put("type", "Transcription");
         e4.put("room", "E12");
         e4.put("interpreter", "Alice Charpentier");
         e4.put("beneficiary", "Lucas Martin");
         e4.put("status", "Acceptée");
+        e4.put("importance", "5");
         events.add(e4);
 
         Map<String, String> e5 = new HashMap<>();
         e5.put("title", "Mathématique");
-        e5.put("start", "2026-04-28T13:30:00");
-        e5.put("end", "2026-04-28T15:00:00");
+        e5.put("start", "2026-05-07T13:30:00"); // après
+        e5.put("end", "2026-05-07T15:00:00");
         e5.put("color", getColor("Acceptée"));
         e5.put("type", "Transcription");
         e5.put("room", "E12");
@@ -211,8 +257,8 @@ public class ScheduleController {
 
         Map<String, String> e6 = new HashMap<>();
         e6.put("title", "Histoire");
-        e6.put("start", "2026-04-29T11:00:00");
-        e6.put("end", "2026-04-29T12:30:00");
+        e6.put("start", "2026-05-08T11:00:00"); // jour suivant
+        e6.put("end", "2026-05-08T12:30:00");
         e6.put("color", getColor("Refusée"));
         e6.put("type", "Translitération");
         e6.put("room", "A2");
@@ -223,8 +269,8 @@ public class ScheduleController {
 
         Map<String, String> e7 = new HashMap<>();
         e7.put("title", "Mathématique");
-        e7.put("start", "2026-04-29T09:30:00");
-        e7.put("end", "2026-04-29T10:30:00");
+        e7.put("start", "2026-05-06T09:30:00"); // avant 13h30
+        e7.put("end", "2026-05-06T10:30:00");
         e7.put("color", getColor("Acceptée"));
         e7.put("type", "Transcription");
         e7.put("room", "A3");
@@ -235,8 +281,8 @@ public class ScheduleController {
 
         Map<String, String> e8 = new HashMap<>();
         e8.put("title", "Education Physique");
-        e8.put("start", "2026-04-30T08:30:00");
-        e8.put("end", "2026-04-30T10:30:00");
+        e8.put("start", "2026-05-05T08:30:00"); // jour avant
+        e8.put("end", "2026-05-05T10:30:00");
         e8.put("color", getColor("Horaire de base"));
         e8.put("type", "Transcription");
         e8.put("room", "A3");
@@ -247,32 +293,32 @@ public class ScheduleController {
 
         Map<String, String> e9 = new HashMap<>();
         e9.put("title", "Chimie");
-        e9.put("start", "2026-05-01T08:30:00");
-        e9.put("end", "2026-05-01T10:30:00");
-        e9.put("color", getColor("Refusée"));
+        e9.put("start", "2026-05-06T08:30:00"); // avant 13h30
+        e9.put("end", "2026-05-06T13:30:00");
+        e9.put("color", getColor("Acceptée"));
         e9.put("type", "Translitération");
         e9.put("room", "Labo 3");
         e9.put("interpreter", "Jessica DuBuisson");
         e9.put("beneficiary", "Lucas Martin");
-        e9.put("status", "Refusée");
+        e9.put("status", "Acceptée");
         events.add(e9);
 
         Map<String, String> e10 = new HashMap<>();
         e10.put("title", "Géographie");
-        e10.put("start", "2026-04-28T10:00:00");
-        e10.put("end", "2026-04-28T12:00:00");
+        e10.put("start", "2026-05-04T10:00:00"); // encore avant
+        e10.put("end", "2026-05-04T18:00:00");
         e10.put("color", getColor("En attente"));
         e10.put("type", "Transcription");
         e10.put("room", "B9");
         e10.put("interpreter", "Jessica DuBuisson");
         e10.put("beneficiary", "Emma Dupont");
-        e10.put("status", "En attente");
+        e10.put("status", "Acceptée");
         events.add(e10);
 
         Map<String, String> e11 = new HashMap<>();
         e11.put("title", "Français");
-        e11.put("start", "2026-04-27T09:00:00");
-        e11.put("end", "2026-04-27T10:30:00");
+        e11.put("start", "2026-05-06T09:00:00"); // avant 13h30
+        e11.put("end", "2026-05-06T10:30:00");
         e11.put("color", getColor("Acceptée"));
         e11.put("type", "Transcription");
         e11.put("room", "C3");
@@ -283,8 +329,8 @@ public class ScheduleController {
 
         Map<String, String> e12 = new HashMap<>();
         e12.put("title", "Histoire");
-        e12.put("start", "2026-04-28T14:00:00");
-        e12.put("end", "2026-04-28T15:30:00");
+        e12.put("start", "2026-05-07T14:00:00"); // après
+        e12.put("end", "2026-05-07T15:30:00");
         e12.put("color", getColor("En attente"));
         e12.put("type", "Translitération");
         e12.put("room", "A1");
