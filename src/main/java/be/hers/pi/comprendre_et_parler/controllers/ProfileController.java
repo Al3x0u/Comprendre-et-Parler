@@ -39,7 +39,8 @@ public class ProfileController {
             model.addAttribute("age", Period.between(b.getBirthDate(), LocalDate.now()).getYears());
             model.addAttribute("interpreters", getHardcodedInterpreters());
         }
-
+        model.addAttribute("currentPage", "profile");
+        model.addAttribute("isManager", user instanceof Manager);
         return "profile";
     }
 
