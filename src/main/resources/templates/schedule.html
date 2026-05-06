@@ -271,6 +271,170 @@
     </div>
 </div>
 
+<div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+
+            <div class="modal-header border-0">
+                <h4 class="modal-title fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold d-block">Type*</label>
+
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestType" id="typeTranscription" value="Transcription" checked>
+                            <label class="form-check-label" for="typeTranscription">Transcription</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestType" id="typeTransliteration" value="Translitéra­tion">
+                            <label class="form-check-label" for="typeTransliteration">Translitération</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestType" id="typeLpc" value="LPC">
+                            <label class="form-check-label" for="typeLpc">LPC</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="requestTitle" class="form-label fw-semibold">Titre*</label>
+                    <input type="text" class="form-control" id="requestTitle" placeholder="Entrez le titre">
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label for="requestDate" class="form-label fw-semibold">Date*</label>
+                        <input type="date" class="form-control" id="requestDate">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="requestStartTime" class="form-label fw-semibold">Heure début*</label>
+                        <select class="form-select" id="requestStartTime">
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                            <option value="18:30">18:30</option>
+                            <option value="19:00">19:00</option>
+                            <option value="19:30">19:30</option>
+                            <option value="20:00">20:00</option>
+                            <option value="20:30">20:30</option>
+                            <option value="21:00">21:00</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="requestEndTime" class="form-label fw-semibold">Heure fin*</label>
+                        <select class="form-select" id="requestEndTime">
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="12:00">12:00</option>
+                            <option value="12:30">12:30</option>
+                            <option value="13:00">13:00</option>
+                            <option value="13:30">13:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                            <option value="18:30">18:30</option>
+                            <option value="19:00">19:00</option>
+                            <option value="19:30">19:30</option>
+                            <option value="20:00">20:00</option>
+                            <option value="20:30">20:30</option>
+                            <option value="21:00">21:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="requestLocation" class="form-label fw-semibold">Lieu*</label>
+                    <input type="text" class="form-control" id="requestLocation" placeholder="Entrez le lieu">
+                </div>
+
+                <div class="mb-3">
+                    <label for="requestProfessor" class="form-label fw-semibold">Professeur</label>
+                    <input type="text" class="form-control" id="requestProfessor" placeholder="Entrez le nom du professeur">
+                </div>
+
+                <div class="mb-4">
+                    <label for="requestComment" class="form-label fw-semibold">Commentaire</label>
+                    <textarea class="form-control" id="requestComment" rows="3" placeholder="Entrez votre commentaire/remarque"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold d-block">Importance</label>
+
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestImportance" id="importance0" value="0" checked>
+                            <label class="form-check-label" for="importance0">Aucune étoile</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestImportance" id="importance1" value="1">
+                            <label class="form-check-label" for="importance1">★</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestImportance" id="importance2" value="2">
+                            <label class="form-check-label" for="importance2">★★</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestImportance" id="importance3" value="3">
+                            <label class="form-check-label" for="importance3">★★★</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="sendRequestBtn">
+                    Envoyer
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
@@ -297,7 +461,10 @@
         customButtons.newRequest = {
             text: '+ Nouvelle demande',
             click: function() {
-                // TODO: ouvrir modal de création
+                const newRequestModal = bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('newRequestModal')
+                );
+                newRequestModal.show();
             }
         };
     }
