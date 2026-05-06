@@ -476,9 +476,30 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
     }
 
-
+    /**
+     * Unlink an Interpreter from an AcademicSkill in DB
+     * @param interpreter the interpreter for whom to remove an AcademicSkill
+     * @param skill the AcademicSkill to remove
+     * @throws NoSuchElementException if the link does not exist in DB
+     * @throws SQLException if a database error occurs
+     */
     public void deleteAcademicSkillLink(Interpreter interpreter, AcademicSkill skill) throws NoSuchElementException, SQLException {
-        // TODO
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_ACADEMIC_SKILL_INTERPRETER, ACADEMIC_SKILL_REF_INTERPRETER, ACADEMIC_SKILL_REF_SKILL
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreter.getId());
+            statement.setInt(2, skill.getId());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] InterpreterAcademicSkill link (" + interpreter.getFullName() + ", "
+                        + skill.getDesignation() + " does not exist in DB.");
+        } finally {
+            closeStatement(statement);
+        }
     }
 
     /**
