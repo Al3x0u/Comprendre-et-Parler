@@ -60,27 +60,6 @@
       addButton.classList.remove('d-none');
     }
   }
-
-  function toggleEditBeneficiaries() {
-    const btn = document.getElementById('btn-edit-beneficiaries');
-    const deleteButtons = document.querySelectorAll('.beneficiary-delete');
-    const addButton = document.getElementById('btn-add-beneficiary');
-    const isEditing = btn.classList.contains('editing');
-
-    if (isEditing) {
-      btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
-      btn.classList.remove('editing', 'btn-outline-success');
-      btn.classList.add('btn-outline-primary');
-      deleteButtons.forEach(b => b.classList.add('d-none'));
-      addButton.classList.add('d-none');
-    } else {
-      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
-      btn.classList.add('editing', 'btn-outline-success');
-      btn.classList.remove('btn-outline-primary');
-      deleteButtons.forEach(b => b.classList.remove('d-none'));
-      addButton.classList.remove('d-none');
-    }
-  }
 </script>
 </body>
 </html>
