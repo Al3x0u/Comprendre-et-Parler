@@ -17,12 +17,13 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_START_TIME = "startDateTime";
     protected static final String FIELD_END_TIME = "endDateTime";
+    protected static final String FIELD_DAY = "day";
 
     @Override
     public PunctualTimeSlot find(int id) throws SQLException {
         String query = String.format(
-                "SELECT * FROM %s WHERE %s = ?",
-                TABLE,  FIELD_ID
+                "SELECT * FROM %s WHERE %s = ? AND %s IS NULL",
+                TABLE,  FIELD_ID, FIELD_DAY
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -46,7 +47,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("PunctualTimeSlot" + objectToInsert.getStartDate() + " to " + objectToInsert.getEndDate() +  " already exists");
 
-        String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?)", TABLE);
+        String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, NULL)", TABLE);
         PreparedStatement statement = null;
         ResultSet generatedKeys = null;
         try {
@@ -70,8 +71,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
             throw new AlreadyExistsException("PunctualTimeSlot" + objectToUpdate.getStartDate() + " to " + objectToUpdate.getEndDate() +  " already exists");
 
         String query = String.format(
-                "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
-                TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID
+                "UPDATE %s SET %s = ?, %s = ? WHERE %s = ? AND %s IS NULL",
+                TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID, FIELD_DAY
         );
         PreparedStatement statement = null;
         try {
@@ -90,8 +91,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     @Override
     public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
         String query = String.format(
-                "DELETE FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID
+                "DELETE FROM %s WHERE %s = ? AND %s IS NULL",
+                TABLE, FIELD_ID, FIELD_DAY
         );
         PreparedStatement statement = null;
         try {
@@ -107,7 +108,9 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public Set<PunctualTimeSlot> findAll() throws SQLException {
-        String query = String.format("SELECT * FROM %s", TABLE);
+        String query = String.format("SELECT * FROM %s AND %s IS NULL",
+                TABLE, FIELD_DAY
+        );
         PreparedStatement statement = null;
         ResultSet result = null;
         Set<PunctualTimeSlot> ret = new HashSet<>();

@@ -2,8 +2,8 @@ package be.hers.pi.comprendre_et_parler.models;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,18 +13,15 @@ class MissionTest {
 
     @BeforeAll
     public static void init() {
-        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(),
-                "1234", "test@gmail.com", "123/45.67.89", 10, 120,
-                "Auto", null, null, null, null);
-        Beneficiary b1 = new Beneficiary(2, "2", "test", "test", LocalDate.now(),
-                "1234", "test@gmail.com", "123/45.67.89",
-                new Status(1, "test", 10), i1);
-        Set<TimeSlot> t1 = new HashSet<>();
-        t1.add(new RegularMission(new PunctualTimeSlot(1, LocalDateTime.now(), LocalDateTime.now().plusHours(2)), MissionState.ACCEPTED));
+        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
+                "test@gmail.com", "123/45.67.89", 10, 120,
+                "Velo", null, null, null, null);
+        Beneficiary b1 = new Beneficiary(2, "2", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
         m1 = new Mission(1,
                 "test",
+                MissionState.PENDING,
                 "test",
-                t1,
+                new PunctualTimeSlot(1, LocalDateTime.now(), LocalDateTime.now().plusHours(2)),
                 b1,
                 new Location(1, "test", new City(1, "Libramont", 6800), "test", "test", 15),
                 new JobSkill(2, "test"),

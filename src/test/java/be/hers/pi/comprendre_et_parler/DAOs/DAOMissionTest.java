@@ -24,7 +24,6 @@ class DAOMissionTest {
     public static Mission m3;
     public final static DAOMission missionDAO = new DAOMission();
 
-    ///Tests on the find methods do not pass because the set of time slots is not initialized in DAOMission.
 
     @BeforeAll
     public static void init() throws SQLException {
@@ -48,10 +47,6 @@ class DAOMissionTest {
                 LocalTime.NOON.plusHours(1), DayOfWeek.MONDAY);
         new DAOPunctualTimeSlot().create(t1);
         new DAOBaseTimeSlot().create(t2);
-        Set<TimeSlot> t3 = new HashSet<>();
-        t3.add(t1);
-        Set<TimeSlot> t4 = new HashSet<>();
-        t4.add(t2);
 
         Status s1 = new Status(1, "Test", 50);
         new DAOStatus().create(s1);
@@ -59,13 +54,13 @@ class DAOMissionTest {
                 "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
         new DAOBeneficiary().create(b1);
 
-        m1 = new Mission(75, "Regular mission", "regular", t4,
-                l1, new HashSet<>(), "B7", 2);
+        m1 = new Mission(75, "Regular mission", MissionState.REGULAR, "regular", t2,
+                l1, new HashSet<>(), null, null, "B7", 2);
         m1.addInterpreter(i1);
-        m2 = new Mission(2, "Pending mission", "pending", t3,
+        m2 = new Mission(2, "Pending mission", MissionState.PENDING, "pending", t1,
                 b1, l1, null, null, "ABC", 0);
-        m3 = new Mission(4, "Accepted mission", "accepted", t3,
-                l1, new HashSet<>(), "A34", 3);
+        m3 = new Mission(4, "Accepted mission", MissionState.ACCEPTED, "accepted", t1,
+                l1, new HashSet<>(), null, null, "A34", 3);
         m3.addInterpreter(i2);
     }
 

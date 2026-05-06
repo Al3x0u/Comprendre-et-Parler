@@ -4,7 +4,6 @@ import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.Mission;
 import be.hers.pi.comprendre_et_parler.models.MissionFilter;
-import be.hers.pi.comprendre_et_parler.models.RegularMission;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
@@ -36,10 +35,7 @@ public class MissionService {
                 .filter(m -> filter.getMinImportance() == null ||
                         m.getImportance() >= filter.getMinImportance())
                 .filter(m -> filter.getStateOfMission() == null ||
-                        m.getTimeSlot().stream()
-                                .filter(ts -> ts instanceof RegularMission)
-                                .map(ts -> (RegularMission) ts)
-                                .anyMatch(rm -> rm.getStateOfMission().equals(filter.getStateOfMission())))
+                        m.getStateOfMission().equals(filter.getStateOfMission()))
                 .collect(Collectors.toList());
     }
 }
