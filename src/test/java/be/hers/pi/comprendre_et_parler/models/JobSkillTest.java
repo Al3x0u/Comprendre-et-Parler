@@ -55,3 +55,4 @@ class JobSkillTest {
         assertNotEquals(j2, j1, "The second object has one of its attributes other than its id changed.");
     }
 }
+
