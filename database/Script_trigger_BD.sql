@@ -12,18 +12,16 @@ DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
 DROP TRIGGER IUR_UpdateBeneficiary;
 DROP TRIGGER IIR_InsertionTransportationView;
-DROP TRIGGER IIR_InsertionBaseTimeSlotView;
-DROP TRIGGER IUR_UpdateBaseTimeSlotView;
 
 
 CREATE TRIGGER IIR_InsertionAppliUser
 INSTEAD OF INSERT ON AppliUser
 FOR EACH ROW
 BEGIN
-    INSERT INTO AppliUserT 
+    INSERT INTO AppliUserT
     VALUES
         (NULL, SYSDATE, NULL, :NEW.login, :NEW.firstName, :NEW.lastName,
-    :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
 END;
 /
 
@@ -38,7 +36,7 @@ BEGIN
     SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
     FROM AppliUserT WHERE login LIKE CONCAT(CONCAT('_', beginLogin), '%');
 
-    IF(numeroMax IS NULL) THEN
+    IF (numeroMax IS NULL) THEN
         :NEW.login := CONCAT(CONCAT(:NEW.login, beginLogin), '0001');
     ELSE
         :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
@@ -54,7 +52,7 @@ DECLARE
 BEGIN
     SELECT begin INTO beginDate FROM AppliUserT
     WHERE end IS NULL AND login = :OLD.login;
-    
+
     UPDATE AppliUserT SET end = SYSDATE
     WHERE login = :OLD.login AND begin = beginDate;
 END;
@@ -75,14 +73,13 @@ BEGIN
     INSERT INTO AppliUser
     VALUES
         (NULL, 'i', :NEW.firstName, :NEW.lastName,
-    :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-        AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND phoneNumber = :NEW.phoneNumber;
-    INSERT INTO InterpreterT 
-    VALUES
-        (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
+    INSERT INTO InterpreterT
+    VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
 END;
 /
 
@@ -106,9 +103,9 @@ BEGIN
     FROM TransportationView
     WHERE designation = INITCAP(:NEW.transportMode);
     UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-    hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
+                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
     UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
-    transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+                            transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
 END;
 /
 
@@ -118,15 +115,15 @@ FOR EACH ROW
 DECLARE
     newID INTEGER;
 BEGIN
-    INSERT INTO Interpreter 
+    INSERT INTO Interpreter
     VALUES
         (NULL, NULL, :NEW.firstName, :NEW.lastName,
-    :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber,
-    :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, :NEW.transportMode, :NEW.location);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber,
+         :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, :NEW.transportMode, :NEW.location);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-        AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND phoneNumber = :NEW.phoneNumber;
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO ManagerT
     VALUES (newID);
 END;
@@ -159,9 +156,9 @@ INSTEAD OF UPDATE ON Manager
 FOR EACH ROW
 BEGIN
     UPDATE Interpreter SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-    hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
-    weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
-    transportMode = :NEW.transportMode, location = :NEW.location WHERE id = :OLD.id;
+                           hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
+                           weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
+                           transportMode = :NEW.transportMode, location = :NEW.location WHERE id = :OLD.id;
 END;
 /
 
@@ -174,14 +171,13 @@ BEGIN
     INSERT INTO AppliUser
     VALUES
         (NULL, 'b', :NEW.firstName, :NEW.lastName,
-    :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-        AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND phoneNumber = :NEW.phoneNumber;
-    INSERT INTO BeneficiaryT 
-    VALUES
-        (newID, :NEW.status, :NEW.referenceInterpreter);
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
+    INSERT INTO BeneficiaryT
+    VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
 END;
 /
 
@@ -198,56 +194,24 @@ INSTEAD OF UPDATE ON Beneficiary
 FOR EACH ROW
 BEGIN
     UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-    hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
+                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
     UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
 END;
 /
 
 CREATE TRIGGER IIR_InsertionTransportationView
 INSTEAD OF INSERT ON TransportationView
-FOR EACH ROW
+    FOR EACH ROW
 DECLARE
     alreadyExist INTEGER;
 BEGIN
     SELECT count(id) INTO alreadyExist
     FROM TransportationView
     WHERE designation = INITCAP(:NEW.designation);
-    IF(alreadyExist = 0) THEN
+    IF (alreadyExist = 0) THEN
         INSERT INTO Transportation
-        VALUES
-            (NULL, INITCAP(:NEW.designation));
+        VALUES (NULL, INITCAP(:NEW.designation));
     END IF;
-END;
-/
-
-CREATE TRIGGER IIR_InsertionBaseTimeSlotView
-INSTEAD OF INSERT ON BaseTimeSlotView
-FOR EACH ROW
-DECLARE
-    newID INTEGER;
-    alreadyExist INTEGER;
-BEGIN
-    SELECT count(id) INTO alreadyExist
-    FROM TimeSlot
-    WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
-    IF(alreadyExist = 0) THEN
-        INSERT INTO TimeSlot
-        VALUES
-            (NULL, :NEW.startDateTime, :NEW.endDateTime);
-    END IF;
-    SELECT id INTO newID
-    FROM TimeSlot
-    WHERE startDateTime = :NEW.startDateTime AND endDateTime = :NEW.endDateTime;
-    INSERT INTO BaseTimeSlot VALUES (newID, :NEW.day);
-END;
-/
-
-CREATE TRIGGER IUR_UpdateBaseTimeSlotView
-INSTEAD OF UPDATE ON BaseTimeSlotView
-FOR EACH ROW
-BEGIN
-    INSERT INTO BaseTimeSlotView VALUES (NULL, :NEW.startDateTime, :NEW.endDateTime, :NEW.day);
-    DELETE FROM BaseTimeSlot WHERE timeSlot = :OLD.id AND day = :OLD.day;
 END;
 /
 

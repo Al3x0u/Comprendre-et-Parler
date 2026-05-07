@@ -157,8 +157,9 @@ public class DAOJobSkill extends DAO<JobSkill> {
      */
     public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws SQLException{
         String query = String.format(
-                "SELECT j.* FROM %s j JOIN JobSkillInterpreter jsi ON j.%s = jsi.skill WHERE jsi.interpreter = ?",
-                TABLE, FIELD_ID
+                "SELECT j.* FROM %s j JOIN %s jsi ON j.%s = jsi.%s WHERE jsi.%s = ?",
+                TABLE, DAOInterpreter.TABLE_JOB_SKILL_INTERPRETER, FIELD_ID, DAOInterpreter.JOB_SKILL_REF_SKILL,
+                DAOInterpreter.JOB_SKILL_REF_INTERPRETER
         );
         PreparedStatement statement = null;
         ResultSet result = null;
