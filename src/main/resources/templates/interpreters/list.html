@@ -64,7 +64,9 @@
           </div>
 
           <div>
-            <button class="btn btn-outline-danger btn-sm me-1">
+            <button class="btn btn-outline-danger btn-sm me-1"
+                    data-bs-toggle="modal" data-bs-target="#modalDelete"
+                    th:attr="data-id=${interprete.id}, data-name=${interprete.firstName + ' ' + interprete.lastName}">
               <i class="bi bi-trash"></i>
             </button>
             <a th:href="@{/interpretes/profil/{id}(id=${interprete.id})}" class="btn btn-primary btn-sm m-2"><i class="bi bi-eye-fill me-1"></i>Voir le profil</a>
@@ -113,6 +115,8 @@
     </div>
   </div>
 </main>
+
+<div th:replace="~{common/modal-delete :: modal-delete('/interpretes', 'Supprimer un interprète', 'interprète')}"></div>
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
