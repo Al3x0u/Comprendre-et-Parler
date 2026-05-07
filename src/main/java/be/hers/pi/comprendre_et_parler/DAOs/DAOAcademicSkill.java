@@ -151,12 +151,17 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
      * Return all AcademicSkill of An Interpreter
      * @param idInterpreter represent the id of the interpreter that we want the AcademicSkill
      * @return  a Set who represent the AcademicSkill of the interpreter
+     * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if the database could not be reached
      */
-    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException {
+    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws IllegalArgumentException, SQLException {
+        if (idInterpreter < 0)
+            throw new IllegalArgumentException("Invalid id : " + idInterpreter);
+
         String query = String.format(
-                "SELECT a.* FROM %s a JOIN AcademicSkillInterpreter asi ON a.%s = asi.skill WHERE asi.interpreter = ?",
-                TABLE, FIELD_ID
+                "SELECT a.* FROM %s a JOIN %s asi ON a.%s = asi.%s WHERE asi.%s = ?",
+                TABLE, DAOInterpreter.TABLE_ACADEMIC_SKILL_INTERPRETER, FIELD_ID, DAOInterpreter.ACADEMIC_SKILL_REF_SKILL,
+                DAOInterpreter.ACADEMIC_SKILL_REF_INTERPRETER
         );
         PreparedStatement statement = null;
         ResultSet result = null;

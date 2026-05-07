@@ -256,7 +256,7 @@ public class    DAOManager extends DAO<Manager> {
                 new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
                 new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
                 new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID))
+                new DAOBaseTimeSlot().findAvailabilities(result.getInt(FIELD_ID))
         );
     }
 

@@ -111,6 +111,11 @@ public abstract class AppliUser {
     }
 
     /**
+     * @return The AppliUser's first then last name
+     */
+    public String getFullName() { return firstName + " " + lastName;}
+
+    /**
      * @param lastName represent the new last name
      */
     public void setLastName(String lastName) {

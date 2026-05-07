@@ -218,6 +218,13 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * @param mission the mission to add to this interpreter's list of missions
+     */
+    public void addMission(Mission mission) {
+        this.missions.add(mission);
+    }
+
+    /**
      * @return this.location
      */
     public Location getLocation() {
@@ -257,6 +264,13 @@ public class Interpreter extends AppliUser{
      */
     public void setUnavailability(Set<ExceptionalUnavailability> unavailability) {
         this.unavailability = unavailability;
+    }
+
+    /**
+     * @param unavailability the exceptional unavailability to add to this interpreter's list of unavailabilities
+     */
+    public void addUnavailability(ExceptionalUnavailability unavailability) {
+        this.unavailability.add(unavailability);
     }
 
     /**
