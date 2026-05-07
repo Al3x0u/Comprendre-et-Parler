@@ -64,7 +64,8 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Status " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(

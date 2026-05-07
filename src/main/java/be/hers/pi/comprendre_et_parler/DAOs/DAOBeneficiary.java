@@ -135,7 +135,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The beneficiary already exists in database.");
 
         String query = String.format(

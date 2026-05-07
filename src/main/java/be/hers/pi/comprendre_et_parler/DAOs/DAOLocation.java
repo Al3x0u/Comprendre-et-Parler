@@ -70,7 +70,8 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(

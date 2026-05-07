@@ -60,7 +60,8 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
 
     @Override
     public void update(AcademicSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists" );
 
         String query = String.format(

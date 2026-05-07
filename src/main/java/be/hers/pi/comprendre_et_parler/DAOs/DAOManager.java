@@ -140,7 +140,8 @@ public class    DAOManager extends DAO<Manager> {
 
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Manager with same data already exists");
 
         String query = String.format(

@@ -64,7 +64,8 @@ public class DAOCity extends DAO<City> {
 
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
