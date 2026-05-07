@@ -21,6 +21,7 @@
 <script>
     function toggleEditInterpreter() {
         const btn = document.getElementById('btn-edit-interpreter');
+        const btnCancel = document.getElementById('btn-cancel-interpreter');
         const view = document.getElementById('interpreter-view');
         const edit = document.getElementById('interpreter-edit');
         const isEditing = btn.classList.contains('editing');
@@ -29,12 +30,14 @@
             btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
             btn.classList.remove('editing', 'btn-outline-success');
             btn.classList.add('btn-outline-primary');
+            btnCancel.classList.add('d-none');
             view.classList.remove('d-none');
             edit.classList.add('d-none');
         } else {
             btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
             btn.classList.add('editing', 'btn-outline-success');
             btn.classList.remove('btn-outline-primary');
+            btnCancel.classList.remove('d-none');
             view.classList.add('d-none');
             edit.classList.remove('d-none');
         }
@@ -42,6 +45,7 @@
 
     function toggleEditStatus() {
         const btn = document.getElementById('btn-edit-status');
+        const btnCancel = document.getElementById('btn-cancel-status');
         const view = document.getElementById('status-view');
         const edit = document.getElementById('status-edit');
         const isEditing = btn.classList.contains('editing');
@@ -50,12 +54,14 @@
             btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
             btn.classList.remove('editing', 'btn-outline-success');
             btn.classList.add('btn-outline-primary');
+            btnCancel.classList.add('d-none');
             view.classList.remove('d-none');
             edit.classList.add('d-none');
         } else {
             btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
             btn.classList.add('editing', 'btn-outline-success');
             btn.classList.remove('btn-outline-primary');
+            btnCancel.classList.remove('d-none');
             view.classList.add('d-none');
             edit.classList.remove('d-none');
         }

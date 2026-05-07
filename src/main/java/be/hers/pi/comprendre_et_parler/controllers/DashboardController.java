@@ -27,6 +27,7 @@ public class DashboardController {
         model.addAttribute("managerFirstName", user.getFirstName());
         model.addAttribute("interpreterCount", interpreterCount);
         model.addAttribute("beneficiaryCount", beneficiaryCount);
+        model.addAttribute("isManager", true);
         return "dashboard";
     }
 }

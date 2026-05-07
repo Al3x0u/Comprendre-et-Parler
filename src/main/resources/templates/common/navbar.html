@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr"
-      xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container-fluid px-4">
-        <a class="navbar-brand" th:href="@{/dashboard}">
+        <a class="navbar-brand" th:href="${isManager} ? @{/dashboard} : @{/profil}">
             <img src="/images/app_logo.png" alt="Logo" width="40">
         </a>
 
@@ -15,25 +14,33 @@
 
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav align-items-center gap-3">
-                <li class="nav-item">
+
+                <!-- Dashboard (Manager only) -->
+                <li class="nav-item" th:if="${isManager}">
                     <a class="nav-link" th:href="@{/dashboard}"
                        th:classappend="${currentPage == 'dashboard'} ? 'active' : ''">
                         Dashboard
                     </a>
                 </li>
+
+                <!-- Schedule -->
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/horaire}"
                        th:classappend="${currentPage == 'schedule'} ? 'active' : ''">
                         Horaire
                     </a>
                 </li>
-                <li class="nav-item">
+
+                <!-- Interpreters List (Manager only) -->
+                <li class="nav-item" th:if="${isManager}">
                     <a class="nav-link" th:href="@{/interpretes}"
                        th:classappend="${currentPage == 'interpreters'} ? 'active' : ''">
                         Interprètes
                     </a>
                 </li>
-                <li class="nav-item">
+
+                <!-- Beneficiaries List (Manager only) -->
+                <li class="nav-item" th:if="${isManager}">
                     <a class="nav-link" th:href="@{/beneficiaires}"
                        th:classappend="${currentPage == 'beneficiaries'} ? 'active' : ''">
                         Bénéficiaires
@@ -43,9 +50,10 @@
                 <!-- Dropdown profil -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle profile-name d-flex align-items-center gap-2"
-                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span>Isabelle Hulin</span>
-                        <img src="/images/avatar.png" alt="Profil" width="35" class="rounded-circle border border-1">
+                       href="#" role="button" data-bs-toggle="dropdown">
+                        <span th:text="${session.user.firstName + ' ' + session.user.lastName}"
+                              th:classappend="${currentPage == 'profile'} ? 'active-profile' : ''"></span>
+                        <img src="/images/avatar.png" alt="Profil" width="35" class="rounded-circle border">
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>

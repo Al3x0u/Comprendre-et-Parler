@@ -71,6 +71,13 @@ body {
     color: var(--oc-blue-9);
 }
 
+.active-profile {
+    background-color: var(--oc-blue-1);
+    color: var(--oc-blue-9) !important;
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
 /* ─── Dashboard grid ────────────────────────────────── */
 .dashboard-grid {
     display: grid;

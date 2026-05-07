@@ -19,9 +19,9 @@
                 <div class="row align-items-center g-4 mb-4">
 
                     <!-- Avatar -->
-                    <div class="col-12 col-md-6 py-3 text-center bg-light rounded-4">
+                    <div class="col-12 col-md-6 py-5 text-center bg-light rounded-4">
                         <label for="avatar-input" style="cursor:pointer">
-                            <img th:src="@{/images/avatar.png}" alt="Avatar bénéficiaire"
+                            <img th:src="@{/images/avatar_02.png}" alt="Avatar bénéficiaire"
                                  class="profile-avatar rounded-circle border shadow">
                             <div class="mt-2">
                                 <span class="badge bg-primary p-2 rounded-4">
@@ -32,21 +32,35 @@
                         <input type="file" id="avatar-input" name="avatar" accept="image/*" class="d-none">
                     </div>
 
-                    <!-- Prénom et nom -->
+                    <!-- Login -->
                     <div class="col-12 col-md-6">
                         <div class="d-flex flex-column gap-3">
                             <div>
-                                <label for="firstName" class="form-label">Prénom</label>
-                                <input id="firstName" type="text" class="form-control" th:field="*{firstName}" required>
+                                <label for="login" class="form-label">Identifiant</label>
+                                <input id="login" type="text" class="form-control text-muted" th:field="*{login}" readonly>
                             </div>
                             <div>
-                                <label for="lastName" class="form-label">Nom</label>
-                                <input id="lastName" type="text" class="form-control" th:field="*{lastName}" required>
+                                <label for="password" class="form-label">Mot de passe</label>
+                                <input id="password" type="password" class="form-control text-muted" value="***********" readonly>
+                            </div>
+                            <div th:if="${isOwnProfile}">
+                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalPassword">
+                                    <i class="bi bi-lock-fill me-2 rounded-4"></i>Modifier le mot de passe
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="firstName" class="form-label">Prénom</label>
+                        <input id="firstName" type="text" class="form-control" th:field="*{firstName}" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="lastName" class="form-label">Nom</label>
+                        <input id="lastName" type="text" class="form-control" th:field="*{lastName}" required>
+                    </div>
+                </div>
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="email" class="form-label"><i class="bi bi-envelope me-2"></i>Adresse mail</label>
@@ -57,8 +71,6 @@
                         <input id="phoneNumber" type="text" class="form-control" th:field="*{phoneNumber}">
                     </div>
                 </div>
-
-
                 <div class="d-grid d-md-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Enregistrer</button>
                     <a th:href="${referer != null} ? ${referer} : @{/beneficiaires}"
@@ -66,6 +78,38 @@
                 </div>
 
             </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalPassword" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-lock-fill me-2"></i>Modifier le mot de passe</h5>
+                </div>
+                <div class="modal-body px-4">
+                    <form id="form-password" th:action="@{/beneficiaires/profil/{id}/password(id=${beneficiaire.id})}" method="post">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+                            <input id="currentPassword" type="password" class="form-control" name="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                            <input id="newPassword" type="password" class="form-control" name="newPassword" required minlength="6">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+                            <input id="confirmPassword" type="password" class="form-control" name="confirmPassword" required minlength="6">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="form-password" class="btn btn-primary">
+                        <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

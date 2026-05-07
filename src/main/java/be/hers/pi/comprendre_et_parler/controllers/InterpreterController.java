@@ -16,13 +16,6 @@ import java.util.List;
 @RequestMapping("interpretes")
 public class InterpreterController {
 
-    /**
-     * Display the InterpreterList (only for manager)
-     * @param page the page which the user arrive
-     * @param keyword the filter option for Interpreters
-     * @param model the model to pass data to the view
-     * @return the interpreters list
-     */
     @GetMapping("")
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "") String keyword,
@@ -31,21 +24,15 @@ public class InterpreterController {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager)) return "redirect:/horaire";
-        int interpretersPerPage = 10;
 
+        int interpretersPerPage = 10;
         List<Interpreter> allInterpreters = buildFakeInterpreters();
         List<Interpreter> filteredInterpreters = filterInterpreters(allInterpreters, keyword);
         int totalInterpreters = filteredInterpreters.size();
-
         int totalPages = calculateTotalPages(totalInterpreters, interpretersPerPage);
 
-        if (page < 1) {
-            page = 1;
-        }
-
-        if (page > totalPages) {
-            page = totalPages;
-        }
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
 
         List<Interpreter> interpretersForCurrentPage = getInterpretersForPage(filteredInterpreters, page, interpretersPerPage);
 
@@ -67,15 +54,11 @@ public class InterpreterController {
         model.addAttribute("hasPrevious", page > 1);
         model.addAttribute("hasNext", page < totalPages);
         model.addAttribute("currentPage", "interpreters");
+        model.addAttribute("isManager", true);
 
         return "interpreters/list";
     }
-    /**
-     * Display the profile of a specific interpreter
-     * @param id the id of the interpreter
-     * @param model the model to pass data to the view
-     * @return the interpreter profile page
-     */
+
     @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
@@ -83,8 +66,9 @@ public class InterpreterController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        List<Interpreter> allInterpreters = buildFakeInterpreters();
+        if (!(user instanceof Manager) && user.getId() != id) return "redirect:/profil";
 
+        List<Interpreter> allInterpreters = buildFakeInterpreters();
         Interpreter interpreter = allInterpreters.stream()
                 .filter(i -> i.getId() == id)
                 .findFirst()
@@ -96,20 +80,14 @@ public class InterpreterController {
 
         model.addAttribute("interprete", interpreter);
         model.addAttribute("beneficiaries", beneficiaries);
-        model.addAttribute("currentPage", "interpreters");
         model.addAttribute("actualWeekQuota", 10);
         model.addAttribute("actualYearQuota", 200);
         model.addAttribute("referer", referer);
-
+        model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("currentPage", user instanceof Manager m && m.getId() == id ? "profile" : user instanceof Manager ? "interpreters" : "profile");
         return "interpreters/profile";
     }
 
-    /**
-     * Display the edit form for a specific interpreter
-     * @param id the id of the interpreter
-     * @param model the model to pass data to the view
-     * @return the edit interpreter profile page
-     */
     @GetMapping("/profil/{id}/modifier")
     public String showEditInterpreterProfile(@PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
@@ -117,28 +95,34 @@ public class InterpreterController {
                                              Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        List<Interpreter> allInterpreters = buildFakeInterpreters();
+        if (!(user instanceof Manager) && user.getId() != id) return "redirect:/profil";
 
-        Interpreter interpreter = allInterpreters.stream()
-                .filter(i -> i.getId() == id)
-                .findFirst()
-                .orElse(null);
+        Interpreter interpreter;
+
+        if (user instanceof Manager m) {
+            List<Interpreter> allInterpreters = buildFakeInterpreters();
+            interpreter = allInterpreters.stream()
+                    .filter(i -> i.getId() == id)
+                    .findFirst()
+                    .orElse(null);
+            model.addAttribute("isOwnProfile", m.getId() == id);
+            model.addAttribute("currentPage", m.getId() == id ? "profile" : "interpreters");
+            model.addAttribute("isManager", true);
+        } else {
+            interpreter = (Interpreter) user;
+            model.addAttribute("currentPage", "profile");
+            model.addAttribute("isOwnProfile", true);
+        }
 
         if (interpreter == null) return "redirect:/interpretes";
 
         model.addAttribute("interprete", interpreter);
-        model.addAttribute("currentPage", "interpreters");
         model.addAttribute("referer", referer);
+        model.addAttribute("isManager", user instanceof Manager);
 
         return "interpreters/edit-profile";
     }
 
-    /**
-     * Update the profile of a specific interpreter
-     * @param id the id of the interpreter
-     * @param formInterpreter the interpreter data from the form
-     * @return redirect to the interpreter profile page
-     */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
@@ -146,18 +130,15 @@ public class InterpreterController {
                                            HttpSession session) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager) && user.getId() != id) return "redirect:/profil";
+
+        if (!(user instanceof Manager)) return "redirect:/profil";
+
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
     }
 
-    /**
-     * Filter interpreters based on a keyword (login, first name, or last name)
-     * @param interpreters the list of interpreters to filter
-     * @param keyword the search keyword
-     * @return the filtered list of interpreters
-     */
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
         List<Interpreter> filteredInterpreters = new ArrayList<>();
-
         String searchedText = keyword.trim().toLowerCase();
 
         for (Interpreter interpreter : interpreters) {
@@ -173,58 +154,29 @@ public class InterpreterController {
                 filteredInterpreters.add(interpreter);
             }
         }
-
         return filteredInterpreters;
     }
 
-    /**
-     * Calculate the total number of pages for pagination
-     * @param totalItems the total number of items
-     * @param itemsPerPage the number of items per page
-     * @return the total number of pages
-     */
     private int calculateTotalPages(int totalItems, int itemsPerPage) {
-        if (totalItems == 0) {
-            return 1;
-        }
-
-        int totalPages = totalItems/ itemsPerPage;
-
-        if (totalItems %itemsPerPage  != 0) {
-            totalPages = totalPages + 1;
-        }
-
+        if (totalItems == 0) return 1;
+        int totalPages = totalItems / itemsPerPage;
+        if (totalItems % itemsPerPage != 0) totalPages++;
         return totalPages;
     }
 
-    /**
-     * Get the list of interpreters for a specific page
-     * @param interpreters the full list of interpreters
-     * @param page the current page number
-     * @param itemsPerPage the number of items per page
-     * @return the list of interpreters for the current page
-     */
     private List<Interpreter> getInterpretersForPage(List<Interpreter> interpreters, int page, int itemsPerPage) {
         List<Interpreter> interpretersForPage = new ArrayList<>();
-
         int startIndex = (page - 1) * itemsPerPage;
-        int endIndex = startIndex + itemsPerPage;
-
-        if (endIndex > interpreters.size()) {
-            endIndex = interpreters.size();
-        }
-
+        int endIndex = Math.min(startIndex + itemsPerPage, interpreters.size());
         for (int i = startIndex; i < endIndex; i++) {
             interpretersForPage.add(interpreters.get(i));
         }
-
         return interpretersForPage;
     }
 
     //FONCTION TEMPORAIRE
     private List<Interpreter> buildFakeInterpreters() {
         List<Interpreter> interpreters = new ArrayList<>();
-
         interpreters.add(buildFakeInterpreter(1, "Roberto", "Dupont"));
         interpreters.add(buildFakeInterpreter(2, "Julie", "Leroy"));
         interpreters.add(buildFakeInterpreter(3, "Amine", "Bernard"));
@@ -240,7 +192,6 @@ public class InterpreterController {
         interpreters.add(buildFakeInterpreter(13, "Lucas", "Hubert"));
         interpreters.add(buildFakeInterpreter(14, "Jade", "Henry"));
         interpreters.add(buildFakeInterpreter(15, "Noah", "Mertens"));
-
         return interpreters;
     }
 
@@ -287,19 +238,11 @@ public class InterpreterController {
                 LocalDateTime.of(2026, 5, 9, 0, 0)
         );
 
-        ExceptionalUnavailability unavailability1 = new ExceptionalUnavailability(
-                "Rendez-vous médical",
-                slot1
-        );
-
-        ExceptionalUnavailability unavailability2 = new ExceptionalUnavailability(
-                "Congé maladie",
-                slot2
-        );
+        ExceptionalUnavailability unavailability1 = new ExceptionalUnavailability("Rendez-vous médical", slot1);
+        ExceptionalUnavailability unavailability2 = new ExceptionalUnavailability("Congé maladie", slot2);
 
         unavailabilities.add(unavailability1);
         unavailabilities.add(unavailability2);
-
         fakeInterpreter.setUnavailability(unavailabilities);
 
         return fakeInterpreter;
@@ -307,18 +250,10 @@ public class InterpreterController {
 
     private List<Beneficiary> getHardcodedBeneficiaries(Interpreter fakeInterpreter) {
         List<Beneficiary> beneficiaries = new ArrayList<>();
-        beneficiaries.add(new Beneficiary(
-                1, "B001", "Lucas", "Martin",
-                LocalDate.of(2005, 3, 15),
-                "hashed", "lucas@hers.be", "0470000002",
-                null, fakeInterpreter
-        ));
-        beneficiaries.add(new Beneficiary(
-                2, "B002", "Emma", "Dupont",
-                LocalDate.of(2006, 5, 20),
-                "hashed", "emma@hers.be", "0470000003",
-                null, fakeInterpreter
-        ));
+        beneficiaries.add(new Beneficiary(1, "B001", "Lucas", "Martin",
+                LocalDate.of(2005, 3, 15), "hashed", "lucas@hers.be", "0470000002", null, fakeInterpreter));
+        beneficiaries.add(new Beneficiary(2, "B002", "Emma", "Dupont",
+                LocalDate.of(2006, 5, 20), "hashed", "emma@hers.be", "0470000003", null, fakeInterpreter));
         return beneficiaries;
     }
 }

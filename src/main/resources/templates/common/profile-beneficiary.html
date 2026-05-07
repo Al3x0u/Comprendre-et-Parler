@@ -60,11 +60,16 @@
             <!-- Referent Interpreter -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Interprète de référence</h2>
-                        <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-interpreter" onclick="toggleEditInterpreter()">
-                            <i class="bi bi-pencil me-1"></i>Modifier
-                        </button>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-interpreter" onclick="toggleEditInterpreter()">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-interpreter" onclick="toggleEditInterpreter()">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Vue normale -->
@@ -119,9 +124,14 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Statut</h2>
-                        <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-status" onclick="toggleEditStatus()">
-                            <i class="bi bi-pencil me-1"></i>Modifier
-                        </button>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-status" onclick="toggleEditStatus()">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-status" onclick="toggleEditStatus()">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Vue normale -->
