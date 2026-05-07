@@ -5,6 +5,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
@@ -155,20 +156,31 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
-        String query = "SELECT COUNT(*) FROM " + TABLE + " m " +
+        String query = "SELECT FIELD_ID FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "JOIN TimeSlot tsNew ON tsNew.id = ? " +
-                "WHERE ts.startTime < tsNew.endTime AND ts.endTime > tsNew.startTime " +
-                "AND (m." + FIELD_BENEFICIARY + " = ? " +
-                "OR m.id IN (SELECT mission FROM InterpreterMission WHERE interpreter IN " +
-                "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)))";
+                "WHERE " +
+                    "m." + FIELD_STATE + " = ?" +
+                    "AND ts.startTime < tsNew.endTime " +
+                    "AND ts.endTime > tsNew.startTime " +
+                    "AND (" +
+                        "m." + FIELD_BENEFICIARY + " = ? " +
+                        "OR m.id IN " +
+                            "(SELECT mission FROM InterpreterMission WHERE interpreter IN " +
+                                "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)" +
+                            ")" +
+                    ")";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, mission.getTimeSlot().getId());
-            statement.setInt(2, mission.getBeneficiary().getId());
-            statement.setInt(3, mission.getId());
+            statement.setInt(2, mission.getStateOfMission().getValue());
+            if (mission.getBeneficiary() == null)
+                statement.setNull(3, Types.INTEGER);
+            else
+                statement.setInt(3, mission.getBeneficiary().getId());
+            statement.setInt(4, mission.getId());
 
             result = statement.executeQuery();
             if(result.next())
