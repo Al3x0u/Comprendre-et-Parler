@@ -344,6 +344,8 @@
                             <option value="20:00">20:00</option>
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+
                         </select>
                     </div>
 
@@ -377,6 +379,8 @@
                             <option value="20:00">20:00</option>
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+
                         </select>
                     </div>
                 </div>
@@ -510,6 +514,8 @@
                             <option value="20:00">20:00</option>
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+
                         </select>
                     </div>
 
@@ -543,6 +549,8 @@
                             <option value="20:00">20:00</option>
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
+                            <option value="22:00">22:00</option>
+
                         </select>
                     </div>
                 </div>
@@ -699,6 +707,42 @@
                         </div>
                     `
                 };
+            },
+
+            dateClick: function(info) {
+                const clickedDate = new Date(info.date);
+                const endHour = new Date(clickedDate);
+                endHour.setMinutes(endHour.getMinutes()+60);
+
+                const formatDate = (date) => date.toLocaleDateString('en-CA');
+                const formatTime = (date) => date.toLocaleTimeString('fr-BE', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                });
+                const dateValue = formatDate(clickedDate);
+                const startHourValue = formatTime(clickedDate);
+                const endHourValue = formatTime(endHour);
+                if (userRole === 'MANAGER') {
+                    document.getElementById('missionDate').value = dateValue;
+                    document.getElementById('missionStartTime').value = startHourValue;
+
+                    document.getElementById('missionEndTime').value = endHourValue;
+
+                    const newMissionModal = bootstrap.Modal.getOrCreateInstance(
+                        document.getElementById('newMissionModal')
+                    );
+                    newMissionModal.show();
+                } else if (userRole === 'BENEFICIARY') {
+                    document.getElementById('missionDate').value = dateValue;
+                    document.getElementById('missionStartTime').value = startHourValue;
+
+                    document.getElementById('missionEndTime').value = endHourValue;
+
+                    const newRequestModal = bootstrap.Modal.getOrCreateInstance(
+                        document.getElementById('newRequestModal')
+                    );
+                    newRequestModal.show();
+                }
             },
 
             eventClick: function(info) {
