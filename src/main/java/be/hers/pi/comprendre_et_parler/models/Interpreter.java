@@ -276,9 +276,8 @@ public class Interpreter extends AppliUser{
     /**
      * Compare this Interpreter with another Object for equality
      * @param o the Object to compare with
-     * @return true if both objects have identical super, hourQuotaWeek,
-     * hourQuotaYear, transportMode, academicSkills, jobSkills,
-     * location, availability and unavailability
+     * @return true if both objects have identical first name, last name, birthdate, hashed password, email, phone number,
+     * hourQuotaWeek, hourQuotaYear, transportMode and location
      */
     @Override
     public boolean equals(Object o) {
