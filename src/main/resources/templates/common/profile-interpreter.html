@@ -22,9 +22,14 @@
                            class="btn btn-light btn-lg text-primary fw-semibold me-2 mb-1">
                             <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
                         </a>
-                        <a th:if="${isManager and isInterpreterAManager == false}" class="btn btn-light btn-lg text-primary fw-semibold mb-1"
+                        <a th:if="${isManager == true and isInterpreterAManager == false}" class="btn btn-light btn-lg text-warning fw-semibold mb-1"
                             data-bs-toggle="modal" data-bs-target="#modalPromote">
                                 <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        </a>
+                        <a th:if="${isManager == true and isInterpreterAManager == true and interprete.id != session.user.id}"
+                           class="btn btn-light btn-lg text-danger fw-semibold mb-1"
+                           data-bs-toggle="modal" data-bs-target="#modalDemote">
+                            <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
                         </a>
                     </div>
                 </div>
@@ -220,7 +225,7 @@
 
     </div>
 
-    <!-- Modal Promouvoir -->
+    <!-- Modal Promote -->
     <div class="modal fade" id="modalPromote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
@@ -235,6 +240,28 @@
                     <form th:action="@{/interpretes/profil/{id}/promouvoir(id=${interprete.id})}" method="post">
                         <button type="submit" class="btn btn-warning">
                             <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Demote -->
+    <div class="modal fade" id="modalDemote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-arrow-down-circle me-2"></i>Rétrograder en interprète</h5>
+                </div>
+                <div class="modal-body rounded-4 py-5">
+                    Êtes-vous sûr de vouloir rétrograder <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Interprète ?
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/interpretes/profil/{id}/retrograder(id=${interprete.id})}" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
                         </button>
                     </form>
                 </div>
