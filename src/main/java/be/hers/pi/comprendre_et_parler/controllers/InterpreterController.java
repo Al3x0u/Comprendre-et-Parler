@@ -91,6 +91,8 @@ public class InterpreterController {
         model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
         model.addAttribute("isOwnProfile", user.getId() == id);
         model.addAttribute("currentPage", user instanceof Manager m && m.getId() == id ? "profile" : user instanceof Manager ? "interpreters" : "profile");
+        model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
+        model.addAttribute("allJobSkills", getHardcodedJobSkills());
         return "interpreters/profile";
     }
 
@@ -270,5 +272,21 @@ public class InterpreterController {
         beneficiaries.add(new Beneficiary(2, "B002", "Emma", "Dupont",
                 LocalDate.of(2006, 5, 20), "hashed", "emma@hers.be", "0470000003", null, fakeInterpreter));
         return beneficiaries;
+    }
+
+    private List<JobSkill> getHardcodedJobSkills() {
+        List<JobSkill> jobSkills = new ArrayList<>();
+        jobSkills.add(new JobSkill("LSFB"));
+        jobSkills.add(new JobSkill("Translitération"));
+        jobSkills.add(new JobSkill("Interpreation"));
+        return jobSkills;
+    }
+
+    private List<AcademicSkill> getHardcodedAcademicSkills() {
+        List<AcademicSkill> academicSkills = new ArrayList<>();
+        academicSkills.add(new AcademicSkill("Mathématique"));
+        academicSkills.add(new AcademicSkill("Sciences"));
+        academicSkills.add(new AcademicSkill("Anglais"));
+        return academicSkills;
     }
 }
