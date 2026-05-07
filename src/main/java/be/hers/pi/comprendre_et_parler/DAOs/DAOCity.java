@@ -81,6 +81,7 @@ public class DAOCity extends DAO<City> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getPostalCode());
             statement.setInt(3, objectToUpdate.getId());
+
             statement.executeUpdate();
         } finally {
             closeStatement(statement);

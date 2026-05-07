@@ -85,6 +85,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
             statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(objectToUpdate.getEndDate(), objectToUpdate.getEndTime())));
             statement.setInt(3, objectToUpdate.getDay().getValue());
             statement.setInt(4, objectToUpdate.getId());
+
             statement.executeUpdate();
         } finally {
             closeStatement(statement);
