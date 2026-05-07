@@ -5,8 +5,96 @@
 
 <body>
 <div th:replace="~{common/navbar :: navbar}"></div>
+<main class="container py-4 md-5">
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-header rounded-top-4 bg-primary text-white p-3">
+            <h1 class="h3 mb-0 py-1"><i class="bi bi-pencil-fill me-2"></i>Créer un interprète</h1>
+        </div>
 
+        <div>
+            <form>
+                <div>
+                    <div>
+                        <label for="lastname">Nom : </label>
+                        <input type="text" name="lastname" id="lastname" required />
+                    </div>
+                    <div>
+                        <label for="firstname">Prénom : </label>
+                        <input type="text" name="firstname" id="firstname" required />
+                    </div>
+                    <div>
+                        <label for="email">Mail : </label>
+                        <input type="email" name="email" id="email" required />
+                    </div>
+                    <div>
+                        <label for="phone">Téléphone : </label>
+                        <input type="tel" name="phone" id="phone" />
+                    </div>
+                    <div>
+                        <label for="password">Mot de passe : </label>
+                        <input type="password" name="password" id="password" required />
+                    </div>
+                    <div>
+                        <label for="bithdate">Date de naissance : </label>
+                        <input type="date" name="bithdate" id="bithdate" required />
+                    </div>
+                    <div>
+                        <label for="transportMode">Mobilité : </label>
+                        <input type="text" name="transportMode" id="transportMode" />
+                    </div>
+                </div>
 
+                <hr>
+                <div>
+                    <h4>Localisation</h4>
+                    <div>
+                        <label for="postalCode">Code postal : </label>
+                        <input type="text" name="postalCode" id="postalCode" required />
+                    </div>
+                    <div>
+                        <label for="city">Ville : </label>
+                        <input type="text" name="city" id="city" required />
+                    </div>
+                    <div>
+                        <label for="street">Rue : </label>
+                        <input type="text" name="street" id="street" required />
+                    </div>
+                    <div>
+                        <label for="streetNumber">Numéro : </label>
+                        <input type="text" name="streetNumber" id="streetNumber" />
+                    </div>
+                    <div>
+                        <label for="designation">Désignation : </label>
+                        <input type="text" name="designation" id="designation" />
+                    </div>
+                    <div>
+                        <label for="box">Boite : </label>
+                        <input type="number" name="box" id="box" min="0" />
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h4>Quotas</h4>
+                    <div>
+                        <label for="weekHourlyQuota">Hebdomadaire : </label>
+                        <input type="number" name="weekHourlyQuota" id="weekHourlyQuota" min="0" required />
+                    </div>
+                    <div>
+                        <label for="yearHourlyQuota">Annuel : </label>
+                        <input type="number" name="yearHourlyQuota" id="yearHourlyQuota" min="0" required />
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h4>Compétences</h4>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
