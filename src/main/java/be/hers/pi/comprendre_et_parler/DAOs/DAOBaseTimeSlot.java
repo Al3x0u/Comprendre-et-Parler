@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.BaseTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
 
 import java.sql.*;
 import java.time.DayOfWeek;
@@ -127,6 +128,49 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
         return ret;
     }
 
+    /**
+     * @param  id the id of the interpreter to retrieve the availabilities of
+     * @return a set of time slots during which the interpreter is normally available
+     * @throws IllegalArgumentException if id is < 0
+     * @throws SQLException if a database error occurs
+     */
+    public Set<BaseTimeSlot> findAvailabilities(int id) throws IllegalArgumentException, SQLException {
+        if (id < 0)
+            throw new IllegalArgumentException("Invalid id : " + id);
+
+        Set<BaseTimeSlot> ret = new HashSet<>();
+        String query = "SELECT ts.%s, ts.%s, ts.%s, ts.%s " +
+                "FROM %s i, %s av, %s ts " +
+                "WHERE i.%s = ? AND i.%s = av.%s " +
+                "AND av.%s = ts.%s";
+        query = String.format(query, FIELD_ID, FIELD_START_TIME, FIELD_END_TIME, FIELD_DAY,
+                DAOInterpreter.TABLE, DAOInterpreter.TABLE_AVAILABILITY, TABLE,
+                DAOInterpreter.FIELD_ID, DAOInterpreter.FIELD_ID, DAOInterpreter.AVAILABILITY_REF_INTERPRETER,
+                DAOInterpreter.AVAILABILITY_REF_TIMESLOT, FIELD_ID);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            while (result.next()) {
+                ret.add(new BaseTimeSlot(
+                        result.getInt(FIELD_ID),
+                        result.getDate(FIELD_START_TIME).toLocalDate(),
+                        result.getDate(FIELD_END_TIME).toLocalDate(),
+                        result.getTime(FIELD_START_TIME).toLocalTime(),
+                        result.getTime(FIELD_END_TIME).toLocalTime(),
+                        DayOfWeek.of(result.getInt(FIELD_DAY))
+                ));
+            }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return ret;
+    }
+
     @Override
     protected int checkAlreadyExists(BaseTimeSlot objectToCheck) throws SQLException {
         String query = String.format(
@@ -161,15 +205,5 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
                 result.getTime(FIELD_END_TIME).toLocalTime(),
                 DayOfWeek.of(result.getInt(FIELD_DAY))
         );
-    }
-
-    /**
-     * Return all BaseTimeSlot of An Interpreter
-     * @param idInterpreter represent the id of the interpreter that we want the BaseTimeSlot
-     * @return  a Set who represent the BaseTimeSlot of the interpreter
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<BaseTimeSlot> findForInterpreter(int idInterpreter) throws SQLException, NoSuchElementException {
-        return new HashSet<>();
     }
 }
