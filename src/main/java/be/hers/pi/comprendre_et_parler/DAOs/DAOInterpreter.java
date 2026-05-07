@@ -193,7 +193,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
 
         String query = String.format(

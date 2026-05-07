@@ -67,7 +67,8 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("This BaseTimeSlot already exists");
 
         String query = String.format(
