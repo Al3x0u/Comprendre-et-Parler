@@ -10,6 +10,7 @@ DROP TRIGGER IDR_DeleteManager;
 DROP TRIGGER IUR_UpdateTransportModeManager;
 DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
+DROP TRIGGER IUR_UpdateBeneficiary;
 DROP TRIGGER IIR_InsertionTransportationView;
 
 
@@ -76,7 +77,7 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND phoneNumber = :NEW.phoneNumber;
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO InterpreterT
     VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
 END;
@@ -122,7 +123,7 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND phoneNumber = :NEW.phoneNumber;
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO ManagerT
     VALUES (newID);
 END;
@@ -174,7 +175,7 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND phoneNumber = :NEW.phoneNumber;
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO BeneficiaryT
     VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
 END;
