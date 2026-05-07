@@ -4,7 +4,7 @@
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div class="container-fluid px-4">
-        <a class="navbar-brand" th:href="${isManager} ? @{/dashboard} : @{/profil}">
+        <a class="navbar-brand" th:href="${isManager} ? '/dashboard}' : '/profil'">
             <img src="/images/app_logo.png" alt="Logo" width="40">
         </a>
 
@@ -26,7 +26,7 @@
                 <!-- Schedule -->
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/horaire}"
-                       th:classappend="${currentPage == 'schedule'} ? 'active' : ''">
+                       th:classappend="${currentPage == 'horaire'} ? 'active' : ''">
                         Horaire
                     </a>
                 </li>
@@ -51,7 +51,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle profile-name d-flex align-items-center gap-2"
                        href="#" role="button" data-bs-toggle="dropdown">
-                        <span th:text="${session.user.firstName + ' ' + session.user.lastName}"
+                        <span th:text="${user.firstName + ' ' + user.lastName}"
                               th:classappend="${currentPage == 'profile'} ? 'active-profile' : ''"></span>
                         <img src="/images/avatar.png" alt="Profil" width="35" class="rounded-circle border">
                     </a>

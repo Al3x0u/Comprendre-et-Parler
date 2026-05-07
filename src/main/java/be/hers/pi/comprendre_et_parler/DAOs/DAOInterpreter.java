@@ -35,7 +35,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     protected static final String TABLE_AVAILABILITY = "Availability";
     protected static final String AVAILABILITY_REF_INTERPRETER = "interpreter";
-    protected static final String AVAILABILITY_REF_TIMESLOT = "baseTimeSlot";
+    protected static final String AVAILABILITY_REF_TIMESLOT = "TimeSlot";
     protected static final String AVAILABILITY_REF_DAY = "baseTimeSlotDay";
 
     protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
