@@ -17,10 +17,16 @@
                     <p class="text-white-50 mb-1" th:text="${userRole == 'MANAGER'} ? 'Profil responsable' : 'Profil interprète'"></p>
                     <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
                     <p class="fw-semibold mb-3" th:text="*{login}"></p>
-                    <a th:if="${isManager or isOwnProfile}" th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}"
-                       class="btn btn-light btn-lg text-primary fw-semibold">
-                        <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
-                    </a>
+                    <div>
+                        <a th:if="${isManager or isOwnProfile}" th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}"
+                           class="btn btn-light btn-lg text-primary fw-semibold me-2 mb-1">
+                            <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
+                        </a>
+                        <a th:if="${isManager and isInterpreterAManager == false}" class="btn btn-light btn-lg text-primary fw-semibold mb-1"
+                            data-bs-toggle="modal" data-bs-target="#modalPromote">
+                                <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        </a>
+                    </div>
                 </div>
 
             </div>
@@ -214,7 +220,30 @@
 
     </div>
 
+    <!-- Modal Promouvoir -->
+    <div class="modal fade" id="modalPromote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-arrow-up-circle me-2"></i>Promouvoir en manager</h5>
+                </div>
+                <div class="modal-body rounded-4 py-5">
+                    Êtes-vous sûr de vouloir promouvoir <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Responsable ?
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/interpretes/profil/{id}/promouvoir(id=${interprete.id})}" method="post">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
 
 </body>
 </html>

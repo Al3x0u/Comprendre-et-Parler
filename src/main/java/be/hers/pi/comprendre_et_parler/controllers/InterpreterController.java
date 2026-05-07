@@ -88,6 +88,7 @@ public class InterpreterController {
         model.addAttribute("actualYearQuota", 200);
         model.addAttribute("referer", referer);
         model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
         model.addAttribute("isOwnProfile", user.getId() == id);
         model.addAttribute("currentPage", user instanceof Manager m && m.getId() == id ? "profile" : user instanceof Manager ? "interpreters" : "profile");
         return "interpreters/profile";
@@ -140,6 +141,15 @@ public class InterpreterController {
         if (!(user instanceof Manager)) return "redirect:/profil";
 
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
+    }
+
+    @PostMapping("/profil/{id}/promouvoir")
+    public String promoteInterpreter(@PathVariable int id, HttpSession session) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager)) return "redirect:/horaire";
+        // TODO: DAOManager.create(id)
+        return "redirect:/interpretes/profil/" + id;
     }
 
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
