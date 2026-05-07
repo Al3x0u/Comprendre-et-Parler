@@ -17,7 +17,7 @@
                     <p class="text-white-50 mb-1" th:text="${userRole == 'MANAGER'} ? 'Profil responsable' : 'Profil interprète'"></p>
                     <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
                     <p class="fw-semibold mb-3" th:text="*{login}"></p>
-                    <a th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}"
+                    <a th:if="${isManager or isOwnProfile}" th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}"
                        class="btn btn-light btn-lg text-primary fw-semibold">
                         <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
                     </a>
@@ -88,7 +88,7 @@
                             <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-indispo" onclick="toggleEditIndispo()">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
-                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-indispo" onclick="toggleEditIndispo()">
+                            <button th:if="${isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-indispo" onclick="toggleEditIndispo()">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
                         </div>
@@ -138,7 +138,7 @@
                             <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-academic" onclick="toggleEditSkills('academic')">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
-                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-academic" onclick="toggleEditSkills('academic')">
+                            <button th:if="${isManager or isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-academic" onclick="toggleEditSkills('academic')">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
                         </div>
@@ -167,7 +167,7 @@
                             <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-job" onclick="toggleEditSkills('job')">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
-                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-job" onclick="toggleEditSkills('job')">
+                            <button th:if="${isManager or isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-job" onclick="toggleEditSkills('job')">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
                         </div>

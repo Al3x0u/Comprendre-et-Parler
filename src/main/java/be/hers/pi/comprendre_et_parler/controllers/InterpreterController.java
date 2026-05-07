@@ -66,7 +66,11 @@ public class InterpreterController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager) && user.getId() != id) return "redirect:/profil";
+        if (!(user instanceof Manager) && user.getId() != id) {
+            if (!(user instanceof Beneficiary b) || b.getInterpreterRef() == null || b.getInterpreterRef().getId() != id) {
+                return "redirect:/profil";
+            }
+        }
 
         List<Interpreter> allInterpreters = buildFakeInterpreters();
         Interpreter interpreter = allInterpreters.stream()
@@ -84,6 +88,7 @@ public class InterpreterController {
         model.addAttribute("actualYearQuota", 200);
         model.addAttribute("referer", referer);
         model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("isOwnProfile", user.getId() == id);
         model.addAttribute("currentPage", user instanceof Manager m && m.getId() == id ? "profile" : user instanceof Manager ? "interpreters" : "profile");
         return "interpreters/profile";
     }

@@ -41,6 +41,7 @@ public class ProfileController {
         }
         model.addAttribute("currentPage", "profile");
         model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("isOwnProfile", true);
         return "profile";
     }
 

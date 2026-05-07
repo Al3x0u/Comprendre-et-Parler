@@ -64,7 +64,20 @@ public class BeneficiaryController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager) && user.getId() != id) return "redirect:/profil";
+        if (!(user instanceof Manager)) {
+            if (user instanceof Beneficiary b && b.getId() != id) {
+                return "redirect:/profil";
+            }
+            if (user instanceof Interpreter i) {
+                // Vérifie que le bénéficiaire est assigné à cet interprète
+                // TODO: brancher sur DAOs
+                // Pour l'instant avec données hardcodées :
+                boolean isAssigned = buildFakeBeneficiaries().stream()
+                        .anyMatch(b -> b.getId() == id && b.getInterpreterRef() != null
+                                && b.getInterpreterRef().getId() == i.getId());
+                if (!isAssigned) return "redirect:/profil";
+            }
+        }
 
         List<Beneficiary> allBeneficiaries = buildFakeBeneficiaries();
         Beneficiary beneficiary = allBeneficiaries.stream()
@@ -79,6 +92,7 @@ public class BeneficiaryController {
         model.addAttribute("referer", referer);
         model.addAttribute("age", java.time.Period.between(beneficiary.getBirthDate(), java.time.LocalDate.now()).getYears());
         model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("isOwnProfile", user.getId() == id);
         model.addAttribute("currentPage", user instanceof Manager ? "beneficiaries" : "profile");
 
         return "beneficiaries/profile";
