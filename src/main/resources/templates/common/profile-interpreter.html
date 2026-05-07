@@ -210,6 +210,43 @@
                 </div>
             </div>
 
+            <!-- Quota -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                        <h2 class="h5 text-primary mb-0">Quota d'heures</h2>
+                        <div class="d-flex" th:if="${isManager}">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-quota" onclick="toggleEditQuota()">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-quota" onclick="toggleEditQuota()">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
+                    </div>
+                    <form id="quota-form" th:action="@{/interpretes/profil/{id}/quota(id=${interprete.id})}" method="post">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <p class="text-secondary fw-bold small mb-1"><i class="bi bi-calendar-week me-2"></i>Hebdomadaire</p>
+                                    <p class="mb-0 quota-view" th:text="*{hourQuotaWeek} + ' h'"></p>
+                                    <input type="number" class="form-control d-none quota-edit" name="hourQuotaWeek"
+                                           min="0" th:value="*{hourQuotaWeek}">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <p class="text-secondary fw-bold small mb-1"><i class="bi bi-calendar me-2"></i>Annuel</p>
+                                    <p class="mb-0 quota-view" th:text="*{hourQuotaYear} + ' h'"></p>
+                                    <input type="number" class="form-control d-none quota-edit" name="hourQuotaYear"
+                                           min="0" th:value="*{hourQuotaYear}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Referent Beneficiaries -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
@@ -462,6 +499,33 @@
         document.getElementById('indispo-start').addEventListener('change', function() {
             document.getElementById('indispo-end').min = this.value;
         });
+    </script>
+
+    <script>
+        function toggleEditQuota() {
+            const btn = document.getElementById('btn-edit-quota');
+            const btnCancel = document.getElementById('btn-cancel-quota');
+            const views = document.querySelectorAll('.quota-view');
+            const edits = document.querySelectorAll('.quota-edit');
+            const isEditing = btn.classList.contains('editing');
+
+            if (isEditing) {
+                btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+                btn.classList.remove('editing', 'btn-outline-success', 'd-none');
+                btn.classList.add('btn-outline-primary');
+                btnCancel.classList.add('d-none');
+                views.forEach(v => v.classList.remove('d-none'));
+                edits.forEach(e => e.classList.add('d-none'));
+                //document.getElementById('quota-form').submit();
+            } else {
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+                btn.classList.add('editing', 'btn-outline-success');
+                btn.classList.remove('btn-outline-primary');
+                btnCancel.classList.remove('d-none');
+                views.forEach(v => v.classList.add('d-none'));
+                edits.forEach(e => e.classList.remove('d-none'));
+            }
+        }
     </script>
 
     <div th:replace="~{common/modal-delete :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
