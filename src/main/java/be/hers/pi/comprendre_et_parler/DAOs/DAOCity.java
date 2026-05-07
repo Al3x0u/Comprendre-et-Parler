@@ -64,6 +64,9 @@ public class DAOCity extends DAO<City> {
 
     @Override
     public void update(City objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no City with the id " + objectToUpdate.getId());
+
         int idInDB = checkAlreadyExists(objectToUpdate);
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("City " + objectToUpdate.getDesignation() + " already exists");
@@ -78,9 +81,7 @@ public class DAOCity extends DAO<City> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getPostalCode());
             statement.setInt(3, objectToUpdate.getId());
-
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no City with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }

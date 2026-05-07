@@ -74,8 +74,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }

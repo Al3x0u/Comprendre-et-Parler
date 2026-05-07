@@ -135,6 +135,9 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + objectToUpdate.getId());
+
         int idInDB = checkAlreadyExists(objectToUpdate);
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The beneficiary already exists in database.");
@@ -157,8 +160,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setInt(8, objectToUpdate.getInterpreterRef().getId());
             statement.setInt(9, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
