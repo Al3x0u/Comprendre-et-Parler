@@ -134,7 +134,7 @@ CREATE TABLE Mission (
     beneficiary INTEGER REFERENCES BeneficiaryT(id) ON DELETE CASCADE,
     importance NUMBER(1) DEFAULT 0 NOT NULL,
     subject VARCHAR2(50 CHAR) NOT NULL,
-    stateOfMission NUMBER(1) NOT NULL REFERENCES MissionState(id),
+    stateOfMission NUMBER(1) DEFAULT 3 NOT NULL REFERENCES MissionState(id),
     commentary VARCHAR2(100 CHAR),
     timeSlot INTEGER NOT NULL REFERENCES TimeSlot(id),
     jobSkill INTEGER REFERENCES JobSkill(id),
@@ -172,7 +172,7 @@ ALTER TABLE City ADD CONSTRAINT PostalCodeValue CHECK (postalCode > 999);
 ALTER TABLE TimeSlot ADD CONSTRAINT DateOrder CHECK (startDateTime < endDateTime);
 ALTER TABLE TimeSlot ADD CONSTRAINT TypeOfTimeSlot CHECK (day IS NULL OR day BETWEEN 1 AND 7);
 
-ALTER TABLE Mission ADD CONSTRAINT SkillsNeeded CHECK ((jobSkill IS NULL AND academicSkill IS NULL) OR (jobSkill IS NOT NULL AND academicSkill IS NOT NULL));
+ALTER TABLE Mission ADD CONSTRAINT SkillsNeeded CHECK ((beneficiary IS NULL AND jobSkill IS NULL AND academicSkill IS NULL) OR (jobSkill IS NOT NULL AND beneficiary IS NOT NULL));
 ALTER TABLE Mission ADD CONSTRAINT ImportanceValue CHECK (importance <= 3);
 
 ALTER TABLE RegularMissionCancelled ADD CONSTRAINT NumWeekValue CHECK (numWeek BETWEEN 1 AND 53);
