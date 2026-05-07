@@ -452,9 +452,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
         if (academicSkillLinkExists(interpreter, skill))
             return;
 
-        int interpreterRef = new DAOInterpreter().checkAlreadyExists(interpreter);
+        int interpreterRef = checkAlreadyExists(interpreter);
         if (interpreterRef < 0) {
-            new DAOInterpreter().create(interpreter);
+            create(interpreter);
             interpreterRef = interpreter.getId();
         }
 
@@ -543,9 +543,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
         if (jobSkillLinkExists(interpreter, skill))
             return;
 
-        int interpreterRef = new DAOInterpreter().checkAlreadyExists(interpreter);
+        int interpreterRef = checkAlreadyExists(interpreter);
         if (interpreterRef < 0) {
-            new DAOInterpreter().create(interpreter);
+            create(interpreter);
             interpreterRef = interpreter.getId();
         }
 
