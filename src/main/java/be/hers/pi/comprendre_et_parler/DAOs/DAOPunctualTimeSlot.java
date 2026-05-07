@@ -67,6 +67,9 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no PunctualTimeSlot with the id " + objectToUpdate.getId());
+
         int idInDB = checkAlreadyExists(objectToUpdate);
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("PunctualTimeSlot" + objectToUpdate.getStartDate() + " to " + objectToUpdate.getEndDate() +  " already exists");
@@ -82,8 +85,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
             statement.setTimestamp(2, Timestamp.valueOf(objectToUpdate.getEndDate()));
             statement.setInt(3, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no PunctualTimeSlot with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }

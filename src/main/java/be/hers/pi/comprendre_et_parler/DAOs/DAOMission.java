@@ -87,6 +87,9 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     public void update(Mission objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
         int idInDB = checkAlreadyExists(objectToUpdate);
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
@@ -107,8 +110,8 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
             statement.setInt(9, objectToUpdate.getImportance());
             statement.setInt(10, objectToUpdate.getId());
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
+
+            statement.executeUpdate();
 
             if (objectToUpdate.getInterpreters() != null) {
                 deleteAllInterpretersFromMission(objectToUpdate.getId());
