@@ -27,6 +27,11 @@ public class DAOMission extends DAO<Mission> {
     protected static final String FIELD_ACADEMIC_SKILL = "academicSkill";
     protected static final String FIELD_IMPORTANCE = "importance";
 
+    protected static final String TABLE_INTERPRETER_MISSION = "interpreterMission";
+    protected static final String INTERPRETER_MISSION_REF_MISSION = "mission";
+    protected static final String INTERPRETER_MISSION_REF_INTERPRETER = "interpreter";
+
+
     @Override
     public Mission find(int id) throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
@@ -160,18 +165,20 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
-        String query = "SELECT FIELD_ID FROM " + TABLE + " m " +
-                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "JOIN TimeSlot tsNew ON tsNew.id = ? " +
+        String query = "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
+                "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
+                " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
                 "WHERE " +
-                    "m." + FIELD_STATE + " = ?" +
-                    "AND ts.startTime < tsNew.endTime " +
-                    "AND ts.endTime > tsNew.startTime " +
-                    "AND (" +
+                    "m." + FIELD_STATE + " = ? " +
+                    "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
+                    " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
+                    " AND (" +
                         "m." + FIELD_BENEFICIARY + " = ? " +
-                        "OR m.id IN " +
-                            "(SELECT mission FROM InterpreterMission WHERE interpreter IN " +
-                                "(SELECT interpreter FROM InterpreterMission WHERE mission = ?)" +
+                        "OR m." + FIELD_ID + " IN " +
+                            "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
+                                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
+                                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
+                                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
                             ")" +
                     ")";
         PreparedStatement statement = null;
