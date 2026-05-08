@@ -17,6 +17,9 @@ public class Interpreter extends AppliUser{
     private Set<BaseTimeSlot> availability;
     private Set<ExceptionalUnavailability> unavailability;
 
+    /**
+     * Empty constructor of an Interpreter
+     */
     public Interpreter() {}
 
     /**
