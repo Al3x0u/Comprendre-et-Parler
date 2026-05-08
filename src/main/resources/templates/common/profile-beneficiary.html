@@ -22,7 +22,7 @@
                         <span th:text="${#temporals.format(beneficiaire.birthDate, 'dd/MM/yyyy')}"></span>
                         <span class="text-white-50 ms-2" th:text="'(' + ${age} + ' ans)'"></span>
                     </p>
-                    <a th:href="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}"
+                    <a th:if="${isManager or isOwnProfile}" th:href="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}"
                        class="btn btn-light btn-lg text-primary fw-semibold">
                         <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
                     </a>
@@ -50,7 +50,8 @@
                         <div class="col-12 col-md-6">
                             <div class="bg-light rounded p-3 h-100">
                                 <p class="text-secondary fw-bold small mb-1"><i class="bi bi-telephone-fill me-2"></i>Téléphone</p>
-                                <p class="mb-0" th:text="*{phoneNumber}"></p>
+                                <p th:if="*{phoneNumber != null}" class="mb-0" th:text="*{phoneNumber}"></p>
+                                <p th:unless="*{phoneNumber != null}" class="text-muted mb-0">Aucun numéro renseigné</p>
                             </div>
                         </div>
                     </div>
@@ -66,7 +67,7 @@
                             <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-interpreter" onclick="toggleEditInterpreter()">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
-                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-interpreter" onclick="toggleEditInterpreter()">
+                            <button th:if="${isManager}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-interpreter" onclick="toggleEditInterpreter()">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
                         </div>
@@ -128,7 +129,7 @@
                             <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-status" onclick="toggleEditStatus()">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
-                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-status" onclick="toggleEditStatus()">
+                            <button th:if="${isManager}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-status" onclick="toggleEditStatus()">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
                         </div>

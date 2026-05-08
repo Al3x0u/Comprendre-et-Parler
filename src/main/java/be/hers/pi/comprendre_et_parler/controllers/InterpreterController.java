@@ -66,7 +66,11 @@ public class InterpreterController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager) && user.getId() != id) return "redirect:/profil";
+        if (!(user instanceof Manager) && user.getId() != id) {
+            if (!(user instanceof Beneficiary b) || b.getInterpreterRef() == null || b.getInterpreterRef().getId() != id) {
+                return "redirect:/profil";
+            }
+        }
 
         List<Interpreter> allInterpreters = buildFakeInterpreters();
         Interpreter interpreter = allInterpreters.stream()
@@ -84,7 +88,11 @@ public class InterpreterController {
         model.addAttribute("actualYearQuota", 200);
         model.addAttribute("referer", referer);
         model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
+        model.addAttribute("isOwnProfile", user.getId() == id);
         model.addAttribute("currentPage", user instanceof Manager m && m.getId() == id ? "profile" : user instanceof Manager ? "interpreters" : "profile");
+        model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
+        model.addAttribute("allJobSkills", getHardcodedJobSkills());
         return "interpreters/profile";
     }
 
@@ -135,6 +143,15 @@ public class InterpreterController {
         if (!(user instanceof Manager)) return "redirect:/profil";
 
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
+    }
+
+    @PostMapping("/profil/{id}/promouvoir")
+    public String promoteInterpreter(@PathVariable int id, HttpSession session) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager)) return "redirect:/horaire";
+        // TODO: DAOManager.create(id)
+        return "redirect:/interpretes/profil/" + id;
     }
 
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
@@ -255,5 +272,21 @@ public class InterpreterController {
         beneficiaries.add(new Beneficiary(2, "B002", "Emma", "Dupont",
                 LocalDate.of(2006, 5, 20), "hashed", "emma@hers.be", "0470000003", null, fakeInterpreter));
         return beneficiaries;
+    }
+
+    private List<JobSkill> getHardcodedJobSkills() {
+        List<JobSkill> jobSkills = new ArrayList<>();
+        jobSkills.add(new JobSkill("LSFB"));
+        jobSkills.add(new JobSkill("Translitération"));
+        jobSkills.add(new JobSkill("Interpreation"));
+        return jobSkills;
+    }
+
+    private List<AcademicSkill> getHardcodedAcademicSkills() {
+        List<AcademicSkill> academicSkills = new ArrayList<>();
+        academicSkills.add(new AcademicSkill("Mathématique"));
+        academicSkills.add(new AcademicSkill("Sciences"));
+        academicSkills.add(new AcademicSkill("Anglais"));
+        return academicSkills;
     }
 }
