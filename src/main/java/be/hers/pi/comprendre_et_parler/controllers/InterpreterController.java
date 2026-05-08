@@ -163,6 +163,8 @@ public class InterpreterController {
         model.addAttribute("interpreterToCreate", new Interpreter());
         model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
         model.addAttribute("allJobSkills", getHardcodedJobSkills());
+        model.addAttribute("isManager", true);
+
         return "interpreters/creation";
     }
 
