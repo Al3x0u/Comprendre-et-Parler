@@ -190,11 +190,13 @@ public class DAOMission extends DAO<Mission> {
                 "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
                 " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
                 "WHERE " +
+                    // status is the same
                     "m." + FIELD_STATE + " = ? " +
+                    // timeslots overlap
                     "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
                     " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
-                    " AND (" +
-                        "m." + FIELD_BENEFICIARY + " = ? " +
+                    //
+                    " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
                         "OR m." + FIELD_ID + " IN " +
                             "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
                                 " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
@@ -205,14 +207,13 @@ public class DAOMission extends DAO<Mission> {
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
+            int field = 1; // variable number of fields depending on whether beneficiary is null or not
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, mission.getTimeSlot().getId());
-            statement.setInt(2, mission.getStateOfMission().getValue());
-            if (mission.getBeneficiary() == null)
-                statement.setNull(3, Types.INTEGER);
-            else
-                statement.setInt(3, mission.getBeneficiary().getId());
-            statement.setInt(4, mission.getId());
+            statement.setInt(field++, mission.getTimeSlot().getId());
+            statement.setInt(field++, mission.getStateOfMission().getValue());
+            if (mission.getBeneficiary() != null)
+                statement.setInt(field++, mission.getBeneficiary().getId());
+            statement.setInt(field++, mission.getId());
 
             result = statement.executeQuery();
             if(result.next())
