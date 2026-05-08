@@ -55,7 +55,8 @@ CREATE TABLE AppliUserT (
     birthDate DATE NOT NULL,
     hashedPassword VARCHAR2(255 CHAR) NOT NULL,
     email VARCHAR2(50 CHAR) NOT NULL,
-    phoneNumber VARCHAR2(25 CHAR)
+    phoneNumber VARCHAR2(25 CHAR),
+    passwordUpdated NUMBER(1) DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE InterpreterT (
