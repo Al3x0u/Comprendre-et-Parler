@@ -68,14 +68,27 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(2, objectToInsert.getStateOfMission().getValue());
             statement.setString(3, objectToInsert.getCommentary());
             statement.setInt(4, objectToInsert.getTimeSlot().getId());
-            statement.setInt(5, objectToInsert.getBeneficiary().getId());
+
+            if (objectToInsert.getBeneficiary() == null)
+                statement.setNull(5, Types.INTEGER);
+            else
+                statement.setInt(5, objectToInsert.getBeneficiary().getId());
+
             statement.setInt(6, objectToInsert.getLocation().getId());
             statement.setString(7, objectToInsert.getRoom());
-            statement.setInt(8, objectToInsert.getJobSkill().getId());
-            statement.setInt(9, objectToInsert.getAcademicSkill().getId());
-            statement.setInt(10, objectToInsert.getImportance());
-            statement.executeUpdate();
 
+            if(objectToInsert.getJobSkill() == null)
+                statement.setNull(8, Types.INTEGER);
+            else
+                statement.setInt(8, objectToInsert.getJobSkill().getId());
+            if (objectToInsert.getAcademicSkill() == null)
+                statement.setNull(9, Types.INTEGER);
+            else
+                statement.setInt(9, objectToInsert.getAcademicSkill().getId());
+
+            statement.setInt(10, objectToInsert.getImportance());
+
+            statement.executeUpdate();
             generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next())
                 objectToInsert.setId(generatedKeys.getInt(1));
@@ -111,8 +124,16 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(4, objectToUpdate.getTimeSlot().getId());
             statement.setInt(5, objectToUpdate.getLocation().getId());
             statement.setString(6, objectToUpdate.getRoom());
-            statement.setInt(7, objectToUpdate.getJobSkill().getId());
-            statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
+
+            if(objectToUpdate.getJobSkill() == null)
+                statement.setNull(7, Types.INTEGER);
+            else
+                statement.setInt(7, objectToUpdate.getJobSkill().getId());
+            if (objectToUpdate.getAcademicSkill() == null)
+                statement.setNull(8, Types.INTEGER);
+            else
+                statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
+
             statement.setInt(9, objectToUpdate.getImportance());
             statement.setInt(10, objectToUpdate.getId());
 
