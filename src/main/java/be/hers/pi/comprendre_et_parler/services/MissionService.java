@@ -22,6 +22,13 @@ public class MissionService {
         this.daoMission = daoMission;
     }
 
+    /**
+     * Returns a list of missions filtered according to the given filter.
+     * @param filter the filter to apply, each criterion is optional (null means no filter)
+     * @return a List of Mission matching the filter
+     * @throws SQLException if the database could not be reached
+     * @throws ConnectionException if the connection to the database could not be established
+     */
     public List<Mission> getByFilter(MissionFilter filter) throws SQLException, ConnectionException {
         Set<Mission> all = SQLWrap.call(daoMission::findAll);
         return all.stream()
@@ -51,8 +58,6 @@ public class MissionService {
      */
     public ArrayList<Mission> getMissionsForWeek(AppliUser user, LocalDate weekStart) throws SQLException {
 
-        DAOMission daoMission = new DAOMission();
-
         int yearNumber = weekStart.getYear();
         int weekNumber = weekStart.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
 
@@ -68,6 +73,13 @@ public class MissionService {
         return new ArrayList<>(missions);
     }
 
+    /**
+     * Creates a mission with the status ACCEPTED
+     * @param mission the mission to create, with interpreters and time slot already set
+     * @throws ConflictException if an assigned interpreter has a schedule conflict
+     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws SQLException if the database could not be reached
+     */
     public void createMission(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
         if (mission.getInterpreters() != null){
             for (Interpreter interpreter : mission.getInterpreters()){
@@ -80,12 +92,25 @@ public class MissionService {
     }
 
 
+    /**
+     * Creates a mission with the status PENDING.
+     * @param mission the mission to create, with beneficiary and time slot already set
+     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws SQLException if the database could not be reached
+     */
     public void createRequest(Mission mission) throws AlreadyExistsException, SQLException {
         mission.setStateOfMission(MissionState.PENDING);
         daoMission.create(mission);
     }
 
 
+    /**
+     * Checks that an interpreter has no schedule conflict with the given time slot.
+     * @param interpreter the interpreter to check
+     * @param slot the time slot of the mission
+     * @throws ConflictException if the interpreter already has a mission at the same time
+     * @throws SQLException if the database could not be reached
+     */
     private void checkInterpreterConflict(Interpreter interpreter, TimeSlot slot) throws ConflictException, SQLException {
         for (LocalDate date : getDates(slot)){
             for (Mission existing : daoMission.getScheduleForDay(interpreter.getId(), date)){
@@ -100,6 +125,12 @@ public class MissionService {
 
     }
 
+    /**
+     * Returns all dates covered by a TimeSlot.
+     * @param ts the TimeSlot to extract dates from
+     * @return a List of LocalDate covered by the TimeSlot
+     * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype, or if startDate is after endDate for a BaseTimeSlot
+     */
     private List<LocalDate> getDates(TimeSlot ts) {
         List<LocalDate> dates = new ArrayList<>();
 
@@ -110,6 +141,9 @@ public class MissionService {
         } else if (ts instanceof BaseTimeSlot) {
             BaseTimeSlot baseTimeSlot = (BaseTimeSlot) ts;
 
+            if (baseTimeSlot.getStartDate().isAfter(baseTimeSlot.getEndDate()))
+                throw new IllegalArgumentException("startDate est après endDate");
+
             LocalDate cursorStart = baseTimeSlot.getStartDate();
             while (!cursorStart.getDayOfWeek().equals(baseTimeSlot.getDay()))
                 cursorStart = cursorStart.plusDays(1);
@@ -119,18 +153,26 @@ public class MissionService {
                 cursorStart = cursorStart.plusWeeks(1);
             }
         }
+        else {
+            throw new IllegalArgumentException("Sous type Inconnu");
+        }
 
         return dates;
     }
 
-    private boolean hasConflict(TimeSlot firstTS, TimeSlot secondTS) {
-        if (firstTS instanceof PunctualTimeSlot && secondTS instanceof PunctualTimeSlot) {
+    /**
+     * Checks if two TimeSlots are in conflict.
+     * @param firstTS the first TimeSlot
+     * @param secondTS the second TimeSlot
+     * @return true if the two TimeSlots overlap, false otherwise
+     * @throws IllegalArgumentException if the two TimeSlots are not of the same subtype
+     */
+    private boolean hasConflict(TimeSlot firstTS, TimeSlot secondTS) throws IllegalArgumentException {
+        if (firstTS instanceof PunctualTimeSlot && secondTS instanceof PunctualTimeSlot)
             return ((PunctualTimeSlot) firstTS).overlaps((PunctualTimeSlot) secondTS);
-        }
-        if (firstTS instanceof BaseTimeSlot && secondTS instanceof BaseTimeSlot) {
+        if (firstTS instanceof BaseTimeSlot && secondTS instanceof BaseTimeSlot)
             return ((BaseTimeSlot) firstTS).overlaps((BaseTimeSlot) secondTS);
-        }
-        return false;
+        throw new IllegalArgumentException("Les deux TimeSlots ne sont pas du même sous-type");
     }
 
 }
