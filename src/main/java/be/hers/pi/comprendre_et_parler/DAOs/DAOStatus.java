@@ -64,7 +64,11 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Status with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Status " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
@@ -78,8 +82,7 @@ public class DAOStatus extends DAO<Status> {
             statement.setInt(2, objectToUpdate.getHourQuota());
             statement.setInt(3, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Status with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
