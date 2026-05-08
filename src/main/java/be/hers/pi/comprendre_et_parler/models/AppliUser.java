@@ -13,6 +13,8 @@ public abstract class AppliUser {
     protected String email;
     protected String phoneNumber;
 
+    public AppliUser() {}
+
     /**
      Constructor of a AppliUser
      @param id represent the id

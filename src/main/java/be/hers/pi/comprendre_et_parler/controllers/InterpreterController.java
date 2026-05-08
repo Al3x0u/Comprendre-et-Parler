@@ -154,6 +154,16 @@ public class InterpreterController {
         return "redirect:/interpretes/profil/" + id;
     }
 
+    @GetMapping("/creation")
+    public String createInterpreter(HttpSession session, Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager) ) return "redirect:/horaire";
+
+        model.addAttribute("interpreterToCreate", new Interpreter());
+        return "interpreters/creation";
+    }
+
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
         List<Interpreter> filteredInterpreters = new ArrayList<>();
         String searchedText = keyword.trim().toLowerCase();
