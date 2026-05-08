@@ -6,16 +6,16 @@ DROP VIEW TransportationView;
 
 
 CREATE VIEW AppliUser
-            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber)
+            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated)
 AS SELECT
-       id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber
+       id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated
    FROM
        AppliUserT
    WHERE
-end IS NULL;
+       end IS NULL;
 
 CREATE VIEW Beneficiary
-            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, status, referenceInterpreter)
+            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, status, referenceInterpreter)
 AS SELECT
        a.*, status, referenceInterpreter
    FROM
@@ -24,7 +24,7 @@ AS SELECT
        BeneficiaryT b ON a.id = b.id;
 
 CREATE VIEW Interpreter
-            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, weekHourlyQuota, yearHourlyQuota, transportMode, location)
+            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, weekHourlyQuota, yearHourlyQuota, transportMode, location)
 AS SELECT
        a.*, weekHourlyQuota, yearHourlyQuota, designation, location
    FROM
@@ -35,7 +35,7 @@ AS SELECT
        Transportation t ON transportmode = t.id;
 
 CREATE VIEW Manager
-            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, weekHourlyQuota, yearHourlyQuota, transportMode, location)
+            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, weekHourlyQuota, yearHourlyQuota, transportMode, location)
 AS SELECT
        i.*
    FROM

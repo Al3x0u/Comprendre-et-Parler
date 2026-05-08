@@ -47,7 +47,35 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // ── ACCESS CONTROL ────────────────────────────────────────────────────
 
+    /**
+     * Check if the user has updated their password, and redirect to the password change page if not.
+     * This check takes priority over all other access control checks.
+     * @param user the authenticated user, must not be null
+     * @param path the requested URI, must not be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user has updated their password or is accessing the password change page,
+     *         false if the user has been redirected to the password change page
+     * @throws IOException if an error occurs during the redirect
+     */
+    private boolean hasPasswordUpdated(AppliUser user, String path, HttpServletResponse response) throws IOException {
+        if(!user.isPasswordUpdated() && !path.startsWith("/profil/modifier-mot-de-passe") && !path.equals("/logout")){
+            response.sendRedirect("/profil/modifier-mot-de-passe");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if the user is authorized to access the requested resource.
+     * Verifies password update status, role-based access, and profile-specific access rules.
+     * @param user the authenticated user, must not be null
+     * @param path the requested URI, must not be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user is authorized to access the resource, false if the user has been redirected
+     * @throws IOException if an error occurs during the redirect
+     */
     private boolean hasAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
+        if(!hasPasswordUpdated(user, path, response)) return false;
         if(!hasManagerAccess(user, path, response)) return false;
         if(!hasInterpreterProfileAccess(user, path, response)) return false;
         if(!hasBeneficiaryProfileAccess(user, path, response)) return false;

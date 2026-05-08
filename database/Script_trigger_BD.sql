@@ -15,19 +15,19 @@ DROP TRIGGER IIR_InsertionTransportationView;
 
 
 CREATE TRIGGER IIR_InsertionAppliUser
-INSTEAD OF INSERT ON AppliUser
-FOR EACH ROW
+    INSTEAD OF INSERT ON AppliUser
+    FOR EACH ROW
 BEGIN
     INSERT INTO AppliUserT
     VALUES
         (NULL, SYSDATE, NULL, :NEW.login, :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, 0);
 END;
 /
 
 CREATE TRIGGER BIR_InsertionLoginAppliUser
-BEFORE INSERT ON AppliUserT
-FOR EACH ROW
+    BEFORE INSERT ON AppliUserT
+    FOR EACH ROW
 DECLARE
     numeroMax INTEGER;
     beginLogin VARCHAR2(7 CHAR);
@@ -45,8 +45,8 @@ END;
 /
 
 CREATE TRIGGER IDR_DeleteAppliUser
-INSTEAD OF DELETE ON AppliUser
-FOR EACH ROW
+    INSTEAD OF DELETE ON AppliUser
+    FOR EACH ROW
 DECLARE
     beginDate DATE;
 BEGIN
@@ -59,8 +59,8 @@ END;
 /
 
 CREATE TRIGGER IIR_InsertionInterpreter
-INSTEAD OF INSERT ON Interpreter
-FOR EACH ROW
+    INSTEAD OF INSERT ON Interpreter
+    FOR EACH ROW
 DECLARE
     newID INTEGER;
     idTransportation INTEGER;
@@ -84,34 +84,33 @@ END;
 /
 
 CREATE TRIGGER IDR_DeleteInterpreter
-INSTEAD OF DELETE ON Interpreter
-FOR EACH ROW
+    INSTEAD OF DELETE ON Interpreter
+    FOR EACH ROW
 BEGIN
     DELETE FROM AppliUser WHERE login = :OLD.login;
 END;
 /
 
 CREATE TRIGGER IUR_UpdateTransportModeInterpreter
-INSTEAD OF UPDATE ON Interpreter
-FOR EACH ROW
+    INSTEAD OF UPDATE ON Interpreter
+    FOR EACH ROW
 DECLARE
     idTransportation INTEGER;
 BEGIN
-    INSERT INTO TransportationView
-    VALUES (NULL, :NEW.transportMode);
-    SELECT id INTO idTransportation
-    FROM TransportationView
+    INSERT INTO TransportationView VALUES (NULL, :NEW.transportMode);
+    SELECT id INTO idTransportation FROM TransportationView
     WHERE designation = INITCAP(:NEW.transportMode);
-    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
+    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
+                         birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
+                         phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
     UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
                             transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
 END;
 /
 
 CREATE TRIGGER IIR_InsertionManager
-INSTEAD OF INSERT ON Manager
-FOR EACH ROW
+    INSTEAD OF INSERT ON Manager
+    FOR EACH ROW
 DECLARE
     newID INTEGER;
 BEGIN
@@ -130,8 +129,8 @@ END;
 /
 
 CREATE TRIGGER AIR_InsertionLoginManager
-AFTER INSERT ON ManagerT
-FOR EACH ROW
+    AFTER INSERT ON ManagerT
+    FOR EACH ROW
 DECLARE
     newLogin VARCHAR2(7 CHAR);
 BEGIN
@@ -144,16 +143,16 @@ END;
 /
 
 CREATE TRIGGER IDR_DeleteManager
-INSTEAD OF DELETE ON Manager
-FOR EACH ROW
+    INSTEAD OF DELETE ON Manager
+    FOR EACH ROW
 BEGIN
     DELETE FROM AppliUser WHERE login = :OLD.login;
 END;
 /
 
 CREATE TRIGGER IUR_UpdateTransportModeManager
-INSTEAD OF UPDATE ON Manager
-FOR EACH ROW
+    INSTEAD OF UPDATE ON Manager
+    FOR EACH ROW
 BEGIN
     UPDATE Interpreter SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
                            hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
@@ -163,8 +162,8 @@ END;
 /
 
 CREATE TRIGGER IIR_InsertionBeneficiary
-INSTEAD OF INSERT ON Beneficiary
-FOR EACH ROW
+    INSTEAD OF INSERT ON Beneficiary
+    FOR EACH ROW
 DECLARE
     newID INTEGER;
 BEGIN
@@ -182,25 +181,26 @@ END;
 /
 
 CREATE TRIGGER IDR_DeleteBeneficiary
-INSTEAD OF DELETE ON Beneficiary
-FOR EACH ROW
+    INSTEAD OF DELETE ON Beneficiary
+    FOR EACH ROW
 BEGIN
     DELETE FROM AppliUser WHERE login = :OLD.login;
 END;
 /
 
 CREATE TRIGGER IUR_UpdateBeneficiary
-INSTEAD OF UPDATE ON Beneficiary
-FOR EACH ROW
+    INSTEAD OF UPDATE ON Beneficiary
+    FOR EACH ROW
 BEGIN
-    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber WHERE id = :OLD.id;
+    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
+                         birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
+                         phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
     UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
 END;
 /
 
 CREATE TRIGGER IIR_InsertionTransportationView
-INSTEAD OF INSERT ON TransportationView
+    INSTEAD OF INSERT ON TransportationView
     FOR EACH ROW
 DECLARE
     alreadyExist INTEGER;
