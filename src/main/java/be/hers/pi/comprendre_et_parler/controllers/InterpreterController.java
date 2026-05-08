@@ -161,6 +161,8 @@ public class InterpreterController {
         if (!(user instanceof Manager) ) return "redirect:/horaire";
 
         model.addAttribute("interpreterToCreate", new Interpreter());
+        model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
+        model.addAttribute("allJobSkills", getHardcodedJobSkills());
         return "interpreters/creation";
     }
 

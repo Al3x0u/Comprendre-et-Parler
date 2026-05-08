@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+
+<body>
+<div th:replace="~{common/navbar :: navbar}"></div>
+<main class="container py-4">
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-header rounded-top-4 bg-primary text-white p-3">
+            <h1 class="h3 mb-0 py-1"><i class="bi bi-pencil-fill me-2"></i>Créer un interprète</h1>
+        </div>
+
+        <div>
+            <form th:action="@{/interpretes/creation}" th:object="${interpreterToCreate}" method="post">
+                <div>
+                    <div>
+                        <label for="lastname">Nom : </label>
+                        <input type="text" name="lastname" id="lastname" required />
+                    </div>
+                    <div>
+                        <label for="firstname">Prénom : </label>
+                        <input type="text" name="firstname" id="firstname" required />
+                    </div>
+                    <div>
+                        <label for="email">Mail : </label>
+                        <input type="email" name="email" id="email" required />
+                    </div>
+                    <div>
+                        <label for="phone">Téléphone : </label>
+                        <input type="tel" name="phone" id="phone" />
+                    </div>
+                    <div>
+                        <label for="password">Mot de passe : </label>
+                        <input type="password" name="password" id="password" required />
+                    </div>
+                    <div>
+                        <label for="birthdate">Date de naissance : </label>
+                        <input type="date" name="birthdate" id="birthdate" required />
+                    </div>
+                    <div>
+                        <label for="transportMode">Mobilité : </label>
+                        <input type="text" name="transportMode" id="transportMode" />
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h3>Localisation</h3>
+                    <div>
+                        <label for="postalCode">Code postal : </label>
+                        <input type="number" name="postalCode" id="postalCode" min="1000" max ="9999" required />
+                    </div>
+                    <div>
+                        <label for="city">Ville : </label>
+                        <input type="text" name="city" id="city" required />
+                    </div>
+                    <div>
+                        <label for="street">Rue : </label>
+                        <input type="text" name="street" id="street" required />
+                    </div>
+                    <div>
+                        <label for="streetNumber">Numéro : </label>
+                        <input type="text" name="streetNumber" id="streetNumber" />
+                    </div>
+                    <div>
+                        <label for="designation">Désignation : </label>
+                        <input type="text" name="designation" id="designation" />
+                    </div>
+                    <div>
+                        <label for="box">Boite : </label>
+                        <input type="number" name="box" id="box" min="0" />
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h3>Quotas</h3>
+                    <div>
+                        <label for="weekHourlyQuota">Hebdomadaire : </label>
+                        <input type="number" name="weekHourlyQuota" id="weekHourlyQuota" min="0" required />
+                    </div>
+                    <div>
+                        <label for="yearHourlyQuota">Annuel : </label>
+                        <input type="number" name="yearHourlyQuota" id="yearHourlyQuota" min="0" required />
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h3>Compétences</h3>
+                    <div>
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                                    <h2 class="h5 text-primary mb-0">Académiques</h2>
+                                </div>
+                                <div th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="d-flex flex-wrap gap-2" id="academic-skills">
+                                    <span th:each="skill : *{academicSkills}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                                        <span th:text="${skill.designation}"></span>
+                                        <i class="bi bi-x skill-delete academic-delete d-none" style="cursor:pointer"></i>
+                                    </span>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm mt-3" id="btn-add-academic"
+                                        data-bs-toggle="modal" data-bs-target="#modalAddAcademic">
+                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h5>Métiers</h5>
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                                    <h2 class="h5 text-primary mb-0">Métiers</h2>
+                                </div>
+                                <div th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="d-flex flex-wrap gap-2" id="job-skills">
+                                    <span th:each="skill : *{jobSkills}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                                        <span th:text="${skill.designation}"></span>
+                                        <i class="bi bi-x skill-delete job-delete d-none" style="cursor:pointer"></i>
+                                    </span>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm mt-3" id="btn-add-job"
+                                        data-bs-toggle="modal" data-bs-target="#modalAddJob">
+                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid d-md-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Add Academic Skill -->
+    <div class="modal fade" id="modalAddAcademic" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Ajouter une compétence académique</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="academic-add-form"
+                          th:action="@{/interpretes/creation/competences/academiques/ajouter}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Choisir une compétence existante</label>
+                            <select class="form-select" name="existingSkillId" id="existing-academic">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="skill : ${allAcademicSkills}"
+                                        th:value="${skill.id}"
+                                        th:text="${skill.designation}"></option>
+                            </select>
+                        </div>
+
+                        <div class="text-center text-muted my-3">— ou —</div>
+
+                        <div class="mb-3">
+                            <label for="new-academic" class="form-label">Créer une nouvelle compétence</label>
+                            <input id="new-academic" type="text" class="form-control"
+                                   name="newSkillName" placeholder="Nom de la compétence">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="academic-add-form" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Job Skill -->
+    <div class="modal fade" id="modalAddJob" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Ajouter une compétence métier</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="job-add-form"
+                          th:action="@{/interpretes/creation/competences/metier/ajouter}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Choisir une compétence existante</label>
+                            <select class="form-select" name="existingSkillId" id="existing-job">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="skill : ${allJobSkills}"
+                                        th:value="${skill.id}"
+                                        th:text="${skill.designation}"></option>
+                            </select>
+                        </div>
+
+                        <div class="text-center text-muted my-3">— ou —</div>
+
+                        <div class="mb-3">
+                            <label for="new-job" class="form-label">Créer une nouvelle compétence</label>
+                            <input id="new-job" type="text" class="form-control"
+                                   name="newSkillName" placeholder="Nom de la compétence">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="job-add-form" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
