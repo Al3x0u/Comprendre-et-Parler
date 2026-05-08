@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.controllers;
+package be.hers.pi.comprendre_et_parler.controllers.interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

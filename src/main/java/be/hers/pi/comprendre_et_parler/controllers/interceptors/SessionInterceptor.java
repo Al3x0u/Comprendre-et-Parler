@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.controllers;
+package be.hers.pi.comprendre_et_parler.controllers.interceptors;
 
 import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpServletRequest;
