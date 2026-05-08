@@ -33,6 +33,11 @@ class DAOMissionTest {
         Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
         new DAOLocation().create(l1);
 
+        JobSkill js1 = new JobSkill("LSFB");
+        JobSkill js2 = new JobSkill("Translitération");
+        new DAOJobSkill().create(js1);
+        new DAOJobSkill().create(js2);
+
         Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
@@ -58,7 +63,7 @@ class DAOMissionTest {
                 l1, new HashSet<>(), null, null, "B7", 2);
         m1.addInterpreter(i1);
         m2 = new Mission(2, "Pending mission", MissionState.PENDING, "pending", t1,
-                b1, l1, null, null, "ABC", 0);
+                b1, l1, js1, null, "ABC", 0);
         m3 = new Mission(4, "Accepted mission", MissionState.ACCEPTED, "accepted", t1,
                 l1, new HashSet<>(), null, null, "A34", 3);
         m3.addInterpreter(i2);
