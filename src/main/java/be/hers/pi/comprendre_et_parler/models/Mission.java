@@ -340,14 +340,14 @@ public class Mission {
         Mission other = (Mission) o;
         return subject.equals(other.subject)
                 && stateOfMission.equals(other.stateOfMission)
-                && commentary.equals(other.commentary)
+                && (Objects.equals(commentary, other.commentary))
                 && timeSlot.equals(other.timeSlot)
-                && (beneficiary == null ? other.beneficiary == null : beneficiary.equals(other.beneficiary))
-                && (interpreters == null ? other.interpreters == null : interpreters.equals(other.interpreters))
+                && (Objects.equals(beneficiary, other.beneficiary))
+                && (Objects.equals(interpreters, other.interpreters))
                 && location.equals(other.location)
-                && jobSkill.equals(other.jobSkill)
-                && academicSkill.equals(other.academicSkill)
-                && (room == null ? other.room == null : room.equals(other.room))
+                && (Objects.equals(jobSkill, other.jobSkill))
+                && (Objects.equals(academicSkill, other.academicSkill))
+                && (Objects.equals(room, other.room))
                 && importance == other.importance;
     }
 

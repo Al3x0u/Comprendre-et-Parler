@@ -38,8 +38,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     protected static final String TABLE_AVAILABILITY = "Availability";
     protected static final String AVAILABILITY_REF_INTERPRETER = "interpreter";
-    protected static final String AVAILABILITY_REF_TIMESLOT = "TimeSlot";
-    protected static final String AVAILABILITY_REF_DAY = "baseTimeSlotDay";
+    protected static final String AVAILABILITY_REF_TIMESLOT = "timeSlot";
 
     protected static final String TABLE_ACADEMIC_SKILL_INTERPRETER = "AcademicSkillInterpreter";
     protected static final String ACADEMIC_SKILL_REF_INTERPRETER = "interpreter";
@@ -220,8 +219,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setInt(10, objectToUpdate.getLocation().getId());
             statement.setInt(11, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -332,8 +330,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
      */
     public boolean availabilityExists(Interpreter interpreter, BaseTimeSlot slot) throws SQLException {
         String query = String.format(
-                "SELECT 1 FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
-                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+                "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT
         );
         ResultSet result = null;
         PreparedStatement statement = null;
@@ -374,8 +372,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
             timeSlotRef = slot.getId();
         }
 
-        String query = String.format("INSERT INTO %s(%s, %s, %s) VALUES(?, ?, ?)",
-                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+        String query = String.format("INSERT INTO %s(%s, %s) VALUES(?, ?)",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT
         );
         PreparedStatement statement = null;
         try {
@@ -400,8 +398,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
      */
     public void deleteAvailability(Interpreter interpreter, BaseTimeSlot slot) throws NoSuchElementException, SQLException {
         String query = String.format(
-                "DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ?",
-                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT, AVAILABILITY_REF_DAY
+                "DELETE FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_AVAILABILITY, AVAILABILITY_REF_INTERPRETER, AVAILABILITY_REF_TIMESLOT
         );
         PreparedStatement statement = null;
         try {

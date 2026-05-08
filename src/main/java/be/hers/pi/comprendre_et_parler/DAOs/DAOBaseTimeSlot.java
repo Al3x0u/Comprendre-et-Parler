@@ -67,7 +67,11 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public void update(BaseTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no BaseTimeSlot with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("This BaseTimeSlot already exists");
 
         String query = String.format(
@@ -82,8 +86,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
             statement.setInt(3, objectToUpdate.getDay().getValue());
             statement.setInt(4, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no BaseTimeSlot with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }

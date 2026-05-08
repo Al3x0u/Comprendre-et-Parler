@@ -73,7 +73,7 @@ BEGIN
     INSERT INTO AppliUser
     VALUES
         (NULL, 'i', :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
@@ -117,7 +117,7 @@ BEGIN
     INSERT INTO Interpreter
     VALUES
         (NULL, NULL, :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber,
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL,
          :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, :NEW.transportMode, :NEW.location);
     SELECT id INTO newID
     FROM AppliUser
@@ -170,7 +170,7 @@ BEGIN
     INSERT INTO AppliUser
     VALUES
         (NULL, 'b', :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
