@@ -16,37 +16,37 @@
                     <div class="d-flex flex-column flex-md-row justify-content-between m-2">
                         <div class="m-2">
                             <label for="lastname">Nom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="text" name="lastname" id="lastname" th:field="*{lastName}" required />
+                            <input type="text" name="lastname" id="lastname" required />
                         </div>
                         <div class="m-2">
                             <label for="firstname">Prénom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="text" name="firstname" id="firstname" th:field="*{firstName}" required />
+                            <input type="text" name="firstname" id="firstname" required />
                         </div>
                     </div>
                     <div class="d-flex flex-column flex-md-row justify-content-between m-2">
                         <div class="m-2">
                             <label for="email">Mail&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="email" name="email" id="email" th:field="*{email}" required />
+                            <input type="email" name="email" id="email" required />
                         </div>
                         <div class="m-2">
                             <label for="phone">Téléphone&nbsp;: </label>
-                            <input type="tel" name="phone" id="phone" th:field="*{phoneNumber}" />
+                            <input type="tel" name="phone" id="phone" />
                         </div>
                     </div>
                     <div class="d-flex flex-column flex-md-row justify-content-between m-2">
                         <div class="m-2">
                             <label for="password">Mot de passe&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="password" name="password" id="password" autocomplete="new-password" th:field="*{hashedPassword}" required />
+                            <input type="password" name="password" id="password" autocomplete="new-password" required />
                         </div>
                         <div class="m-2">
                             <label for="birthdate">Date de naissance&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="date" name="birthdate" id="birthdate" th:field="*{birthDate}" required />
+                            <input type="date" name="birthdate" id="birthdate" required />
                         </div>
                     </div>
                     <div class="m-2">
                         <div class="m-2">
                             <label for="transportMode">Mobilité&nbsp;: </label>
-                            <input type="text" name="transportMode" id="transportMode" th:field="*{transportMode}" required />
+                            <input type="text" name="transportMode" id="transportMode" required />
                         </div>
                     </div>
                 </div>
@@ -56,27 +56,27 @@
                     <h3>Localisation</h3>
                     <div>
                         <label for="postalCode">Code postal&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                        <input type="number" name="postalCode" id="postalCode" min="1000" max ="9999" th:field="*{location.city.postalCode}" required />
+                        <input type="number" name="postalCode" id="postalCode" min="1000" max ="9999" required />
                     </div>
                     <div>
                         <label for="city">Ville&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                        <input type="text" name="city" id="city" th:field="*{location.city.designation}" required />
+                        <input type="text" name="city" id="city" required />
                     </div>
                     <div>
                         <label for="street">Rue&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                        <input type="text" name="street" id="street" th:field="*{location.street}" required />
+                        <input type="text" name="street" id="street" required />
                     </div>
                     <div>
                         <label for="streetNumber">Numéro&nbsp;: </label>
-                        <input type="text" name="streetNumber" id="streetNumber" th:field="*{location.streetNumber}" />
+                        <input type="text" name="streetNumber" id="streetNumber" />
                     </div>
                     <div>
                         <label for="designation">Désignation&nbsp;: </label>
-                        <input type="text" name="designation" id="designation" th:field="*{location.designation}" />
+                        <input type="text" name="designation" id="designation" />
                     </div>
                     <div>
                         <label for="box">Boite&nbsp;: </label>
-                        <input type="number" name="box" id="box" min="0" th:field="*{location.box}" />
+                        <input type="number" name="box" id="box" min="0" />
                     </div>
                 </div>
 
@@ -85,11 +85,11 @@
                     <h3>Quotas</h3>
                     <div>
                         <label for="weekHourlyQuota">Hebdomadaire&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                        <input type="number" name="weekHourlyQuota" id="weekHourlyQuota" min="0" th:field="*{hourQuotaWeek}" required />
+                        <input type="number" name="weekHourlyQuota" id="weekHourlyQuota" min="0" required />
                     </div>
                     <div>
                         <label for="yearHourlyQuota">Annuel&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                        <input type="number" name="yearHourlyQuota" id="yearHourlyQuota" min="0" th:field="*{hourQuotaYear}" required />
+                        <input type="number" name="yearHourlyQuota" id="yearHourlyQuota" min="0" required />
                     </div>
                 </div>
 
@@ -230,6 +230,17 @@
         </div>
     </div>
 </main>
+
+<script>
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    document.getElementById('birthdate').setAttribute('max', `${year}-${month}-${day}`);
+</script>
+
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+
 </body>
 </html>
