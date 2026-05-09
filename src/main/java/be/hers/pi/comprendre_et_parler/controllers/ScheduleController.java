@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import tools.jackson.databind.ObjectMapper;
 
+
+
 import java.time.LocalDate;
 import java.util.*;
 
@@ -24,46 +26,23 @@ public class ScheduleController {
     @GetMapping("/horaire")
     public String showSchedule(HttpSession session, Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) {
-            user = getHardcodedUser();
-            session.setAttribute("user", user);
-        }
-
-        model.addAttribute("currentPage", "schedule");
+        if (user == null) return "redirect:/login";
 
         List<Map<String, String>> missions = getHardcodedMissions();
         List<Interpreter> interpreters = getHardcodedInterpreters();
         List<Beneficiary> beneficiaries = getHardcodedBeneficiaries();
 
+        ObjectMapper mapper = new ObjectMapper();
+        model.addAttribute("user", user);
+        model.addAttribute("currentPage", "schedule");
+        model.addAttribute("isManager", user instanceof Manager);
+        model.addAttribute("events", mapper.writeValueAsString(missions));
         model.addAttribute("beneficiaries", beneficiaries);
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            if (user instanceof Manager) {
-                model.addAttribute("userRole", "MANAGER");
-                model.addAttribute("events", mapper.writeValueAsString(missions));
-            } else if (user instanceof Interpreter i) {
-                model.addAttribute("userRole", "INTERPRETER");
-                String fullName = i.getFirstName() + " " + i.getLastName();
-                List<Map<String, String>> filtered = missions.stream()
-                        .filter(e -> fullName.equals(e.get("interpreter")))
-                        .toList();
-                model.addAttribute("events", mapper.writeValueAsString(filtered));
-            } else if (user instanceof Beneficiary b) {
-                model.addAttribute("userRole", "BENEFICIARY");
-                String fullName = b.getFirstName() + " " + b.getLastName();
-                List<Map<String, String>> filtered = missions.stream()
-                        .filter(e -> fullName.equals(e.get("beneficiary")))
-                        .toList();
-                model.addAttribute("events", mapper.writeValueAsString(filtered));
-            }
-        } catch (Exception e) {
-            model.addAttribute("events", "[]");
-        }
+
 
         return "schedule";
     }
-
     // Temporary - user hardcoded
     private AppliUser getHardcodedUser() {
         Manager m1 = new Manager(
@@ -419,4 +398,5 @@ public class ScheduleController {
             default                -> "#adb5bd";
         };
     }
+
 }
