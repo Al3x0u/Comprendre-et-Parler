@@ -14,7 +14,7 @@ public abstract class AppliUser {
     protected String phoneNumber;
 
     /**
-     Constructor of a AppliUser with id
+     Constructor of a AppliUser
      @param id represent the id
      @param login represent the login
      @param firstName represent the firstname
@@ -24,8 +24,10 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
-        if(id >= 0) this.id = id;
+    public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate,
+                     String hashedPassword, String email, String phoneNumber) {
+        if (id >= 0)
+            this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -45,52 +47,18 @@ public abstract class AppliUser {
      @param email represent the email
      @param phoneNumber represent the phone number
      */
-    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate, String hashedPassword, String email, String phoneNumber) {
+    public AppliUser(String login, String firstName, String lastName, LocalDate birthDate,
+                     String hashedPassword, String email, String phoneNumber) {
         this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
     }
 
     /**
-     * Copy constructor. Creates a deep copy of the given AppliUser.
+     * Copy constructor of a AppliUser
      * @param other the AppliUser to copy, must not be null
      */
     public AppliUser(AppliUser other) {
-        this(other.id, other.login, other.firstName, other.lastName, other.birthDate, other.hashedPassword, other.email, other.phoneNumber);
-    }
-
-    public abstract AppliUser clone();
-
-    /**
-     * @param id represent the new id
-     */
-    public void setId(int id) {
-        if(id >= 0) this.id = id;
-    }
-
-    /**
-     * @return this.birthDate
-     */
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-    /**
-     * @return this.hashedPassword
-     */
-    public String getHashedPassword() {
-        return hashedPassword;
-    }
-
-    /**
-     * @return this.email
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * @return this.phoneNumber
-     */
-    public String getPhoneNumber() {
-        return phoneNumber;
+        this(other.id, other.login, other.firstName, other.lastName, other.birthDate,
+                other.hashedPassword, other.email, other.phoneNumber);
     }
 
     /**
@@ -101,24 +69,17 @@ public abstract class AppliUser {
     }
 
     /**
+     * @param id represent the new id
+     */
+    public void setId(int id) {
+        if (id >= 0) this.id = id;
+    }
+
+    /**
      * @return this.login
      */
     public String getLogin() {
         return login;
-    }
-
-    /**
-     * @return this.firstName
-     */
-    public String getFirstName() {
-        return firstName;
-    }
-
-    /**
-     * @return this.lastName
-     */
-    public String getLastName() {
-        return lastName;
     }
 
     /**
@@ -129,10 +90,24 @@ public abstract class AppliUser {
     }
 
     /**
+     * @return this.firstName
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
      * @param firstName represent the new first name
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    /**
+     * @return this.lastName
+     */
+    public String getLastName() {
+        return lastName;
     }
 
     /**
@@ -143,10 +118,24 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param birthDate represent the new birth date
+     * @return this.birthDate
+     */
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    /**
+     * @param birthDate represent the new birthdate
      */
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    /**
+     * @return this.hashedPassword
+     */
+    public String getHashedPassword() {
+        return hashedPassword;
     }
 
     /**
@@ -157,10 +146,24 @@ public abstract class AppliUser {
     }
 
     /**
+     * @return this.email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
      * @param email represent the new email
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    /**
+     * @return this.phoneNumber
+     */
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     /**
@@ -170,30 +173,33 @@ public abstract class AppliUser {
         this.phoneNumber = phoneNumber;
     }
 
+    public abstract AppliUser clone();
+
     /**
-     * Compare this AppliUser with another AppliUser for equality
-     * @param other the AppliUser object to compare with
-     * @return true if both AppliUser objects have identical login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
+     * Compare this AppliUser with another Object for equality
+     * @param o the Object to compare with
+     * @return true if both objects have identical login, firstName, lastName,
+     * birthDate, hashedPassword, email and phoneNumber
      */
     @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if(!(other instanceof AppliUser) ) return false;
-        AppliUser user = (AppliUser) other;
-        return (Objects.equals(login, user.login) && Objects.equals(firstName, user.firstName)  && Objects.equals(lastName, user.lastName) &&
-                Objects.equals(birthDate, user.birthDate) && Objects.equals(hashedPassword, user.hashedPassword) &&
-                Objects.equals(email,user.email) && Objects.equals(phoneNumber,user.phoneNumber));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AppliUser)) return false;
+
+        AppliUser other = (AppliUser) o;
+        return Objects.equals(firstName, other.firstName)  && Objects.equals(lastName, other.lastName)
+                && Objects.equals(birthDate, other.birthDate) && Objects.equals(hashedPassword, other.hashedPassword)
+                && Objects.equals(email, other.email) && Objects.equals(phoneNumber, other.phoneNumber);
     }
 
     /**
-     * Computes a hash code for this Interpreter based on its attributes.
-     * two Interpreter objects that are equal according to equals() will have the same hash code.
-     * @return an integer hash code representing this AppliUser
+     * Computes the hash code of this AppliUser
+     * two AppliUser objects that are equal according to equals() will have the same hash code.
+     * @return an integer hash code representing this AppliUser (id is not taken into account)
      */
     @Override
     public int hashCode() {
         return Objects.hash(
-                login,
                 firstName,
                 lastName,
                 birthDate,
@@ -204,14 +210,14 @@ public abstract class AppliUser {
     }
 
     /**
-     * Return a String representation of the AppliUser containing all fields
-     * @return formatted string with login, firstName, lastName, birthDate, hashedPassword, email and phoneNumber
+     * Return a String representation of this AppliUser
+     * @return formatted string with id, login, firstName, lastName, birthDate, email and phoneNumber
      */
     @Override
-    public String toString(){
+    public String toString() {
         return "User {id = " + id + ", login = " + login
                 + ", first name = " + firstName + ", lastName  = "
                 + lastName + ", birthday date = " + birthDate
-                + ", email = " + email + ", phone number = " + phoneNumber;
+                + ", email = " + email + ", phone number = " + phoneNumber + "}";
     }
 }

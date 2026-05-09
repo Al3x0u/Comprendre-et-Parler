@@ -1,5 +1,8 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.models.AppliUser;
+import be.hers.pi.comprendre_et_parler.models.Manager;
+import be.hers.pi.comprendre_et_parler.services.LoginService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,6 +12,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AuthController {
+    private final LoginService loginService;
+
+    public AuthController(LoginService loginService) {
+        this.loginService = loginService;
+    }
+
+
+    /**
+     * Redirect root to login page
+     * @return redirect to login page
+     */
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/login";
+    }
+
     /**
      * Display the login page
      * @return the login view
@@ -27,19 +46,20 @@ public class AuthController {
      * @return redirect to schedule page if successful, login page with error otherwise
      */
     @PostMapping("/login")
-    public String login(@RequestParam String login, @RequestParam String password,
-                        Model model, HttpSession session) {
-        // TODO: implémenter avec AuthService quand les DAOs compilent
-        // try {
-        //     AppliUser user = authService.login(login, password);
-        //     session.setAttribute("user", user);
-        //     return "redirect:/schedule";
-        // } catch (Exception e) {
-        //     model.addAttribute("error", "Identifiant ou mot de passe incorrect");
-        //     return "login";
-        // }
-        model.addAttribute("error", "Identifiant ou mot de passe incorrect");
-        return "login";
+    public String login(@RequestParam String login, @RequestParam String password, Model model, HttpSession session) {
+        AppliUser user = loginService.getUserData(login, password);
+
+        if (user == null) {
+            model.addAttribute("error", "Identifiant ou mot de passe incorrect");
+            return "login";
+        }
+
+        session.setAttribute("user", user);
+
+        if (user instanceof Manager) {
+            return "redirect:/dashboard";
+        }
+        return "redirect:/horaire";
     }
 
     /**

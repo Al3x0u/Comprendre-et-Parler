@@ -71,6 +71,13 @@ body {
     color: var(--oc-blue-9);
 }
 
+.active-profile {
+    background-color: var(--oc-blue-1);
+    color: var(--oc-blue-9) !important;
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
 /* ─── Dashboard grid ────────────────────────────────── */
 .dashboard-grid {
     display: grid;
@@ -266,4 +273,17 @@ body {
 .fc-newRequest-button:focus,
 .fc-newUnavailability-button:focus{
     box-shadow: none !important;
+}
+
+/* ─── Users List ───────────────────────────────── */
+.interprete-id:hover,
+.beneficiaire-id:hover {
+    text-decoration: underline !important;
+}
+
+/* ─── Profile ────────────────────────────────────── */
+.profile-avatar {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
 }
