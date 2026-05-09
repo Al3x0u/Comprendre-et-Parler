@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class ScheduleController {
@@ -24,7 +21,7 @@ public class ScheduleController {
      * @param model the model to pass data to the view
      * @return the schedule view or redirect to login if not authenticated
      */
-    @GetMapping("/schedule")
+    @GetMapping("/horaire")
     public String showSchedule(HttpSession session, Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) {
@@ -77,12 +74,13 @@ public class ScheduleController {
                 "hashed",
                 "isabelle@hers.be",
                 "0470000000",
-                0, 0,
+                0,
+                0,
                 null,
-                null, null,
+                new HashSet<>(),
+                new HashSet<>(),
                 null,
-                null,
-                null
+                new HashSet<>()
         );
 
         Interpreter i1 = new Interpreter(
@@ -97,7 +95,6 @@ public class ScheduleController {
                 null,
                 null, null,
                 null,
-                null,
                 null
         );
 
@@ -105,16 +102,17 @@ public class ScheduleController {
                 "I002",
                 "Alice",
                 "Charpentier",
-                LocalDate.of(1980, 1, 1),
+                LocalDate.of(1985, 6, 12),
                 "hashed",
                 "alice@hers.be",
                 "0470000002",
-                0, 0,
+                30,
+                1000,
+                "Train",
+                new HashSet<>(),
+                new HashSet<>(),
                 null,
-                null, null,
-                null,
-                null,
-                null
+                new HashSet<>()
         );
 
         Beneficiary b1 = new Beneficiary(
@@ -159,7 +157,6 @@ public class ScheduleController {
                 null,
                 null, null,
                 null,
-                null,
                 null
         );
 
@@ -167,16 +164,17 @@ public class ScheduleController {
                 "I002",
                 "Alice",
                 "Charpentier",
-                LocalDate.of(1980, 1, 1),
+                LocalDate.of(1985, 6, 12),
                 "hashed",
                 "alice@hers.be",
                 "0470000002",
-                0, 0,
+                30,
+                1000,
+                "Train",
+                new HashSet<>(),
+                new HashSet<>(),
                 null,
-                null, null,
-                null,
-                null,
-                null
+                new HashSet<>()
         );
 
         interpreters.add(i1);
@@ -201,7 +199,6 @@ public class ScheduleController {
                 null,
                 null, null,
                 null,
-                null,
                 null
         );
 
@@ -209,16 +206,17 @@ public class ScheduleController {
                 "I002",
                 "Alice",
                 "Charpentier",
-                LocalDate.of(1980, 1, 1),
+                LocalDate.of(1985, 6, 12),
                 "hashed",
                 "alice@hers.be",
                 "0470000002",
-                0, 0,
+                30,
+                1000,
+                "Train",
+                new HashSet<>(),
+                new HashSet<>(),
                 null,
-                null, null,
-                null,
-                null,
-                null
+                new HashSet<>()
         );
 
         Beneficiary b1 = new Beneficiary(
