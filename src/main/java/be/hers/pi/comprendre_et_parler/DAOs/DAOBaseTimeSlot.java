@@ -16,7 +16,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_START_TIME = "startDateTime";
     protected static final String FIELD_END_TIME = "endDateTime";
-    protected static final String FIELD_DAY = "day";
+    protected static final String FIELD_DAY = "\"DAY\""; //day est un mot reservé en sql donc je l'ai échappé pour que sql ne le prenne pas comme tel
 
     @Override
     public BaseTimeSlot find(int id) throws SQLException {
@@ -112,7 +112,7 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public Set<BaseTimeSlot> findAll() throws SQLException {
-        String query = String.format("SELECT * FROM %s AND %s IS NOT NULL",
+        String query = String.format("SELECT * FROM %s WHERE %s IS NOT NULL",
                 TABLE, FIELD_DAY
         );
         PreparedStatement statement = null;
