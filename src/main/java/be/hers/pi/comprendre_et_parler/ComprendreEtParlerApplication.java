@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.sql.SQLException;
 
-import java.sql.SQLException;
-
 @SpringBootApplication
 public class ComprendreEtParlerApplication {
     @Value("${db.login}")
