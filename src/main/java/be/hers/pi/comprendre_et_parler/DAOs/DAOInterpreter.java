@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.FIELD_PASSWORD_UPDATED;
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.TABLE_APPLIUSER;
+
 public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String TABLE = "Interpreter";
     protected static final String FIELD_SKILL = "skill";
@@ -192,11 +195,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (find(objectToUpdate.getId()) == null)
-            throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
-
-        int idInDB = checkAlreadyExists(objectToUpdate);
-        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
+        if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
 
         String query = String.format(
@@ -702,5 +701,25 @@ public class DAOInterpreter extends DAO<Interpreter> {
             closeStatement(statement);
         }
         return interpreters;
+    }
+
+    /**
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
+     */
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
+        } finally {
+            closeStatement(statement);
+        }
     }
 }

@@ -12,6 +12,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.FIELD_PASSWORD_UPDATED;
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.TABLE_APPLIUSER;
+
 public class    DAOManager extends DAO<Manager> {
     protected static final String TABLE = "Manager";
     protected static final String FIELD_ID = "id";
@@ -288,6 +291,26 @@ public class    DAOManager extends DAO<Manager> {
             statement.setInt(1, idInterpreter);
 
             statement.executeUpdate();
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
+     */
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
         } finally {
             closeStatement(statement);
         }
