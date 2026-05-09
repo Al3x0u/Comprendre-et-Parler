@@ -196,7 +196,7 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     public void reportDelay(Mission mission, String delayInfo) throws SQLException {
-        // TODO : envoyer un email via NotificationService avec delayInfo
+        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
     }
 
     /**
@@ -228,7 +228,7 @@ public class MissionService {
     public void refuseRequest(Mission mission) throws NoSuchElementException, SQLException {
         mission.setStateOfMission(MissionState.DENIED);
         daoMission.update(mission);
-        // TODO : notifier les personnes concernées via NotificationService
+        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
     }
 
     /**
