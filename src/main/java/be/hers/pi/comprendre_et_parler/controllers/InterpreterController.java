@@ -155,7 +155,7 @@ public class InterpreterController {
     }
 
     @GetMapping("/creation")
-    public String createInterpreter(HttpSession session, Model model) {
+    public String showCreateInterpreter(HttpSession session, Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager) ) return "redirect:/horaire";
@@ -166,6 +166,17 @@ public class InterpreterController {
         model.addAttribute("isManager", true);
 
         return "interpreters/creation";
+    }
+
+    @PostMapping("/creation")
+    public String createInterpreter(@ModelAttribute("interpreterToCreate") Interpreter interpreterToCreate,
+                                    @RequestParam(required = false) String returnUrl,
+                                    HttpSession session) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        if (user == null) return "redirect:/login";
+        if (!(user instanceof Manager)) return "redirect:/horaire";
+        // TODO: DAOInterpreter.create(interpreterToCreate)
+        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes";
     }
 
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {

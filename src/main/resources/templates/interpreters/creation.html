@@ -11,35 +11,43 @@
         </div>
 
         <div>
-            <form th:action="@{/interpretes/creation}" th:object="${interpreterToCreate}" method="post">
+            <form class="p-2" th:action="@{/interpretes/creation}" th:object="${interpreterToCreate}" method="post">
                 <div>
-                    <div>
-                        <label for="lastname">Nom&nbsp;: </label>
-                        <input type="text" name="lastname" id="lastname" required />
+                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
+                        <div class="m-2">
+                            <label for="lastname">Nom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="text" name="lastname" id="lastname" required />
+                        </div>
+                        <div class="m-2">
+                            <label for="firstname">Prénom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="text" name="firstname" id="firstname" required />
+                        </div>
                     </div>
-                    <div>
-                        <label for="firstname">Prénom&nbsp;: </label>
-                        <input type="text" name="firstname" id="firstname" required />
+                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
+                        <div class="m-2">
+                            <label for="email">Mail&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="email" name="email" id="email" required />
+                        </div>
+                        <div class="m-2">
+                            <label for="phone">Téléphone&nbsp;: </label>
+                            <input type="tel" name="phone" id="phone" />
+                        </div>
                     </div>
-                    <div>
-                        <label for="email">Mail&nbsp;: </label>
-                        <input type="email" name="email" id="email" required />
+                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
+                        <div class="m-2">
+                            <label for="password">Mot de passe&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="password" name="password" id="password" autocomplete="new-password" required />
+                        </div>
+                        <div class="m-2">
+                            <label for="birthdate">Date de naissance&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="date" name="birthdate" id="birthdate" required />
+                        </div>
                     </div>
-                    <div>
-                        <label for="phone">Téléphone&nbsp;: </label>
-                        <input type="tel" name="phone" id="phone" />
-                    </div>
-                    <div>
-                        <label for="password">Mot de passe&nbsp;: </label>
-                        <input type="password" name="password" id="password" autocomplete="new-password" required />
-                    </div>
-                    <div>
-                        <label for="birthdate">Date de naissance&nbsp;: </label>
-                        <input type="date" name="birthdate" id="birthdate" required />
-                    </div>
-                    <div>
-                        <label for="transportMode">Mobilité&nbsp;: </label>
-                        <input type="text" name="transportMode" id="transportMode" />
+                    <div class="m-2">
+                        <div class="m-2">
+                            <label for="transportMode">Mobilité&nbsp;: </label>
+                            <input type="text" name="transportMode" id="transportMode" />
+                        </div>
                     </div>
                 </div>
 
@@ -47,15 +55,15 @@
                 <div>
                     <h3>Localisation</h3>
                     <div>
-                        <label for="postalCode">Code postal&nbsp;: </label>
+                        <label for="postalCode">Code postal&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
                         <input type="number" name="postalCode" id="postalCode" min="1000" max ="9999" required />
                     </div>
                     <div>
-                        <label for="city">Ville&nbsp;: </label>
+                        <label for="city">Ville&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
                         <input type="text" name="city" id="city" required />
                     </div>
                     <div>
-                        <label for="street">Rue&nbsp;: </label>
+                        <label for="street">Rue&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
                         <input type="text" name="street" id="street" required />
                     </div>
                     <div>
@@ -76,11 +84,11 @@
                 <div>
                     <h3>Quotas</h3>
                     <div>
-                        <label for="weekHourlyQuota">Hebdomadaire&nbsp;: </label>
+                        <label for="weekHourlyQuota">Hebdomadaire&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
                         <input type="number" name="weekHourlyQuota" id="weekHourlyQuota" min="0" required />
                     </div>
                     <div>
-                        <label for="yearHourlyQuota">Annuel&nbsp;: </label>
+                        <label for="yearHourlyQuota">Annuel&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
                         <input type="number" name="yearHourlyQuota" id="yearHourlyQuota" min="0" required />
                     </div>
                 </div>
@@ -108,7 +116,6 @@
                         </div>
                     </div>
                     <div>
-                        <h5>Métiers</h5>
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-body p-4">
                                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
@@ -223,6 +230,17 @@
         </div>
     </div>
 </main>
+
+<script>
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+
+    document.getElementById('birthdate').setAttribute('max', `${year}-${month}-${day}`);
+</script>
+
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+
 </body>
 </html>
