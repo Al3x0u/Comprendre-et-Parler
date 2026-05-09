@@ -86,8 +86,13 @@ public class    DAOManager extends DAO<Manager> {
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Manager with same data already exists");
 
-        String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
-        PreparedStatement statement = null;
+        String query = String.format(
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                TABLE,
+                FIELD_FIRSTNAME, FIELD_LASTNAME, FIELD_BIRTHDATE, FIELD_PASSWORD,
+                FIELD_EMAIL, FIELD_PHONE, FIELD_HOURQUOTAWEEK, FIELD_HOURQUOTAYEAR,
+                FIELD_TRANSPORTATION, FIELD_LOCATION
+        );        PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getFirstName());

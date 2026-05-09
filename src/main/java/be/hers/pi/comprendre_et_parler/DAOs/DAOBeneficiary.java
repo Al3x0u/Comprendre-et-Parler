@@ -82,8 +82,12 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
         if (find(objectToInsert.getLogin()) != null)
             throw new AlreadyExistsException("Object already exists in database");
 
-        String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
-        PreparedStatement statement = null;
+        String query = String.format(
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                TABLE,
+                FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
+                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
+        );        PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getFirstName());
