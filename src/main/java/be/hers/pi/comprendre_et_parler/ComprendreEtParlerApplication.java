@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.sql.SQLException;
 
+import java.sql.SQLException;
+
 @SpringBootApplication
 public class ComprendreEtParlerApplication {
     @Value("${db.login}")
@@ -30,5 +32,4 @@ public class ComprendreEtParlerApplication {
     public void cleanup() throws SQLException {
         DatabaseConnector.closeInstance();
     }
-
 }
