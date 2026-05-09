@@ -70,11 +70,11 @@ INSERT INTO Status VALUES (NULL, 'D4', 26);
 INSERT INTO Status VALUES (NULL, 'D5-e', 18);
 INSERT INTO Status VALUES (NULL, 'D5-a', 10);
 
-INSERT INTO Manager VALUES (NULL, NULL, 'Isabelle', 'Hulin', to_date('10/05/1975', 'dd/mm/yyyy'), '$2a$10$eWaMx5RGEm6R1z7wf6pcyeenoLfO7h69TnEXwATxAan5vzXRPVXtC', 'isabelle.hulin@gmail.com', '0756/98.14.75', NULL, 25, 1201, 'Auto', 1);
-INSERT INTO Interpreter VALUES (NULL, NULL, 'Jeremy', 'Vanbrugen', to_date('05/10/1987', 'dd/mm/yyyy'), '$2a$10$LkFgolPaMkJPl1tfdQzpnO7hv9S//FJXYz2emSuuR59xeZMSaxaaC', 'jeremy.vanbrugen@gmail.com', NULL, NULL, 34, 1507, 'Vélo', 3);
-INSERT INTO Interpreter VALUES (NULL, NULL, 'Alice', 'Charpentier', to_date('24/02/1972', 'dd/mm/yyyy'), '$2a$10$kXjazwNreBEkqCVTVd9ryOm5ZAd66bDtjFmCSW1Y8PFRNdj3oP83i', 'alice.charpentier@gmail.com', '967/14.75.13', NULL, 29, 1342, 'Train', 3);
-INSERT INTO Beneficiary VALUES (NULL, NULL, 'Jessica', 'DuBuisson', to_date('29/12/2012', 'dd/mm/yyyy'), '$2a$10$uxDDLOBL5uhLQ085xCq4UOXmWr1qZAXkPuDBsW6NEtVb/HT3vX..6', 'jessica.dubuisson@gmail.com', '7544/35.98.74',NULL, 4, 2);
-INSERT INTO Beneficiary VALUES (NULL, NULL, 'Roberto', 'Roberto', to_date('29/12/2020', 'dd/mm/yyyy'), '$2a$10$zVscN1fybqamzDnx.uXW4e8uqyvxyCUDK2RpKFK8Zrqj45i/NBV3m', 'roberto.roberto@gmail.com', NULL, NULL, 1, 3);
+INSERT INTO Manager VALUES (NULL, NULL, 'Isabelle', 'Hulin', to_date('10/05/1975', 'dd/mm/yyyy'), '$2a$10$A9QmiERiXchHXuDtHmSUXu2Xc5auIuQgF/nTwB4EDNv7d/RXxYOgS', 'isabelle.hulin@gmail.com', '0756/98.14.75', NULL, 25, 1201, 'Auto', 1);
+INSERT INTO Interpreter VALUES (NULL, NULL, 'Jeremy', 'Vanbrugen', to_date('05/10/1987', 'dd/mm/yyyy'), '$2a$10$9iux3Q8rzHr4heA6L2R7l.wnLdBqjGn4RlPc8qhyN8Zz0hNlgDFdC', 'jeremy.vanbrugen@gmail.com', NULL, NULL, 34, 1507, 'Vélo', 3);
+INSERT INTO Interpreter VALUES (NULL, NULL, 'Alice', 'Charpentier', to_date('24/02/1972', 'dd/mm/yyyy'), '$2a$10$ZYlIvnwwSvW1UTmeM4ZN2uWWBMm.U6B5OVDZRUeHwWDK0op4Du.5S', 'alice.charpentier@gmail.com', '967/14.75.13', NULL, 29, 1342, 'Train', 3);
+INSERT INTO Beneficiary VALUES (NULL, NULL, 'Jessica', 'DuBuisson', to_date('29/12/2012', 'dd/mm/yyyy'), '$2a$10$vIhNkZgRfMRorrgFtdqZp.qquimnkNBIApLw4Bx2jkgdcgQ7oAGFi', 'jessica.dubuisson@gmail.com', '7544/35.98.74',NULL, 4, 2);
+INSERT INTO Beneficiary VALUES (NULL, NULL, 'Roberto', 'Roberto', to_date('29/12/2020', 'dd/mm/yyyy'), '$2a$10$8x7mieyYwBe0zSVU080Bve5cHbzYbzm49sq29r7fFgc4kO.F4./vC', 'roberto.roberto@gmail.com', NULL, NULL, 1, 3);
 
 
 commit;
