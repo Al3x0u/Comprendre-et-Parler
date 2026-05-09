@@ -11,6 +11,11 @@ import java.sql.SQLException;
 
 @SpringBootApplication
 public class ComprendreEtParlerApplication {
+    @Value("${db.login}")
+    private String dbLogin;
+
+    @Value("${db.password}")
+    private String dbPassword;
 
     public static void main(String[] args) {
         SpringApplication.run(ComprendreEtParlerApplication.class, args);
@@ -18,11 +23,12 @@ public class ComprendreEtParlerApplication {
 
     @PostConstruct
     public void init(){
-        DatabaseConnector.initialize();
+        DatabaseConnector.initialize(dbLogin, dbPassword);
     }
 
     @PreDestroy
     public void cleanup() throws SQLException {
         DatabaseConnector.closeInstance();
     }
+
 }

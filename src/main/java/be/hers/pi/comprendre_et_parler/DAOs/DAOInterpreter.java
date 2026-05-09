@@ -89,7 +89,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, login.trim());
+            statement.setString(1, login);
 
             result = statement.executeQuery();
             if (result.next())
