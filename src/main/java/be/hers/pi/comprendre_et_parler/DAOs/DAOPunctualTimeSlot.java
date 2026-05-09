@@ -111,7 +111,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public Set<PunctualTimeSlot> findAll() throws SQLException {
-        String query = String.format("SELECT * FROM %s AND %s IS NULL",
+        String query = String.format("SELECT * FROM %s WHERE %s IS NULL",
                 TABLE, FIELD_DAY
         );
         PreparedStatement statement = null;
