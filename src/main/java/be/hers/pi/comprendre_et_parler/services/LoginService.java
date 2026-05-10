@@ -51,7 +51,6 @@ public class LoginService {
     }
 
     private boolean checkUserLogin(AppliUser user , String login, String password){
-        System.out.println("Hash stocké : '" + user.getHashedPassword() + "'");
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return user.getLogin().equals(login) && encoder.matches(password, user.getHashedPassword());
     }
