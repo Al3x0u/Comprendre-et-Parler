@@ -1,9 +1,6 @@
 package be.hers.pi.comprendre_et_parler.services;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOExceptionalUnavailability;
-import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
-import be.hers.pi.comprendre_et_parler.DAOs.DAOManager;
-import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
+import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
@@ -20,12 +17,14 @@ import java.util.Set;
 public class InterpreterService {
 
     private final DAOInterpreter daoInterpreter;
+    private final DAOBeneficiary daoBeneficiary;
     private final DAOMission daoMission;
     private final MissionService missionService;
 
 
     public InterpreterService() {
         this.daoInterpreter = new DAOInterpreter();
+        this.daoBeneficiary = new DAOBeneficiary();
         this.daoMission = new DAOMission();
         this.missionService = new MissionService();
     }
@@ -112,6 +111,22 @@ public class InterpreterService {
      */
     public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
         return new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
+    }
+
+    /**
+     * @param beneficiaryId a beneficiary's id
+     * @return the interpreter the beneficiary refers to
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public Interpreter getAssignedInterpreter(int beneficiaryId) throws SQLException, ConnectionException {
+        Beneficiary b = SQLWrap.call((FunctionWithSQLException<Integer, Beneficiary>) daoBeneficiary::find, beneficiaryId);
+        if (b == null)
+            return null;
+        Interpreter ref = b.getInterpreterRef();
+        if (ref == null)
+            return null;
+        return SQLWrap.call((FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, ref.getId());
     }
 
     /**
