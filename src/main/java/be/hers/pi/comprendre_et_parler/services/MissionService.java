@@ -4,6 +4,7 @@ import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
+import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -173,6 +175,188 @@ public class MissionService {
         if (firstTS instanceof BaseTimeSlot && secondTS instanceof BaseTimeSlot)
             return ((BaseTimeSlot) firstTS).overlaps((BaseTimeSlot) secondTS);
         throw new IllegalArgumentException("Les deux TimeSlots ne sont pas du même sous-type");
+    }
+
+    /**
+     * Cancels a mission by setting its status to CANCELED and notifying the interpreter and beneficiary.
+     * @param mission the mission to cancel
+     * @throws NoSuchElementException if the mission does not exist in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void cancelMission(Mission mission) throws NoSuchElementException, SQLException {
+        mission.setStateOfMission(MissionState.CANCELED);
+        daoMission.update(mission);
+        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
+    }
+
+    /**
+     * Reports a delay for a mission by sending an email notification to all concerned parties.
+     * @param mission the mission for which to report a delay
+     * @param delayInfo the delay information to send
+     * @throws SQLException if the database could not be reached
+     */
+    public void reportDelay(Mission mission, String delayInfo) throws SQLException {
+        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
+    }
+
+    /**
+     * Accepts a pending request by setting its status to ACCEPTED
+     * after checking the interpreter's availability and hour quota.
+     * @param mission the mission to accept
+     * @throws ConflictException if the interpreter has a schedule conflict
+     * @throws QuotaExceededException if the interpreter's hour quota is exceeded
+     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void acceptRequest(Mission mission) throws ConflictException, QuotaExceededException, AlreadyExistsException, SQLException {
+        if (mission.getInterpreters() != null)
+            for (Interpreter interpreter : mission.getInterpreters()) {
+                checkInterpreterConflict(interpreter, mission.getTimeSlot());
+                checkQuota(interpreter, mission.getTimeSlot());
+            }
+
+        mission.setStateOfMission(MissionState.ACCEPTED);
+        daoMission.update(mission);
+    }
+
+    /**
+     * Refuses a pending request by setting its status to DENIED and notifying the concerned parties.
+     * @param mission the mission to refuse
+     * @throws NoSuchElementException if the mission does not exist in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void refuseRequest(Mission mission) throws NoSuchElementException, SQLException {
+        mission.setStateOfMission(MissionState.DENIED);
+        daoMission.update(mission);
+        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
+    }
+
+    /**
+     * Updates an existing mission with new information.
+     * If the time slot has changed, checks for schedule conflicts with assigned interpreters.
+     * @param mission the existing mission to update
+     * @param newMission the new mission information to apply
+     * @throws ConflictException if an interpreter has a schedule conflict with the new time slot
+     * @throws AlreadyExistsException if the updated mission already exists in the database
+     * @throws NoSuchElementException if the mission does not exist in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void updateMission(Mission mission, Mission newMission) throws ConflictException, AlreadyExistsException, NoSuchElementException, SQLException {
+        if (!mission.getTimeSlot().equals(newMission.getTimeSlot()))
+            if (newMission.getInterpreters() != null)
+                for (Interpreter interpreter : newMission.getInterpreters())
+                    checkInterpreterConflict(interpreter, newMission.getTimeSlot());
+
+        mission.setSubject(newMission.getSubject());
+        mission.setCommentary(newMission.getCommentary());
+        mission.setTimeSlot(newMission.getTimeSlot());
+        mission.setLocation(newMission.getLocation());
+        mission.setRoom(newMission.getRoom());
+        mission.setImportance(newMission.getImportance());
+        mission.setInterpreters(newMission.getInterpreters());
+        mission.setJobSkill(newMission.getJobSkill());
+        mission.setAcademicSkill(newMission.getAcademicSkill());
+        mission.setBeneficiary(newMission.getBeneficiary());
+
+        daoMission.update(mission);
+    }
+
+    /**
+     * Checks that an interpreter's hour quota is not exceeded by the given time slot.
+     * @param interpreter the interpreter to check
+     * @param slot the time slot of the mission to add
+     * @throws QuotaExceededException if the weekly or yearly quota would be exceeded
+     * @throws SQLException if the database could not be reached
+     */
+    private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, SQLException {
+        double newMissionHours = calculateHours(slot);
+        double hoursThisWeek = calculateAssignedHoursForWeek(interpreter, slot);
+        double hoursThisYear = calculateAssignedHoursForYear(interpreter, slot);
+
+        if (hoursThisWeek + newMissionHours > interpreter.getHourQuotaWeek())
+            throw new QuotaExceededException("Le quota hebdomadaire de l'interprète " + interpreter.getId() + " est dépassé");
+        if (hoursThisYear + newMissionHours > interpreter.getHourQuotaYear())
+            throw new QuotaExceededException("Le quota annuel de l'interprète " + interpreter.getId() + " est dépassé");
+    }
+
+    /**
+     * Calculates the total duration in hours of a TimeSlot.
+     * For a PunctualTimeSlot, returns the duration of the single slot.
+     * For a BaseTimeSlot, returns the duration of one occurrence.
+     * @param ts the TimeSlot to calculate the duration of
+     * @return the duration in hours
+     * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype
+     */
+    private double calculateHours(TimeSlot ts) {
+        if (ts instanceof PunctualTimeSlot) {
+            PunctualTimeSlot pts = (PunctualTimeSlot) ts;
+            return java.time.Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes();
+        }
+        if (ts instanceof BaseTimeSlot) {
+            BaseTimeSlot bts = (BaseTimeSlot) ts;
+            return java.time.Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes();
+        }
+        throw new IllegalArgumentException("Unknown TimeSlot subtype : " + ts.getClass().getSimpleName());
+    }
+
+    /**
+     * Calculates the total hours already assigned to an interpreter for the week of the given time slot.
+     * @param interpreter the interpreter to check
+     * @param slot the time slot used to determine the week
+     * @return the total hours assigned for that week
+     * @throws SQLException if the database could not be reached
+     */
+    private double calculateAssignedHoursForWeek(Interpreter interpreter, TimeSlot slot) throws SQLException {
+        LocalDate date;
+
+        if (slot instanceof PunctualTimeSlot) {
+            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
+            date = punctualTimeSlot.getStartDate().toLocalDate();
+        } else {
+            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
+            date = baseTimeSlot.getStartDate();
+        }
+
+        int year = date.getYear();
+        int week = date.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
+
+        double total = 0;
+        for (Mission m : daoMission.getScheduleForWeek(interpreter.getId(), year, week))
+            total += calculateHours(m.getTimeSlot());
+        return total;
+    }
+
+    /**
+     * Calculates the total hours already assigned to an interpreter for the year of the given time slot.
+     * @param interpreter the interpreter to check
+     * @param slot the time slot used to determine the year
+     * @return the total hours assigned for that year
+     * @throws SQLException if the database could not be reached
+     */
+    private double calculateAssignedHoursForYear(Interpreter interpreter, TimeSlot slot) throws SQLException {
+
+        LocalDate date;
+
+        if (slot instanceof PunctualTimeSlot) {
+            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
+            date = punctualTimeSlot.getStartDate().toLocalDate();
+        } else {
+            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
+            date = baseTimeSlot.getStartDate();
+        }
+
+        int year = date.getYear();
+
+        double total = 0;
+
+        for (int week = 1; week <= 52; week++) {
+
+            for (Mission mission : daoMission.getScheduleForWeek(interpreter.getId(), year, week)) {
+                total += calculateHours(mission.getTimeSlot());
+            }
+        }
+
+        return total;
     }
 
 }
