@@ -39,7 +39,13 @@ public class ScheduleController {
         model.addAttribute("events", mapper.writeValueAsString(missions));
         model.addAttribute("beneficiaries", beneficiaries);
 
-
+        if (user instanceof Manager) {
+            model.addAttribute("userRole", "MANAGER");
+        } else if (user instanceof Interpreter) {
+            model.addAttribute("userRole", "INTERPRETER");
+        } else if (user instanceof Beneficiary) {
+            model.addAttribute("userRole", "BENEFICIARY");
+        }
 
         return "schedule";
     }
