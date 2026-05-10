@@ -91,37 +91,41 @@
                     <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Bénéficiaire créé avec succès</h5>
                 </div>
                 <div class="modal-body py-4 px-4">
-                    <p>Veuillez communiquer les identifiants suivants au bénéficiaire :</p>
-                    <div class="bg-light rounded p-3 mb-3">
-                        <p class="mb-1"><strong>Login :</strong> <span th:text="${credentials.login}"></span></p>
-                        <p class="mb-1"><strong>Mot de passe :</strong> <span th:text="${credentials.password}"></span></p>
+                    <p class="fw-bold">Message à transmettre au bénéficiaire :</p>
+                    <div class="bg-light rounded p-3 mb-3" id="credentials-message">
+                        <p>Bonjour <span th:text="${credentials.login}"></span>,</p>
+                        <p>Votre compte a été créé sur la plateforme Comprendre &amp; Parler.</p>
+                        <p>Voici vos identifiants de première connexion :</p>
+                        <p><strong>Login :</strong> <span th:text="${credentials.login}"></span></p>
+                        <p><strong>Mot de passe :</strong> <span th:text="${credentials.password}"></span></p>
+                        <p>Connectez-vous via ce lien : <span th:text="${credentials.loginUrl}"></span></p>
+                        <p><strong>Attention :</strong> Vous devrez changer votre mot de passe dès votre première connexion.</p>
                     </div>
-                    <p>Le bénéficiaire peut se connecter via le lien suivant :</p>
-                    <a th:href="${credentials.loginUrl}" class="btn btn-primary w-100">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Page de connexion
-                    </a>
+                    <button class="btn btn-outline-primary w-100" onclick="copyMessage()">
+                        <i class="bi bi-clipboard me-2"></i>Copier le message
+                    </button>
                 </div>
                 <div class="modal-footer">
-                    <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary">Fermer</a>
+                    <a th:href="@{/beneficiaires}" class="btn btn-success">Terminer</a>
                 </div>
             </div>
         </div>
     </div>
 </main>
+    <script th:if="${credentials != null}">
+        document.addEventListener('DOMContentLoaded', function() {
+            new bootstrap.Modal(document.getElementById('modalCredentials')).show();
+        });
 
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
-<script th:if="${credentials != null}">
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = new bootstrap.Modal(document.getElementById('modalCredentials'));
-        modal.show();
-    });
-</script>
-<script>
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    document.getElementById('birthDate').setAttribute('max', `${year}-${month}-${day}`);
-</script>
+        function copyMessage() {
+            const message = document.getElementById('credentials-message').innerText;
+            navigator.clipboard.writeText(message).then(() => {
+                const btn = document.querySelector('[onclick="copyMessage()"]');
+                btn.innerHTML = '<i class="bi bi-check me-2"></i>Copié !';
+                btn.classList.replace('btn-outline-primary', 'btn-success');
+            });
+        }
+    </script>
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,12 @@ import java.sql.SQLException;
 public class BeneficiaryController {
 
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+
+    private final BeneficiaryService beneficiaryService;
+
+    public BeneficiaryController(BeneficiaryService beneficiaryService) {
+        this.beneficiaryService = beneficiaryService;
+    }
 
     @GetMapping("")
     public String showBeneficiaryList(@RequestParam(defaultValue = "1") int page,
@@ -65,7 +72,7 @@ public class BeneficiaryController {
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
         try {
-            BeneficiaryCredentials credentials = beneficiaryService.createBeneficiary(buildBeneficiary(form));
+            BeneficiaryCredentials credentials = beneficiaryService.createBeneficiary(form);
             populateCreationModel(model);
             model.addAttribute("credentials", credentials);
             return "beneficiaries/creation";
@@ -77,21 +84,6 @@ public class BeneficiaryController {
             e.printStackTrace();
             return "redirect:/beneficiaires";
         }
-    }
-
-    private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {
-        Status status = SQLWrap.call((FunctionWithSQLException<Integer, Status>) new DAOStatus()::find, form.getStatusId());
-        Interpreter interpreter = SQLWrap.call((FunctionWithSQLException<Integer, Interpreter>) new DAOInterpreter()::find, form.getInterpreterRefId());
-        return new Beneficiary(
-                form.getFirstName(),
-                form.getLastName(),
-                form.getBirthDate(),
-                form.getPassword(),
-                form.getEmail(),
-                form.getPhoneNumber(),
-                status,
-                interpreter
-        );
     }
 
     private void populateCreationModel(Model model) throws SQLException, ConnectionException {
