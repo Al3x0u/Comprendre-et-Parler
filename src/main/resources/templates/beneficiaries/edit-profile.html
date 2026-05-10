@@ -60,6 +60,11 @@
                         <label for="lastName" class="form-label">Nom</label>
                         <input id="lastName" type="text" class="form-control" th:field="*{lastName}" required>
                     </div>
+                    <div class="col-12 col-md-6">
+                        <label for="birthDate" class="form-label"><i class="bi bi-calendar me-2"></i>Date de naissance</label>
+                        <input id="birthDate" type="date" class="form-control" th:field="*{birthDate}"
+                               th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                    </div>
                 </div>
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">

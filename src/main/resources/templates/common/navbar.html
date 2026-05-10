@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org">
 <body>
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
@@ -22,8 +23,6 @@
                         Dashboard
                     </a>
                 </li>
-
-                <!-- Schedule -->
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/horaire}"
                        th:classappend="${currentPage == 'horaire'} ? 'active' : ''">
@@ -51,7 +50,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle profile-name d-flex align-items-center gap-2"
                        href="#" role="button" data-bs-toggle="dropdown">
-                        <span th:text="${session.user.firstName + ' ' + session.user.lastName}"
+                        <span th:text="${user.firstName + ' ' + user.lastName}"
                               th:classappend="${currentPage == 'profile'} ? 'active-profile' : ''"></span>
                         <img src="/images/avatar.png" alt="Profil" width="35" class="rounded-circle border">
                     </a>
