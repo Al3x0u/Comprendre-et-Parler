@@ -67,9 +67,15 @@ DECLARE
 BEGIN
     INSERT INTO TransportationView
     VALUES (NULL, :NEW.transportMode);
-    SELECT id INTO idTransportation
-    FROM TransportationView
-    WHERE designation = INITCAP(:NEW.transportMode);
+    IF (:NEW.transportMode IS NULL) THEN
+        SELECT id INTO idTransportation
+        FROM TransportationView
+        WHERE designation IS NULL;
+    ELSE
+        SELECT id INTO idTransportation
+        FROM TransportationView
+        WHERE designation = INITCAP(:NEW.transportMode);
+    END IF;
     INSERT INTO AppliUser
     VALUES
         (NULL, 'i', :NEW.firstName, :NEW.lastName,

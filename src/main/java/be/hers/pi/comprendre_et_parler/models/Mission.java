@@ -18,6 +18,11 @@ public class Mission {
     private int importance = 0;
 
     /**
+     * Empty constructor of a Mission
+     */
+    public Mission() {}
+
+    /**
      * Constructor of a Mission object without beneficiary
      * @param id represent the id of the mission
      * @param subject represent the subject of the mission
@@ -47,11 +52,6 @@ public class Mission {
         this.room = room;
         if (importance >= 0 && importance <= 3) this.importance = importance;
     }
-
-    /**
-     * Empty constructor of a Mission
-     */
-    public Mission() {}
 
 
     /**
