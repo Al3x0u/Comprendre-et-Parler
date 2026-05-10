@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOAcademicSkill;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOJobSkill;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
@@ -101,7 +102,14 @@ public class InterpreterController {
 
         if (interpreter == null) return "redirect:/interpretes";
 
-        List<Beneficiary> beneficiaries = getHardcodedBeneficiaries(interpreter);
+        List<Beneficiary> beneficiaries = new ArrayList<>();
+        try {
+            beneficiaries = new ArrayList<>(SQLWrap.call(new DAOBeneficiary()::findReferencedBeneficiaries, id));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
         model.addAttribute("interprete", interpreter);
         model.addAttribute("beneficiaries", beneficiaries);
