@@ -82,6 +82,13 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * Constructs an empty Interpreter object
+     */
+    public Interpreter() {
+        this("", "", "", null, "", "", "", 0, 0, "", null, null, null, null);
+    }
+
+    /**
      * Copy constructor of an Interpreter
      * @param other the Interpreter to copy, must not be null
      */
