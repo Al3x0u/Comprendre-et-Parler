@@ -3,7 +3,8 @@
 <body>
 
 <th:block th:fragment="modal-delete(route, title, entityName)">
-    <div class="modal fade" id="modalDelete" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="modalDelete" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+         th:attr="data-route=${route}">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header text-bg-primary rounded-top-4">
@@ -23,11 +24,12 @@
             </div>
         </div>
     </div>
-    <script th:inline="javascript">
+    <script>
         document.getElementById('modalDelete').addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
+            const route = document.getElementById('modalDelete').getAttribute('data-route');
             document.getElementById('delete-name').textContent = button.getAttribute('data-name');
-            document.getElementById('delete-form').action = [[${route}]] + '/' + button.getAttribute('data-id') + '/supprimer';
+            document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/supprimer';
         });
     </script>
 </th:block>
