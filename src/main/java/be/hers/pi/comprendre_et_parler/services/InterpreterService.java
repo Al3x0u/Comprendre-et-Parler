@@ -2,10 +2,13 @@ package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOManager;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.wrappers.ConsumerWithSQLException;
+import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
@@ -35,6 +38,16 @@ public class InterpreterService {
      */
     public void createInterpreter(Interpreter interpreter) throws AlreadyExistsException, SQLException {
         SQLWrap.callTransaction(daoInterpreter::create, interpreter);
+    }
+
+    /**
+     * Promote an interpreter to Manager
+     * @param id the interpreter's id
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public void promoteInterpreter(int id) throws SQLException, ConnectionException {
+        SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOManager()::create, id);
     }
 
     /**

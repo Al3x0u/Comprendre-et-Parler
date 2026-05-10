@@ -174,7 +174,12 @@ public class InterpreterController {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOManager.create(id)
+        try {
+            new InterpreterService().promoteInterpreter(id);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/interpretes/profil/" + id;
     }
 
@@ -199,7 +204,12 @@ public class InterpreterController {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOInterpreter.create(interpreterToCreate)
+        try {
+            new InterpreterService().createInterpreter(interpreterToCreate);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes";
     }
 
