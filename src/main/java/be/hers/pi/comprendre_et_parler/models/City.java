@@ -8,6 +8,11 @@ public class City {
     private int postalCode = 1000;
 
     /**
+     * Empty constructor of a City
+     */
+    public City() {}
+
+    /**
         Constructor of a City
         @param id represent the id
         @param designation represent the designation
