@@ -1,6 +1,8 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOAcademicSkill;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOJobSkill;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
@@ -83,8 +85,12 @@ public class InterpreterController {
         }
 
         List<Interpreter> allInterpreters = new ArrayList<>();
+        List<AcademicSkill> allAcademicSkills = new ArrayList<>();
+        List<JobSkill> allJobSkills = new ArrayList<>();
         try {
             allInterpreters = new InterpreterService().getAllInterpreters();
+            allAcademicSkills = new ArrayList<>(SQLWrap.call(new DAOAcademicSkill()::findAll));
+            allJobSkills = new ArrayList<>(SQLWrap.call(new DAOJobSkill()::findAll));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -108,8 +114,8 @@ public class InterpreterController {
         model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
         model.addAttribute("isOwnProfile", user.getId() == id);
         model.addAttribute("currentPage", user instanceof Manager m && m.getId() == id ? "profile" : user instanceof Manager ? "interpreters" : "profile");
-        model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
-        model.addAttribute("allJobSkills", getHardcodedJobSkills());
+        model.addAttribute("allAcademicSkills", allAcademicSkills);
+        model.addAttribute("allJobSkills", allJobSkills);
         return "interpreters/profile";
     }
 
@@ -189,9 +195,19 @@ public class InterpreterController {
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager) ) return "redirect:/horaire";
 
+        Set<AcademicSkill> academicSkills = new HashSet<>();
+        Set<JobSkill> jobSkills = new HashSet<>();
+        try {
+            academicSkills = SQLWrap.call(new DAOAcademicSkill()::findAll);
+            jobSkills = SQLWrap.call(new DAOJobSkill()::findAll);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         model.addAttribute("interpreterToCreate", new Interpreter());
-        model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
-        model.addAttribute("allJobSkills", getHardcodedJobSkills());
+        model.addAttribute("allAcademicSkills", new ArrayList<AcademicSkill>(academicSkills));
+        model.addAttribute("allJobSkills", new ArrayList<JobSkill>(jobSkills));
         model.addAttribute("isManager", true);
 
         return "interpreters/creation";
