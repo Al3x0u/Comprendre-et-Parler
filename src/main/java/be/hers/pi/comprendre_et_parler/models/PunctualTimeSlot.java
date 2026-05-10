@@ -8,6 +8,11 @@ public class PunctualTimeSlot extends TimeSlot {
     private LocalDateTime endDate;
 
     /**
+     * Empty constructor of a PunctualTimeSlot
+     */
+    public PunctualTimeSlot() {}
+
+    /**
      * Constructor of a PunctualTimeSlot
      * @param id represent the id
      * @param startDate represent the startDate

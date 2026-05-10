@@ -7,6 +7,11 @@ public class AcademicSkill {
     private String designation;
 
     /**
+     * Empty constructor of an AcademicSkill
+     */
+    public AcademicSkill() {}
+
+    /**
      * Constructor of a AcademicSkill
      * @param id represent the id
      * @param designation represent the designation
