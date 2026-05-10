@@ -1,4 +1,4 @@
-package be.hers.pi.comprendre_et_parler.controllers.controlModels;
+package be.hers.pi.comprendre_et_parler.DTO;
 
 public class BeneficiaryCredentials {
     private final String login;

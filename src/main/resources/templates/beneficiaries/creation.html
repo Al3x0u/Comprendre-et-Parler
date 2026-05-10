@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+
+<body>
+<div th:replace="~{common/navbar :: navbar}"></div>
+<main class="container py-4">
+    <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-header rounded-top-4 bg-primary text-white p-3">
+            <h1 class="h3 mb-0 py-1"><i class="bi bi-person-fill-add me-2"></i>Créer un bénéficiaire</h1>
+        </div>
+
+        <div>
+            <form class="p-2" th:action="@{/beneficiaires/creer}" th:object="${beneficiaireToCreate}" method="post">
+                <div>
+                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
+                        <div class="m-2">
+                            <label for="lastName">Nom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="text" name="lastName" id="lastName" th:field="*{lastName}" required />
+                        </div>
+                        <div class="m-2">
+                            <label for="firstName">Prénom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="text" name="firstName" id="firstName" th:field="*{firstName}" required />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
+                        <div class="m-2">
+                            <label for="email">Mail&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="email" name="email" id="email" th:field="*{email}" required />
+                        </div>
+                        <div class="m-2">
+                            <label for="phoneNumber">Téléphone&nbsp;: </label>
+                            <input type="tel" name="phoneNumber" id="phoneNumber" th:field="*{phoneNumber}"
+                                   pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
+                        <div class="m-2">
+                            <label for="password">Mot de passe temporaire&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="password" name="password" id="password" th:field="*{password}" autocomplete="new-password" required />
+                        </div>
+                        <div class="m-2">
+                            <label for="birthDate">Date de naissance&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                            <input type="date" name="birthDate" id="birthDate" th:field="*{birthDate}" required />
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h3>Statut</h3>
+                    <div class="m-2">
+                        <label for="statusId">Statut&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                        <select name="statusId" id="statusId" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="status : ${allStatuses}"
+                                    th:value="${status.id}"
+                                    th:text="${status.designation}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr>
+                <div>
+                    <h3>Interprète de référence</h3>
+                    <div class="m-2">
+                        <label for="interpreterRefId">Interprète&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
+                        <select name="interpreterRefId" id="interpreterRefId" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option th:each="interpreter : ${allInterpreters}"
+                                    th:value="${interpreter.id}"
+                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-grid d-md-flex gap-2 m-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Créer</button>
+                    <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary btn-lg">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal confirmation avec identifiants -->
+    <div class="modal fade" id="modalCredentials" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+         th:if="${credentials != null}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-success rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Bénéficiaire créé avec succès</h5>
+                </div>
+                <div class="modal-body py-4 px-4">
+                    <p>Veuillez communiquer les identifiants suivants au bénéficiaire :</p>
+                    <div class="bg-light rounded p-3 mb-3">
+                        <p class="mb-1"><strong>Login :</strong> <span th:text="${credentials.login}"></span></p>
+                        <p class="mb-1"><strong>Mot de passe :</strong> <span th:text="${credentials.password}"></span></p>
+                    </div>
+                    <p>Le bénéficiaire peut se connecter via le lien suivant :</p>
+                    <a th:href="${credentials.loginUrl}" class="btn btn-primary w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Page de connexion
+                    </a>
+                </div>
+                <div class="modal-footer">
+                    <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary">Fermer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:if="${credentials != null}">
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = new bootstrap.Modal(document.getElementById('modalCredentials'));
+        modal.show();
+    });
+</script>
+<script>
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('birthDate').setAttribute('max', `${year}-${month}-${day}`);
+</script>
+</body>
+</html>

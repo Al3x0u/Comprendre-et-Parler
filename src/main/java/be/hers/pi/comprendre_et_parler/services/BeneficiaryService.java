@@ -1,7 +1,7 @@
 package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary;
-import be.hers.pi.comprendre_et_parler.controllers.controlModels.*;
+import be.hers.pi.comprendre_et_parler.DTO.BeneficiaryCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;

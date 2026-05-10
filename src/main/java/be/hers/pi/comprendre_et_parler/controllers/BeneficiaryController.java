@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -20,7 +21,6 @@ public class BeneficiaryController {
     public String showBeneficiaryList(@RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "") String keyword,
                                       Model model) {
-        // logique métier seulement
         return "beneficiaries/list";
     }
 
@@ -44,5 +44,59 @@ public class BeneficiaryController {
             e.printStackTrace();
             return "redirect:/beneficiaires";
         }
+    }
+
+    @GetMapping("/creer")
+    public String showCreateBeneficiaryForm(Model model) {
+        try {
+            model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
+            model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
+            model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
+            return "beneficiaries/creation";
+        } catch (ConnectionException e) {
+            e.printStackTrace();
+            return "redirect:/beneficiaires";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "redirect:/beneficiaires";
+        }
+    }
+
+    @PostMapping("/creer")
+    public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
+        try {
+            BeneficiaryCredentials credentials = beneficiaryService.createBeneficiary(buildBeneficiary(form));
+            populateCreationModel(model);
+            model.addAttribute("credentials", credentials);
+            return "beneficiaries/creation";
+
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("error", "Ce bénéficiaire existe déjà.");
+            return "beneficiaries/creation";
+        } catch (ConnectionException | SQLException e) {
+            e.printStackTrace();
+            return "redirect:/beneficiaires";
+        }
+    }
+
+    private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {
+        Status status = SQLWrap.call((FunctionWithSQLException<Integer, Status>) new DAOStatus()::find, form.getStatusId());
+        Interpreter interpreter = SQLWrap.call((FunctionWithSQLException<Integer, Interpreter>) new DAOInterpreter()::find, form.getInterpreterRefId());
+        return new Beneficiary(
+                form.getFirstName(),
+                form.getLastName(),
+                form.getBirthDate(),
+                form.getPassword(),
+                form.getEmail(),
+                form.getPhoneNumber(),
+                status,
+                interpreter
+        );
+    }
+
+    private void populateCreationModel(Model model) throws SQLException, ConnectionException {
+        model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
+        model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
+        model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
     }
 }
