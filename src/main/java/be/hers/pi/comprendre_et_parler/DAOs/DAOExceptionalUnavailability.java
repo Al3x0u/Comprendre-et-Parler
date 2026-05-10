@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 public class DAOExceptionalUnavailability {
     protected static final String TABLE = "Unavailability";
     protected static final String FIELD_ID_INTERPRETER = "interpreter";
-    protected static final String FIELD_ID_TIMESLOT = "punctualTimeSlot";
+    protected static final String FIELD_ID_TIMESLOT = "timeSlot";
     protected static final String FIELD_REASON = "reason";
 
     /**
@@ -66,20 +66,32 @@ public class DAOExceptionalUnavailability {
      * @throws SQLException if the database could not be reached
      * @post objectToInsert has been added to the database, and the change was commited
      */
-    public void create(ExceptionalUnavailability objectToInsert, Interpreter interpreter) throws AlreadyExistsException, SQLException {
+    public void create(ExceptionalUnavailability objectToInsert, Interpreter interpreter) throws AlreadyExistsException, IllegalArgumentException, SQLException {
         if (checkAlreadyExists(objectToInsert, interpreter))
             throw new AlreadyExistsException("An unavailability for interpreter " + interpreter.getId()
                     + " at time slot " + objectToInsert.getTimeSlot().getId()+ " already exists in the database");
 
-        String query = String.format("INSERT INTO %s VALUES (?, ?, ?)", TABLE);
+        int interpreterRef = new DAOInterpreter().checkAlreadyExists(interpreter);
+        if (interpreterRef < 0)
+            throw new IllegalArgumentException("Interpreter " + interpreter.getFullName()
+                    + " (id " + interpreter.getId() + ") does not exist in database");
+
+        try {
+            new DAOPunctualTimeSlot().create(objectToInsert.getTimeSlot());
+        }
+        catch (AlreadyExistsException e) {}
+
+        String query = String.format("INSERT INTO %s(%s, %s, %s) VALUES (?, ?, ?)",
+                TABLE, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT, FIELD_REASON);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, interpreter.getId());
+            statement.setInt(1, interpreterRef);
             statement.setInt(2, objectToInsert.getTimeSlot().getId());
             statement.setString(3, objectToInsert.getReason());
 
             statement.executeUpdate();
+
         } finally {
             if(statement != null) {
                 try {

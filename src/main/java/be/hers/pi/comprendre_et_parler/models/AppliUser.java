@@ -14,12 +14,7 @@ public abstract class AppliUser {
     protected String phoneNumber;
 
     /**
-     * Empty constructor of an AppliUser
-     */
-    public AppliUser() {}
-
-    /**
-     Constructor of an AppliUser
+     Constructor of a AppliUser
      @param id represent the id
      @param login represent the login
      @param firstName represent the firstname
@@ -43,7 +38,7 @@ public abstract class AppliUser {
     }
 
     /**
-     Constructor of an AppliUser without id
+     Constructor of a AppliUser without id
      @param login represent the login
      @param firstName represent the firstname
      @param lastName represent he lastname
@@ -58,7 +53,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * Copy constructor of an AppliUser
+     * Copy constructor of a AppliUser
      * @param other the AppliUser to copy, must not be null
      */
     public AppliUser(AppliUser other) {
@@ -114,6 +109,11 @@ public abstract class AppliUser {
     public String getLastName() {
         return lastName;
     }
+
+    /**
+     * @return The AppliUser's first then last name
+     */
+    public String getFullName() { return firstName + " " + lastName;}
 
     /**
      * @param lastName represent the new last name
