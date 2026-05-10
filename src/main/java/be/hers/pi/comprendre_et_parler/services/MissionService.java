@@ -66,10 +66,10 @@ public class MissionService {
         Set<Mission> missions;
 
         if (user instanceof Manager) {
-            missions = daoMission.getAllMissionsForWeek(yearNumber, weekNumber);
+            missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
         }
         else {
-            missions = daoMission.getScheduleForWeek(user.getId(), yearNumber, weekNumber);
+            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
         }
 
         return new ArrayList<>(missions);
@@ -90,7 +90,7 @@ public class MissionService {
         }
 
         mission.setStateOfMission(MissionState.ACCEPTED);
-        daoMission.create(mission);
+        SQLWrap.callTransaction(daoMission::create, mission);
     }
 
 
@@ -102,7 +102,7 @@ public class MissionService {
      */
     public void createRequest(Mission mission) throws AlreadyExistsException, SQLException {
         mission.setStateOfMission(MissionState.PENDING);
-        daoMission.create(mission);
+        SQLWrap.callTransaction(daoMission::create, mission);
     }
 
 
@@ -115,7 +115,7 @@ public class MissionService {
      */
     private void checkInterpreterConflict(Interpreter interpreter, TimeSlot slot) throws ConflictException, SQLException {
         for (LocalDate date : getDates(slot)){
-            for (Mission existing : daoMission.getScheduleForDay(interpreter.getId(), date)){
+            for (Mission existing : SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), date)){
                 if (hasConflict(slot, existing.getTimeSlot())){
                     throw new ConflictException("Conflit d'hiraire pour " + interpreter.getId());
                 }
@@ -185,7 +185,7 @@ public class MissionService {
      */
     public void cancelMission(Mission mission) throws NoSuchElementException, SQLException {
         mission.setStateOfMission(MissionState.CANCELED);
-        daoMission.update(mission);
+        SQLWrap.callTransaction(daoMission::update, mission);
         // TODO : notifier l'interprète et le bénéficiaire via NotificationService
     }
 
@@ -216,7 +216,7 @@ public class MissionService {
             }
 
         mission.setStateOfMission(MissionState.ACCEPTED);
-        daoMission.update(mission);
+        SQLWrap.callTransaction(daoMission::update,mission);
     }
 
     /**
@@ -227,7 +227,7 @@ public class MissionService {
      */
     public void refuseRequest(Mission mission) throws NoSuchElementException, SQLException {
         mission.setStateOfMission(MissionState.DENIED);
-        daoMission.update(mission);
+        SQLWrap.callTransaction(daoMission::update, mission);
         // TODO : notifier l'interprète et le bénéficiaire via NotificationService
     }
 
@@ -258,7 +258,7 @@ public class MissionService {
         mission.setAcademicSkill(newMission.getAcademicSkill());
         mission.setBeneficiary(newMission.getBeneficiary());
 
-        daoMission.update(mission);
+        SQLWrap.callTransaction(daoMission::update, mission);
     }
 
     /**
@@ -321,7 +321,7 @@ public class MissionService {
         int week = date.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
 
         double total = 0;
-        for (Mission m : daoMission.getScheduleForWeek(interpreter.getId(), year, week))
+        for (Mission m : SQLWrap.call(daoMission::getScheduleForWeek,interpreter.getId(), year, week))
             total += calculateHours(m.getTimeSlot());
         return total;
     }
@@ -351,7 +351,7 @@ public class MissionService {
 
         for (int week = 1; week <= 52; week++) {
 
-            for (Mission mission : daoMission.getScheduleForWeek(interpreter.getId(), year, week)) {
+            for (Mission mission : SQLWrap.call(daoMission::getScheduleForWeek, interpreter.getId(), year, week)) {
                 total += calculateHours(mission.getTimeSlot());
             }
         }

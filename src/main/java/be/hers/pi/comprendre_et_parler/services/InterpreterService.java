@@ -34,7 +34,7 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     public void createInterpreter(Interpreter interpreter) throws AlreadyExistsException, SQLException {
-        daoInterpreter.create(interpreter);
+        SQLWrap.callTransaction(daoInterpreter::create, interpreter);
     }
 
     /**
@@ -46,14 +46,14 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     public void deleteInterpreter(Interpreter interpreter) throws NoSuchElementException, SQLException {
-        for (Mission mission : daoMission.findAll()) {
+        for (Mission mission : SQLWrap.call(daoMission::findAll)) {
             if (mission.getInterpreters() != null && mission.getInterpreters().contains(interpreter)) {
                 if (mission.getInterpreters().size() == 1){
                     missionService.cancelMission(mission);
                 }
             }
         }
-        daoInterpreter.delete(interpreter.getId());
+        SQLWrap.callTransaction(daoInterpreter::delete, interpreter.getId());
     }
 
     /**
@@ -78,7 +78,7 @@ public class InterpreterService {
         interpreter.setJobSkills(newInterpreter.getJobSkills());
         interpreter.setAvailability(newInterpreter.getAvailability());
 
-        daoInterpreter.update(interpreter);
+        SQLWrap.callTransaction(daoInterpreter::update, interpreter);
     }
 
     /**
@@ -89,7 +89,7 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     public void createUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
-        new DAOExceptionalUnavailability().create(unavailability, interpreter);
+        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, unavailability, interpreter);
     }
 
     /**
@@ -98,7 +98,7 @@ public class InterpreterService {
      * @throws SQLException if any other database error occurs
      */
     public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(() -> new DAOInterpreter().findAll()));
+        return new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
     }
 
     /**
@@ -120,7 +120,7 @@ public class InterpreterService {
 
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
 
-        Set<Interpreter> candidates = daoInterpreter.findAvailable(slot.getStartDate().toLocalTime(), slot.getEndDate().toLocalTime(), slot.getStartDate().toLocalDate());
+        Set<Interpreter> candidates = SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate().toLocalTime(), slot.getEndDate().toLocalTime(), slot.getStartDate().toLocalDate());
 
         List<Interpreter> available = new ArrayList<>();
         for (Interpreter interpreter : candidates) {
@@ -160,7 +160,7 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     private boolean hasMissionConflict(Interpreter interpreter, PunctualTimeSlot slot) throws SQLException {
-        Set<Mission> missions = daoMission.getScheduleForDay(interpreter.getId(), slot.getStartDate().toLocalDate());
+        Set<Mission> missions = SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), slot.getStartDate().toLocalDate());
         for (Mission mission : missions) {
             if (mission.getTimeSlot() instanceof PunctualTimeSlot) {
                 PunctualTimeSlot missionSlot = (PunctualTimeSlot) mission.getTimeSlot();
