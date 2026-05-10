@@ -11,6 +11,11 @@ public class Location {
     private int box = 0;
 
     /**
+     * Empty constructor of a Location
+     */
+    public Location() {}
+
+    /**
      Constructor of a Location
      @param id represent the id
      @param designation represent the designation

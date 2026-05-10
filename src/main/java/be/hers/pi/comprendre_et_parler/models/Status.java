@@ -8,6 +8,11 @@ public class Status {
     private int hourQuota = 0;
 
     /**
+     * Empty constructor of a Status
+     */
+    public Status() {}
+
+    /**
      * Constructor of a Status
      * @param id represent the id
      * @param designation represent the designation

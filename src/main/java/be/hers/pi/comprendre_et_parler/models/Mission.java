@@ -17,6 +17,11 @@
         private int importance = 0;
 
         /**
+         * Empty constructor of a Mission
+         */
+        public Mission() {}
+
+        /**
          * Constructor of a Mission without beneficiary
          * @param id represent the id
          * @param subject represent the subject
