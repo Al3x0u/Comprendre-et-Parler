@@ -7,6 +7,11 @@ public class JobSkill {
     private String designation;
 
     /**
+     * Empty constructor of a JobSkill
+     */
+    public JobSkill() {}
+
+    /**
      * Constructor of a JobSkill
      * @param id represent the id
      * @param designation represent the designation
