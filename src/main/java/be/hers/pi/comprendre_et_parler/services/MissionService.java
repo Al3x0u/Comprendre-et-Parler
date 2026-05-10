@@ -20,8 +20,8 @@ public class MissionService {
 
     private final DAOMission daoMission;
 
-    public MissionService(DAOMission daoMission) {
-        this.daoMission = daoMission;
+    public MissionService() {
+        this.daoMission = new DAOMission();
     }
 
     /**

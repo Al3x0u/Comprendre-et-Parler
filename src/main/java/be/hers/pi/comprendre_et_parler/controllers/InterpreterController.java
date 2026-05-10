@@ -1,6 +1,9 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.InterpreterService;
+import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("interpretes")
@@ -26,7 +30,13 @@ public class InterpreterController {
         if (!(user instanceof Manager)) return "redirect:/horaire";
 
         int interpretersPerPage = 10;
-        List<Interpreter> allInterpreters = buildFakeInterpreters();
+        List<Interpreter> allInterpreters = new ArrayList<>();
+        try {
+             allInterpreters = new InterpreterService().getAllInterpreters();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         List<Interpreter> filteredInterpreters = filterInterpreters(allInterpreters, keyword);
         int totalInterpreters = filteredInterpreters.size();
         int totalPages = calculateTotalPages(totalInterpreters, interpretersPerPage);
@@ -72,7 +82,14 @@ public class InterpreterController {
             }
         }
 
-        List<Interpreter> allInterpreters = buildFakeInterpreters();
+        List<Interpreter> allInterpreters = new ArrayList<>();
+        try {
+            allInterpreters = new InterpreterService().getAllInterpreters();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Interpreter interpreter = allInterpreters.stream()
                 .filter(i -> i.getId() == id)
                 .findFirst()
@@ -108,7 +125,14 @@ public class InterpreterController {
         Interpreter interpreter;
 
         if (user instanceof Manager m) {
-            List<Interpreter> allInterpreters = buildFakeInterpreters();
+            List<Interpreter> allInterpreters = new ArrayList<>();
+            try {
+                allInterpreters = new InterpreterService().getAllInterpreters();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
             interpreter = allInterpreters.stream()
                     .filter(i -> i.getId() == id)
                     .findFirst()
@@ -216,79 +240,6 @@ public class InterpreterController {
         return interpretersForPage;
     }
 
-    //FONCTION TEMPORAIRE
-    private List<Interpreter> buildFakeInterpreters() {
-        List<Interpreter> interpreters = new ArrayList<>();
-        interpreters.add(buildFakeInterpreter(1, "Roberto", "Dupont"));
-        interpreters.add(buildFakeInterpreter(2, "Julie", "Leroy"));
-        interpreters.add(buildFakeInterpreter(3, "Amine", "Bernard"));
-        interpreters.add(buildFakeInterpreter(4, "Sarah", "Simon"));
-        interpreters.add(buildFakeInterpreter(5, "Nicolas", "Legrand"));
-        interpreters.add(buildFakeInterpreter(6, "Emma", "Lambert"));
-        interpreters.add(buildFakeInterpreter(7, "Louis", "Fontaine"));
-        interpreters.add(buildFakeInterpreter(8, "Ines", "Leclercq"));
-        interpreters.add(buildFakeInterpreter(9, "Thomas", "Remy"));
-        interpreters.add(buildFakeInterpreter(10, "Lina", "Petit"));
-        interpreters.add(buildFakeInterpreter(11, "Hugo", "Marchal"));
-        interpreters.add(buildFakeInterpreter(12, "Nora", "Colin"));
-        interpreters.add(buildFakeInterpreter(13, "Lucas", "Hubert"));
-        interpreters.add(buildFakeInterpreter(14, "Jade", "Henry"));
-        interpreters.add(buildFakeInterpreter(15, "Noah", "Mertens"));
-        return interpreters;
-    }
-
-    //FONCTION TEMPORAIRE
-    private Interpreter buildFakeInterpreter(int id, String firstName, String lastName) {
-        City city = new City("Libramont", 6600);
-        Location location = new Location("Domicile", city, "Rue des Robertos", "12", 0);
-
-        HashSet<AcademicSkill> academicSkills = new HashSet<>();
-        academicSkills.add(new AcademicSkill("Mathématiques"));
-        academicSkills.add(new AcademicSkill("Informatique"));
-
-        HashSet<JobSkill> jobSkills = new HashSet<>();
-        jobSkills.add(new JobSkill("LSFB"));
-        jobSkills.add(new JobSkill("Interprétation médicale"));
-
-        Interpreter fakeInterpreter = new Interpreter(
-                id,
-                "i" + String.format("%04d", id),
-                firstName,
-                lastName,
-                LocalDate.of(1998, 5, 14),
-                "hashedPassword",
-                (firstName + "." + lastName + "@test.be").toLowerCase(),
-                "0470/12.34.56",
-                38,
-                1600,
-                "Tricycle",
-                academicSkills,
-                jobSkills,
-                location,
-                new HashSet<>()
-        );
-
-        HashSet<ExceptionalUnavailability> unavailabilities = new HashSet<>();
-
-        PunctualTimeSlot slot1 = new PunctualTimeSlot(
-                LocalDateTime.of(2026, 5, 2, 9, 0),
-                LocalDateTime.of(2026, 5, 2, 12, 0)
-        );
-
-        PunctualTimeSlot slot2 = new PunctualTimeSlot(
-                LocalDateTime.of(2026, 5, 5, 0, 0),
-                LocalDateTime.of(2026, 5, 9, 0, 0)
-        );
-
-        ExceptionalUnavailability unavailability1 = new ExceptionalUnavailability("Rendez-vous médical", slot1);
-        ExceptionalUnavailability unavailability2 = new ExceptionalUnavailability("Congé maladie", slot2);
-
-        unavailabilities.add(unavailability1);
-        unavailabilities.add(unavailability2);
-        fakeInterpreter.setUnavailability(unavailabilities);
-
-        return fakeInterpreter;
-    }
 
     private List<Beneficiary> getHardcodedBeneficiaries(Interpreter fakeInterpreter) {
         List<Beneficiary> beneficiaries = new ArrayList<>();

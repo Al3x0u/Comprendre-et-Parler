@@ -4,7 +4,9 @@ import be.hers.pi.comprendre_et_parler.DAOs.DAOExceptionalUnavailability;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,10 +21,10 @@ public class InterpreterService {
     private final MissionService missionService;
 
 
-    public InterpreterService(DAOInterpreter daoInterpreter, DAOMission daoMission, MissionService missionService) {
-        this.daoInterpreter = daoInterpreter;
-        this.daoMission = daoMission;
-        this.missionService = missionService;
+    public InterpreterService() {
+        this.daoInterpreter = new DAOInterpreter();
+        this.daoMission = new DAOMission();
+        this.missionService = new MissionService();
     }
 
     /**
@@ -88,6 +90,15 @@ public class InterpreterService {
      */
     public void createUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
         new DAOExceptionalUnavailability().create(unavailability, interpreter);
+    }
+
+    /**
+     * @return all interpreters present in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
+        return new ArrayList<>(SQLWrap.call(() -> new DAOInterpreter().findAll()));
     }
 
     /**
