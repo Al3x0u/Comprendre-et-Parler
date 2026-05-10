@@ -49,6 +49,12 @@ public class Mission {
     }
 
     /**
+     * Empty constructor of a Mission
+     */
+    public Mission() {}
+
+
+    /**
      * Constructor of a Mission object without id and without beneficiary
      * @param subject represent the subject of the mission
      * @param stateOfMission represent the state of the mission

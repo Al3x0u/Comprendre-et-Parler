@@ -63,7 +63,7 @@ CREATE TABLE InterpreterT (
     id INTEGER PRIMARY KEY REFERENCES AppliUserT(id) ON DELETE CASCADE,
     weekHourlyQuota INTEGER NOT NULL,
     yearHourlyQuota INTEGER NOT NULL,
-    transportMode INTEGER NOT NULL REFERENCES Transportation(id),
+    transportMode INTEGER REFERENCES Transportation(id),
     location INTEGER NOT NULL REFERENCES Location(id)
 );
 
