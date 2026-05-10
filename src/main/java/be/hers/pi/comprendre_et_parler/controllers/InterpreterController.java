@@ -1,7 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOAcademicSkill;
-import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOJobSkill;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
@@ -12,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

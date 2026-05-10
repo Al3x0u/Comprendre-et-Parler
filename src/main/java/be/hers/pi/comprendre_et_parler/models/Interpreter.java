@@ -18,6 +18,11 @@ public class Interpreter extends AppliUser{
     private Set<ExceptionalUnavailability> unavailability;
 
     /**
+     * Empty constructor of an Interpreter
+     */
+    public Interpreter() {}
+
+    /**
      * Constructor of an Interpreter,
      * beneficiaries and missions are initialized with null
      * @param id represent the id
@@ -79,13 +84,6 @@ public class Interpreter extends AppliUser{
                        Set<BaseTimeSlot> availability) {
         this(-1, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber,
                 hourQuotaWeek, hourQuotaYear, transportMode, academicSkills, jobSkills, location, availability);
-    }
-
-    /**
-     * Constructs an empty Interpreter object
-     */
-    public Interpreter() {
-        this("", "", "", null, "", "", "", 0, 0, "", null, null, null, null);
     }
 
     /**

@@ -14,6 +14,11 @@ public abstract class AppliUser {
     protected String phoneNumber;
 
     /**
+     * Empty constructor of an AppliUser
+     */
+    public AppliUser() {}
+
+    /**
      Constructor of a AppliUser
      @param id represent the id
      @param login represent the login
