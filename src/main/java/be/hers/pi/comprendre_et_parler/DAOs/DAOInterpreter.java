@@ -107,8 +107,11 @@ public class DAOInterpreter extends DAO<Interpreter> {
             throw new AlreadyExistsException("The interpreter already exists in the database");
 
         String query = String.format(
-                "INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                TABLE
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                TABLE,
+                FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
+                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA,
+                FIELD_TRANSPORT_MODE, FIELD_LOCATION
         );
         PreparedStatement statement = null;
         try {
@@ -195,6 +198,10 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
+
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
+
         if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
 
@@ -339,8 +346,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, interpreter.getId());
             statement.setInt(2, slot.getId());
-            statement.setInt(3, slot.getDay().getValue());
-
             result = statement.executeQuery();
             return result.next();
         } finally {
@@ -380,8 +385,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, interpreterRef);
             statement.setInt(2, timeSlotRef);
-            statement.setInt(3, slot.getDay().getValue());
-
             statement.executeUpdate();
         }
         finally {
@@ -406,8 +409,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, interpreter.getId());
             statement.setInt(2, slot.getId());
-            statement.setInt(3, slot.getDay().getValue());
-
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("[ERROR] Availability (" + interpreter.getId() + ", " + slot.getId()
                         + ", " + slot.getDay().getValue() + " does not exist in DB.");
