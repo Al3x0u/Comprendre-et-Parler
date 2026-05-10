@@ -7,6 +7,11 @@ public class ExceptionalUnavailability {
     private PunctualTimeSlot timeSlot;
 
     /**
+     * Empty constructor of an ExceptionalUnavailability
+     */
+    public ExceptionalUnavailability() {}
+
+    /**
      * Constructor of a ExceptionalUnavailability
      * @param reason represent the reason
      * @param timeSlot represent the timeSlot

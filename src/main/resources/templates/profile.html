@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4">
+
+    <div th:if="${userRole == 'MANAGER' or userRole == 'INTERPRETER'}">
+        <div th:replace="~{common/profile-interpreter :: profile}"></div>
+    </div>
+
+    <div th:if="${userRole == 'BENEFICIARY'}">
+        <div th:replace="~{common/profile-beneficiary :: profile}"></div>
+    </div>
+
+</main>
+
+<!-- Bundle Bootstrap JS -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+    function toggleEditIndispo() {
+        const btn = document.getElementById('btn-edit-indispo');
+        const btnCancel = document.getElementById('btn-cancel-indispo');
+        const modifyButtons = document.querySelectorAll('.indispo-modify');
+        const deleteButtons = document.querySelectorAll('.indispo-delete');
+        const addButton = document.getElementById('btn-add-indispo');
+        const isEditing = btn.classList.contains('editing');
+
+        if (isEditing) {
+            btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+            btn.classList.remove('editing', 'btn-outline-success');
+            btn.classList.add('btn-outline-primary');
+            btnCancel.classList.add('d-none');
+            modifyButtons.forEach(b => b.classList.add('d-none'));
+            deleteButtons.forEach(b => b.classList.add('d-none'));
+            addButton.classList.add('d-none');
+        } else {
+            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+            btn.classList.add('editing', 'btn-outline-success');
+            btn.classList.remove('btn-outline-primary');
+            btnCancel.classList.remove('d-none');
+            modifyButtons.forEach(b => b.classList.remove('d-none'));
+            deleteButtons.forEach(b => b.classList.remove('d-none'));
+            addButton.classList.remove('d-none');
+        }
+    }
+
+    function toggleEditSkills(type) {
+        const btn = document.getElementById('btn-edit-' + type);
+        const btnCancel = document.getElementById('btn-cancel-' + type);
+        const deleteIcons = document.querySelectorAll('.' + type + '-delete');
+        const addButton = document.getElementById('btn-add-' + type);
+        const isEditing = btn.classList.contains('editing');
+
+        if (isEditing) {
+            btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+            btn.classList.remove('editing', 'btn-outline-success');
+            btn.classList.add('btn-outline-primary');
+            btnCancel.classList.add('d-none');
+            deleteIcons.forEach(i => i.classList.add('d-none'));
+            addButton.classList.add('d-none');
+        } else {
+            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+            btn.classList.add('editing', 'btn-outline-success');
+            btn.classList.remove('btn-outline-primary');
+            btnCancel.classList.remove('d-none');
+            deleteIcons.forEach(i => i.classList.remove('d-none'));
+            addButton.classList.remove('d-none');
+        }
+    }
+
+    function toggleEditInterpreter() {
+        const btn = document.getElementById('btn-edit-interpreter');
+        const btnCancel = document.getElementById('btn-cancel-interpreter');
+        const view = document.getElementById('interpreter-view');
+        const edit = document.getElementById('interpreter-edit');
+        const isEditing = btn.classList.contains('editing');
+
+        if (isEditing) {
+            btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+            btn.classList.remove('editing', 'btn-outline-success');
+            btn.classList.add('btn-outline-primary');
+            btnCancel.classList.add('d-none');
+            view.classList.remove('d-none');
+            edit.classList.add('d-none');
+        } else {
+            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+            btn.classList.add('editing', 'btn-outline-success');
+            btn.classList.remove('btn-outline-primary');
+            btnCancel.classList.remove('d-none');
+            view.classList.add('d-none');
+            edit.classList.remove('d-none');
+        }
+    }
+
+    function toggleEditStatus() {
+        const btn = document.getElementById('btn-edit-status');
+        const btnCancel = document.getElementById('btn-cancel-status');
+        const view = document.getElementById('status-view');
+        const edit = document.getElementById('status-edit');
+        const isEditing = btn.classList.contains('editing');
+
+        if (isEditing) {
+            btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+            btn.classList.remove('editing', 'btn-outline-success');
+            btn.classList.add('btn-outline-primary');
+            btnCancel.classList.add('d-none');
+            view.classList.remove('d-none');
+            edit.classList.add('d-none');
+        } else {
+            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+            btn.classList.add('editing', 'btn-outline-success');
+            btn.classList.remove('btn-outline-primary');
+            btnCancel.classList.remove('d-none');
+            view.classList.add('d-none');
+            edit.classList.remove('d-none');
+        }
+    }
+
+    document.querySelectorAll('.interpreter-option').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('selected-name').textContent = el.dataset.name;
+            document.getElementById('selected-interpreter-id').value = el.dataset.id;
+            const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('interpreter-dropdown'));
+            dropdown.hide();
+        });
+    });
+</script>
+</body>
+</html>
