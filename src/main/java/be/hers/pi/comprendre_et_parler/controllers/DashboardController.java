@@ -16,7 +16,7 @@ public class DashboardController {
     @ResponseBody
     public String hash(){
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.encode("Inter02PI");
+        return encoder.encode("Resp01PI");
     }
 
     /**
