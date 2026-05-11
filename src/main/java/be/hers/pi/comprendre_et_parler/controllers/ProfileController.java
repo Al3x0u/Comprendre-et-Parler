@@ -38,15 +38,17 @@ public class ProfileController {
                 model.addAttribute("interprete", m);
                 model.addAttribute("beneficiaries", beneficiaries);
 
+                model.addAttribute("userRole", "MANAGER");
             } else if (user instanceof Interpreter i) {
                 Set<Beneficiary> beneficiaries = SQLWrap.call(
                         daoBeneficiary::findReferencedBeneficiaries, i.getId());
                 model.addAttribute("interprete", i);
                 model.addAttribute("beneficiaries", beneficiaries);
-
+                model.addAttribute("userRole", "INTERPRETER");
             } else if (user instanceof Beneficiary b) {
                 model.addAttribute("beneficiaire", b);
                 model.addAttribute("age", Period.between(b.getBirthDate(), LocalDate.now()).getYears());
+                model.addAttribute("userRole", "BENEFICIARY");
             }
 
             model.addAttribute("isOwnProfile", true);

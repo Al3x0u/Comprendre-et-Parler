@@ -38,14 +38,14 @@ public class LoginService {
         }
 
         // Temporaire pour les tests — à supprimer
-        try {
-            if(login.startsWith("r")) new DAOManager().updatePasswordUpdated(user.getId());
-            else if(login.startsWith("i")) new DAOInterpreter().updatePasswordUpdated(user.getId());
-            else if(login.startsWith("b")) new DAOBeneficiary().updatePasswordUpdated(user.getId());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        user.setPasswordUpdated(true);
+//        try {
+//            if(login.startsWith("r")) new DAOManager().updatePasswordUpdated(user.getId());
+//            else if(login.startsWith("i")) new DAOInterpreter().updatePasswordUpdated(user.getId());
+//            else if(login.startsWith("b")) new DAOBeneficiary().updatePasswordUpdated(user.getId());
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        user.setPasswordUpdated(true);
 
         return user;
     }

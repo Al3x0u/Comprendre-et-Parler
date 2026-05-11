@@ -42,5 +42,7 @@ public class PasswordService {
             SQLWrap.callTransaction(dao::update, (Beneficiary) user);
             SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
         }
+
+        user.setPasswordUpdated(true);
     }
 }
