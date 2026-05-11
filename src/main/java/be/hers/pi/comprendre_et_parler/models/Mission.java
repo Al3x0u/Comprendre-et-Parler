@@ -53,6 +53,7 @@ public class Mission {
         if (importance >= 0 && importance <= 3) this.importance = importance;
     }
 
+
     /**
      * Constructor of a Mission object without id and without beneficiary
      * @param subject represent the subject of the mission

@@ -3,7 +3,7 @@
 PROPS="src/main/resources/application.properties"
 
 current_login=$(grep "^db\.login=" "$PROPS" | sed 's/^db\.login=//' | tr -d '\r')
-current_passwordent_password=$(grep "^db\.password=" "$PROPS" | sed 's/^db\.password=//' | tr -d '\r')
+current_password=$(grep "^db\.password=" "$PROPS" | sed 's/^db\.password=//' | tr -d '\r')
 
 if [ "$1" = "test" ]; then
     # Mode test
