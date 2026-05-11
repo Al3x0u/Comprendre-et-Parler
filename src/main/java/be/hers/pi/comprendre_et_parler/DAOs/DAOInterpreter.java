@@ -723,4 +723,27 @@ public class DAOInterpreter extends DAO<Interpreter> {
             closeStatement(statement);
         }
     }
+
+    /**
+     * Retrieve the passwordUpdated flag of a user from the database
+     * @param id the id of the user
+     * @return true if the password has been updated, false otherwise
+     * @throws SQLException if the database could not be reached
+     */
+    public boolean getPasswordUpdated(int id) throws SQLException {
+        String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            if(!result.next())
+                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
+            return result.getInt(FIELD_PASSWORD_UPDATED) == 1;
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
 }
