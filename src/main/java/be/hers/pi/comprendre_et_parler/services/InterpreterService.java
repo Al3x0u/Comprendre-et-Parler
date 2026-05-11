@@ -1,18 +1,17 @@
 package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DTO.InterpreterCreationForm;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.ConsumerWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 public class InterpreterService {
 
@@ -31,11 +30,42 @@ public class InterpreterService {
 
     /**
      * Creates a new interpreter in the system.
-     * @param interpreter the interpreter to create
      * @throws AlreadyExistsException if the interpreter already exists in the database
      * @throws SQLException if the database could not be reached
      */
-    public void createInterpreter(Interpreter interpreter) throws AlreadyExistsException, SQLException {
+    public void createInterpreter(InterpreterCreationForm form) throws AlreadyExistsException, SQLException, ConnectionException {
+        City city = new City(form.getCityDesignation(), form.getPostalCode());
+        SQLWrap.callTransaction(new DAOCity()::create, city);
+
+        Location location = new Location(
+                form.getLocationDesignation(),
+                city,
+                form.getStreet(),
+                form.getStreetNumber(),
+                form.getBox() != null ? form.getBox() : 0
+        );
+        SQLWrap.callTransaction(new DAOLocation()::create, location);
+
+        String plainPassword = form.getPassword();
+        String hashedPassword = new BCryptPasswordEncoder().encode(plainPassword);
+
+        Interpreter interpreter = new Interpreter(
+                null,
+                form.getFirstName(),
+                form.getLastName(),
+                form.getBirthDate(),
+                hashedPassword,
+                form.getEmail(),
+                form.getPhoneNumber(),
+                form.getHourQuotaWeek(),
+                form.getHourQuotaYear(),
+                form.getTransportMode(),
+                new HashSet<>(),
+                new HashSet<>(),
+                location,
+                new HashSet<>()
+        );
+
         SQLWrap.callTransaction(daoInterpreter::create, interpreter);
     }
 

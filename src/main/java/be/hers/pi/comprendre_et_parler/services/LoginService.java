@@ -37,15 +37,19 @@ public class LoginService {
             return null;
         }
 
-        // Temporaire pour les tests — à supprimer
-//        try {
-//            if(login.startsWith("r")) new DAOManager().updatePasswordUpdated(user.getId());
-//            else if(login.startsWith("i")) new DAOInterpreter().updatePasswordUpdated(user.getId());
-//            else if(login.startsWith("b")) new DAOBeneficiary().updatePasswordUpdated(user.getId());
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        user.setPasswordUpdated(true);
+        try {
+            boolean passwordUpdated;
+            if(login.trim().startsWith("r")) {
+                passwordUpdated = new DAOManager().getPasswordUpdated(user.getId());
+            } else if(login.trim().startsWith("i")) {
+                passwordUpdated = new DAOInterpreter().getPasswordUpdated(user.getId());
+            } else {
+                passwordUpdated = new DAOBeneficiary().getPasswordUpdated(user.getId());
+            }
+            user.setPasswordUpdated(passwordUpdated);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return user;
     }
