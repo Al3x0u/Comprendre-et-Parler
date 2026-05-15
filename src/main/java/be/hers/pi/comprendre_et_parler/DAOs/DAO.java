@@ -1,12 +1,12 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.NoSuchElementException;
+
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
 import java.util.Set;
+
 
 public abstract class DAO<T> {
 

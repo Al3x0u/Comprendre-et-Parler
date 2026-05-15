@@ -21,12 +21,20 @@ public class ScheduleController {
      * Display the schedule page
      * @param session the current HTTP session
      * @param model the model to pass data to the view
-     * @return the schedule view or redirect to login if not authenticated
+     * @return the schedule view or redirect to the connection if not authenticated
      */
     @GetMapping("/horaire")
     public String showSchedule(HttpSession session, Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
+
+        if (user instanceof Manager) {
+            model.addAttribute("userRole", "MANAGER");
+        } else if (user instanceof Interpreter) {
+            model.addAttribute("userRole", "INTERPRETER");
+        } else if (user instanceof Beneficiary) {
+            model.addAttribute("userRole", "BENEFICIARY");
+        }
 
         List<Map<String, String>> missions = getHardcodedMissions();
         List<Interpreter> interpreters = getHardcodedInterpreters();
@@ -39,16 +47,9 @@ public class ScheduleController {
         model.addAttribute("events", mapper.writeValueAsString(missions));
         model.addAttribute("beneficiaries", beneficiaries);
 
-        if (user instanceof Manager) {
-            model.addAttribute("userRole", "MANAGER");
-        } else if (user instanceof Interpreter) {
-            model.addAttribute("userRole", "INTERPRETER");
-        } else if (user instanceof Beneficiary) {
-            model.addAttribute("userRole", "BENEFICIARY");
-        }
-
         return "schedule";
     }
+
     // Temporary - user hardcoded
     private AppliUser getHardcodedUser() {
         Manager m1 = new Manager(

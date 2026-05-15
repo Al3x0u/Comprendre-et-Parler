@@ -3,20 +3,19 @@ DROP VIEW Beneficiary;
 DROP VIEW Interpreter;
 DROP VIEW Manager;
 DROP VIEW TransportationView;
-DROP VIEW BaseTimeSlotView;
 
 
 CREATE VIEW AppliUser
-    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber)
+    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated)
 AS SELECT
-    id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber
+    id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated
 FROM
     AppliUserT
 WHERE
     end IS NULL;
 
 CREATE VIEW Beneficiary
-    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, status, referenceInterpreter)
+    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, status, referenceInterpreter)
 AS SELECT
     a.*, status, referenceInterpreter
 FROM
@@ -25,9 +24,9 @@ JOIN
     BeneficiaryT b ON a.id = b.id;
 
 CREATE VIEW Interpreter
-    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, weekHourlyQuota, yearHourlyQuota, transportMode, location)
+    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, weekHourlyQuota, yearHourlyQuota, transportMode, location)
 AS SELECT
-    a.*, weekHourlyQuota, yearHourlyQuota, designation, location
+    a.*, weekHourlyQuota, yearHourlyQuota, t.designation, location
 FROM
     AppliUser a
 JOIN
@@ -36,7 +35,7 @@ JOIN
     Transportation t ON transportmode = t.id;
 
 CREATE VIEW Manager
-    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, weekHourlyQuota, yearHourlyQuota, transportMode, location)
+    (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, weekHourlyQuota, yearHourlyQuota, transportMode, location)
 AS SELECT
     i.*
 FROM
@@ -50,15 +49,6 @@ AS SELECT
     *
 FROM
     Transportation;
-
-CREATE VIEW BaseTimeSlotView
-    (id, startDateTime, endDateTime, day)
-AS SELECT
-    t.*, day
-FROM
-    BaseTimeSlot
-JOIN
-    TimeSlot t ON timeSlot = t.id;
 
 
 commit;

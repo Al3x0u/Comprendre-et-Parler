@@ -12,7 +12,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOManager extends DAO<Manager> {
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.FIELD_PASSWORD_UPDATED;
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.TABLE_APPLIUSER;
+
+public class    DAOManager extends DAO<Manager> {
     protected static final String TABLE = "Manager";
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_LOGIN = "login";
@@ -83,8 +86,13 @@ public class DAOManager extends DAO<Manager> {
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Manager with same data already exists");
 
-        String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
-        PreparedStatement statement = null;
+        String query = String.format(
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                TABLE,
+                FIELD_FIRSTNAME, FIELD_LASTNAME, FIELD_BIRTHDATE, FIELD_PASSWORD,
+                FIELD_EMAIL, FIELD_PHONE, FIELD_HOURQUOTAWEEK, FIELD_HOURQUOTAYEAR,
+                FIELD_TRANSPORTATION, FIELD_LOCATION
+        );        PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getFirstName());
@@ -140,7 +148,11 @@ public class DAOManager extends DAO<Manager> {
 
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Manager with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Manager with same data already exists");
 
         String query = String.format(
@@ -162,8 +174,7 @@ public class DAOManager extends DAO<Manager> {
             statement.setString(9, objectToUpdate.getTransportMode());
             statement.setInt(10, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Manager with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -256,7 +267,7 @@ public class DAOManager extends DAO<Manager> {
                 new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
                 new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
                 new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID))
+                new DAOBaseTimeSlot().findAvailabilities(result.getInt(FIELD_ID))
         );
     }
 
@@ -285,6 +296,26 @@ public class DAOManager extends DAO<Manager> {
             statement.setInt(1, idInterpreter);
 
             statement.executeUpdate();
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
+     */
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
         } finally {
             closeStatement(statement);
         }

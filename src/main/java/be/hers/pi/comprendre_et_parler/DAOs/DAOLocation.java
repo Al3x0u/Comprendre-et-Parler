@@ -70,7 +70,11 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Location with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
@@ -87,8 +91,7 @@ public class DAOLocation extends DAO<Location> {
             statement.setInt(5, objectToUpdate.getBox());
             statement.setInt(6, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Location with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }

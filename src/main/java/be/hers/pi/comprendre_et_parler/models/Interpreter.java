@@ -223,6 +223,13 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * @param mission the mission to add to this interpreter's list of missions
+     */
+    public void addMission(Mission mission) {
+        this.missions.add(mission);
+    }
+
+    /**
      * @return this.location
      */
     public Location getLocation() {
@@ -265,11 +272,17 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * @param unavailability the exceptional unavailability to add to this interpreter's list of unavailabilities
+     */
+    public void addUnavailability(ExceptionalUnavailability unavailability) {
+        this.unavailability.add(unavailability);
+    }
+
+    /**
      * Compare this Interpreter with another Object for equality
      * @param o the Object to compare with
-     * @return true if both objects have identical super, hourQuotaWeek,
-     * hourQuotaYear, transportMode, academicSkills, jobSkills,
-     * location, availability and unavailability
+     * @return true if both objects have identical first name, last name, birthdate, hashed password, email, phone number,
+     * hourQuotaWeek, hourQuotaYear, transportMode and location
      */
     @Override
     public boolean equals(Object o) {
