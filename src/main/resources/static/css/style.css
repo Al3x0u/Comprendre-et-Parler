@@ -287,3 +287,11 @@ body {
     height: 110px;
     object-fit: cover;
 }
+
+/* ─── User creation ──────────────────────────────── */
+@media (min-width: 992px){
+    .creation-user {
+        position: relative;
+        left: 7%;
+    }
+}
