@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body class="text-center">
+
+<main class="container py-5 text-center">
+    <div class="py-5">
+        <i class="bi bi-exclamation-triangle-fill text-warning display-1 mb-4 d-block"></i>
+        <h1 class="display-1 fw-bold text-primary" th:text="${status}">Erreur</h1>
+        <p class="fs-3 fw-semibold mb-2" th:text="${error}">Une erreur est survenue</p>
+        <p class="text-muted mb-4" th:text="${message}"></p>
+        <a href="/dashboard" class="btn btn-primary btn-lg me-2  mb-2">
+            <i class="bi bi-house me-2"></i>Accueil
+        </a>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg  mb-2">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+</main>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
