@@ -106,7 +106,8 @@ public class Beneficiary extends AppliUser {
     /**
      * Compare this Beneficiary with another Object for equality
      * @param o the Object to compare with
-     * @return true if both objects have identical super, status and interpreterRef
+     * @return true if both objects have identical first name, last name, birthdate, hashed password, email, phone number,
+     * status and interpreterRef
      */
     @Override
     public boolean equals(Object o) {

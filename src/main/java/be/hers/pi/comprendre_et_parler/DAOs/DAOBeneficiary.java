@@ -13,7 +13,9 @@ import java.util.HashSet;
 
 public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String TABLE = "Beneficiary";
+    protected static final String TABLE_APPLIUSER = "AppliUser";
     protected static final String FIELD_ID = "id";
+    protected static final String FIELD_PASSWORD_UPDATED = "passwordUpdated";
     protected static final String FIELD_LOGIN = "login";
     protected static final String FIELD_FIRST_NAME = "firstName";
     protected static final String FIELD_LAST_NAME = "lastName";
@@ -80,8 +82,12 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
         if (find(objectToInsert.getLogin()) != null)
             throw new AlreadyExistsException("Object already exists in database");
 
-        String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
-        PreparedStatement statement = null;
+        String query = String.format(
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                TABLE,
+                FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
+                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
+        );        PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getFirstName());
@@ -135,7 +141,11 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The beneficiary already exists in database.");
 
         String query = String.format(
@@ -156,8 +166,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setInt(8, objectToUpdate.getInterpreterRef().getId());
             statement.setInt(9, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -310,5 +319,25 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             closeStatement(statement);
         }
         return beneficiaries;
+    }
+
+    /**
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
+     */
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
+        } finally {
+            closeStatement(statement);
+        }
     }
 }
