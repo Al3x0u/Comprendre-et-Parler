@@ -6,7 +6,6 @@ target/
 *.bak*
 lib/
 src/out/
-src/main/resources/application.properties
 
 ### STS ###
 .apt_generated
