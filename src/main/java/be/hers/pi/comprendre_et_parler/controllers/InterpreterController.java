@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.DTOs.UserCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpSession;
@@ -182,7 +183,9 @@ public class InterpreterController {
 
         if (returnUrl == null) {
             try {
-                // TODO: DAOInterpreter.create(interpreterToCreate)
+                // TODO: UserCredentials credentials = ServiceInterpreter.create(interpreterToCreate)
+                UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
+                model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterToCreate", new Interpreter());
                 throw new SQLException();
