@@ -1,11 +1,13 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -160,6 +162,7 @@ public class InterpreterController {
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager) ) return "redirect:/horaire";
 
+        model.addAttribute("submitState", null);
         model.addAttribute("interpreterToCreate", new Interpreter());
         model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
         model.addAttribute("allJobSkills", getHardcodedJobSkills());
@@ -171,11 +174,32 @@ public class InterpreterController {
     @PostMapping("/creation")
     public String createInterpreter(@ModelAttribute("interpreterToCreate") Interpreter interpreterToCreate,
                                     @RequestParam(required = false) String returnUrl,
-                                    HttpSession session) {
+                                    HttpSession session,
+                                    Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOInterpreter.create(interpreterToCreate)
+
+        if (returnUrl == null) {
+            try {
+                // TODO: DAOInterpreter.create(interpreterToCreate)
+                model.addAttribute("submitState", "success");
+                model.addAttribute("interpreterToCreate", new Interpreter());
+                throw new SQLException();
+            } catch (AlreadyExistsException e) {
+                model.addAttribute("submitState", "alreadyExist");
+                model.addAttribute("interpreterToCreate", interpreterToCreate);
+            } catch (SQLException e) {
+                model.addAttribute("submitState", "error");
+                model.addAttribute("interpreterToCreate", interpreterToCreate);
+            } finally {
+                model.addAttribute("allAcademicSkills", getHardcodedAcademicSkills());
+                model.addAttribute("allJobSkills", getHardcodedJobSkills());
+                model.addAttribute("isManager", true);
+
+                return "interpreters/creation";
+            }
+        }
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes";
     }
 
