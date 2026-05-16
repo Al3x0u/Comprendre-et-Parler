@@ -14,6 +14,8 @@ public abstract class AppliUser {
     protected String phoneNumber;
     protected boolean passwordUpdated;
 
+    public AppliUser() {}
+
     /**
      Constructor of a AppliUser
      @param id represent the id
