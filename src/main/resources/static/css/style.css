@@ -84,13 +84,13 @@ body {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     padding: 0 1rem;
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
 @media (min-width: 768px) {
     .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         padding: 0 2rem;
     }
 }
@@ -115,6 +115,8 @@ body {
     transition: transform 0.2s ease;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
 }
+
+
 
 /* ─── Legend Calendar ───────────────────────────────────── */
 .legende-dot {
@@ -286,4 +288,12 @@ body {
     width: 110px;
     height: 110px;
     object-fit: cover;
+}
+
+/* ─── User creation ──────────────────────────────── */
+@media (min-width: 992px){
+    .creation-user {
+        position: relative;
+        left: 7%;
+    }
 }
