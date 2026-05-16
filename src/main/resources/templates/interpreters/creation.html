@@ -25,7 +25,7 @@
         </div>
 
         <div>
-            <form class="p-2" th:action="@{/interpretes/creation}" th:object="${interpreterToCreate}" method="post">
+            <form class="p-2" th:action="@{/interpretes/creer}" th:object="${interpreterForm}" method="post">
                 <div class="creation-user" style="width: 75%">
                     <div class="d-flex flex-column flex-lg-row">
                         <div class="d-flex justify-content-end m-2 col-lg-6">
@@ -51,7 +51,7 @@
                     <div class="d-flex flex-column flex-lg-row">
                         <div class="d-flex justify-content-end m-2 col-lg-6">
                             <label class="d-flex justify-content-end col-5" for="password">Mot de passe&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="password" name="password" id="password" autocomplete="new-password" th:field="*{hashedPassword}" required />
+                            <input class="col-7 ms-2" type="password" name="password" id="password" autocomplete="new-password" th:field="*{password}" required />
                         </div>
                         <div class="d-flex justify-content-end m-2 col-lg-6">
                             <label class="d-flex justify-content-end col-5" for="birthdate"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
@@ -73,31 +73,31 @@
                         <div class="d-flex flex-column flex-lg-row">
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <label class="d-flex justify-content-end col-5" for="postalCode">Code postal&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                                <input class="col-7 ms-2" type="number" name="postalCode" id="postalCode" min="1000" max ="9999" value="1000" th:field="*{location.city.postalCode}" required />
+                                <input class="col-7 ms-2" type="number" name="postalCode" id="postalCode" min="1000" max ="9999" value="1000" th:field="*{postalCode}" required />
                             </div>
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <label class="d-flex justify-content-end col-5" for="city">Ville&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                                <input class="col-7 ms-2" type="text" name="city" id="city" th:field="*{location.city.designation}" required />
+                                <input class="col-7 ms-2" type="text" name="city" id="city" th:field="*{cityDesignation}" required />
                             </div>
                         </div>
                         <div class="d-flex flex-column flex-lg-row">
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <label class="d-flex justify-content-end col-5" for="street">Rue&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                                <input class="col-7 ms-2" type="text" name="street" id="street" th:field="*{location.street}" required />
+                                <input class="col-7 ms-2" type="text" name="street" id="street" th:field="*{street}" required />
                             </div>
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <label class="d-flex justify-content-end col-5" for="streetNumber">Numéro&nbsp;: </label>
-                                <input class="col-7 ms-2" type="text" name="streetNumber" id="streetNumber" th:field="*{location.streetNumber}" />
+                                <input class="col-7 ms-2" type="text" name="streetNumber" id="streetNumber" th:field="*{streetNumber}" />
                             </div>
                         </div>
                         <div class="d-flex flex-column flex-lg-row">
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <label class="d-flex justify-content-end col-5" for="designation">Désignation&nbsp;: </label>
-                                <input class="col-7 ms-2" type="text" name="designation" id="designation" th:field="*{location.designation}" />
+                                <input class="col-7 ms-2" type="text" name="designation" id="designation" th:field="*{locationDesignation}" />
                             </div>
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <label class="d-flex justify-content-end col-5" for="box">Boite&nbsp;: </label>
-                                <input class="col-7 ms-2" type="number" name="box" id="box" min="0" value="0" th:field="*{location.box}" />
+                                <input class="col-7 ms-2" type="number" name="box" id="box" min="0" value="0" th:field="*{box}" />
                             </div>
                         </div>
                     </div>
@@ -127,9 +127,9 @@
                         <div class="d-flex flex-column flex-lg-row">
                             <div class="d-flex flex-column justify-content-between align-items-center m-2 col-lg-6">
                                 <h2 class="h5 mb-0">Académiques</h2>
-                                <div th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="d-flex flex-wrap gap-2" id="academic-skills">
-                                    <span th:each="skill : *{academicSkills}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
-                                        <span th:text="${skill.designation}"></span>
+                                <div th:if="*{academicSkillIds != null and !#sets.isEmpty(academicSkillIds)}" class="d-flex flex-wrap gap-2" id="academic-skills">
+                                    <span th:each="skill : *{academicSkillIds}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                                        <span th:text="${skill}"></span>
                                         <i class="bi bi-x skill-delete academic-delete d-none" style="cursor:pointer"></i>
                                     </span>
                                 </div>
@@ -140,9 +140,9 @@
                             </div>
                             <div class="d-flex flex-column justify-content-between align-items-center m-2 col-lg-6">
                                 <h2 class="h5 mb-0">Métiers</h2>
-                                <div th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="d-flex flex-wrap gap-2" id="job-skills">
-                                    <span th:each="skill : *{jobSkills}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
-                                        <span th:text="${skill.designation}"></span>
+                                <div th:if="*{jobSkillIds != null and !#sets.isEmpty(jobSkillIds)}" class="d-flex flex-wrap gap-2" id="job-skills">
+                                    <span th:each="skill : *{jobSkillIds}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                                        <span th:text="${skill}"></span>
                                         <i class="bi bi-x skill-delete job-delete d-none" style="cursor:pointer"></i>
                                     </span>
                                 </div>

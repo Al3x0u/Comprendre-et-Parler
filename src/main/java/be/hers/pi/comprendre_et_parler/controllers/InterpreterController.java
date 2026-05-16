@@ -121,7 +121,7 @@ public class InterpreterController {
         return "redirect:/interpretes/profil/" + id;
     }
 
-    @GetMapping("/creation")
+    @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
         try {
             model.addAttribute("interpreterForm", new InterpreterCreationForm());
@@ -135,17 +135,19 @@ public class InterpreterController {
         }
     }
 
-    @PostMapping("/creation")
+    @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") InterpreterCreationForm form,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                throw new AlreadyExistsException("error");
                 // TODO: UserCredentials credentials = interpreterService.createInterpreter(form);
-                UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
+                /** UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
                 model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterToCreate", new InterpreterCreationForm());
+                 */
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "alreadyExist");
                 model.addAttribute("interpreterToCreate", form);
