@@ -1,11 +1,11 @@
 package be.hers.pi.comprendre_et_parler.DTO;
 
-public class BeneficiaryCredentials {
+public class UserCredentials {
     private final String login;
     private final String password;
     private final String loginUrl;
 
-    public BeneficiaryCredentials(String login, String password, String loginUrl) {
+    public UserCredentials(String login, String password, String loginUrl) {
         this.login = login;
         this.password = password;
         this.loginUrl = loginUrl;
