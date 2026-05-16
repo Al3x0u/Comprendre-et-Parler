@@ -47,13 +47,20 @@ public class DAOLocation extends DAO<Location> {
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists");
 
+        int cityRef = -1;
+        try {
+            new DAOCity().create(objectToInsert.getCity());
+        }
+        catch (AlreadyExistsException e) { }
+        cityRef = objectToInsert.getCity().getId();
+
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, ?, ?, ?)", TABLE);
         PreparedStatement statement = null;
         ResultSet generatedKeys = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
-            statement.setInt(2, objectToInsert.getCity().getId());
+            statement.setInt(2, cityRef);
             statement.setString(3, objectToInsert.getStreet());
             statement.setString(4, objectToInsert.getStreetNumber());
             statement.setInt(5, objectToInsert.getBox());
@@ -77,6 +84,21 @@ public class DAOLocation extends DAO<Location> {
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
 
+        int cityRef = -1;
+        try {
+            new DAOCity().update(objectToUpdate.getCity());
+            cityRef = objectToUpdate.getCity().getId();
+        }
+        catch (NoSuchElementException e) {
+            try {
+                new DAOCity().create(objectToUpdate.getCity());
+                cityRef = objectToUpdate.getCity().getId();
+            }
+            catch (AlreadyExistsException f) {
+                cityRef = new DAOCity().checkAlreadyExists(objectToUpdate.getCity());
+            }
+        }
+
         String query = String.format(
                 "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
                 TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX, FIELD_ID
@@ -85,7 +107,7 @@ public class DAOLocation extends DAO<Location> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getDesignation());
-            statement.setInt(2, objectToUpdate.getCity().getId());
+            statement.setInt(2, cityRef);
             statement.setString(3, objectToUpdate.getStreet());
             statement.setString(4, objectToUpdate.getStreetNumber());
             statement.setInt(5, objectToUpdate.getBox());

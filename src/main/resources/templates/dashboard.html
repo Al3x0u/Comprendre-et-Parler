@@ -5,7 +5,7 @@
 <body class="vh-100">
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<h2 class="text-center mt-5 mb-5" th:text="'Bonjour ' + ${managerFirstName} + ' !'"></h2>
+<h2 class="text-center mt-5 mb-5" th:text="'Bonjour ' + ${user.FirstName} + ' !'"></h2>
 
 <div class="dashboard-grid">
 
@@ -18,6 +18,18 @@
             <div class="card-body text-center">
                 <h5 class="fw-bold dashboard-card-title">Horaire</h5>
                 <p class="text-muted dashboard-card-subtitle">Page de gestion des horaires</p>
+            </div>
+        </div>
+    </a>
+
+    <a th:href="@{/gestion}" class="text-decoration-none text-dark">
+        <div class="card border-0 rounded-4 overflow-hidden h-100 shadow-sm">
+            <div class="card-header-colored bg-schedule d-flex align-items-center justify-content-center py-4">
+                <i class="bi bi-sliders fs-1 text-white"></i>
+            </div>
+            <div class="card-body text-center">
+                <h5 class="fw-bold dashboard-card-title">Gestion</h5>
+                <p class="text-muted dashboard-card-subtitle">Page de gestion des compétences et statuts</p>
             </div>
         </div>
     </a>
@@ -49,6 +61,7 @@
             </div>
         </div>
     </a>
+
 </div>
 
 <!-- Bundle Bootstrap JS -->

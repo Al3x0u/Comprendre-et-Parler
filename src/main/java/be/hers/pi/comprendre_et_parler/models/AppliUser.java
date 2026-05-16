@@ -12,11 +12,7 @@ public abstract class AppliUser {
     protected String hashedPassword;
     protected String email;
     protected String phoneNumber;
-
-    /**
-     * Empty constructor of an AppliUser
-     */
-    public AppliUser() {}
+    protected boolean passwordUpdated;
 
     /**
      Constructor of a AppliUser
@@ -40,6 +36,7 @@ public abstract class AppliUser {
         this.hashedPassword = hashedPassword;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        passwordUpdated = false;
     }
 
     /**
@@ -181,6 +178,20 @@ public abstract class AppliUser {
      */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * @return true if password has been updated otherwise false
+     */
+    public boolean isPasswordUpdated() {
+        return passwordUpdated;
+    }
+
+    /**
+     * @param passwordUpdated represent the new phone number
+     */
+    public void setPasswordUpdated(boolean passwordUpdated) {
+        this.passwordUpdated = passwordUpdated;
     }
 
     public abstract AppliUser clone();

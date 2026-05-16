@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4">
+
+    <div class="card border-0 rounded-4 shadow-sm mb-4">
+        <div class="card-header rounded-top-4 bg-primary text-white p-3">
+            <h1 class="h3 mb-0 py-1"><i class="bi bi-sliders me-2"></i>Gestion des référentiels</h1>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+
+                <!-- Compétences académiques -->
+                <div class="col-12 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="h5 text-primary mb-0"><i class="bi bi-mortarboard me-2"></i>Compétences académiques</h2>
+                                <button class="btn btn-outline-primary btn-sm rounded-4"
+                                        data-bs-toggle="modal" data-bs-target="#modalAddAcademicSkill">
+                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                </button>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <div th:each="skill : ${academicSkills}"
+                                     class="bg-light rounded p-3 d-flex justify-content-between align-items-center">
+                                    <span th:text="${skill.designation}"></span>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalEditAcademicSkill"
+                                                th:attr="data-id=${skill.id}, data-name=${skill.designation}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalDelete"
+                                                th:attr="data-id=${skill.id}, data-name=${skill.designation},
+                                                data-route='/gestion/competences/academiques'">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p th:if="${#lists.isEmpty(academicSkills)}" class="text-muted mb-0">Aucune compétence académique</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compétences métier -->
+                <div class="col-12 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="h5 text-primary mb-0"><i class="bi bi-briefcase me-2"></i>Compétences métier</h2>
+                                <button class="btn btn-outline-primary btn-sm rounded-4"
+                                        data-bs-toggle="modal" data-bs-target="#modalAddJobSkill">
+                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                </button>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <div th:each="skill : ${jobSkills}"
+                                     class="bg-light rounded p-3 d-flex justify-content-between align-items-center">
+                                    <span th:text="${skill.designation}"></span>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalEditJobSkill"
+                                                th:attr="data-id=${skill.id}, data-name=${skill.designation}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalDelete"
+                                                th:attr="data-id=${skill.id}, data-name=${skill.designation},
+                                                data-route='/gestion/competences/metier'">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p th:if="${#lists.isEmpty(jobSkills)}" class="text-muted mb-0">Aucune compétence métier</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statuts -->
+                <div class="col-12 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="h5 text-primary mb-0"><i class="bi bi-tag me-2"></i>Statuts</h2>
+                                <button class="btn btn-outline-primary btn-sm rounded-4"
+                                        data-bs-toggle="modal" data-bs-target="#modalAddStatus">
+                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                                </button>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <div th:each="statut : ${statuts}"
+                                     class="bg-light rounded p-3 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p class="fw-semibold mb-0" th:text="${statut.designation}"></p>
+                                        <p class="text-muted small mb-0" th:text="${statut.hourQuota} + ' h/an'"></p>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-outline-primary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalEditStatus"
+                                                th:attr="data-id=${statut.id}, data-name=${statut.designation}, data-quota=${statut.hourQuota}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#modalDelete"
+                                                th:attr="data-id=${statut.id}, data-name=${statut.designation},
+                                                data-route='/gestion/statuts'">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p th:if="${#lists.isEmpty(statuts)}" class="text-muted mb-0">Aucun statut</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Modal Ajouter compétence académique -->
+<div class="modal fade" id="modalAddAcademicSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-primary rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Ajouter une compétence académique</h5>
+            </div>
+            <div class="modal-body">
+                <form id="form-add-academic" th:action="@{/gestion/competences/academiques/ajouter}" method="post">
+                    <div class="mb-3">
+                        <label for="academic-name" class="form-label">Désignation</label>
+                        <input id="academic-name" type="text" class="form-control" name="designation" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="form-add-academic" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Ajouter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier compétence académique -->
+<div class="modal fade" id="modalEditAcademicSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-primary rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Modifier une compétence académique</h5>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-academic" method="post">
+                    <div class="mb-3">
+                        <label for="academic-edit-name" class="form-label">Désignation</label>
+                        <input id="academic-edit-name" type="text" class="form-control" name="designation" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="form-edit-academic" class="btn btn-primary">
+                    <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter compétence métier -->
+<div class="modal fade" id="modalAddJobSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-primary rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Ajouter une compétence métier</h5>
+            </div>
+            <div class="modal-body">
+                <form id="form-add-job" th:action="@{/gestion/competences/metier/ajouter}" method="post">
+                    <div class="mb-3">
+                        <label for="job-name" class="form-label">Désignation</label>
+                        <input id="job-name" type="text" class="form-control" name="designation" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="form-add-job" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Ajouter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier compétence métier -->
+<div class="modal fade" id="modalEditJobSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-primary rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Modifier une compétence métier</h5>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-job" method="post">
+                    <div class="mb-3">
+                        <label for="job-edit-name" class="form-label">Désignation</label>
+                        <input id="job-edit-name" type="text" class="form-control" name="designation" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="form-edit-job" class="btn btn-primary">
+                    <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajouter statut -->
+<div class="modal fade" id="modalAddStatus" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-primary rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Ajouter un statut</h5>
+            </div>
+            <div class="modal-body">
+                <form id="form-add-status" th:action="@{/gestion/statuts/ajouter}" method="post">
+                    <div class="mb-3">
+                        <label for="status-name" class="form-label">Désignation</label>
+                        <input id="status-name" type="text" class="form-control" name="designation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status-quota" class="form-label">Quota annuel (h)</label>
+                        <input id="status-quota" type="number" class="form-control" name="hourQuota" min="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="form-add-status" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Ajouter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Modifier statut -->
+<div class="modal fade" id="modalEditStatus" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-primary rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-tag me-2"></i>Modifier un statut</h5>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-status" method="post">
+                    <div class="mb-3">
+                        <label for="status-edit-name" class="form-label">Désignation</label>
+                        <input id="status-edit-name" type="text" class="form-control" name="designation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status-edit-quota" class="form-label">Quota annuel (h)</label>
+                        <input id="status-edit-quota" type="number" class="form-control" name="hourQuota" min="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="form-edit-status" class="btn btn-primary">
+                    <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Suppression générique -->
+<div th:replace="~{common/modal-delete :: modal-delete('/gestion', 'Supprimer', '')}"></div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+    document.getElementById('modalEditAcademicSkill').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        document.getElementById('academic-edit-name').value = button.getAttribute('data-name');
+        document.getElementById('form-edit-academic').action = '/gestion/competences/academiques/' + button.getAttribute('data-id') + '/modifier';
+    });
+
+    document.getElementById('modalEditJobSkill').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        document.getElementById('job-edit-name').value = button.getAttribute('data-name');
+        document.getElementById('form-edit-job').action = '/gestion/competences/metier/' + button.getAttribute('data-id') + '/modifier';
+    });
+
+    document.getElementById('modalEditStatus').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        document.getElementById('status-edit-name').value = button.getAttribute('data-name');
+        document.getElementById('status-edit-quota').value = button.getAttribute('data-quota');
+        document.getElementById('form-edit-status').action = '/gestion/statuts/' + button.getAttribute('data-id') + '/modifier';
+    });
+</script>
+</body>
+</html>
