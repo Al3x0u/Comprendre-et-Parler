@@ -26,7 +26,6 @@ public class ScheduleController {
     @GetMapping("/horaire")
     public String showSchedule(HttpSession session, Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
 
         if (user instanceof Manager) {
             model.addAttribute("userRole", "MANAGER");
@@ -37,16 +36,11 @@ public class ScheduleController {
         }
 
         List<Map<String, String>> missions = getHardcodedMissions();
-        List<Interpreter> interpreters = getHardcodedInterpreters();
         List<Beneficiary> beneficiaries = getHardcodedBeneficiaries();
 
         ObjectMapper mapper = new ObjectMapper();
-        model.addAttribute("user", user);
-        model.addAttribute("currentPage", "schedule");
-        model.addAttribute("isManager", user instanceof Manager);
         model.addAttribute("events", mapper.writeValueAsString(missions));
         model.addAttribute("beneficiaries", beneficiaries);
-
         return "schedule";
     }
 
