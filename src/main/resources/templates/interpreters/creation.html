@@ -13,6 +13,9 @@
             <div th:if="${submitState} == 'error'">
                 <div th:replace="~{common/modal-creation :: modal-error}"></div>
             </div>
+            <div th:if="${submitState} == 'alreadyExist'">
+                <div th:replace="~{common/modal-creation :: modal-alreadyExist}"></div>
+            </div>
         </div>
     </div>
 

@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.DTOs.UserCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -192,7 +193,7 @@ public class InterpreterController {
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "alreadyExist");
                 model.addAttribute("interpreterToCreate", interpreterToCreate);
-            } catch (SQLException e) {
+            } catch (ConnectionException | SQLException e) {
                 model.addAttribute("submitState", "error");
                 model.addAttribute("interpreterToCreate", interpreterToCreate);
             } finally {
