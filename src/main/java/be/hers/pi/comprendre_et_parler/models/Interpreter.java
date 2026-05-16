@@ -18,11 +18,6 @@ public class Interpreter extends AppliUser{
     private Set<ExceptionalUnavailability> unavailability;
 
     /**
-     * Empty constructor of an Interpreter
-     */
-    public Interpreter() {}
-
-    /**
      * Constructor of an Interpreter,
      * beneficiaries and missions are initialized with null
      * @param id represent the id

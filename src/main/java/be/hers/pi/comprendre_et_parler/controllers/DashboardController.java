@@ -2,31 +2,31 @@ package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class DashboardController {
+
+    @GetMapping("/hash")
+    @ResponseBody
+    public String hash(){
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode("Inter02PI");
+    }
+
     /**
      * Display the dashboard page (only for managers)
-     * @param session the current HTTP session
      * @param model the model to pass data to the view
-     * @return the dashboard view or redirect to login if not authenticated
+     * @return the dashboard view
      */
     @GetMapping("/dashboard")
-    public String showDashboard(HttpSession session, Model model) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-
-        int interpreterCount = 25;
-        int beneficiaryCount = 50;
-        model.addAttribute("currentPage", "dashboard");
-        model.addAttribute("managerFirstName", user.getFirstName());
-        model.addAttribute("interpreterCount", interpreterCount);
-        model.addAttribute("beneficiaryCount", beneficiaryCount);
-        model.addAttribute("isManager", true);
+    public String showDashboard(Model model) {
+        model.addAttribute("interpreterCount", 25);
+        model.addAttribute("beneficiaryCount", 50);
         return "dashboard";
     }
 }

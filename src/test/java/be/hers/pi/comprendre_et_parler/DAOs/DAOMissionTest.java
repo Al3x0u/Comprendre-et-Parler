@@ -52,6 +52,10 @@ class DAOMissionTest {
                 LocalTime.NOON.plusHours(1), DayOfWeek.MONDAY);
         new DAOPunctualTimeSlot().create(t1);
         new DAOBaseTimeSlot().create(t2);
+        Set<TimeSlot> t3 = new HashSet<>();
+        t3.add(t1);
+        Set<TimeSlot> t4 = new HashSet<>();
+        t4.add(t2);
 
         Status s1 = new Status(1, "Test", 50);
         new DAOStatus().create(s1);
@@ -59,7 +63,7 @@ class DAOMissionTest {
                 "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
         new DAOBeneficiary().create(b1);
 
-        m1 = new Mission(75, "Regular mission", MissionState.REGULAR, "regular", t2,
+        m1 = new Mission(75, "Regular mission", MissionState.PENDING, "regular", t2,
                 l1, new HashSet<>(), null, null, "B7", 2);
         m1.addInterpreter(i1);
         m2 = new Mission(2, "Pending mission", MissionState.PENDING, "pending", t1,

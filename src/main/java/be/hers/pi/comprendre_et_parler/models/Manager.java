@@ -6,11 +6,6 @@ import java.util.Set;
 public class Manager extends Interpreter {
 
     /**
-     * Empty constructor of a Manager
-     */
-    public Manager() {}
-
-    /**
      * Constructor of a Manager,
      * beneficiaries and missions are initialized with null
      * @param id represent the id

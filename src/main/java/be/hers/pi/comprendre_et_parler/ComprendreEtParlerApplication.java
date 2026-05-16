@@ -25,10 +25,6 @@ public class ComprendreEtParlerApplication {
     public void init(){
         DatabaseConnector.initialize(dbLogin, dbPassword);
     }
-
-    @PreDestroy
-    public void cleanup() throws SQLException {
-        DatabaseConnector.closeInstance();
-    }
+    
 
 }

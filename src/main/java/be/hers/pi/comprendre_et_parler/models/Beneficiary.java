@@ -8,11 +8,6 @@ public class Beneficiary extends AppliUser {
     private Interpreter interpreterRef;
 
     /**
-     * Empty constructor of a Beneficiary
-     */
-    public Beneficiary() {}
-
-    /**
      * Constructor of a Beneficiary
      * @param id represent the id
      * @param login represent the login
