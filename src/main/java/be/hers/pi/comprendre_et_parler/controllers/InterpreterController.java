@@ -141,13 +141,11 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                throw new AlreadyExistsException("error");
                 // TODO: UserCredentials credentials = interpreterService.createInterpreter(form);
-                /** UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
+                UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
                 model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterToCreate", new InterpreterCreationForm());
-                 */
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "alreadyExist");
                 model.addAttribute("interpreterToCreate", form);
