@@ -27,7 +27,7 @@
     <script>
         document.getElementById('modalDelete').addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
-            const route = document.getElementById('modalDelete').getAttribute('data-route');
+            const route = button.getAttribute('data-route') || document.getElementById('modalDelete').getAttribute('data-route');
             document.getElementById('delete-name').textContent = button.getAttribute('data-name');
             document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/supprimer';
         });

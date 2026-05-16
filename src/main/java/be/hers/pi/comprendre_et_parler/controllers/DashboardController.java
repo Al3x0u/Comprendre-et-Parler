@@ -1,7 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.models.AppliUser;
-import be.hers.pi.comprendre_et_parler.models.Manager;
+import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
