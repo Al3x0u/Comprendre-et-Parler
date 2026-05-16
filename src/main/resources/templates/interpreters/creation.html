@@ -10,9 +10,11 @@
             <div th:if="${submitState} == 'success'">
                 <div th:replace="~{common/modal-creation :: modal-success}"></div>
             </div>
+            <div th:if="${submitState} == 'error'">
+                <div th:replace="~{common/modal-creation :: modal-error}"></div>
+            </div>
         </div>
     </div>
-
 
     <div class="card border-0 rounded-4 shadow-sm">
         <div class="card-header rounded-top-4 bg-primary text-white p-3">

@@ -54,5 +54,35 @@
     </script>
 </th:block>
 
+<th:block th:fragment="modal-error">
+    <div class="modal fade" id="modalError" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-danger rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-x-octagon me-2"></i>Erreur</h5>
+                </div>
+                <div>
+                    <p>Une erreur est survenue. Veuillez réessayer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const modalElement = document.getElementById("modalError");
+            if(modalElement){
+                const modal = new bootstrap.Modal(modalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+            }
+        });
+    </script>
+</th:block>
+
 </body>
 </html>
