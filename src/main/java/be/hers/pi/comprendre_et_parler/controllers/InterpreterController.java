@@ -154,17 +154,48 @@ public class InterpreterController {
                 model.addAttribute("interpreterToCreate", interpreterForm);
             } finally {
                 try {
+                    model.addAttribute("chosedJobSkill", new ArrayList<>());
                     model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
                     model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                model.addAttribute("isManager", true);
 
                 return "interpreters/creation";
             }
         }
-        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes";
+        return "redirect:" + returnUrl;
+    }
+
+    @PostMapping("/creer/competences/metier/ajouter")
+    public String addJobSkill(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                              @ModelAttribute("existingSkillId") Integer skillId,
+                              Model model) {
+        try {
+            List<Integer> skillsId = interpreterForm.getJobSkillIds();
+            if (skillsId == null) skillsId = new ArrayList<>();
+            skillsId.add(skillId);
+            List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
+            List<String> skillsString = new ArrayList<>();
+            for (JobSkill j : allJobSkills) {
+                if (skillsId.contains(j.getId()))
+                    skillsString.add(j.getDesignation());
+            }
+            for (Integer skill : skillsId)
+                allJobSkills.removeIf(j -> j.getId() == skill);
+
+            interpreterForm.setJobSkillIds(skillsId);
+            model.addAttribute("interpreterForm", interpreterForm);
+            model.addAttribute("chosedJobSkill", skillsString);
+            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
+            model.addAttribute("allJobSkills", allJobSkills);
+            model.addAttribute("submitState", null);
+
+            return "interpreters/creation";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/interpretes";
+        }
     }
 
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
