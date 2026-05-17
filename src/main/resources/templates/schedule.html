@@ -778,10 +778,9 @@
                     );
                     newMissionModal.show();
                 } else if (userRole === 'BENEFICIARY') {
-                    document.getElementById('missionDate').value = dateValue;
-                    document.getElementById('missionStartTime').value = startHourValue;
-
-                    document.getElementById('missionEndTime').value = endHourValue;
+                    document.getElementById('requestDate').value = dateValue;
+                    document.getElementById('requestStartTime').value = startHourValue;
+                    document.getElementById('requestEndTime').value = endHourValue;
 
                     const newRequestModal = bootstrap.Modal.getOrCreateInstance(
                         document.getElementById('newRequestModal')
