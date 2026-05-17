@@ -690,7 +690,7 @@
             }
         };
         customButtons.newMission = {
-            text: isMobile ? '+' : '+ Nouvelle mission',
+            text: isMobile ? '+ Mission' : '+ Nouvelle mission',
             click: function () {
                 const newMissionModal = bootstrap.Modal.getOrCreateInstance(
                     document.getElementById('newMissionModal')
@@ -702,8 +702,8 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-            initialView: 'timeGridWeek',
-            height: '83vh',
+            initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+            height: isMobile ? '75vh' : '83vh',
             locale: 'fr',
             firstDay: 1,
             weekends: true,
