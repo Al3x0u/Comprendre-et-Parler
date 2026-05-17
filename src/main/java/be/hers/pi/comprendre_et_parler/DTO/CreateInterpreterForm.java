@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.DTO;
 import java.time.LocalDate;
 import java.util.List;
 
-public class InterpreterCreationForm {
+public class CreateInterpreterForm {
     private String lastName;
     private String firstName;
     private String email;
@@ -13,7 +13,6 @@ public class InterpreterCreationForm {
     private String transportMode;
 
     private Integer postalCode;
-    private String city;
     private String street;
     private String streetNumber;
     private String cityDesignation;
@@ -161,6 +160,4 @@ public class InterpreterCreationForm {
     public void setJobSkillIds(List<Integer> jobSkillIds) {
         this.jobSkillIds = jobSkillIds;
     }
-
-    // getters/setters
 }

@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,7 +103,6 @@ public class InterpreterController {
         return "interpreters/edit-profile";
     }
 
-
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
@@ -119,12 +120,13 @@ public class InterpreterController {
         return "redirect:/interpretes/profil/" + id;
     }
 
-    @GetMapping("/creation")
+    @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
         try {
-            model.addAttribute("interpreterForm", new InterpreterCreationForm());
+            model.addAttribute("interpreterForm", new CreateInterpreterForm());
             model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
             model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
+            model.addAttribute("submitState", null);
             return "interpreters/creation";
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,15 +134,68 @@ public class InterpreterController {
         }
     }
 
-    @PostMapping("/creation")
-    public String createInterpreter(@ModelAttribute("interpreterForm") InterpreterCreationForm form,
-                                    @RequestParam(required = false) String returnUrl) {
+    @PostMapping("/creer")
+    public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                                    @RequestParam(required = false) String returnUrl,
+                                    Model model) {
+        if (returnUrl == null) {
+            try {
+                // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
+                UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
+                model.addAttribute("credentials", credentials);
+                model.addAttribute("submitState", "success");
+                model.addAttribute("interpreterToCreate", new CreateInterpreterForm());
+            } catch (AlreadyExistsException e) {
+                model.addAttribute("submitState", "alreadyExist");
+                model.addAttribute("interpreterToCreate", interpreterForm);
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("submitState", "error");
+                model.addAttribute("interpreterToCreate", interpreterForm);
+            } finally {
+                try {
+                    model.addAttribute("chosedJobSkill", new ArrayList<>());
+                    model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
+                    model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                return "interpreters/creation";
+            }
+        }
+        return "redirect:" + returnUrl;
+    }
+
+    @PostMapping("/creer/competences/metier/ajouter")
+    public String addJobSkill(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                              @ModelAttribute("existingSkillId") Integer skillId,
+                              Model model) {
         try {
-            interpreterService.createInterpreter(form);
+            List<Integer> skillsId = interpreterForm.getJobSkillIds();
+            if (skillsId == null) skillsId = new ArrayList<>();
+            skillsId.add(skillId);
+            List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
+            List<String> skillsString = new ArrayList<>();
+            for (JobSkill j : allJobSkills) {
+                if (skillsId.contains(j.getId()))
+                    skillsString.add(j.getDesignation());
+            }
+            for (Integer skill : skillsId)
+                allJobSkills.removeIf(j -> j.getId() == skill);
+
+            interpreterForm.setJobSkillIds(skillsId);
+            model.addAttribute("interpreterForm", interpreterForm);
+            model.addAttribute("chosedJobSkill", skillsString);
+            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
+            model.addAttribute("allJobSkills", allJobSkills);
+            model.addAttribute("submitState", null);
+
+            return "interpreters/creation";
         } catch (Exception e) {
             e.printStackTrace();
+            return "redirect:/interpretes";
         }
-        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes";
     }
 
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
