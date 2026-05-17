@@ -643,6 +643,8 @@
     const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
     const userRole = /*[[${userRole}]]*/ 'MANAGER';
 
+    const isMobile = window.innerWidth < 768;
+
     const customButtons = {
         filterBtn: {
             text: 'Filtre ▾',
