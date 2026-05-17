@@ -720,7 +720,7 @@
             events: allEvents,
             customButtons: customButtons,
             headerToolbar: {
-                start: 'timeGridWeek,timeGridDay filterBtn',
+                start: isMobile ? 'timeGridDay filterBtn' : 'timeGridWeek,timeGridDay filterBtn',
                 center: 'prev title next',
                 end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
                     : userRole === 'INTERPRETER' ? 'newUnavailability today'
@@ -729,7 +729,7 @@
             buttonText: {
                 week: 'Semaine',
                 day: 'Jour',
-                today: 'Aujourd\'hui'
+                today: isMobile ? 'Auj.' : "Aujourd'hui"
             },
 
             eventContent: function(arg) {
