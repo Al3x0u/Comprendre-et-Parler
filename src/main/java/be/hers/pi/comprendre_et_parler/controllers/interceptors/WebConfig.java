@@ -21,30 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionInterceptor)
-                .addPathPatterns(
-                        "/dashboard",
-                        "/horaire",
-                        "/profil",
-                        "/profil/modifier-mot-de-passe",
-                        "/gestion",
-                        "/gestion/competences/academiques/ajouter",
-                        "/gestion/competences/academiques/*/modifier",
-                        "/gestion/competences/academiques/*/supprimer",
-                        "/gestion/competences/metier/ajouter",
-                        "/gestion/competences/metier/*/modifier",
-                        "/gestion/competences/metier/*/supprimer",
-                        "/gestion/statuts/ajouter",
-                        "/gestion/statuts/*/modifier",
-                        "/gestion/statuts/*/supprimer",
-                        "/interpretes",
-                        "/interpretes/profil/*",
-                        "/interpretes/profil/*/modifier",
-                        "/interpretes/profil/*/promouvoir",
-                        "/interpretes/creation",
-                        "/beneficiaires",
-                        "/beneficiaires/profil/*/modifier",
-                        "/beneficiaires/creer"
-                )
                 .excludePathPatterns(
                         "/",
                         "/login",
