@@ -135,23 +135,23 @@ public class InterpreterController {
     }
 
     @PostMapping("/creer")
-    public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm form,
+    public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
-                // TODO: UserCredentials credentials = interpreterService.createInterpreter(form);
+                // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
                 UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
                 model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterToCreate", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "alreadyExist");
-                model.addAttribute("interpreterToCreate", form);
+                model.addAttribute("interpreterToCreate", interpreterForm);
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "error");
-                model.addAttribute("interpreterToCreate", form);
+                model.addAttribute("interpreterToCreate", interpreterForm);
             } finally {
                 try {
                     model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
