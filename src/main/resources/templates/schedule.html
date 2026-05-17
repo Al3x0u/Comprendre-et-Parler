@@ -1007,7 +1007,21 @@
                 const missionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal'));
 
                 //TODO BACKEND
-            })
+            });
+
+        document.getElementById('sendRequestBtn').addEventListener('click', function() {
+            const type = document.querySelector('input[name="requestType"]:checked').value;
+            const title = document.getElementById('requestTitle').value;
+            const date = document.getElementById('requestDate').value;
+            const startTime = document.getElementById('requestStartTime').value;
+            const endTime = document.getElementById('requestEndTime').value;
+            const location = document.getElementById('requestLocation').value;
+            const professor = document.getElementById('requestProfessor').value;
+            const comment = document.getElementById('requestComment').value;
+            const importance = document.querySelector('input[name="requestImportance"]:checked').value;
+
+            //TODO BACKEND
+        });
         calendar.render();
     });
 </script>
