@@ -684,13 +684,13 @@
 
     if (userRole === 'MANAGER') {
         customButtons.newUnavailability = {
-            text: '+ Nouvelle indisponibilité',
+            text: isMobile ? '+ Indispo' : '+ Nouvelle indisponibilité',
             click: function() {
                 // TODO: ouvrir modal de création
             }
         };
         customButtons.newMission = {
-            text: '+ Nouvelle mission',
+            text: isMobile ? '+' : '+ Nouvelle mission',
             click: function () {
                 const newMissionModal = bootstrap.Modal.getOrCreateInstance(
                     document.getElementById('newMissionModal')
