@@ -7,7 +7,54 @@
             opacity: 0.7;
         }
 
+        /* ── MOBILE FIRST : modales plein écran sur petits écrans ── */
+        @media (max-width: 575.98px) {
+            .modal-dialog {
+                margin: 0;
+                max-width: 100%;
+                min-height: 100%;
+                align-items: flex-end;
+            }
+            .modal-content {
+                border-radius: 1rem 1rem 0 0 !important;
+            }
+            .modal.fade .modal-dialog {
+                transform: translateY(100%);
+                transition: transform 0.3s ease-out;
+            }
+            .modal.show .modal-dialog {
+                transform: translateY(0);
+            }
+        }
 
+        /* ── MOBILE FIRST : légende flexible ── */
+        @media (max-width: 767.98px) {
+            .legende {
+                gap: 0.5rem 1rem !important;
+                padding: 0.75rem 1rem;
+            }
+            .legende span {
+                font-size: 0.8rem;
+            }
+            /* Calendrier : toolbar wrappée */
+            .fc .fc-toolbar {
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                justify-content: center;
+            }
+            .fc .fc-toolbar-title {
+                font-size: 1rem !important;
+            }
+            .fc .fc-button {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            /* Wrapper calendrier moins de padding */
+            #calendar-container {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -52,12 +99,12 @@
 </div>
 
 <!-- Calendar-->
-<div class="px-4 mt-4 mb-1">
+<div id="calendar-container" class="px-4 mt-4 mb-1">
     <div id="calendar"></div>
 </div>
 
 <!-- Legend -->
-<div class="d-flex justify-content-center gap-5 py-3 legende">
+<div class="d-flex justify-content-center flex-wrap gap-5 py-3 legende">
     <div class="d-flex align-items-center gap-2">
         <div class="legende-dot legende-dot-accepted"></div>
         <span>Demande acceptée</span>
@@ -78,17 +125,17 @@
 
 
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered ">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content custom-modal">
 
             <!-- Header -->
             <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold fs-3" id="modalTitle"></h4>
+                <h4 class="modal-title fw-bold" id="modalTitle"></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
             <!-- Body -->
-            <div class="modal-body fs-5">
+            <div class="modal-body">
 
                 <div class="mb-2">
                     <i class="bi bi-calendar"></i>
@@ -135,8 +182,8 @@
 <!-- CONFIRMATION ANNULATION -->
 
 <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content  border-0 shadow">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
             <div class="modal-header border-0">
                 <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
                     Annulation
@@ -144,17 +191,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <div class="modal-body fs-5">
+            <div class="modal-body">
                 <p class="mb-0">
                     Voulez-vous vraiment annuler cette demande ?
                 </p>
             </div>
 
-            <div class="modal-footer border-0 fs-5">
-                <button type="button" class="btn btn-light fs-3" id="cancelConfirmBackBtn">
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" id="cancelConfirmBackBtn">
                     Non
                 </button>
-                <button type="button" class="btn btn-danger fs-3" id="confirmCancelBtn">
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
                     Oui, annuler
                 </button>
             </div>
@@ -162,22 +209,21 @@
     </div>
 </div>
 
-
 <!-- SIGNALER UN RETARD -->
 <div class="modal fade" id="delayModal" tabindex="-1" aria-labelledby="delayModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
 
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold fs-3" id="delayModalTitle">
+                <h5 class="modal-title fw-bold" id="delayModalTitle">
                     Signaler un retard
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <div class="modal-body fs-5">
+            <div class="modal-body">
                 <div class="d-flex align-items-center gap-3 mb-4">
-                    <select id="delayMinutes" class="form-select w-auto fs-5">
+                    <select id="delayMinutes" class="form-select w-auto">
                         <option value="5" selected>5</option>
                         <option value="10">10</option>
                         <option value="15">15</option>
@@ -199,10 +245,10 @@
             </div>
 
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-primary fs-5" id="cancelDelayModalBtn">
+                <button type="button" class="btn btn-outline-primary" id="cancelDelayModalBtn">
                     Annuler
                 </button>
-                <button type="button" class="btn btn-danger fs-5" id="sendDelayBtn">
+                <button type="button" class="btn btn-danger" id="sendDelayBtn">
                     Envoyer
                 </button>
             </div>
@@ -213,15 +259,15 @@
 
 <!-- POPUP MANAGER - DEMANDE EN ATTENTE -->
 <div class="modal fade" id="managerPendingModal" tabindex="-1" aria-labelledby="managerPendingTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content border-0 shadow">
 
             <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold fs-3" id="managerPendingTitle"></h4>
+                <h4 class="modal-title fw-bold" id="managerPendingTitle"></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <div class="modal-body fs-5">
+            <div class="modal-body">
                 <div class="mb-2">
                     <i class="bi bi-calendar"></i>
                     <span id="managerPendingDate"></span>
@@ -263,8 +309,8 @@
             </div>
 
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-danger fs-5" id="btnRefuseMission">Refuser</button>
-                <button type="button" class="btn btn-success fs-5" id="btnAcceptMission">Accepter</button>
+                <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
+                <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
             </div>
 
         </div>
@@ -273,7 +319,7 @@
 
 <!-- AJOUT NOUVELLE DEMANDE-->
 <div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
 
             <div class="modal-header border-0">
@@ -309,12 +355,12 @@
                 </div>
 
                 <div class="row g-3 mb-3">
-                    <div class="col-md-4">
+                    <div class="col-12">
                         <label for="requestDate" class="form-label fw-semibold">Date*</label>
                         <input type="date" class="form-control" id="requestDate">
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-6">
                         <label for="requestStartTime" class="form-label fw-semibold">Heure début*</label>
                         <select class="form-select" id="requestStartTime">
                             <option value="08:00">08:00</option>
@@ -345,11 +391,10 @@
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
                             <option value="22:00">22:00</option>
-
                         </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-6">
                         <label for="requestEndTime" class="form-label fw-semibold">Heure fin*</label>
                         <select class="form-select" id="requestEndTime">
                             <option value="08:00">08:00</option>
@@ -380,7 +425,6 @@
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
                             <option value="22:00">22:00</option>
-
                         </select>
                     </div>
                 </div>
@@ -440,10 +484,9 @@
     </div>
 </div>
 
-
 <!-- AJOUT NOUVELLE MISSION -->
 <div class="modal fade" id="newMissionModal" tabindex="-1" aria-labelledby="newMissionModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
 
             <div class="modal-header border-0">
@@ -479,12 +522,12 @@
                 </div>
 
                 <div class="row g-3 mb-3">
-                    <div class="col-md-4">
+                    <div class="col-12">
                         <label for="missionDate" class="form-label fw-semibold">Date*</label>
                         <input type="date" class="form-control" id="missionDate">
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-6">
                         <label for="missionStartTime" class="form-label fw-semibold">Heure début*</label>
                         <select class="form-select" id="missionStartTime">
                             <option value="08:00">08:00</option>
@@ -515,11 +558,10 @@
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
                             <option value="22:00">22:00</option>
-
                         </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-6">
                         <label for="missionEndTime" class="form-label fw-semibold">Heure fin*</label>
                         <select class="form-select" id="missionEndTime">
                             <option value="08:00">08:00</option>
@@ -550,7 +592,6 @@
                             <option value="20:30">20:30</option>
                             <option value="21:00">21:00</option>
                             <option value="22:00">22:00</option>
-
                         </select>
                     </div>
                 </div>
@@ -594,6 +635,8 @@
         </div>
     </div>
 </div>
+
+
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
@@ -951,19 +994,19 @@
         });
 
         document.getElementById('sendMissionBtn').addEventListener('click',
-        function(){
-            const type = document.querySelector('input[name="missionType"]:checked').value;
-            const title = document.getElementById('missionTitle').value;
-            const startTime = document.getElementById('missionStartTime').value;
-            const endTime = document.getElementById('missionEndTime').value;
-            const location = document.getElementById('missionLocation').value;
-            const professor = document.getElementById('missionProfessor').value;
-            const beneficiaryId = document.getElementById('missionBeneficiary').value;
-            const comment = document.getElementById('missionComment').value;
-            const missionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal'));
+            function(){
+                const type = document.querySelector('input[name="missionType"]:checked').value;
+                const title = document.getElementById('missionTitle').value;
+                const startTime = document.getElementById('missionStartTime').value;
+                const endTime = document.getElementById('missionEndTime').value;
+                const location = document.getElementById('missionLocation').value;
+                const professor = document.getElementById('missionProfessor').value;
+                const beneficiaryId = document.getElementById('missionBeneficiary').value;
+                const comment = document.getElementById('missionComment').value;
+                const missionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal'));
 
-            //TODO BACKEND
-        })
+                //TODO BACKEND
+            })
         calendar.render();
     });
 </script>
