@@ -80,6 +80,17 @@ public class InterpreterService {
     }
 
     /**
+     * Demotes a manager to interpreter
+     * @param id the manager's id
+     * @throws NoSuchElementException if the manager does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void demoteManager(int id) throws SQLException, ConnectionException, NoSuchElementException {
+        SQLWrap.callTransaction(new DAOManager()::delete, id);
+    }
+
+    /**
      * Deletes an interpreter from the system.
      * If the interpreter is the only one assigned to a mission, the mission is set to CANCELED.
      * Otherwise, the interpreter is automatically removed from the mission via ON DELETE CASCADE.
@@ -316,25 +327,4 @@ public class InterpreterService {
         SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
 
-    /**
-     * Promotes an interpreter to manager
-     * @param interpreter the interpreter to promote
-     * @throws NoSuchElementException if the interpreter does not exist in database
-     * @throws ConnectionException if the database could not be reached
-     * @throws SQLException if a database error occurs
-     */
-    public void promoteToManager(Interpreter interpreter) throws SQLException, ConnectionException, NoSuchElementException {
-
-    }
-
-    /**
-     * Demotes a manager to interpreter
-     * @param manager the manager to demote
-     * @throws NoSuchElementException if the manager does not exist in database
-     * @throws ConnectionException if the database could not be reached
-     * @throws SQLException if a database error occurs
-     */
-    public void demoteToInterpreter(Manager manager) throws SQLException, ConnectionException, NoSuchElementException {
-
-    }
 }
