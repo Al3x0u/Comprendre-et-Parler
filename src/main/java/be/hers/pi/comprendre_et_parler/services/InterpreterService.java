@@ -246,7 +246,21 @@ public class InterpreterService {
      * @throws SQLException if a database error occurs
      */
     public void updateUnavailability(Interpreter interpreter, ExceptionalUnavailability oldUn, ExceptionalUnavailability newUn) throws SQLException, ConnectionException, NoSuchElementException {
+        if (Objects.equals(oldUn, newUn)) return;
 
+        if (oldUn.getTimeSlot().equals(newUn.getTimeSlot())) {
+            SQLWrap.callTransaction(new DAOExceptionalUnavailability()::update, newUn, interpreter);
+        }
+        else {
+            SQLWrap.callTransaction(
+                    (Interpreter i, ExceptionalUnavailability oldEU, ExceptionalUnavailability newEU) -> {
+                        new DAOExceptionalUnavailability().delete(i.getId(), oldEU.getTimeSlot().getId());
+                        new DAOExceptionalUnavailability().create(newEU, i);
+                    }, interpreter, oldUn, newUn
+            );
+        }
+        interpreter.getUnavailability().remove(oldUn);
+        interpreter.addUnavailability(newUn);
     }
 
     /**
@@ -258,7 +272,7 @@ public class InterpreterService {
      * @throws SQLException if a database error occurs
      */
     public void deleteUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
-
+        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::delete, interpreter.getId(), unavailability.getTimeSlot().getId());
     }
 
     /**
