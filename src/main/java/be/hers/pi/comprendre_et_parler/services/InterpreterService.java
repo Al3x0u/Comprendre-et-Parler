@@ -285,7 +285,9 @@ public class InterpreterService {
      * @throws SQLException if a database error occurs
      */
     public void updateQuota(Interpreter interpreter, int weekQuota, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
-
+        interpreter.setHourQuotaWeek(weekQuota);
+        interpreter.setHourQuotaYear(yearQuota);
+        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
 
     /**
@@ -297,7 +299,8 @@ public class InterpreterService {
      * @throws SQLException if a database error occurs
      */
     public void updateWeeklyQuota(Interpreter interpreter, int weekQuota) throws SQLException, ConnectionException, NoSuchElementException {
-
+        interpreter.setHourQuotaWeek(weekQuota);
+        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
 
     /**
@@ -309,7 +312,8 @@ public class InterpreterService {
      * @throws SQLException if a database error occurs
      */
     public void updateYearlyQuota(Interpreter interpreter, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
-
+        interpreter.setHourQuotaYear(yearQuota);
+        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
 
     /**
