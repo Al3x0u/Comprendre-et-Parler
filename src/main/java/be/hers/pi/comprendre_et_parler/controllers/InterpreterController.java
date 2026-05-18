@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -141,18 +142,18 @@ public class InterpreterController {
         if (returnUrl == null) {
             try {
                 // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
-
+                throw new ConnectionException("test");
+                /**
                 UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
                 model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
-                model.addAttribute("interpreterToCreate", new CreateInterpreterForm());
+                model.addAttribute("interpreterForm", new CreateInterpreterForm());
+                 */
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "Cet utilisateur possède déjà un compte.");
-                model.addAttribute("interpreterToCreate", interpreterForm);
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-                model.addAttribute("interpreterToCreate", interpreterForm);
             } finally {
                 try {
                     model.addAttribute("chosedJobSkill", new ArrayList<>());
@@ -192,7 +193,7 @@ public class InterpreterController {
             model.addAttribute("allJobSkills", allJobSkills);
             model.addAttribute("submitState", null);
 
-            return "interpreters/creation";
+            return "interpretes/creer";
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes";
