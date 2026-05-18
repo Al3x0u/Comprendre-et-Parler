@@ -141,16 +141,17 @@ public class InterpreterController {
         if (returnUrl == null) {
             try {
                 // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
+
                 UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
                 model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterToCreate", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "alreadyExist");
+                model.addAttribute("submitState", "Cet utilisateur possède déjà un compte.");
                 model.addAttribute("interpreterToCreate", interpreterForm);
             } catch (Exception e) {
                 e.printStackTrace();
-                model.addAttribute("submitState", "error");
+                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
                 model.addAttribute("interpreterToCreate", interpreterForm);
             } finally {
                 try {
