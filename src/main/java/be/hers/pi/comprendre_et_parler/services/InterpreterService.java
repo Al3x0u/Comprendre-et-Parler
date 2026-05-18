@@ -155,6 +155,16 @@ public class InterpreterService {
     }
 
     /**
+     * Counts interpreters
+     * @return the number of interpreters in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public int countInterpreters() throws SQLException, ConnectionException {
+        return SQLWrap.call(new DAOInterpreter()::count);
+    }
+
+    /**
      * @param beneficiaryId a beneficiary's id
      * @return the interpreter the beneficiary refers to
      * @throws ConnectionException if the database could not be reached
