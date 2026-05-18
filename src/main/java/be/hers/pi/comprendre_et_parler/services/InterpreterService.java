@@ -235,4 +235,88 @@ public class InterpreterService {
         }
         return false;
     }
+
+    /**
+     * Modifies an interpreter's unavailability slot
+     * @param interpreter the interpreter to modify
+     * @param oldUn an up-to-date ExceptionalUnavailability object to modify
+     * @param newUn the object to replace it with
+     * @throws NoSuchElementException if interpreter does not exist or does not possess oldUn in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateUnavailability(Interpreter interpreter, ExceptionalUnavailability oldUn, ExceptionalUnavailability newUn) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
+
+    /**
+     * Delete an interpreter's unavailability slot
+     * @param interpreter the interpreter to modify
+     * @param unavailability an up-to-date ExceptionalUnavailability object to delete
+     * @throws NoSuchElementException if the interpreter does not exist or does not possess unavailability in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void deleteUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
+
+    /**
+     * Modifies an interpreter's weekly and yearly quotas
+     * @param interpreter the interpreter to modify
+     * @param weekQuota the new weekly quota
+     * @param yearQuota the new yearly quota
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateQuota(Interpreter interpreter, int weekQuota, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
+
+    /**
+     * Modifies an interpreter's weekly quota
+     * @param interpreter the interpreter to modify
+     * @param weekQuota the new weekly quota
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateWeeklyQuota(Interpreter interpreter, int weekQuota) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
+
+    /**
+     * Modifies an interpreter's yearly quota
+     * @param interpreter the interpreter to modify
+     * @param yearQuota the new yearly quota
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateYearlyQuota(Interpreter interpreter, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
+
+    /**
+     * Promotes an interpreter to manager
+     * @param interpreter the interpreter to promote
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void promoteToManager(Interpreter interpreter) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
+
+    /**
+     * Demotes a manager to interpreter
+     * @param manager the manager to demote
+     * @throws NoSuchElementException if the manager does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void demoteToInterpreter(Manager manager) throws SQLException, ConnectionException, NoSuchElementException {
+
+    }
 }
