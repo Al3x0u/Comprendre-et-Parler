@@ -156,7 +156,7 @@ public class InterpreterController {
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
                 try {
-                    model.addAttribute("chosedJobSkill", new ArrayList<>());
+                    model.addAttribute("chosenJobSkill", new ArrayList<>());
                     model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
                     model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
                 } catch (SQLException e) {
@@ -171,12 +171,14 @@ public class InterpreterController {
 
     @PostMapping("/creer/competences/metier/ajouter")
     public String addJobSkill(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
-                              @ModelAttribute("existingSkillId") Integer skillId,
+                              @ModelAttribute("existingSkillId") Integer selectedSkillId,
                               Model model) {
         try {
             List<Integer> skillsId = interpreterForm.getJobSkillIds();
-            if (skillsId == null) skillsId = new ArrayList<>();
-            skillsId.add(skillId);
+            if (skillsId == null)
+                skillsId = new ArrayList<>();
+            if (selectedSkillId != null)
+                skillsId.add(selectedSkillId);
             List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
             List<String> skillsString = new ArrayList<>();
             for (JobSkill j : allJobSkills) {
@@ -188,12 +190,12 @@ public class InterpreterController {
 
             interpreterForm.setJobSkillIds(skillsId);
             model.addAttribute("interpreterForm", interpreterForm);
-            model.addAttribute("chosedJobSkill", skillsString);
+            model.addAttribute("chosenJobSkill", skillsString);
             model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
             model.addAttribute("allJobSkills", allJobSkills);
             model.addAttribute("submitState", null);
 
-            return "interpretes/creer";
+            return "interpreters/creation";
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes";
