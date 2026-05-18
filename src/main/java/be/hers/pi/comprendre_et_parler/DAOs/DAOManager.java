@@ -17,6 +17,12 @@ public class DAOManager extends DAO<Manager> {
     protected static final String TABLE = "ManagerT";
     protected static final String FIELD_ID = "id";
 
+    /**
+     * Search for a Manager in the database with the String parameter
+     * @param id the id of the Manager to find in database
+     * @return the Manager identified by login in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public Manager find(int id) throws SQLException {
         String query = String.format(
@@ -30,8 +36,9 @@ public class DAOManager extends DAO<Manager> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
             result = statement.executeQuery();
-            if (result.next())
+            if (result.next()){
                 ret = getResult(result);
+            }
         } finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -66,6 +73,13 @@ public class DAOManager extends DAO<Manager> {
         return ret;
     }
 
+    /**
+     * Insert a new Manager into the database.
+     * This first inserts the Interpreter data, then promotes it to a Manager.
+     * @param objectToInsert the Manager to insert
+     * @throws AlreadyExistsException if the Manager already exists in database
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public void create(Manager objectToInsert) throws AlreadyExistsException, SQLException {
         new DAOInterpreter().create(objectToInsert);
@@ -86,15 +100,15 @@ public class DAOManager extends DAO<Manager> {
      * @throws AlreadyExistsException if a Manager with this id already exists in database
      * @throws NoSuchElementException if no Interpreter with this id exists in database
      * @throws SQLException if the database could not be reached
-     * @post the Interpreter has been added to the Manager table with the same id,
-     *       and the change was committed
      */
     public void create(int idInterpreter) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (find(idInterpreter) != null)
-            throw new AlreadyExistsException("Manager already exists");
+        if (find(idInterpreter) != null){
+            throw new AlreadyExistsException("[ERROR] Manager already exists");
+        }
 
-        if (new DAOInterpreter().find(idInterpreter) == null)
+        if (new DAOInterpreter().find(idInterpreter) == null){
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idInterpreter);
+        }
 
         String query = String.format("INSERT INTO %s VALUES (?)", TABLE);
         PreparedStatement statement = null;
@@ -107,11 +121,27 @@ public class DAOManager extends DAO<Manager> {
         }
     }
 
+    /**
+     * Update a Manager in the database.
+     * This delegates the update of common fields to DAOInterpreter
+     *
+     * @param objectToUpdate the Manager to update
+     * @throws AlreadyExistsException if a constraint is violated during update
+     * @throws NoSuchElementException if the Manager does not exist in database
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
         new DAOInterpreter().update(objectToUpdate);
     }
 
+
+    /**
+     * Demote a Manager back to an Interpreter
+     * @param idObjectToDelete the id of the Manager to demote
+     * @throws NoSuchElementException if no Manager with this id exists in database
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
         String query = String.format("DELETE FROM %s WHERE %s = ?", TABLE, FIELD_ID);
@@ -119,13 +149,19 @@ public class DAOManager extends DAO<Manager> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, idObjectToDelete);
-            if (statement.executeUpdate() == 0)
+            if (statement.executeUpdate() == 0){
                 throw new NoSuchElementException("[ERROR] There is no Manager with the id " + idObjectToDelete);
+            }
         } finally {
             closeStatement(statement);
         }
     }
 
+    /**
+     * Return all Managers in the database.
+     * @return a Set containing all Managers
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public Set<Manager> findAll() throws SQLException {
         String query = String.format(
@@ -147,6 +183,12 @@ public class DAOManager extends DAO<Manager> {
         return managers;
     }
 
+    /**
+     * Check if a Manager already exists in the database.
+     * @param objectToCheck the Manager to check
+     * @return the id of the existing Manager if found, -1 otherwise
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     protected int checkAlreadyExists(Manager objectToCheck) throws SQLException {
         String query = String.format("SELECT %s FROM %s WHERE %s = ?", FIELD_ID, TABLE, FIELD_ID);
@@ -156,8 +198,10 @@ public class DAOManager extends DAO<Manager> {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, objectToCheck.getId());
             result = statement.executeQuery();
-            if (result.next())
+            if (result.next()){
                 return result.getInt(FIELD_ID);
+            }
+
         } finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -165,6 +209,12 @@ public class DAOManager extends DAO<Manager> {
         return -1;
     }
 
+    /**
+     * Convert a ResultSet row into a Manager
+     * @param result the ResultSet positioned at a valid row
+     * @return a fully constructed Manager object
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     protected Manager getResult(ResultSet result) throws SQLException {
         int id = result.getInt(DAOInterpreter.FIELD_ID);
