@@ -106,6 +106,13 @@ public class DAOInterpreter extends DAO<Interpreter> {
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("The interpreter already exists in the database");
 
+        int locationRef = -1;
+        try {
+            new DAOLocation().create(objectToInsert.getLocation());
+        }
+        catch (AlreadyExistsException e) { }
+        locationRef = objectToInsert.getLocation().getId();
+
         String query = String.format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 TABLE,
@@ -125,7 +132,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setInt(7, objectToInsert.getHourQuotaWeek());
             statement.setInt(8, objectToInsert.getHourQuotaYear());
             statement.setString(9, objectToInsert.getTransportMode());
-            statement.setInt(10, objectToInsert.getLocation().getId());
+            statement.setInt(10, locationRef);
 
             statement.executeUpdate();
             getNewAttributes(objectToInsert);
@@ -204,6 +211,22 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
         if (checkAlreadyExists(objectToUpdate) >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
+
+        int locationRef = -1;
+        try {
+            new DAOLocation().update(objectToUpdate.getLocation());
+            locationRef = objectToUpdate.getLocation().getId();
+        }
+        catch (NoSuchElementException e) {
+            try {
+                new DAOLocation().create(objectToUpdate.getLocation());
+                locationRef = objectToUpdate.getLocation().getId();
+            }
+            catch (AlreadyExistsException f) {
+                locationRef = new DAOLocation().checkAlreadyExists(objectToUpdate.getLocation());
+            }
+        }
+
 
         String query = String.format(
                 "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",

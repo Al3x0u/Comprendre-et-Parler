@@ -3,7 +3,7 @@ package be.hers.pi.comprendre_et_parler.services;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOStatus;
-import be.hers.pi.comprendre_et_parler.DTO.BeneficiaryCredentials;
+import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
 import be.hers.pi.comprendre_et_parler.DTO.CreateBeneficiaryForm;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
@@ -33,7 +33,7 @@ public class BeneficiaryService {
      * @post the Beneficiary has been inserted in the database with a hashed password and passwordUpdated = false.
      *       The generated login has been set on the beneficiary object.
      */
-    public BeneficiaryCredentials createBeneficiary(CreateBeneficiaryForm form)
+    public UserCredentials createBeneficiary(CreateBeneficiaryForm form)
             throws AlreadyExistsException, ConnectionException, SQLException {
 
         Beneficiary beneficiary = buildBeneficiary(form);
@@ -43,7 +43,7 @@ public class BeneficiaryService {
 
         SQLWrap.callTransaction(daoBeneficiary::create, beneficiary);
 
-        return new BeneficiaryCredentials(beneficiary.getLogin(), plainPassword, "/login");
+        return new UserCredentials(beneficiary.getLogin(), plainPassword, "/login");
     }
 
     private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {

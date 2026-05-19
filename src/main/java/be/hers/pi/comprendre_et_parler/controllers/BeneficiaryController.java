@@ -72,7 +72,7 @@ public class BeneficiaryController {
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
         try {
-            BeneficiaryCredentials credentials = beneficiaryService.createBeneficiary(form);
+            UserCredentials credentials = beneficiaryService.createBeneficiary(form);
             populateCreationModel(model);
             model.addAttribute("credentials", credentials);
             return "beneficiaries/creation";

@@ -228,17 +228,14 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     protected Mission getResult(ResultSet result) throws SQLException {
-        MissionState state = MissionState.fromValue(result.getInt(FIELD_STATE));
-        TimeSlot timeSlot;
-        if (state == MissionState.REGULAR) {
-            timeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-        } else {
-            timeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-        }
+        BaseTimeSlot baseTimeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        PunctualTimeSlot punctualTimeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        TimeSlot timeSlot = (baseTimeSlot != null) ? baseTimeSlot : punctualTimeSlot;
+
         return new Mission(
                 result.getInt(FIELD_ID),
                 result.getString(FIELD_SUBJECT),
-                state,
+                MissionState.fromValue(result.getInt(FIELD_STATE)),
                 result.getString(FIELD_COMMENTARY),
                 timeSlot,
                 new DAOBeneficiary().find(result.getInt(FIELD_BENEFICIARY)),
