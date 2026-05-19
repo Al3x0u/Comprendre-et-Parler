@@ -104,7 +104,6 @@ public class NotificationService {
      * @param body    plain-text email body
      */
     private void sendEmail(String dest, String subject, String body) {
-        dest = "ryandeom@gmail.com";
         try {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
