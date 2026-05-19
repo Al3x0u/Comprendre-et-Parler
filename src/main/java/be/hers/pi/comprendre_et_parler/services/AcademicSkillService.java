@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOAcademicSkill;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
@@ -9,6 +10,7 @@ import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 public class AcademicSkillService {
@@ -29,19 +31,35 @@ public class AcademicSkillService {
      * @throws SQLException if any other database error occurs
      */
     public void createAcademicSkill(AcademicSkill newSkill) throws AlreadyExistsException, ConnectionException, SQLException {
-
+        SQLWrap.callTransaction(new DAOAcademicSkill()::create, newSkill);
     }
 
     /**
      * Updates an AcademicSkill in database
      * @param oldSkill the skill as it exists in database
-     * @param newSkill the new version of the skill oldSkill must be updated to
+     * @param newSkill the new version of the skill oldSkill must be updated to. It's id will be updated to match with oldSkill's.
      * @throws NoSuchElementException if oldSkill does not exist in database
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
     public void updateAcademicSkill(AcademicSkill oldSkill, AcademicSkill newSkill) throws NoSuchElementException, ConnectionException, SQLException {
+        if (Objects.equals(oldSkill, newSkill))
+            return;
 
+        updateAcademicSkill(oldSkill.getId(), newSkill);
+    }
+
+    /**
+     * Updates an AcademicSkill in database
+     * @param oldSkillId the id of the skill to modify
+     * @param newSkill the new version of the skill oldSkill must be updated to. It's id will be updated to match oldSkillId.
+     * @throws NoSuchElementException if oldSkill does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public void updateAcademicSkill(int oldSkillId, AcademicSkill newSkill)  throws NoSuchElementException, ConnectionException, SQLException {
+        newSkill.setId(oldSkillId);
+        SQLWrap.callTransaction(new DAOAcademicSkill()::update, newSkill);
     }
 
     /**
@@ -52,7 +70,7 @@ public class AcademicSkillService {
      * @throws SQLException if any other database error occurs
      */
     public void deleteAcademicSkill(AcademicSkill skill) throws NoSuchElementException, ConnectionException, SQLException {
-
+        SQLWrap.callTransaction(new DAOAcademicSkill()::delete, skill.getId());
     }
 
     /**
@@ -64,7 +82,8 @@ public class AcademicSkillService {
      * @throws SQLException if any other database error occurs
      */
     public void addAcademicSkillToInterpreter(AcademicSkill skill, Interpreter interpreter) throws NoSuchElementException, ConnectionException, SQLException {
-
+        SQLWrap.callTransaction(new DAOInterpreter()::createAcademicSkillLink, interpreter, skill);
+        interpreter.addAcademicSkill(skill);
     }
 
     /**
@@ -76,6 +95,7 @@ public class AcademicSkillService {
      * @throws SQLException if any other database error occurs
      */
     public void removeAcademicSkillFromInterpreter(AcademicSkill skill, Interpreter interpreter) throws NoSuchElementException, ConnectionException, SQLException {
-
+        SQLWrap.callTransaction(new DAOInterpreter()::deleteAcademicSkillLink, interpreter, skill);
+        interpreter.removeAcademicSkill(skill);
     }
 }
