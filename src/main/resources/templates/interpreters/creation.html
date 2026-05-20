@@ -124,15 +124,21 @@
                         <div class="d-flex flex-column flex-lg-row">
                             <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
                                 <h2 class="h5 m-2">Académiques</h2>
-                                <select class="form-select" id="chosen-academic" th:field="*{academicSkillIds}" multiple size="3">
-                                    <option th:each="skill : ${allAcademicSkills}" th:value="${skill.id}" th:text="${skill.designation}"></option>
-                                </select>
+                                <fieldset class="form-select" id="chosen-academic">
+                                    <div th:each="skill : ${allAcademicSkills}">
+                                        <input type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}" th:field="*{academicSkillIds}" th:value="${skill.id}"/>
+                                        <label th:for="${skill.designation}" th:text="${skill.designation}"></label>
+                                    </div>
+                                </fieldset>
                             </div>
                             <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
                                 <h2 class="h5 m-2">Métiers</h2>
-                                <select class="form-select" id="chosen-job" th:field="*{jobSkillIds}" multiple size="3">
-                                    <option th:each="skill : ${allJobSkills}" th:value="${skill.id}" th:text="${skill.designation}"></option>
-                                </select>
+                                <fieldset class="form-select" id="chosen-job">
+                                    <div th:each="skill : ${allJobSkills}">
+                                        <input type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}" th:field="*{jobSkillIds}" th:value="${skill.id}"/>
+                                        <label th:for="${skill.designation}" th:text="${skill.designation}"></label>
+                                    </div>
+                                </fieldset>
                             </div>
                         </div>
                     </div>
