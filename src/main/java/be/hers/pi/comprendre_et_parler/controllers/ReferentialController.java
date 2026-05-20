@@ -1,7 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,118 +14,67 @@ public class ReferentialController {
 
     /**
      * Display the referential management page
-     * @param session the current HTTP session
      * @param model the model to pass data to the view
      * @return the gestion view or redirect if not authorized
      */
     @GetMapping("")
-    public String showGestion(HttpSession session, Model model) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-
-        model.addAttribute("currentPage", "gestion");
-        model.addAttribute("isManager", true);
+    public String showGestion(Model model) {
         model.addAttribute("academicSkills", getHardcodedAcademicSkills());
         model.addAttribute("jobSkills", getHardcodedJobSkills());
         model.addAttribute("statuts", getHardcodedStatuts());
-
         return "gestion";
     }
 
     // ─── Compétences académiques ─────────────────────────────────────────────
-
     @PostMapping("/competences/academiques/ajouter")
-    public String addAcademicSkill(@RequestParam String designation, HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOAcademicSkill.create(new AcademicSkill(designation))
+    public String addAcademicSkill(@RequestParam String designation) {
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/academiques/{id}/modifier")
     public String updateAcademicSkill(@PathVariable int id,
-                                      @RequestParam String designation,
-                                      HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOAcademicSkill.update(id, designation)
+                                      @RequestParam String designation) {
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/academiques/{id}/supprimer")
-    public String deleteAcademicSkill(@PathVariable int id, HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOAcademicSkill.delete(id)
+    public String deleteAcademicSkill(@PathVariable int id) {
         return "redirect:/gestion";
     }
 
     // ─── Compétences métier ──────────────────────────────────────────────────
-
     @PostMapping("/competences/metier/ajouter")
-    public String addJobSkill(@RequestParam String designation, HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOJobSkill.create(new JobSkill(designation))
+    public String addJobSkill(@RequestParam String designation) {
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/metier/{id}/modifier")
     public String updateJobSkill(@PathVariable int id,
-                                 @RequestParam String designation,
-                                 HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOJobSkill.update(id, designation)
+                                 @RequestParam String designation) {
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/metier/{id}/supprimer")
-    public String deleteJobSkill(@PathVariable int id, HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOJobSkill.delete(id)
+    public String deleteJobSkill(@PathVariable int id) {
         return "redirect:/gestion";
     }
 
     // ─── Statuts ─────────────────────────────────────────────────────────────
-
     @PostMapping("/statuts/ajouter")
     public String addStatus(@RequestParam String designation,
-                            @RequestParam int hourQuota,
-                            HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOStatus.create(new Status(designation, hourQuota))
+                            @RequestParam int hourQuota) {
         return "redirect:/gestion";
     }
 
     @PostMapping("/statuts/{id}/modifier")
     public String updateStatus(@PathVariable int id,
                                @RequestParam String designation,
-                               @RequestParam int hourQuota,
-                               HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOStatus.update(id, designation, hourQuota)
+                               @RequestParam int hourQuota) {
         return "redirect:/gestion";
     }
 
     @PostMapping("/statuts/{id}/supprimer")
-    public String deleteStatus(@PathVariable int id, HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        if (user == null) return "redirect:/login";
-        if (!(user instanceof Manager)) return "redirect:/horaire";
-        // TODO: DAOStatus.delete(id)
+    public String deleteStatus(@PathVariable int id) {
         return "redirect:/gestion";
     }
 
