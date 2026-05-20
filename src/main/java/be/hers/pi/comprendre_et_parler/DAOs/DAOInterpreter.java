@@ -328,26 +328,29 @@ public class DAOInterpreter extends DAO<Interpreter> {
     @Override
     public Interpreter getResult(ResultSet result) throws SQLException {
         int id = result.getInt(FIELD_ID);
-        Interpreter ret = new Interpreter(
-                id,
-                result.getString(FIELD_LOGIN),
-                result.getString(FIELD_FIRST_NAME),
-                result.getString(FIELD_LAST_NAME),
-                result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
-                result.getString(FIELD_HASHED_PASSWORD),
-                result.getString(FIELD_EMAIL),
-                result.getString(FIELD_PHONE_NUMBER),
-                result.getInt(FIELD_WEEK_QUOTA),
-                result.getInt(FIELD_YEAR_QUOTA),
-                result.getString(FIELD_TRANSPORT_MODE),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(id),
-                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findAvailabilities(id)
-        );
-        ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
-        ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
-        ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
+        Interpreter ret = new DAOManager().find(id);
+        if (ret == null) {
+            ret = new Interpreter(
+                    id,
+                    result.getString(FIELD_LOGIN),
+                    result.getString(FIELD_FIRST_NAME),
+                    result.getString(FIELD_LAST_NAME),
+                    result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
+                    result.getString(FIELD_HASHED_PASSWORD),
+                    result.getString(FIELD_EMAIL),
+                    result.getString(FIELD_PHONE_NUMBER),
+                    result.getInt(FIELD_WEEK_QUOTA),
+                    result.getInt(FIELD_YEAR_QUOTA),
+                    result.getString(FIELD_TRANSPORT_MODE),
+                    new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
+                    new DAOJobSkill().getJobSkillOfAnInterpreter(id),
+                    new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                    new DAOBaseTimeSlot().findAvailabilities(id)
+            );
+            ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+            ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
+            ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
+        }
         return ret;
     }
 
