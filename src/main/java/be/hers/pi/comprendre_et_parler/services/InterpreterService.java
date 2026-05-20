@@ -9,10 +9,12 @@ import be.hers.pi.comprendre_et_parler.services.wrappers.ConsumerWithSQLExceptio
 import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.*;
 
+@Service
 public class InterpreterService {
 
     private final DAOInterpreter daoInterpreter;
@@ -134,12 +136,13 @@ public class InterpreterService {
         SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, unavailability, interpreter);
     }
 
-    /**
-     * @return all interpreters present in database
-     * @throws ConnectionException if the database could not be reached
-     * @throws SQLException if any other database error occurs
+    /***
+     *
+     * @return
+     * @throws SQLException
+     * @throws ConnectionException
      */
-    public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
+    public List<Interpreter> getAllInterpreters()throws SQLException, ConnectionException {
         return new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
     }
 

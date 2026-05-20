@@ -91,7 +91,9 @@
 </main>
 
 <div th:replace="~{common/modal-delete :: modal-delete('/beneficiaires', 'Supprimer un bénéficiaire', 'bénéficiaire')}"></div>
-
+<th:block th:if="${errorMessage != null}">
+    <div th:replace="~{common/modal-creation :: modal-error(${errorMessage})}"></div>
+</th:block>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

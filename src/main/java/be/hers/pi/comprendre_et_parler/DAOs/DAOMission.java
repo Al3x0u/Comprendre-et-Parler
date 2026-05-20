@@ -411,4 +411,25 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
     }
+
+    /***
+     *
+     * @param beneficiaryId
+     * @return
+     * @throws SQLException
+     */
+    public boolean hasMissions(int beneficiaryId) throws SQLException {
+        String query = "SELECT 1 FROM " + TABLE +" WHERE " + FIELD_BENEFICIARY + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, beneficiaryId);
+            result = statement.executeQuery();
+            return result.next();
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
 }

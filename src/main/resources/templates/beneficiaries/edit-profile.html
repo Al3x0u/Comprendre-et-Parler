@@ -14,7 +14,7 @@
         </div>
 
         <div class="card-body p-5">
-            <form th:action="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}" th:object="${beneficiaire}" method="post">
+            <form th:action="@{/beneficiaires/profil/{id}/modifier(id=${updateBeneficiaryForm.id})}" th:object="${updateBeneficiaryForm}" method="post">
 
                 <div class="row align-items-center g-4 mb-4">
 
@@ -86,7 +86,7 @@
         </div>
     </div>
 
-    <div th:replace="~{common/modal-password :: modal-password(@{/beneficiaires/profil/{id}/password(id=${beneficiaire.id})})}"></div>
+    <div th:replace="~{common/modal-password :: modal-password(@{/profil/modifier-mot-de-passe}, false)}"></div>
 
 </main>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>

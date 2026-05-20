@@ -84,7 +84,7 @@
     </script>
 </th:block>
 
-<th:block th:fragment="modal-error">
+<th:block th:fragment="modal-error(message)">
     <div class="modal fade" id="modalError" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
@@ -92,10 +92,10 @@
                     <h5 class="modal-title"><i class="bi bi-x-octagon me-2"></i>Erreur</h5>
                 </div>
                 <div class="p-3">
-                    <h4 class="text-center">Une erreur est survenue. Veuillez réessayer.</h4>
+                    <h4 class="text-center" th:text="${message}"></h4>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Ok</button>
                 </div>
             </div>
         </div>

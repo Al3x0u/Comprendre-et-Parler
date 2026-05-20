@@ -1,19 +1,18 @@
 package be.hers.pi.comprendre_et_parler.services;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary;
-import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
-import be.hers.pi.comprendre_et_parler.DAOs.DAOStatus;
-import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
-import be.hers.pi.comprendre_et_parler.DTO.CreateBeneficiaryForm;
-import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
+import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DTO.*;
+import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
-import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
-import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class BeneficiaryService {
@@ -60,5 +59,51 @@ public class BeneficiaryService {
                 status,
                 interpreter
         );
+    }
+
+    /**
+     * @return all beneficiaries present in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public List<Beneficiary> getAllBeneficiaries()throws ConnectionException, SQLException {
+        return new ArrayList<>(SQLWrap.call(new DAOBeneficiary()::findAll));
+    }
+
+    public int calculateAge(LocalDate birthdate){
+        return Period.between(birthdate, LocalDate.now()).getYears();
+    }
+
+    /***
+     *
+     * @param id
+     * @throws SQLException if any other database error occurs
+     * @return
+     */
+    public Beneficiary getBeneficiary(int id)throws SQLException{
+        return SQLWrap.call(
+                (FunctionWithSQLException<Integer, Beneficiary>) daoBeneficiary::find, id);
+    }
+
+    /***
+     *
+     * @param id
+     * @throws SQLException
+     */
+    public void deleteBeneficiary(int id) throws SQLException, IllegalArgumentException{
+        if(new DAOMission().hasMissions(id)){
+            throw new IllegalArgumentException("Cannot delete beneficiary with existing missions");
+        }
+        SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOBeneficiary()::delete, id);
+    }
+
+    public void updateBeneficiary(int id, UpdateBeneficiaryForm beneficiaryForm)throws SQLException{
+        Beneficiary beneficiary = getBeneficiary(id);
+        beneficiary.setFirstName(beneficiaryForm.getFirstName());
+        beneficiary.setLastName(beneficiaryForm.getLastName());
+        beneficiary.setEmail(beneficiaryForm.getEmail());
+        beneficiary.setBirthDate(beneficiaryForm.getBirthDate());
+        beneficiary.setPhoneNumber(beneficiaryForm.getPhoneNumber());
+        daoBeneficiary.update(beneficiary);
     }
 }
