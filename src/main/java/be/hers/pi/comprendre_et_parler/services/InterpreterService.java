@@ -33,7 +33,7 @@ public class InterpreterService {
      * @throws AlreadyExistsException if the interpreter already exists in the database
      * @throws SQLException if the database could not be reached
      */
-    public void createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
+    public Interpreter createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         City city = new City(form.getCityDesignation(), form.getPostalCode());
         SQLWrap.callTransaction(new DAOCity()::create, city);
 
@@ -67,6 +67,7 @@ public class InterpreterService {
         );
 
         SQLWrap.callTransaction(daoInterpreter::create, interpreter);
+        return interpreter;
     }
 
     /**
