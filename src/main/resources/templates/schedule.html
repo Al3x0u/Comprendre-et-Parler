@@ -646,7 +646,7 @@
         interpreter: null
     };
 
-
+    let premierChargement = true;
     async function fetchEvents(fetchInfo, successCallback, failureCallback) {
         const params = new URLSearchParams();
         params.append('weekDate', fetchInfo.startStr.substring(0, 10));
@@ -744,7 +744,14 @@
             slotMinTime: '08:00:00',
             slotMaxTime: '22:00:00',
             expandRows: true,
-            events: allEvents,
+            events: function(fetchInfo, successCallback, failureCallback) {
+                if (premierChargement) {
+                    premierChargement = false;
+                    successCallback(allEvents);
+                    return;
+                }
+                fetchEvents(fetchInfo, successCallback, failureCallback);
+            },
             customButtons: customButtons,
             headerToolbar: {
                 start: isMobile ? 'timeGridDay filterBtn' : 'timeGridWeek,timeGridDay filterBtn',
