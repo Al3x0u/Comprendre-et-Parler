@@ -171,28 +171,11 @@ public class InterpreterController {
 
     @PostMapping("/creer/competences/metier/ajouter")
     public String addJobSkill(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
-                              @ModelAttribute("existingSkillId") Integer selectedSkillId,
                               Model model) {
         try {
-            List<Integer> skillsId = interpreterForm.getJobSkillIds();
-            if (skillsId == null)
-                skillsId = new ArrayList<>();
-            if (selectedSkillId != null)
-                skillsId.add(selectedSkillId);
-            List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
-            List<String> skillsString = new ArrayList<>();
-            for (JobSkill j : allJobSkills) {
-                if (skillsId.contains(j.getId()))
-                    skillsString.add(j.getDesignation());
-            }
-            for (Integer skill : skillsId)
-                allJobSkills.removeIf(j -> j.getId() == skill);
-
-            interpreterForm.setJobSkillIds(skillsId);
             model.addAttribute("interpreterForm", interpreterForm);
-            model.addAttribute("chosenJobSkill", skillsString);
             model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-            model.addAttribute("allJobSkills", allJobSkills);
+            model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
             model.addAttribute("submitState", null);
 
             return "interpreters/creation";

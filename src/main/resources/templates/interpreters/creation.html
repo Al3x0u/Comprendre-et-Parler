@@ -22,7 +22,7 @@
         </div>
 
         <div>
-            <form class="p-2" th:action="@{/interpretes/creer}" th:object="${interpreterForm}" method="post">
+            <form id="creation-interpreter" class="p-2" th:action="@{/interpretes/creer}" th:object="${interpreterForm}" method="post">
                 <div class="creation-user" style="width: 75%">
                     <div class="d-flex flex-column flex-lg-row">
                         <div class="d-flex justify-content-end m-2 col-lg-6">
@@ -137,8 +137,8 @@
                             </div>
                             <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
                                 <h2 class="h5 m-2">Métiers</h2>
-                                <div th:if="${!#sets.isEmpty(chosenJobSkill)}" class="d-flex flex-wrap gap-2" id="job-skills">
-                                    <span th:each="skill : ${chosenJobSkill}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                                <div th:if="*{jobSkillIds != null and !#sets.isEmpty(jobSkillIds)}" class="d-flex flex-wrap gap-2" id="job-skills">
+                                    <span th:each="skill : *{jobSkillIds}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
                                         <span th:text="${skill}"></span>
                                         <i class="bi bi-x skill-delete job-delete" style="cursor:pointer"></i>
                                     </span>
@@ -214,16 +214,12 @@
                 <div class="modal-body">
                     <form id="job-add-form"
                           th:action="@{/interpretes/creer/competences/metier/ajouter}"
-                          th:object="${interpreterForm}"
                           method="post">
-
                         <div class="mb-3">
-                            <label class="form-label">Choisir une compétence existante</label>
-                            <select class="form-select" name="existingSkillId" id="existing-job">
-                                <option value="">-- Sélectionner --</option>
-                                <option th:each="skill : ${allJobSkills}"
-                                        th:value="${skill.id}"
-                                        th:text="${skill.designation}"></option>
+                            <label for="existing-job" class="form-label">Choisir une compétence existante</label>
+                            <select class="form-select" id="existing-job" th:field="*{interpreterForm.jobSkillIds}" multiple size="3">
+                                <option th:each="skill : ${allJobSkills}" th:if="*{interpreterForm.jobSkillIds == null or !#sets.contains(interpreterForm.jobSkillIds, skill.id)}"
+                                        th:value="${skill.id}" th:text="${skill.designation}"></option>
                             </select>
                         </div>
 
@@ -234,7 +230,6 @@
                             <input id="new-job" type="text" class="form-control"
                                    name="newSkillName" placeholder="Nom de la compétence">
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer rounded-bottom-4">
@@ -257,7 +252,12 @@
 
     document.getElementById('birthdate').setAttribute('max', `${year}-${month}-${day}`);
 </script>
+<script>
+    function reload() {
+        location.reload();
 
+    }
+</script>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 
 </body>
