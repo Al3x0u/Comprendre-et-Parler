@@ -646,6 +646,7 @@
         interpreter: null
     };
 
+
     async function fetchEvents(fetchInfo, successCallback, failureCallback) {
         const params = new URLSearchParams();
         params.append('weekDate', fetchInfo.startStr.substring(0, 10));
@@ -1049,20 +1050,30 @@
         });
         calendar.render();
 
-        const activeFilters = {
-            interpreter: null,
-            status: null
-        };
+        document.querySelectorAll('.filter-status').forEach(item => {
+            item.addEventListener('click', e => {
+                e.preventDefault();
 
-        document.querySelector('.filter-status[data-value="Horaire de base"]').addEventListener('click', function(e) {
-            e.preventDefault();
+                if (activeFilters.status === item.dataset.value) {
+                    activeFilters.status = null;
+                } else {
+                    activeFilters.status = item.dataset.value;
+                }
 
-            activeFilters.status = 'Horaire de base';
+                document.querySelectorAll('.filter-status').forEach(i => i.classList.remove('fw-bold'));
 
-            calendar.refetchEvents();
+                if (activeFilters.status !== null) {
+                    item.classList.add('fw-bold');
+                }
 
-            document.getElementById('dropdown-filtre').classList.remove('show');
+                calendar.refetchEvents();
+                document.getElementById('dropdown-filtre').classList.remove('show');
+            });
         });
+
+
+
+
     });
 </script>
 
