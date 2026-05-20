@@ -1,6 +1,9 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
+import be.hers.pi.comprendre_et_parler.services.InterpreterService;
+import be.hers.pi.comprendre_et_parler.services.MissionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +17,17 @@ import java.util.*;
 
 @Controller
 public class ScheduleController {
+
+    private final MissionService missionService;
+    private final InterpreterService interpreterService;
+    private final BeneficiaryService beneficiaryService;
+
+    public ScheduleController() {
+        this.missionService = new MissionService();
+        this.interpreterService = new InterpreterService();
+        this.beneficiaryService = new BeneficiaryService();
+    }
+
     /**
      * Display the schedule page
      * @param session the current HTTP session
