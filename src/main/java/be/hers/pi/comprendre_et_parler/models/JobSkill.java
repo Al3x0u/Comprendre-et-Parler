@@ -82,6 +82,17 @@ public class JobSkill {
     }
 
     /**
+     * Compares two JobSkill lexicographically according to their designations
+     * @param a The second academic skill to compare to this
+     * @return The result is a negative integer if this JobSkill.designation lexicographically precedes the other JobSkill.designation.
+     * The result is a positive integer if this JobSkill.designation lexicographically follows the other JobSkill.designation.
+     * The result is zero if the equals(Object) method would return true.
+     */
+    public int compareTo(JobSkill j) {
+        return designation.compareTo(j.designation);
+    }
+
+    /**
      * Computes the hash code of this JobSkill
      * two JobSkill objects that are equal according to equals() will have the same hash code
      * @return an integer hash code representing this JobSkill (id is not taken into account)

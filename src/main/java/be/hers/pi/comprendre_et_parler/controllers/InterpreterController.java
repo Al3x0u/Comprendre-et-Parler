@@ -123,16 +123,10 @@ public class InterpreterController {
 
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        try {
-            model.addAttribute("interpreterForm", new CreateInterpreterForm());
-            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-            model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
-            model.addAttribute("submitState", null);
-            return "interpreters/creation";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/interpretes";
-        }
+        sortSkills(model);
+        model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        model.addAttribute("submitState", null);
+        return "interpreters/creation";
     }
 
     @PostMapping("/creer")
@@ -142,6 +136,8 @@ public class InterpreterController {
         if (returnUrl == null) {
             try {
                 // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
+                System.out.println(interpreterForm.getJobSkillIds());
+                System.out.println(interpreterForm.getAcademicSkillIds());
                 throw new ConnectionException("test");
                 /**
                 UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
@@ -155,18 +151,29 @@ public class InterpreterController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                try {
-                    model.addAttribute("chosenJobSkill", new ArrayList<>());
-                    model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-                    model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
+                sortSkills(model);
                 return "interpreters/creation";
             }
         }
         return "redirect:" + returnUrl;
+    }
+
+    /**
+     * Get all the skills from the database and sort them according to their compareTo()
+     * @param model The model to which the skills will be added
+     */
+    private void sortSkills(Model model) {
+        try {
+            List<AcademicSkill> allAcademicSkills = new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll));
+            allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
+            List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
+            allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
+
+            model.addAttribute("allAcademicSkills", allAcademicSkills);
+            model.addAttribute("allJobSkills", allJobSkills);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
