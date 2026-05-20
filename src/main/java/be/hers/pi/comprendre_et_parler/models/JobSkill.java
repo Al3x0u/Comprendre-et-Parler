@@ -83,7 +83,7 @@ public class JobSkill {
 
     /**
      * Compares two JobSkill lexicographically according to their designations
-     * @param a The second academic skill to compare to this
+     * @param j The second academic skill to compare to this
      * @return The result is a negative integer if this JobSkill.designation lexicographically precedes the other JobSkill.designation.
      * The result is a positive integer if this JobSkill.designation lexicographically follows the other JobSkill.designation.
      * The result is zero if the equals(Object) method would return true.
