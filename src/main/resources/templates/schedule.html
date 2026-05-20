@@ -474,6 +474,7 @@
                 </div>
             </div>
 
+
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
                     Annuler
@@ -607,6 +608,17 @@
                 <div class="mb-3">
                     <label for="missionProfessor" class="form-label fw-semibold">Professeur</label>
                     <input type="text" class="form-control" id="missionProfessor" placeholder="Entrez le nom du professeur">
+                </div>
+
+                <div class="mb-3">
+                    <label for="missionInterpreter" class="form-label fw-semibold">Interprète</label>
+                    <select id="missionInterpreter" class="form-select">
+                        <option value="">Sélectionner un interprète</option>
+                        <option th:each="interpreter : ${interpreters}"
+                                th:value="${interpreter.id}"
+                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                        </option>
+                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -1038,6 +1050,7 @@
                 const endTime = document.getElementById('missionEndTime').value;
                 const location = document.getElementById('missionLocation').value;
                 const professor = document.getElementById('missionProfessor').value;
+                const interpreterId = document.getElementById('missionInterpreter').value;
                 const beneficiaryId = document.getElementById('missionBeneficiary').value;
                 const comment = document.getElementById('missionComment').value;
                 const missionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal'));
