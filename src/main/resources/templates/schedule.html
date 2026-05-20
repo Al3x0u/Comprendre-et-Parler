@@ -1023,6 +1023,21 @@
             //TODO BACKEND
         });
         calendar.render();
+
+        const activeFilters = {
+            interpreter: null,
+            status: null
+        };
+
+        document.querySelector('.filter-status[data-value="Horaire de base"]').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            activeFilters.status = 'Horaire de base';
+
+            calendar.refetchEvents();
+
+            document.getElementById('dropdown-filtre').classList.remove('show');
+        });
     });
 </script>
 
