@@ -52,10 +52,13 @@ public class ScheduleController {
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             List<Beneficiary> beneficiaries = new ArrayList<>();
             // beneficiaries = beneficiaryService.getAllBeneficiaries();
+            List<Interpreter> interpreters = interpreterService.getAllInterpreters();
+
 
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("events", mapper.writeValueAsString(missions));
             model.addAttribute("beneficiaries", beneficiaries);
+            model.addAttribute("interpreters", interpreters);
 
         }catch(Exception e){
             e.printStackTrace();
