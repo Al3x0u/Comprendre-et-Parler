@@ -169,22 +169,6 @@ public class InterpreterController {
         return "redirect:" + returnUrl;
     }
 
-    @PostMapping("/creer/competences/metier/ajouter")
-    public String addJobSkill(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
-                              Model model) {
-        try {
-            model.addAttribute("interpreterForm", interpreterForm);
-            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-            model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
-            model.addAttribute("submitState", null);
-
-            return "interpreters/creation";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/interpretes";
-        }
-    }
-
     private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
         List<Interpreter> filteredInterpreters = new ArrayList<>();
         String searchedText = keyword.trim().toLowerCase();

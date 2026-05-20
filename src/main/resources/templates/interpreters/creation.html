@@ -124,16 +124,9 @@
                         <div class="d-flex flex-column flex-lg-row">
                             <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
                                 <h2 class="h5 m-2">Académiques</h2>
-                                <div th:if="*{academicSkillIds != null and !#sets.isEmpty(academicSkillIds)}" class="d-flex flex-wrap gap-2" id="academic-skills">
-                                    <span th:each="skill : *{academicSkillIds}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
-                                        <span th:text="${skill}"></span>
-                                        <i class="bi bi-x skill-delete academic-delete" style="cursor:pointer"></i>
-                                    </span>
-                                </div>
-                                <button type="button" class="btn btn-outline-primary btn-sm mt-3" id="btn-add-academic"
-                                        data-bs-toggle="modal" data-bs-target="#modalAddAcademic">
-                                    <i class="bi bi-plus-lg me-1"></i>Ajouter
-                                </button>
+                                <select class="form-select" id="chosen-academic" th:field="*{academicSkillIds}" multiple size="3">
+                                    <option th:each="skill : ${allAcademicSkills}" th:value="${skill.id}" th:text="${skill.designation}"></option>
+                                </select>
                             </div>
                             <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
                                 <h2 class="h5 m-2">Métiers</h2>
