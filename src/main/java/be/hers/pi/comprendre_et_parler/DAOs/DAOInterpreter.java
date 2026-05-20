@@ -246,7 +246,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setInt(7, objectToUpdate.getHourQuotaWeek());
             statement.setInt(8, objectToUpdate.getHourQuotaYear());
             statement.setString(9, objectToUpdate.getTransportMode());
-            statement.setInt(10, objectToUpdate.getLocation().getId());
+            statement.setInt(10, locationRef);
             statement.setInt(11, objectToUpdate.getId());
 
             statement.executeUpdate();
