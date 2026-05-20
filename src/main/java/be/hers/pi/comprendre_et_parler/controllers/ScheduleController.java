@@ -1,9 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.models.AppliUser;
-import be.hers.pi.comprendre_et_parler.models.Beneficiary;
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
-import be.hers.pi.comprendre_et_parler.models.Manager;
+import be.hers.pi.comprendre_et_parler.models.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -163,13 +160,16 @@ public class ScheduleController {
         return interpreters;
     }
 
-    private String getColor(String status) {
-        return switch (status) {
-            case "Acceptée"        -> "#40c057";
-            case "En attente"      -> "#fab005";
-            case "Refusée"         -> "#fa5252";
-            case "Horaire de base" -> "#4dabf7";
-            default                -> "#adb5bd";
+    private String getColor(MissionState state) {
+        if (state == null) {
+            return "#adb5bd";
+        }
+        return switch (state) {
+            case ACCEPTED -> "#40c057";
+            case PENDING -> "#fab005";
+            case DENIED  -> "#fa5252";
+            case CANCELED -> "#fa5252";
+            default -> "#adb5bd";
         };
     }
 
