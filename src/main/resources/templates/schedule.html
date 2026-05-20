@@ -303,8 +303,10 @@
                     <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète*</label>
                     <select id="managerPendingInterpreter" class="form-select w-auto">
                         <option value="">Sélectionner</option>
-                        <option value="Jessica DuBuisson">Jessica DuBuisson</option>
-                        <option value="Alice Charpentier">Alice Charpentier</option>
+                        <option th:each="interpreter : ${interpreters}"
+                                th:value="${interpreter.firstName + ' ' + interpreter.lastName}"
+                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                        </option>
                     </select>
                 </div>
             </div>
