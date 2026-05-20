@@ -55,31 +55,6 @@
                 padding-right: 0.5rem;
             }
         }
-
-        /* ── TOAST ── */
-        .toast-custom {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 9999;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.5rem;
-            color: #fff;
-            font-size: 0.9rem;
-            max-width: 320px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-            opacity: 1;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .toast-custom.toast-success { background: #40c057; }
-        .toast-custom.toast-error   { background: #fa5252; }
-        .toast-custom.toast-info    { background: #4dabf7; }
-        .toast-custom.toast-hide    { opacity: 0; }
-
-        /* ── Champ invalide : affiche le message d'erreur ── */
-        .is-invalid ~ .invalid-feedback { display: block; }
-
     </style>
 </head>
 <body>
@@ -97,12 +72,11 @@
                    placeholder="Rechercher un utilisateur...">
         </div>
         <div id="interpreter-list">
-            <a class="dropdown-item filter-interpreter"
-               href="#"
-               th:each="interpreter : ${interpreters}"
-               th:data-value="${interpreter.firstName + ' ' + interpreter.lastName}">
-                <i class="bi bi-person me-2"></i>
-                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName}"></span>
+            <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
+                <i class="bi bi-person me-2"></i>J. DuBuisson
+            </a>
+            <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
+                <i class="bi bi-person me-2"></i>A. Charpentier
             </a>
         </div>
         <hr class="dropdown-divider">
@@ -328,10 +302,8 @@
                     <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète*</label>
                     <select id="managerPendingInterpreter" class="form-select w-auto">
                         <option value="">Sélectionner</option>
-                        <option th:each="interpreter : ${interpreters}"
-                                th:value="${interpreter.id}"
-                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
-                        </option>
+                        <option value="Jessica DuBuisson">Jessica DuBuisson</option>
+                        <option value="Alice Charpentier">Alice Charpentier</option>
                     </select>
                 </div>
             </div>
@@ -366,7 +338,7 @@
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeTransliteration" value="Transliteration">
+                            <input class="form-check-input" type="radio" name="requestType" id="typeTransliteration" value="Translitéra­tion">
                             <label class="form-check-label" for="typeTransliteration">Translitération</label>
                         </div>
 
@@ -380,14 +352,12 @@
                 <div class="mb-3">
                     <label for="requestTitle" class="form-label fw-semibold">Titre*</label>
                     <input type="text" class="form-control" id="requestTitle" placeholder="Entrez le titre">
-                    <div id="requestTitleError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-12">
                         <label for="requestDate" class="form-label fw-semibold">Date*</label>
                         <input type="date" class="form-control" id="requestDate">
-                        <div id="requestDateError" class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-6">
@@ -460,38 +430,8 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu*</label>
-                    <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Ex: Athénée Royal">
-                    <div id="requestLocationDesignationError" class="invalid-feedback"></div>
-
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="requestCity" class="form-label fw-semibold">Ville*</label>
-                        <input type="text" class="form-control" id="requestCity" placeholder="Ex: Bruxelles">
-                        <div id="requestCityError" class="invalid-feedback"></div>
-
-                    </div>
-                    <div class="col-md-6">
-                        <label for="requestPostalCode" class="form-label fw-semibold">Code postal</label>
-                        <input type="text" class="form-control" id="requestPostalCode" placeholder="Ex: 6600">
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="requestStreet" class="form-label fw-semibold">Rue</label>
-                        <input type="text" class="form-control" id="requestStreet" placeholder="Ex: Rue des écoles">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="requestStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="number" class="form-control" id="requestStreetNumber" placeholder="12">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="requestBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="text" class="form-control" id="requestBox" placeholder="Optionnel">
-                    </div>
+                    <label for="requestLocation" class="form-label fw-semibold">Lieu*</label>
+                    <input type="text" class="form-control" id="requestLocation" placeholder="Entrez le lieu">
                 </div>
 
                 <div class="mb-3">
@@ -531,7 +471,6 @@
                 </div>
             </div>
 
-
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
                     Annuler
@@ -566,7 +505,7 @@
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeTransliteration" value="Transliteration">
+                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeTransliteration" value="Translitération">
                             <label class="form-check-label" for="missionTypeTransliteration">Translitération</label>
                         </div>
 
@@ -580,15 +519,12 @@
                 <div class="mb-3">
                     <label for="missionTitle" class="form-label fw-semibold">Titre*</label>
                     <input type="text" class="form-control" id="missionTitle" placeholder="Entrez le titre">
-                    <div id="missionTitleError" class="invalid-feedback"></div>
-
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-12">
                         <label for="missionDate" class="form-label fw-semibold">Date*</label>
                         <input type="date" class="form-control" id="missionDate">
-                        <div id="missionDateError" class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-6">
@@ -661,54 +597,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu*</label>
-                    <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Ex: Athénée Royal">
-                    <div id="missionLocationDesignationError" class="invalid-feedback"></div>
-
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="missionCity" class="form-label fw-semibold">Ville*</label>
-                        <input type="text" class="form-control" id="missionCity" placeholder="Ex: Bruxelles">
-                        <div id="missionCityError" class="invalid-feedback"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="missionPostalCode" class="form-label fw-semibold">Code postal</label>
-                        <input type="text" class="form-control" id="missionPostalCode" placeholder="Ex: 6600">
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="missionStreet" class="form-label fw-semibold">Rue</label>
-                        <input type="text" class="form-control" id="missionStreet" placeholder="Ex: Rue des écoles">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="missionStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="number" class="form-control" id="missionStreetNumber" placeholder="12">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="missionBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="text" class="form-control" id="missionBox" placeholder="Optionnel">
-                    </div>
+                    <label for="missionLocation" class="form-label fw-semibold">Lieu*</label>
+                    <input type="text" class="form-control" id="missionLocation" placeholder="Entrez le lieu">
                 </div>
 
                 <div class="mb-3">
                     <label for="missionProfessor" class="form-label fw-semibold">Professeur</label>
                     <input type="text" class="form-control" id="missionProfessor" placeholder="Entrez le nom du professeur">
-                </div>
-
-                <div class="mb-3">
-                    <label for="missionInterpreter" class="form-label fw-semibold">Interprète</label>
-                    <select id="missionInterpreter" class="form-select">
-                    <option value="">Sélectionner un interprète</option>
-                        <option th:each="interpreter : ${interpreters}"
-                                th:value="${interpreter.id}"
-                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
-                        </option>
-                    </select>
-                    <div id="missionInterpreterError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="mb-3">
@@ -720,7 +615,6 @@
                                 th:text="${beneficiary.firstName + ' ' + beneficiary.lastName}">
                         </option>
                     </select>
-                    <div id="missionBeneficiaryError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="mb-4">
@@ -746,66 +640,9 @@
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
-
-    /** @type {Array<Object>} List of all events loaded from the server */
     const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
-
-    /**
-     * @typedef {Object} ActiveFilters
-     * @property {string|null} status      - Active filter by status (e.g. "Acceptée", "En attente")
-     * @property {string|null} interpreter - Active filter by interpreter name
-     */
-
-    /** @type {ActiveFilters} */
-    const activeFilters = {
-        status: null,
-        interpreter: null
-    };
-
-    /** @type {number|null} ID of the currently selected mission */
-    let currentMissionId = null;
-
-    /** @type {boolean} Whether this is the first calendar load */
-    let premierChargement = true;
-
-    /**
-     * Fetches calendar events from the REST API based on the current date range
-     * and active filters (status, interpreter).
-     *
-     * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
-     * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
-     * @param {Function} successCallback    - Callback to call with the fetched events
-     * @param {Function} failureCallback    - Callback to call on network error
-     * @returns {Promise<void>}
-     */
-    async function fetchEvents(fetchInfo, successCallback, failureCallback) {
-        const params = new URLSearchParams();
-        params.append('weekDate', fetchInfo.startStr.substring(0, 10));
-
-        if (activeFilters.status !== null){
-            params.append('status', activeFilters.status);
-        }
-        if (activeFilters.interpreter !== null){
-            params.append('interpreter', activeFilters.interpreter);
-        }
-
-        try {
-            const r = await fetch('/horaire/events?' + params.toString());
-            const data = await r.json();
-            successCallback(data);
-        } catch (err) {
-            failureCallback(err);
-        }
-    }
-
-
-    /** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
     const userRole = /*[[${userRole}]]*/ 'MANAGER';
 
-    /** @type {number} ID of the logged-in user */
-    const userId = /*[[${session.user.id}]]*/ 0;
-
-    /** @type {boolean} True if the screen width is less than 768px */
     const isMobile = window.innerWidth < 768;
 
     const customButtons = {
@@ -840,7 +677,7 @@
         customButtons.newUnavailability = {
             text: '+ Nouvelle indisponibilité',
             click: function() {
-                window.location.href = '/interpretes/profil/' + userId;
+                // TODO: ouvrir modal de création
             }
         };
     }
@@ -849,7 +686,7 @@
         customButtons.newUnavailability = {
             text: isMobile ? '+ Indispo' : '+ Nouvelle indisponibilité',
             click: function() {
-                window.location.href = '/interpretes/profil/' + userId;
+                // TODO: ouvrir modal de création
             }
         };
         customButtons.newMission = {
@@ -862,75 +699,6 @@
             }
         };
     }
-
-    /**
-     * Displays a notification toast in the bottom-right corner of the screen,
-     * which disappears after 3 seconds.
-     *
-     * @param {string} message                             - Text to display in the toast
-     * @param {'success'|'error'|'info'} [type='success'] - Visual type of the toast
-     * @returns {void}
-     */
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast-custom toast-${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add('toast-hide'), 3000);
-        setTimeout(() => toast.remove(), 3300);
-    }
-
-    /**
-     * @typedef {Object} ValidationRule
-     * @property {string} id      - ID of the form field to validate
-     * @property {string} errorId - ID of the element displaying the error message
-     * @property {string} msg     - Error message to display if the field is empty
-     */
-
-    /**
-     * Validates a list of form fields. Marks each empty field as invalid
-     * and displays the associated error message.
-     *
-     * @param {ValidationRule[]} rules - Array of validation rules
-     * @returns {boolean} `true` if all fields are valid, `false` otherwise
-     */
-    function validateFields(rules) {
-        let isValid = true;
-        rules.forEach(({ id, errorId, msg }) => {
-            const field = document.getElementById(id);
-            const errorEl = document.getElementById(errorId);
-            if (!field || !field.value.trim()) {
-                if (field) field.classList.add('is-invalid');
-                if (errorEl) errorEl.textContent = msg;
-                isValid = false;
-            }
-        });
-        return isValid;
-    }
-
-    /**
-     * Clears validation errors from a list of form fields.
-     * Removes the `is-invalid` class and empties the associated error text.
-     *
-     * @param {string[]} fieldIds - Array of field IDs to clean up
-     * @returns {void}
-     */
-    function clearFormErrors(fieldIds) {
-        fieldIds.forEach(id => {
-            const field = document.getElementById(id);
-            if (field) field.classList.remove('is-invalid');
-            const errorEl = document.getElementById(id + 'Error');
-            if (errorEl) errorEl.textContent = '';
-        });
-    }
-
-    document.addEventListener('input', function (e) {
-        if (e.target.classList.contains('is-invalid')) {
-            e.target.classList.remove('is-invalid');
-            const errorEl = document.getElementById(e.target.id + 'Error');
-            if (errorEl) errorEl.textContent = '';
-        }
-    });
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -949,24 +717,7 @@
             slotMinTime: '08:00:00',
             slotMaxTime: '22:00:00',
             expandRows: true,
-
-            /**
-             * Event loading function for FullCalendar.
-             * Uses pre-loaded data on the first render, then queries
-             * the API on each subsequent navigation.
-             *
-             * @param {Object}   fetchInfo       - Information about the requested date range
-             * @param {Function} successCallback - Callback called with the events
-             * @param {Function} failureCallback - Callback called on error
-             */
-            events: function(fetchInfo, successCallback, failureCallback) {
-                if (premierChargement) {
-                    premierChargement = false;
-                    successCallback(allEvents);
-                    return;
-                }
-                fetchEvents(fetchInfo, successCallback, failureCallback);
-            },
+            events: allEvents,
             customButtons: customButtons,
             headerToolbar: {
                 start: isMobile ? 'timeGridDay filterBtn' : 'timeGridWeek,timeGridDay filterBtn',
@@ -981,15 +732,6 @@
                 today: isMobile ? 'Auj.' : "Aujourd'hui"
             },
 
-            /**
-             * Customizes the HTML rendering of a calendar event.
-             * Displays importance stars, title, time, type and room.
-             *
-             * @param {Object} arg          - Argument provided by FullCalendar
-             * @param {Object} arg.event    - FullCalendar event object
-             * @param {string} arg.timeText - Time text formatted by FullCalendar
-             * @returns {{ html: string }}  - Object containing the custom HTML to inject
-             */
             eventContent: function(arg) {
                 const props = arg.event.extendedProps;
                 const importance = parseInt(props.importance);
@@ -1012,15 +754,6 @@
                 };
             },
 
-            /**
-             * Handles a click on an empty calendar slot.
-             * Opens the mission creation modal (MANAGER) or request creation modal (BENEFICIARY),
-             * pre-filling the date and start/end times based on the clicked slot.
-             *
-             * @param {Object} info      - Information about the clicked slot
-             * @param {Date}   info.date - Date and time of the clicked slot
-             * @returns {void}
-             */
             dateClick: function(info) {
                 const clickedDate = new Date(info.date);
                 const endHour = new Date(clickedDate);
@@ -1056,18 +789,8 @@
                 }
             },
 
-            /**
-             * Handles a click on a calendar event.
-             * Displays the appropriate detail modal based on the user's role and the event's
-             * status (manager modal for pending/accepted missions, standard modal otherwise).
-             *
-             * @param {Object} info       - Information about the clicked event
-             * @param {Object} info.event - FullCalendar event object
-             * @returns {void}
-             */
             eventClick: function(info) {
                 const event = info.event;
-                currentMissionId = event.id;
                 const props = event.extendedProps;
                 const start = event.start;
                 const end = event.end;
@@ -1131,64 +854,22 @@
                     const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
 
                     if (acceptBtn) {
-                        /**
-                         * Sends a POST request to accept the selected mission with the chosen interpreter.
-                         * Displays a success toast and refreshes the calendar events.
-                         *
-                         * @listens click
-                         * @returns {Promise<void>}
-                         */
-                        acceptBtn.addEventListener('click', async function () {
+                        acceptBtn.addEventListener('click', function() {
                             const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
-                            if (!selectedInterpreter) {
-                                showToast("Veuillez sélectionner un interprète.", 'error');
-                                return;
-                            }
-                            try {
-                                const res = await fetch('/horaire/missions/' + event.id + '/accept', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ interpreterId: selectedInterpreter })
-                                });
-                                if (!res.ok) throw new Error(await res.text());
-                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                                calendar.refetchEvents();
-                                showToast("Mission acceptée.", 'success');
-                            } catch (err) {
-                                showToast("Erreur : " + err.message, 'error');
-                            }
-                        }, { once: true });
+
+                            // TODO BACKEND : accepter la mission
+                        });
                     }
 
                     if (refuseBtn) {
-                        /**
-                         * Sends a POST request to refuse the selected mission.
-                         * Displays an info toast and refreshes the calendar events.
-                         *
-                         * @listens click
-                         * @returns {Promise<void>}
-                         */
-                        refuseBtn.addEventListener('click', async function () {
-                            try {
-                                const res = await fetch('/horaire/missions/' + event.id + '/refuse', {
-                                    method: 'POST'
-                                });
-                                if (!res.ok) throw new Error(await res.text());
-                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                                calendar.refetchEvents();
-                                showToast("Mission refusée.", 'info');
-                            } catch (err) {
-                                showToast("Erreur : " + err.message, 'error');
-                            }
-                        }, { once: true });
+                        refuseBtn.addEventListener('click', function() {
+                            // TODO BACKEND : refuser la mission
+                        });
                     }
 
+
+
                     if (cancelAcceptedBtn) {
-                        /**
-                         * Closes the manager modal and opens the cancellation confirmation modal.
-                         *
-                         * @listens click
-                         */
                         cancelAcceptedBtn.addEventListener('click', function() {
                             const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
                             const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
@@ -1234,11 +915,6 @@
                 const delayBtn = document.getElementById('btnDelayReport');
 
                 if (delayBtn) {
-                    /**
-                     * Closes the event modal and opens the delay report modal.
-                     *
-                     * @listens click
-                     */
                     delayBtn.addEventListener('click', function() {
                         const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
                         const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
@@ -1248,11 +924,6 @@
                     });
                 }
                 if (cancelBtn) {
-                    /**
-                     * Closes the event modal and opens the cancellation confirmation modal.
-                     *
-                     * @listens click
-                     */
                     cancelBtn.addEventListener('click', function() {
                         const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
                         const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
@@ -1287,13 +958,6 @@
             e.stopPropagation();
         });
 
-        /**
-         * Handles a click on the "No" button in the cancellation confirmation modal.
-         * Closes the confirmation modal and re-opens the previous modal
-         * based on the user's role.
-         *
-         * @listens click
-         */
         document.getElementById('cancelConfirmBackBtn').addEventListener('click', function() {
             const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
 
@@ -1311,12 +975,7 @@
         const eventModalEl = document.getElementById('eventModal');
         const delayModalEl = document.getElementById('delayModal');
 
-        /**
-         * Handles a click on "Cancel" in the delay report modal.
-         * Closes the delay modal and re-opens the event modal.
-         *
-         * @listens click
-         */
+
         document.getElementById('cancelDelayModalBtn').addEventListener('click', function() {
             const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
             const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
@@ -1325,210 +984,60 @@
             eventModal.show();
         });
 
-        /**
-         * Sends a POST request to report a delay for the selected mission.
-         * Includes the number of delay minutes and the absence indicator.
-         * Displays a confirmation or error toast.
-         *
-         * @listens click
-         * @returns {Promise<void>}
-         */
-        document.getElementById('sendDelayBtn').addEventListener('click', async function () {
-            if (!currentMissionId) {
-                alert("Aucune mission sélectionnée.");
-                return;
-            }
 
+        document.getElementById('sendDelayBtn').addEventListener('click', function() {
             const minutes = document.getElementById('delayMinutes').value;
             const absent = document.getElementById('delayAbsent').checked;
 
-            try {
-                const res = await fetch('/horaire/missions/' + currentMissionId + '/delay', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ minutes, absent })
-                });
-                if (!res.ok) throw new Error(await res.text());
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
-                showToast("Retard signalé avec succès.", 'success');
-            } catch (err) {
-                showToast("Erreur : " + err.message, 'error');
-            }
+            const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
+
+            //TODO BACKEND
         });
 
-        /**
-         * Validates and submits the new mission creation form (MANAGER role).
-         * Checks required fields and time consistency, then sends
-         * the data via POST to `/horaire/missions`. Refreshes the calendar on success.
-         *
-         * @listens click
-         * @returns {Promise<void>}
-         */
-        document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-            clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
+        document.getElementById('sendMissionBtn').addEventListener('click',
+            function(){
+                const type = document.querySelector('input[name="missionType"]:checked').value;
+                const title = document.getElementById('missionTitle').value;
+                const startTime = document.getElementById('missionStartTime').value;
+                const endTime = document.getElementById('missionEndTime').value;
+                const location = document.getElementById('missionLocation').value;
+                const professor = document.getElementById('missionProfessor').value;
+                const beneficiaryId = document.getElementById('missionBeneficiary').value;
+                const comment = document.getElementById('missionComment').value;
+                const missionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal'));
 
+                //TODO BACKEND
+            });
 
-            const rules = [
-                { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
-                { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
-                { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
-                { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
-                { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
-                { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
-            ];
-            if (!validateFields(rules)) return;
-
-            if (!validateFields(rules)) return;
-
-            const startTime = document.getElementById('missionStartTime').value;
-            const endTime   = document.getElementById('missionEndTime').value;
-            if (startTime >= endTime) {
-                showToast("L'heure de fin doit être après l'heure de début.", 'error');
-                return;
-            }
-
-            const payload = {
-                type:                document.querySelector('input[name="missionType"]:checked').value,
-                title:               document.getElementById('missionTitle').value,
-                date:                document.getElementById('missionDate').value,
-                startTime,
-                endTime,
-                locationDesignation: document.getElementById('missionLocationDesignation').value,
-                city:                document.getElementById('missionCity').value,
-                postalCode:          document.getElementById('missionPostalCode').value,
-                street:              document.getElementById('missionStreet').value,
-                streetNumber:        document.getElementById('missionStreetNumber').value,
-                box:                 document.getElementById('missionBox').value,
-                professor:           document.getElementById('missionProfessor').value,
-                interpreterId:       document.getElementById('missionInterpreter').value,
-                beneficiaryId:       document.getElementById('missionBeneficiary').value,
-                comment:             document.getElementById('missionComment').value
-            };
-
-            try {
-                const res = await fetch('/horaire/missions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(await res.text());
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).hide();
-                calendar.refetchEvents();
-                showToast("Mission créée avec succès.", 'success');
-            } catch (err) {
-                showToast("Erreur : " + err.message, 'error');
-            }
-        });
-
-        /**
-         * Validates and submits the new request creation form (BENEFICIARY role).
-         * Checks required fields and time consistency, then sends
-         * the data via POST to `/horaire/requests`. Refreshes the calendar on success.
-         *
-         * @listens click
-         * @returns {Promise<void>}
-         */
-        document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-            clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity']);
-            const rules = [
-                { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
-                { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
-                { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
-                { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
-            ];
-            if (!validateFields(rules)) return;
-
-            if (!validateFields(rules)) return;
-
+        document.getElementById('sendRequestBtn').addEventListener('click', function() {
+            const type = document.querySelector('input[name="requestType"]:checked').value;
+            const title = document.getElementById('requestTitle').value;
+            const date = document.getElementById('requestDate').value;
             const startTime = document.getElementById('requestStartTime').value;
-            const endTime   = document.getElementById('requestEndTime').value;
-            if (startTime >= endTime) {
-                showToast("L'heure de fin doit être après l'heure de début.", 'error');
-                return;
-            }
+            const endTime = document.getElementById('requestEndTime').value;
+            const location = document.getElementById('requestLocation').value;
+            const professor = document.getElementById('requestProfessor').value;
+            const comment = document.getElementById('requestComment').value;
+            const importance = document.querySelector('input[name="requestImportance"]:checked').value;
 
-            if(startTime == endTime){
-                showToast("L'heure de début ne peut pas être égal à l'heure de fin.", 'error');
-                return;
-            }
-
-            const payload = {
-                type:                document.querySelector('input[name="requestType"]:checked').value,
-                title:               document.getElementById('requestTitle').value,
-                date:                document.getElementById('requestDate').value,
-                startTime,
-                endTime,
-                locationDesignation: document.getElementById('requestLocationDesignation').value,
-                city:                document.getElementById('requestCity').value,
-                postalCode:          document.getElementById('requestPostalCode').value,
-                street:              document.getElementById('requestStreet').value,
-                streetNumber:        document.getElementById('requestStreetNumber').value,
-                box:                 document.getElementById('requestBox').value,
-                professor:           document.getElementById('requestProfessor').value,
-                comment:             document.getElementById('requestComment').value,
-                importance:          document.querySelector('input[name="requestImportance"]:checked').value
-            };
-
-            try {
-                const res = await fetch('/horaire/requests', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(await res.text());
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).hide();
-                calendar.refetchEvents();
-                showToast("Demande envoyée avec succès.", 'success');
-            } catch (err) {
-                showToast("Erreur : " + err.message, 'error');
-            }
+            //TODO BACKEND
         });
-
-
         calendar.render();
 
-        document.querySelectorAll('.filter-status').forEach(item => {
-            item.addEventListener('click', e => {
-                e.preventDefault();
+        const activeFilters = {
+            interpreter: null,
+            status: null
+        };
 
-                if (activeFilters.status === item.dataset.value) {
-                    activeFilters.status = null;
-                } else {
-                    activeFilters.status = item.dataset.value;
-                }
+        document.querySelector('.filter-status[data-value="Horaire de base"]').addEventListener('click', function(e) {
+            e.preventDefault();
 
-                document.querySelectorAll('.filter-status').forEach(i => i.classList.remove('fw-bold'));
+            activeFilters.status = 'Horaire de base';
 
-                if (activeFilters.status !== null) {
-                    item.classList.add('fw-bold');
-                }
+            calendar.refetchEvents();
 
-                calendar.refetchEvents();
-                document.getElementById('dropdown-filtre').classList.remove('show');
-            });
+            document.getElementById('dropdown-filtre').classList.remove('show');
         });
-
-        document.querySelectorAll('.filter-interpreter').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (activeFilters.interpreter === item.dataset.value){
-                    activeFilters.interpreter = null;
-                }else{
-                    activeFilters.interpreter = this.dataset.value
-                }
-
-                document.querySelectorAll('.filter-interpreter').forEach(function(i) { i.classList.remove('fw-bold'); });
-                if (activeFilters.interpreter !== null){
-                    this.classList.add('fw-bold');
-                }
-                calendar.refetchEvents();
-                document.getElementById('dropdown-filtre').classList.remove('show');
-            });
-        });
-
-
-
-
     });
 </script>
 
