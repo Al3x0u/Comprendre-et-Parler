@@ -1,9 +1,12 @@
 package be.hers.pi.comprendre_et_parler.services;
 
+import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
 import be.hers.pi.comprendre_et_parler.models.*;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
+import org.apache.catalina.User;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -93,6 +96,23 @@ public class NotificationService {
 
         if (mission.getBeneficiary() != null)
             sendEmail(mission.getBeneficiary().getEmail(), subject, body);
+    }
+
+
+    /**
+     * Notifies the User that his account has been created
+     */
+    public void sendUserCredentials(UserCredentials userCredentials) {
+        String subject = "Vos informations de connexion";
+        String body = "Bonjour,\n\n"
+                + "Votre compte a été créé sur la plateforme Comprendre & Parler.\n\n"
+                + "Voici vos identifiants de première connexion :\n\n"
+                + "Login : " + userCredentials.getLogin() + "\n"
+                + "Mot de passe : " + userCredentials.getPassword() + "\n"
+                + "Connectez-vous via ce lien : " + userCredentials.getLoginUrl() + "\n\n"
+                + "Attention : Vous devrez changer votre mot de passe dès votre première connexion.";
+
+        sendEmail(userCredentials.getEmail(), subject, body);
     }
 
     /**
