@@ -5,9 +5,12 @@ import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
 import be.hers.pi.comprendre_et_parler.services.MissionService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -47,6 +50,7 @@ public class ScheduleController {
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
+            List<Beneficiary> beneficiaries = new ArrayList<>();
             // beneficiaries = beneficiaryService.getAllBeneficiaries();
 
             ObjectMapper mapper = new ObjectMapper();
@@ -60,7 +64,114 @@ public class ScheduleController {
         return "schedule";
     }
 
+    @GetMapping("/horaire/events")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) throws Exception {
 
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        LocalDate date = null;
+        if(weekDate != null && !weekDate.isBlank()){
+            try{
+                date = LocalDate.parse(weekDate);
+            } catch (Exception e) {
+                date = LocalDate.now();
+            }
+        }
+
+        List<Mission> missions = missionService.getMissionsForWeek(user, date);
+        List<Map<String, String>> allEvents =  convertMissionsToEvents(missions);
+
+        List<Map<String, String>> filtered = new ArrayList<>();
+        for (Map<String, String> event : allEvents) {
+
+            if (status != null && !status.isBlank()) {
+                if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
+            }
+
+            if (interpreter != null && !interpreter.isBlank()) {
+                if (!event.getOrDefault("interpreter", "").contains(interpreter)) continue;
+            }
+
+            filtered.add(event);
+        }
+
+        return ResponseEntity.ok(filtered);
+    }
+
+    private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions) {
+
+        List<Map<String, String>> events = new ArrayList<>();
+
+        for (Mission mission : missions) {
+            if (!(mission.getTimeSlot() instanceof PunctualTimeSlot)) {
+                continue;
+            }
+            PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
+            Map<String, String> event = new HashMap<>();
+            event.put("title", mission.getSubject());
+
+            event.put("start", pts.getStartDate().toString());
+            event.put("end", pts.getEndDate().toString());
+
+            event.put("color", getColor(mission.getStateOfMission()));
+
+            if (mission.getJobSkill() != null) {
+                event.put("type", mission.getJobSkill().getDesignation());
+            } else {
+                event.put("type", "");
+            }
+            if (mission.getRoom() != null) {
+                event.put("room", mission.getRoom());
+            } else {
+                event.put("room", "");
+            }
+
+            String interpreters = "";
+            if (mission.getInterpreters() != null) {
+
+                for (Interpreter interpreter : mission.getInterpreters()) {
+
+                    if (!interpreters.isEmpty()) {
+                        interpreters += ", ";
+                    }
+                    interpreters += interpreter.getFirstName() + " " + interpreter.getLastName();
+                }
+            }
+
+            event.put("interpreter", interpreters);
+            if (mission.getBeneficiary() != null) {
+
+                String beneficiaryName =  mission.getBeneficiary().getFirstName() + " " + mission.getBeneficiary().getLastName();
+                event.put("beneficiary", beneficiaryName);
+
+            } else {
+                event.put("beneficiary", "");
+            }
+
+            if (mission.getStateOfMission() != null) {
+                event.put("status", mission.getStateOfMission().toString());
+            } else {
+                event.put("status", "");
+            }
+
+            if (mission.getCommentary() != null) {
+                event.put("comment", mission.getCommentary());
+            } else {
+                event.put("comment", "");
+            }
+
+            if (mission.getLocation() != null) {
+                event.put("address", mission.getLocation().toString());
+            } else {
+                event.put("address", "");
+            }
+
+            event.put("importance", String.valueOf(mission.getImportance()));
+            events.add(event);
+        }
+
+        return events;
+    }
 
     private String getColor(MissionState state) {
         if (state == null) {
