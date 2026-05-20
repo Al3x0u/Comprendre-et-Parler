@@ -114,7 +114,7 @@ public class NotificationService {
 
         sendEmail(userCredentials.getEmail(), subject, body);
     }
-g
+
     /**
      * Sends an email to the given recipient.
      * Failures are logged but do not propagate, so a notification error
