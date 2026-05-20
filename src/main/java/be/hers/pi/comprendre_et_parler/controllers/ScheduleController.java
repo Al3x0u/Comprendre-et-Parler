@@ -69,36 +69,41 @@ public class ScheduleController {
 
     @GetMapping("/horaire/events")
     @ResponseBody
-    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) throws Exception {
-
-        AppliUser user = (AppliUser) session.getAttribute("user");
-        LocalDate date = null;
-        if(weekDate != null && !weekDate.isBlank()){
-            try{
-                date = LocalDate.parse(weekDate);
-            } catch (Exception e) {
-                date = LocalDate.now();
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            LocalDate date = null;
+            if(weekDate != null && !weekDate.isBlank()){
+                try{
+                    date = LocalDate.parse(weekDate);
+                } catch (Exception e) {
+                    date = LocalDate.now();
+                }
             }
+
+            List<Mission> missions = missionService.getMissionsForWeek(user, date);
+            List<Map<String, String>> allEvents =  convertMissionsToEvents(missions);
+
+            List<Map<String, String>> filtered = new ArrayList<>();
+            for (Map<String, String> event : allEvents) {
+
+                if (status != null && !status.isBlank()) {
+                    if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
+                }
+
+                if (interpreter != null && !interpreter.isBlank()) {
+                    if (!event.getOrDefault("interpreter", "").contains(interpreter)) continue;
+                }
+
+                filtered.add(event);
+                return ResponseEntity.ok(filtered);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
-        List<Mission> missions = missionService.getMissionsForWeek(user, date);
-        List<Map<String, String>> allEvents =  convertMissionsToEvents(missions);
+        return null;
 
-        List<Map<String, String>> filtered = new ArrayList<>();
-        for (Map<String, String> event : allEvents) {
-
-            if (status != null && !status.isBlank()) {
-                if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
-            }
-
-            if (interpreter != null && !interpreter.isBlank()) {
-                if (!event.getOrDefault("interpreter", "").contains(interpreter)) continue;
-            }
-
-            filtered.add(event);
-        }
-
-        return ResponseEntity.ok(filtered);
     }
 
     private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions) {
