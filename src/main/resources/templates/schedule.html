@@ -72,11 +72,12 @@
                    placeholder="Rechercher un utilisateur...">
         </div>
         <div id="interpreter-list">
-            <a class="dropdown-item filter-interpreter" href="#" data-value="Jessica DuBuisson">
-                <i class="bi bi-person me-2"></i>J. DuBuisson
-            </a>
-            <a class="dropdown-item filter-interpreter" href="#" data-value="Alice Charpentier">
-                <i class="bi bi-person me-2"></i>A. Charpentier
+            <a class="dropdown-item filter-interpreter"
+               href="#"
+               th:each="interpreter : ${interpreters}"
+               th:data-value="${interpreter.firstName + ' ' + interpreter.lastName}">
+                <i class="bi bi-person me-2"></i>
+                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName}"></span>
             </a>
         </div>
         <hr class="dropdown-divider">
