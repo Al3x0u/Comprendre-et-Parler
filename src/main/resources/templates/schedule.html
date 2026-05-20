@@ -641,6 +641,32 @@
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
     const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
+    const activeFilters = {
+        status: null,
+        interpreter: null
+    };
+
+    async function fetchEvents(fetchInfo, successCallback, failureCallback) {
+        const params = new URLSearchParams();
+        params.append('weekDate', fetchInfo.startStr.substring(0, 10));
+
+        if (activeFilters.status !== null){
+            params.append('status', activeFilters.status);
+        }
+        if (activeFilters.interpreter !== null){
+            params.append('interpreter', activeFilters.interpreter);
+        }
+
+        try {
+            const r = await fetch('/horaire/events?' + params.toString());
+            const data = await r.json();
+            successCallback(data);
+        } catch (err) {
+            failureCallback(err);
+        }
+    }
+
+
     const userRole = /*[[${userRole}]]*/ 'MANAGER';
 
     const isMobile = window.innerWidth < 768;
@@ -731,7 +757,6 @@
                 day: 'Jour',
                 today: isMobile ? 'Auj.' : "Aujourd'hui"
             },
-
             eventContent: function(arg) {
                 const props = arg.event.extendedProps;
                 const importance = parseInt(props.importance);
