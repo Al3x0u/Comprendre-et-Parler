@@ -118,27 +118,27 @@
                 </div>
 
                 <hr>
-                <div>
-                    <h3 class="creation-user text-primary">Compétences</h3>
+                <div class="creation-user">
+                    <h3 class="text-primary">Compétences</h3>
                     <div>
-                        <div class="d-flex flex-column flex-lg-row p-4">
-                            <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
+                        <div class="d-flex flex-column flex-lg-row">
+                            <div class="d-flex flex-column justify-content-between align-items-center m-2 col-lg-6">
                                 <h2 class="h5 m-2">Métiers</h2>
                                 <fieldset id="chosen-job" class="d-flex flex-row flex-wrap justify-content-center">
-                                    <div class="d-flex flex-row col-5 p-2" th:each="skill : ${allJobSkills}">
+                                    <div class="d-flex flex-row col-5" th:each="skill : ${allJobSkills}">
                                         <input type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}"
                                                th:field="*{jobSkillIds}" th:value="${skill.id}"/>
-                                        <label th:for="${skill.designation}" th:text="${skill.designation}"></label>
+                                        <label class="ms-2" th:for="${skill.designation}" th:text="${skill.designation}"></label>
                                     </div>
                                 </fieldset>
                             </div>
-                            <div class="d-flex flex-column justify-content-between align-items-center col-lg-6">
+                            <div class="d-flex flex-column justify-content-between align-items-center m-2 col-lg-6">
                                 <h2 class="h5 m-2">Académiques</h2>
                                 <fieldset id="chosen-academic" class="d-flex flex-row flex-wrap justify-content-center">
-                                    <div class="d-flex flex-row col-5 p-2" th:each="skill : ${allAcademicSkills}">
+                                    <div class="d-flex flex-row col-5" th:each="skill : ${allAcademicSkills}">
                                         <input type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}"
                                                th:field="*{academicSkillIds}" th:value="${skill.id}"/>
-                                        <label th:for="${skill.designation}" th:text="${skill.designation}"></label>
+                                        <label class="ms-2" th:for="${skill.designation}" th:text="${skill.designation}"></label>
                                     </div>
                                 </fieldset>
                             </div>
