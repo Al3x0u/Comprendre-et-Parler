@@ -1071,6 +1071,24 @@
             });
         });
 
+        document.querySelectorAll('.filter-interpreter').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (activeFilters.interpreter === item.dataset.value){
+                    activeFilters.interpreter = null;
+                }else{
+                    activeFilters.interpreter = this.dataset.value
+                }
+
+                document.querySelectorAll('.filter-interpreter').forEach(function(i) { i.classList.remove('fw-bold'); });
+                if (activeFilters.interpreter !== null){
+                    this.classList.add('fw-bold');
+                }
+                calendar.refetchEvents();
+                document.getElementById('dropdown-filtre').classList.remove('show');
+            });
+        });
+
 
 
 
