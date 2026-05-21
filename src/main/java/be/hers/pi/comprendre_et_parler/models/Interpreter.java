@@ -176,6 +176,16 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * @param skill a skill to add to this interpreter
+     */
+    public void addAcademicSkill(AcademicSkill skill) {this.academicSkills.add(skill);}
+
+    /**
+     * @param skill an AcademicSkill to remove from this interpreter
+     */
+    public void removeAcademicSkill(AcademicSkill skill) {this.academicSkills.remove(skill);}
+
+    /**
      * @return this.jobSkills
      */
     public Set<JobSkill> getJobSkills() {
@@ -188,6 +198,16 @@ public class Interpreter extends AppliUser{
     public void setJobSkills(Set<JobSkill> jobSkills) {
         this.jobSkills = jobSkills;
     }
+
+    /**
+     * @param skill a JobSkill to add to this interpreter
+     */
+    public void addJobSkill(JobSkill skill) {this.jobSkills.add(skill);}
+
+    /**
+     * @param skill a JobSkill to remove from this interpreter
+     */
+    public void removeJobSkill(JobSkill skill) {this.jobSkills.remove(skill);}
 
     /**
      * @return this.beneficiaries

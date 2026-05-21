@@ -352,6 +352,29 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
+     * Counts interpreters
+     * @return the number of interpreters in database
+     * @throws SQLException if a database exception occurs
+     */
+    public int count() throws SQLException {
+        String query = "SELECT COUNT(*) AS cnt FROM " + TABLE;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            if (result.next()) {
+                return result.getInt("cnt");
+            }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return 0;
+    }
+
+    /**
      * Check if a time slot is already registered as an interpreter's availability in DB
      * @param interpreter the Interpreter
      * @param slot the BaseTimeSlot
@@ -592,6 +615,32 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.executeUpdate();
         }
         finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Unlink an Interpreter from a JobSkill in DB
+     * @param interpreter the interpreter for whom to remove a JobSkill
+     * @param skill the JobSkill to remove
+     * @throws NoSuchElementException if the link does not exist in DB
+     * @throws SQLException if a database error occurs
+     */
+    public void deleteJobSkillLink(Interpreter interpreter, JobSkill skill) throws NoSuchElementException, SQLException {
+        String query = String.format(
+                "DELETE FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_JOB_SKILL_INTERPRETER, JOB_SKILL_REF_INTERPRETER, JOB_SKILL_REF_SKILL
+        );
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreter.getId());
+            statement.setInt(2, skill.getId());
+
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] InterpreterJobSkill link (" + interpreter.getFullName() + ", "
+                        + skill.getDesignation() + " does not exist in DB.");
+        } finally {
             closeStatement(statement);
         }
     }
