@@ -73,7 +73,7 @@ public class ScheduleController {
             if (!(user instanceof Manager)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
-            
+
             String interpreterIdStr = body.get("interpreterId");
             if (interpreterIdStr == null || interpreterIdStr.isBlank()) {
                 return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
@@ -95,6 +95,22 @@ public class ScheduleController {
         return null;
     }
 
+    @PostMapping("/horaire/missions/{id}/refuse")
+    @ResponseBody
+    public ResponseEntity<?> refuseMission(@PathVariable int id, HttpSession session) {
+        try {
+
+            Mission mission = missionService.getMissionById(id);
+            missionService.refuseRequest(mission);
+
+            return ResponseEntity.ok().build();
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
 
     @GetMapping("/horaire/events")
     @ResponseBody
