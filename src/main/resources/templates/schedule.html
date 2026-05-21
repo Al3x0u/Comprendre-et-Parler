@@ -627,32 +627,32 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu</label>
+                    <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu</label>
                     <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Ex: Athénée Royal">
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="requestCity" class="form-label fw-semibold">Ville</label>
+                        <label for="missionCity" class="form-label fw-semibold">Ville</label>
                         <input type="text" class="form-control" id="missionCity" placeholder="Ex: Bruxelles">
                     </div>
                     <div class="col-md-6">
-                        <label for="requestPostalCode" class="form-label fw-semibold">Code postal</label>
+                        <label for="missionPostalCode" class="form-label fw-semibold">Code postal</label>
                         <input type="text" class="form-control" id="missionPostalCode" placeholder="Ex: 6600">
                     </div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="requestStreet" class="form-label fw-semibold">Rue</label>
+                        <label for="missionStreet" class="form-label fw-semibold">Rue</label>
                         <input type="text" class="form-control" id="missionStreet" placeholder="Ex: Rue des écoles">
                     </div>
                     <div class="col-md-3">
-                        <label for="requestStreetNumber" class="form-label fw-semibold">Numéro</label>
+                        <label for="missionStreetNumber" class="form-label fw-semibold">Numéro</label>
                         <input type="number" class="form-control" id="missionStreetNumber" placeholder="12">
                     </div>
                     <div class="col-md-3">
-                        <label for="requestBox" class="form-label fw-semibold">Boîte</label>
+                        <label for="missionBox" class="form-label fw-semibold">Boîte</label>
                         <input type="text" class="form-control" id="missionBox" placeholder="Optionnel">
                     </div>
                 </div>
@@ -712,6 +712,8 @@
         status: null,
         interpreter: null
     };
+
+    let currentMissionId = null;
 
     let premierChargement = true;
     async function fetchEvents(fetchInfo, successCallback, failureCallback) {
@@ -891,6 +893,7 @@
 
             eventClick: function(info) {
                 const event = info.event;
+                currentMissionId = event.id;
                 const props = event.extendedProps;
                 const start = event.start;
                 const end = event.end;
@@ -1109,12 +1112,16 @@
         });
 
 
-        document.getElementById('sendDelayBtn').addEventListener('click', async function() {
+        document.getElementById('sendDelayBtn').addEventListener('click', async function () {
+            if (!currentMissionId) {
+                alert("Aucune mission sélectionnée.");
+                return;
+            }
+
             const minutes = document.getElementById('delayMinutes').value;
             const absent = document.getElementById('delayAbsent').checked;
 
-
-            const res = await fetch('/horaire/missions/' + event.id + '/delay', {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/delay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ minutes, absent })
