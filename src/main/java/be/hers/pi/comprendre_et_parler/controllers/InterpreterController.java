@@ -22,8 +22,6 @@ public class InterpreterController {
 
     private final InterpreterService interpreterService = new InterpreterService();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-    private final DAOAcademicSkill daoAcademicSkill = new DAOAcademicSkill();
-    private final DAOJobSkill daoJobSkill = new DAOJobSkill();
     private final DAOInterpreter daoInterpreter = new DAOInterpreter();
 
     @GetMapping("")
@@ -74,8 +72,7 @@ public class InterpreterController {
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
-            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-            model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
+            sortSkills(model);
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes";
@@ -162,9 +159,9 @@ public class InterpreterController {
      */
     private void sortSkills(Model model) {
         try {
-            List<AcademicSkill> allAcademicSkills = new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll));
+            List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
             allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
-            List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
+            List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
             allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
 
             model.addAttribute("allAcademicSkills", allAcademicSkills);
