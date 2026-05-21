@@ -14,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.Set;
 
 @Service
 public class BeneficiaryService {
@@ -35,18 +34,6 @@ public class BeneficiaryService {
                 id
         );
         return beneficiary;
-    }
-
-    /**
-     * Returns all beneficiaries.
-     * @return a set containing all beneficiaries
-     * @throws SQLException if the database could not be reached
-     * @throws ConnectionException if the connection to the database could not be established
-     */
-    public Set<Beneficiary> findAll() throws SQLException, ConnectionException {
-
-        return SQLWrap.call(daoBeneficiary::findAll);
-
     }
     /**
      * Create a new Beneficiary in the database with a hashed password.
@@ -70,7 +57,7 @@ public class BeneficiaryService {
 
         SQLWrap.callTransaction(daoBeneficiary::create, beneficiary);
 
-        return new UserCredentials(beneficiary.getFirstName(), beneficiary.getLogin(), plainPassword, beneficiary.getEmail());
+        return new UserCredentials(beneficiary.getLogin(), plainPassword, "/login");
     }
 
     private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {
