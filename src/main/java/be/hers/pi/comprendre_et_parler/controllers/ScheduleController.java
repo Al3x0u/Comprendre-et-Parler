@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
+import be.hers.pi.comprendre_et_parler.services.JobSkillService;
 import be.hers.pi.comprendre_et_parler.services.MissionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -23,6 +23,7 @@ public class ScheduleController {
     private final MissionService missionService = new MissionService();
     private final InterpreterService interpreterService  = new InterpreterService();
     private final BeneficiaryService beneficiaryService  = new BeneficiaryService();
+    private final JobSkillService jobSkillService = new JobSkillService();
 
 
     /**
@@ -49,13 +50,12 @@ public class ScheduleController {
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
-            List<Beneficiary> beneficiaries = new ArrayList<>();
-            // beneficiaries = beneficiaryService.getAllBeneficiaries();
+            Set<Beneficiary> beneficiaries= beneficiaryService.findAll();
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
             ObjectMapper mapper = new ObjectMapper();
-            model.addAttribute("events", mapper.writeValueAsString(missions));
+            model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("interpreters", interpreters);
 
@@ -112,12 +112,31 @@ public class ScheduleController {
 
     }
 
+    @PostMapping("/horaire/missions")
+    @ResponseBody
+    public ResponseEntity<?> createMission(@RequestBody Map<String, String> body, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+
+            Mission mission = buildMissionFromBody(body, true);
+            missionService.createMission(mission);
+
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/horaire/events")
     @ResponseBody
     public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-            LocalDate date = null;
+            LocalDate date =  LocalDate.now();
             if(weekDate != null && !weekDate.isBlank()){
                 try{
                     date = LocalDate.parse(weekDate);
@@ -246,6 +265,104 @@ public class ScheduleController {
             case CANCELED -> "#fa5252";
             default -> "#adb5bd";
         };
+    }
+
+    private Mission buildMissionFromBody(Map<String, String> body, boolean withInterpreter) throws Exception {
+        Mission mission = new Mission();
+
+        mission.setSubject(body.get("title"));
+        mission.setCommentary(body.get("comment"));
+        mission.setImportance(Integer.parseInt(body.getOrDefault("importance", "0")));
+
+        String designation = body.get("locationDesignation");
+        String cityName = body.get("city");
+        String postalCode = body.get("postalCode");
+        String street = body.get("street");
+        String streetNumber = body.get("streetNumber");
+
+        int box = 0;
+        String boxStr = body.get("box");
+        if (boxStr != null && !boxStr.isBlank()) {
+            try{
+                box = Integer.parseInt(boxStr);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        boolean hasLocation =
+                (designation != null && !designation.isBlank()) ||
+                        (cityName != null && !cityName.isBlank()) ||
+                        (postalCode != null && !postalCode.isBlank()) ||
+                        (street != null && !street.isBlank()) ||
+                        (streetNumber != null && !streetNumber.isBlank()) ||
+                        box > 0;
+
+        if (hasLocation) {
+            int parsedPostalCode = 0;
+            try {
+                parsedPostalCode = Integer.parseInt(postalCode);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            City city = new City(cityName, parsedPostalCode);
+
+            Location location = new Location(
+                   designation,
+                    city,
+                    street,
+                    streetNumber,
+                    box
+            );
+            mission.setLocation(location);
+        }
+
+
+        String professor = body.get("professor");
+        if (professor != null && !professor.isBlank()) {
+            mission.setRoom(professor);
+        }
+
+        LocalDate date = LocalDate.parse(body.get("date"));
+        java.time.LocalTime start = java.time.LocalTime.parse(body.get("startTime"));
+        java.time.LocalTime end = java.time.LocalTime.parse(body.get("endTime"));
+
+        PunctualTimeSlot slot = new PunctualTimeSlot(
+                java.time.LocalDateTime.of(date, start),
+                java.time.LocalDateTime.of(date, end)
+        );
+        mission.setTimeSlot(slot);
+
+        String type = body.get("type");
+        if (type != null && !type.isBlank()) {
+            Set<JobSkill> allJobSkills = jobSkillService.findAll();
+
+            for (JobSkill jobSkill : allJobSkills) {
+                if (jobSkill.getDesignation() != null
+                        && jobSkill.getDesignation().trim().equalsIgnoreCase(type.trim())) {
+                    mission.setJobSkill(jobSkill);
+                    break;
+                }
+            }
+        }
+
+        if (withInterpreter) {
+            String interpreterId = body.get("interpreterId");
+            if (interpreterId != null && !interpreterId.isBlank()) {
+                Interpreter interpreter = interpreterService.getInterpreterById(Integer.parseInt(interpreterId));
+                Set<Interpreter> interpreters = new HashSet<>();
+                interpreters.add(interpreter);
+                mission.setInterpreters(interpreters);
+            }
+
+            String beneficiaryId = body.get("beneficiaryId");
+            if (beneficiaryId != null && !beneficiaryId.isBlank()) {
+                Beneficiary beneficiary = beneficiaryService.getBeneficiaryById(Integer.parseInt(beneficiaryId));
+                mission.setBeneficiary(beneficiary);
+            }
+        }
+
+        return mission;
     }
 
 }
