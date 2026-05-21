@@ -5,12 +5,11 @@ import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
 import be.hers.pi.comprendre_et_parler.services.MissionService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -96,8 +95,9 @@ public class ScheduleController {
                 }
 
                 filtered.add(event);
-                return ResponseEntity.ok(filtered);
+
             }
+            return ResponseEntity.ok(filtered);
         }catch(Exception e){
             e.printStackTrace();
         }
