@@ -65,6 +65,36 @@ public class ScheduleController {
         }
         return "schedule";
     }
+    @PostMapping("/horaire/missions/{id}/accept")
+    @ResponseBody
+    public ResponseEntity<?> acceptMission(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+            
+            String interpreterIdStr = body.get("interpreterId");
+            if (interpreterIdStr == null || interpreterIdStr.isBlank()) {
+                return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
+            }
+
+            Mission mission = missionService.getMissionById(id);
+            Interpreter interpreter = interpreterService.getInterpreterById(Integer.parseInt(interpreterIdStr));
+
+            Set<Interpreter> interpreters = new HashSet<>();
+            interpreters.add(interpreter);
+            mission.setInterpreters(interpreters);
+
+            missionService.acceptRequest(mission);
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     @GetMapping("/horaire/events")
     @ResponseBody
