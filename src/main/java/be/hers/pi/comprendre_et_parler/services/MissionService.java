@@ -27,6 +27,17 @@ public class MissionService {
     }
 
     /**
+     * Returns a mission according to the given id.
+     * @param id the id of the mission which we want
+     * @return a Mission matching the id
+     * @throws SQLException if the database could not be reached
+     * @throws ConnectionException  if the connection to the database could not be established
+     */
+    public Mission getMissionById(int id)  throws SQLException, ConnectionException{
+        Mission mission = SQLWrap.call(daoMission::find, id);
+        return mission;
+    }
+    /**
      * Returns a list of missions filtered according to the given filter.
      * @param filter the filter to apply, each criterion is optional (null means no filter)
      * @return a List of Mission matching the filter
