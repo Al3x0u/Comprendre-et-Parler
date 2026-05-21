@@ -954,20 +954,40 @@
                     const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
 
                     if (acceptBtn) {
-                        acceptBtn.addEventListener('click', function() {
+                        acceptBtn.addEventListener('click', async function () {
                             const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
-                            if(!selectedInterpreter){
-                                alert("Sélectionne un interprète");
+                            if (!selectedInterpreter) {
+                                alert('Sélectionne un interprète');
                                 return;
                             }
 
-                            // TODO BACKEND : accepter la mission
+                            const res = await fetch('/horaire/missions/' + event.id + '/accept', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ interpreterId: selectedInterpreter })
+                            });
+
+                            if (res.ok) {
+                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                                calendar.refetchEvents();
+                            } else {
+                                alert(await res.text());
+                            }
                         });
                     }
 
                     if (refuseBtn) {
-                        refuseBtn.addEventListener('click', function() {
-                            // TODO BACKEND : refuser la mission
+                        refuseBtn.addEventListener('click', async function () {
+                            const res = await fetch('/horaire/missions/' + event.id + '/refuse', {
+                                method: 'POST'
+                            });
+
+                            if (res.ok) {
+                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                                calendar.refetchEvents();
+                            } else {
+                                alert(await res.text());
+                            }
                         });
                     }
 
