@@ -34,17 +34,13 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     public void createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
-        City city = new City(form.getCityDesignation(), form.getPostalCode());
-        SQLWrap.callTransaction(new DAOCity()::create, city);
-
         Location location = new Location(
                 form.getLocationDesignation(),
-                city,
+                new City(form.getCityDesignation(), form.getPostalCode()),
                 form.getStreet(),
                 form.getStreetNumber(),
                 form.getBox() != null ? form.getBox() : 0
         );
-        SQLWrap.callTransaction(new DAOLocation()::create, location);
 
         String plainPassword = form.getPassword();
         String hashedPassword = new BCryptPasswordEncoder().encode(plainPassword);
