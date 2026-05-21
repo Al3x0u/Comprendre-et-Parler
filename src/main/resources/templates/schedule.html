@@ -304,7 +304,7 @@
                     <select id="managerPendingInterpreter" class="form-select w-auto">
                         <option value="">Sélectionner</option>
                         <option th:each="interpreter : ${interpreters}"
-                                th:value="${interpreter.firstName + ' ' + interpreter.lastName}"
+                                th:value="${interpreter.id}"
                                 th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
                         </option>
                     </select>
@@ -904,6 +904,10 @@
                     if (acceptBtn) {
                         acceptBtn.addEventListener('click', function() {
                             const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
+                            if(!selectedInterpreter){
+                                alert("Sélectionne un interprète");
+                                return;
+                            }
 
                             // TODO BACKEND : accepter la mission
                         });
