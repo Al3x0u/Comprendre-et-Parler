@@ -1,6 +1,8 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.AcademicSkillService;
+import be.hers.pi.comprendre_et_parler.services.JobSkillService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/gestion")
 public class ReferentialController {
+    private final AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final JobSkillService jobSkillService = new JobSkillService();
 
     /**
      * Display the referential management page
@@ -19,43 +23,77 @@ public class ReferentialController {
      */
     @GetMapping("")
     public String showGestion(Model model) {
-        model.addAttribute("academicSkills", getHardcodedAcademicSkills());
-        model.addAttribute("jobSkills", getHardcodedJobSkills());
-        model.addAttribute("statuts", getHardcodedStatuts());
+        try {
+            model.addAttribute("academicSkills", academicSkillService.findAll());
+            model.addAttribute("jobSkills", jobSkillService.findAll());
+            model.addAttribute("statuts", getHardcodedStatuts());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "gestion";
     }
 
     // ─── Compétences académiques ─────────────────────────────────────────────
     @PostMapping("/competences/academiques/ajouter")
     public String addAcademicSkill(@RequestParam String designation) {
+        try {
+            academicSkillService.createAcademicSkill(new AcademicSkill(designation));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/academiques/{id}/modifier")
     public String updateAcademicSkill(@PathVariable int id,
                                       @RequestParam String designation) {
+        try {
+            academicSkillService.updateAcademicSkill(id, new AcademicSkill(designation));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/academiques/{id}/supprimer")
     public String deleteAcademicSkill(@PathVariable int id) {
+        try {
+            academicSkillService.deleteAcademicSkill(new AcademicSkill(id, null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
     // ─── Compétences métier ──────────────────────────────────────────────────
     @PostMapping("/competences/metier/ajouter")
     public String addJobSkill(@RequestParam String designation) {
+        try {
+            jobSkillService.createJobSkill(new JobSkill(designation));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/metier/{id}/modifier")
     public String updateJobSkill(@PathVariable int id,
                                  @RequestParam String designation) {
+        try {
+            jobSkillService.updateJobSkill(id, new JobSkill(designation));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
     @PostMapping("/competences/metier/{id}/supprimer")
     public String deleteJobSkill(@PathVariable int id) {
+        try {
+            jobSkillService.deleteJobSkill(new JobSkill(id, null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
@@ -79,22 +117,6 @@ public class ReferentialController {
     }
 
     // ─── Données hardcodées temporaires ──────────────────────────────────────
-
-    private List<AcademicSkill> getHardcodedAcademicSkills() {
-        List<AcademicSkill> skills = new ArrayList<>();
-        skills.add(new AcademicSkill(1, "Mathématiques"));
-        skills.add(new AcademicSkill(2, "Informatique"));
-        skills.add(new AcademicSkill(3, "Langues"));
-        return skills;
-    }
-
-    private List<JobSkill> getHardcodedJobSkills() {
-        List<JobSkill> skills = new ArrayList<>();
-        skills.add(new JobSkill(1, "LSFB"));
-        skills.add(new JobSkill(2, "Interprétation médicale"));
-        skills.add(new JobSkill(3, "Transcription"));
-        return skills;
-    }
 
     private List<Status> getHardcodedStatuts() {
         List<Status> statuts = new ArrayList<>();
