@@ -1089,43 +1089,87 @@
         });
 
 
-        document.getElementById('sendDelayBtn').addEventListener('click', function() {
+        document.getElementById('sendDelayBtn').addEventListener('click', async function() {
             const minutes = document.getElementById('delayMinutes').value;
             const absent = document.getElementById('delayAbsent').checked;
 
-            const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
 
-            //TODO BACKEND
+            const res = await fetch('/horaire/missions/' + event.id + '/delay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ minutes, absent })
+            });
+
+            if (res.ok) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
+            } else {
+                alert(await res.text());
+            }
         });
 
         document.getElementById('sendMissionBtn').addEventListener('click',
-            function(){
-                const type = document.querySelector('input[name="missionType"]:checked').value;
-                const title = document.getElementById('missionTitle').value;
-                const startTime = document.getElementById('missionStartTime').value;
-                const endTime = document.getElementById('missionEndTime').value;
-                const location = document.getElementById('missionLocation').value;
-                const professor = document.getElementById('missionProfessor').value;
-                const interpreterId = document.getElementById('missionInterpreter').value;
-                const beneficiaryId = document.getElementById('missionBeneficiary').value;
-                const comment = document.getElementById('missionComment').value;
-                const missionModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal'));
+            async function(){
+                const payload = {
+                    type: document.querySelector('input[name="missionType"]:checked').value,
+                    title: document.getElementById('missionTitle').value,
+                    date: document.getElementById('missionDate').value,
+                    startTime: document.getElementById('missionStartTime').value,
+                    endTime: document.getElementById('missionEndTime').value,
+                    locationDesignation: document.getElementById('missionLocationDesignation').value,
+                    city: document.getElementById('missionCity').value,
+                    postalCode: document.getElementById('missionPostalCode').value,
+                    street: document.getElementById('missionStreet').value,
+                    streetNumber: document.getElementById('missionStreetNumber').value,
+                    box: document.getElementById('missionBox').value,
+                    professor: document.getElementById('missionProfessor').value,
+                    interpreterId: document.getElementById('missionInterpreter').value,
+                    beneficiaryId: document.getElementById('missionBeneficiary').value,
+                    comment: document.getElementById('missionComment').value
+                };
+                const res = await fetch('/horaire/missions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-                //TODO BACKEND
+                if (res.ok) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).hide();
+                    calendar.refetchEvents();
+                } else {
+                    alert(await res.text());
+                }
             });
 
-        document.getElementById('sendRequestBtn').addEventListener('click', function() {
-            const type = document.querySelector('input[name="requestType"]:checked').value;
-            const title = document.getElementById('requestTitle').value;
-            const date = document.getElementById('requestDate').value;
-            const startTime = document.getElementById('requestStartTime').value;
-            const endTime = document.getElementById('requestEndTime').value;
-            const location = document.getElementById('requestLocation').value;
-            const professor = document.getElementById('requestProfessor').value;
-            const comment = document.getElementById('requestComment').value;
-            const importance = document.querySelector('input[name="requestImportance"]:checked').value;
+        document.getElementById('sendRequestBtn').addEventListener('click', async  function() {
+            const payload = {
+                type: document.querySelector('input[name="requestType"]:checked').value,
+                title: document.getElementById('requestTitle').value,
+                date: document.getElementById('requestDate').value,
+                startTime: document.getElementById('requestStartTime').value,
+                endTime: document.getElementById('requestEndTime').value,
+                locationDesignation: document.getElementById('requestLocationDesignation').value,
+                city: document.getElementById('requestCity').value,
+                postalCode: document.getElementById('requestPostalCode').value,
+                street: document.getElementById('requestStreet').value,
+                streetNumber: document.getElementById('requestStreetNumber').value,
+                box: document.getElementById('requestBox').value,
+                professor: document.getElementById('requestProfessor').value,
+                comment: document.getElementById('requestComment').value,
+                importance: document.querySelector('input[name="requestImportance"]:checked').value
+            };
 
-            //TODO BACKEND
+            const res = await fetch('/horaire/requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).hide();
+                calendar.refetchEvents();
+            } else {
+                alert(await res.text());
+            }
         });
         calendar.render();
 
