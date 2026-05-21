@@ -13,7 +13,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,6 @@ public class InterpreterController {
 
     private final InterpreterService interpreterService = new InterpreterService();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-    private final DAOInterpreter daoInterpreter = new DAOInterpreter();
 
     @GetMapping("")
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
@@ -61,8 +59,7 @@ public class InterpreterController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            Interpreter interpreter = SQLWrap.call(
-                    (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
+            Interpreter interpreter = interpreterService.getOneInterpreters(id);
             if (interpreter == null) return "redirect:/interpretes";
 
             List<Beneficiary> beneficiaries = new ArrayList<>(
@@ -88,8 +85,7 @@ public class InterpreterController {
                                              Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            Interpreter interpreter = SQLWrap.call(
-                    (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
+            Interpreter interpreter = interpreterService.getOneInterpreters(id);
             if (interpreter == null) return "redirect:/interpretes";
 
             model.addAttribute("interprete", interpreter);

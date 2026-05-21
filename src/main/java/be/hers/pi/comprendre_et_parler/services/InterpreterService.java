@@ -152,7 +152,18 @@ public class InterpreterService {
      * @throws SQLException if any other database error occurs
      */
     public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
+        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+    }
+
+    /**
+     * @return one interpreter present in database
+     * @param id the id of the interpreter to find
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public Interpreter getOneInterpreters(int id) throws SQLException, ConnectionException {
+        return SQLWrap.call(
+                (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
     }
 
     /**
