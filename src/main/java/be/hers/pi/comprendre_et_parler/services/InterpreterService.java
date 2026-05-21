@@ -28,6 +28,10 @@ public class InterpreterService {
         this.missionService = new MissionService();
     }
 
+    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
+        Interpreter interpreter = SQLWrap.call(daoInterpreter::find,id);
+        return interpreter;
+    }
     /**
      * Creates a new interpreter in the system.
      * @throws AlreadyExistsException if the interpreter already exists in the database
