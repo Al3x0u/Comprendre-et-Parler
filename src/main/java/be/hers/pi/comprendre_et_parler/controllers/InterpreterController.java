@@ -21,9 +21,6 @@ public class InterpreterController {
 
     private final InterpreterService interpreterService = new InterpreterService();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-    private final DAOAcademicSkill daoAcademicSkill = new DAOAcademicSkill();
-    private final DAOJobSkill daoJobSkill = new DAOJobSkill();
-    private final DAOInterpreter daoInterpreter = new DAOInterpreter();
 
     @GetMapping("")
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
@@ -61,8 +58,7 @@ public class InterpreterController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            Interpreter interpreter = SQLWrap.call(
-                    (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
             List<Beneficiary> beneficiaries = new ArrayList<>(
@@ -73,8 +69,7 @@ public class InterpreterController {
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
-            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-            model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
+            sortSkills(model);
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes";
@@ -89,8 +84,7 @@ public class InterpreterController {
                                              Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            Interpreter interpreter = SQLWrap.call(
-                    (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
             model.addAttribute("interprete", interpreter);
@@ -122,16 +116,10 @@ public class InterpreterController {
 
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        try {
-            model.addAttribute("interpreterForm", new CreateInterpreterForm());
-            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-            model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
-            model.addAttribute("submitState", null);
-            return "interpreters/creation";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/interpretes";
-        }
+        sortSkills(model);
+        model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        model.addAttribute("submitState", null);
+        return "interpreters/creation";
     }
 
     @PostMapping("/creer")
@@ -140,61 +128,39 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
-                UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
-                model.addAttribute("credentials", credentials);
+                Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
+
+                model.addAttribute("newUser", interpreter);
                 model.addAttribute("submitState", "success");
-                model.addAttribute("interpreterToCreate", new CreateInterpreterForm());
+                model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "alreadyExist");
-                model.addAttribute("interpreterToCreate", interpreterForm);
+                model.addAttribute("submitState", "Cet utilisateur possède déjà un compte.");
             } catch (Exception e) {
                 e.printStackTrace();
-                model.addAttribute("submitState", "error");
-                model.addAttribute("interpreterToCreate", interpreterForm);
+                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                try {
-                    model.addAttribute("chosedJobSkill", new ArrayList<>());
-                    model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
-                    model.addAttribute("allJobSkills", new ArrayList<>(SQLWrap.call(daoJobSkill::findAll)));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
+                sortSkills(model);
                 return "interpreters/creation";
             }
         }
         return "redirect:" + returnUrl;
     }
 
-    @PostMapping("/creer/competences/metier/ajouter")
-    public String addJobSkill(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
-                              @ModelAttribute("existingSkillId") Integer skillId,
-                              Model model) {
+    /**
+     * Get all the skills from the database and sort them according to their compareTo()
+     * @param model The model to which the skills will be added
+     */
+    private void sortSkills(Model model) {
         try {
-            List<Integer> skillsId = interpreterForm.getJobSkillIds();
-            if (skillsId == null) skillsId = new ArrayList<>();
-            skillsId.add(skillId);
-            List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(daoJobSkill::findAll));
-            List<String> skillsString = new ArrayList<>();
-            for (JobSkill j : allJobSkills) {
-                if (skillsId.contains(j.getId()))
-                    skillsString.add(j.getDesignation());
-            }
-            for (Integer skill : skillsId)
-                allJobSkills.removeIf(j -> j.getId() == skill);
+            List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
+            allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
+            List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
+            allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
 
-            interpreterForm.setJobSkillIds(skillsId);
-            model.addAttribute("interpreterForm", interpreterForm);
-            model.addAttribute("chosedJobSkill", skillsString);
-            model.addAttribute("allAcademicSkills", new ArrayList<>(SQLWrap.call(daoAcademicSkill::findAll)));
+            model.addAttribute("allAcademicSkills", allAcademicSkills);
             model.addAttribute("allJobSkills", allJobSkills);
-            model.addAttribute("submitState", null);
-
-            return "interpreters/creation";
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            return "redirect:/interpretes";
         }
     }
 
