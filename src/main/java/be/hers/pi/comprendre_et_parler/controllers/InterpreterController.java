@@ -133,8 +133,8 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                //Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-                Interpreter interpreter = new Interpreter("i260004", "Toto", "Test", LocalDate.now(), "1234", "gtrre@fre.fezf", null, 4, 50, null, null, null, null, null);
+                Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
+
                 model.addAttribute("newUser", interpreter);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
