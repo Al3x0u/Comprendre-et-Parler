@@ -22,14 +22,19 @@
                            class="btn btn-light btn-lg text-primary fw-semibold me-2 mb-1">
                             <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
                         </a>
-                        <a th:if="${isManager == true and isInterpreterAManager == false}" class="btn btn-light btn-lg text-warning fw-semibold mb-1"
-                            data-bs-toggle="modal" data-bs-target="#modalPromote">
-                                <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        <a th:if="${isManager == true and isInterpreterAManager == false}"
+                           class="btn btn-light btn-lg text-warning fw-semibold mb-1 me-2"
+                           data-bs-toggle="modal" data-bs-target="#modalPromote">
+                            <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
                         </a>
                         <a th:if="${isManager == true and isInterpreterAManager == true and interprete.id != session.user.id}"
-                           class="btn btn-light btn-lg text-danger fw-semibold mb-1"
+                           class="btn btn-light btn-lg text-danger fw-semibold mb-1 me-2"
                            data-bs-toggle="modal" data-bs-target="#modalDemote">
                             <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
+                        </a>
+                        <a th:if="${isManager and interprete.id != session.user.id}" class="btn btn-light btn-lg text-danger fw-semibold mb-1"
+                           data-bs-toggle="modal" data-bs-target="#modalDisable">
+                            <i class="bi bi-power me-2"></i>Désactiver
                         </a>
                     </div>
                 </div>
@@ -529,6 +534,7 @@
     </script>
 
     <div th:replace="~{common/modal-delete :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
+    <div th:replace="~{common/modal-disable :: modal-disable}"></div>
 </div>
 
 
