@@ -672,7 +672,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     * Update interpreter's academic skills in database
+     * Update interpreter's job skills in database
      * @param interpreter the interpreter
      * @param skillsInDB the skills as they are in DB
      * @throws SQLException if a database exception occurs
