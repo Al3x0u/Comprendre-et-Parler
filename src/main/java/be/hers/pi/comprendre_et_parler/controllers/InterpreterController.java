@@ -31,11 +31,11 @@ public class InterpreterController {
                                       Model model) {
         try {
             List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
-            List<Interpreter> filtered = filterInterpreters(allInterpreters, keyword);
+            List<Interpreter> filtered = PaginationUtils.filter(allInterpreters, keyword);
             int total = filtered.size();
-            int totalPages = calculateTotalPages(total, 10);
+            int totalPages = PaginationUtils.calculateTotalPages(total, 10);
             page = Math.max(1, Math.min(page, totalPages));
-            List<Interpreter> page_ = getInterpretersForPage(filtered, page, 10);
+            List<Interpreter> page_ = PaginationUtils.getPage(filtered, page, 10);
             int startItem = total > 0 ? (page - 1) * 10 + 1 : 0;
             int endItem = total > 0 ? startItem + page_.size() - 1 : 0;
 
@@ -196,42 +196,5 @@ public class InterpreterController {
             e.printStackTrace();
             return "redirect:/interpretes";
         }
-    }
-
-    private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
-        List<Interpreter> filteredInterpreters = new ArrayList<>();
-        String searchedText = keyword.trim().toLowerCase();
-
-        for (Interpreter interpreter : interpreters) {
-            String login = interpreter.getLogin().toLowerCase();
-            String firstName = interpreter.getFirstName().toLowerCase();
-            String lastName = interpreter.getLastName().toLowerCase();
-
-            boolean matchesLogin = login.contains(searchedText);
-            boolean matchesFirstName = firstName.contains(searchedText);
-            boolean matchesLastName = lastName.contains(searchedText);
-
-            if (searchedText.isEmpty() || matchesLogin || matchesFirstName || matchesLastName) {
-                filteredInterpreters.add(interpreter);
-            }
-        }
-        return filteredInterpreters;
-    }
-
-    private int calculateTotalPages(int totalItems, int itemsPerPage) {
-        if (totalItems == 0) return 1;
-        int totalPages = totalItems / itemsPerPage;
-        if (totalItems % itemsPerPage != 0) totalPages++;
-        return totalPages;
-    }
-
-    private List<Interpreter> getInterpretersForPage(List<Interpreter> interpreters, int page, int itemsPerPage) {
-        List<Interpreter> interpretersForPage = new ArrayList<>();
-        int startIndex = (page - 1) * itemsPerPage;
-        int endIndex = Math.min(startIndex + itemsPerPage, interpreters.size());
-        for (int i = startIndex; i < endIndex; i++) {
-            interpretersForPage.add(interpreters.get(i));
-        }
-        return interpretersForPage;
     }
 }

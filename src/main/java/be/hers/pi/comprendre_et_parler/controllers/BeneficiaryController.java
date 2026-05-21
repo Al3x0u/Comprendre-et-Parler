@@ -31,6 +31,14 @@ public class BeneficiaryController {
         this.statusService = statusService;
     }
 
+    /**
+     * Display the paginated and filtered list of beneficiaries.
+     * @param page the page number to display, defaults to 1
+     * @param keyword the search keyword to filter by login, firstName or lastName, defaults to empty
+     * @param error optional error parameter, triggers an error message if set to hasMissions
+     * @param model the Spring model to populate
+     * @return the beneficiaries list view, or a redirect to the list on error
+     */
     @GetMapping("")
     public String showBeneficiaryList(@RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "") String keyword,
@@ -66,6 +74,14 @@ public class BeneficiaryController {
         return "beneficiaries/list";
     }
 
+    /**
+     * Display the profile of a beneficiary.
+     * @param id the id of the beneficiary to display
+     * @param referer the URL of the referring page, used for the back button
+     * @param session the current HTTP session, used to retrieve the connected user
+     * @param model the Spring model to populate
+     * @return the beneficiary profile view, or a redirect to the list if not found
+     */
     @GetMapping("/profil/{id}")
     public String showBeneficiaryProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
@@ -90,6 +106,13 @@ public class BeneficiaryController {
         return "beneficiaries/profile";
     }
 
+    /**
+     * Display the edit form for a beneficiary's profile.
+     * @param id the id of the beneficiary to edit
+     * @param referer the URL of the referring page, used for the cancel button
+     * @param model the Spring model to populate
+     * @return the edit profile view, or a redirect to the list if not found
+     */
     @GetMapping("/profil/{id}/modifier")
     public String showEditBeneficiaryProfile(@PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
@@ -109,6 +132,11 @@ public class BeneficiaryController {
         return "beneficiaries/edit-profile";
     }
 
+    /**
+     * Display the creation form for a new beneficiary.
+     * @param model the Spring model to populate
+     * @return the creation view, or a redirect to the list on error
+     */
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         try {
@@ -125,6 +153,12 @@ public class BeneficiaryController {
         }
     }
 
+    /**
+     * Handle the submission of the beneficiary creation form.
+     * @param form the form containing the new beneficiary's information
+     * @param model the Spring model to populate
+     * @return the creation view with credentials on success, or a redirect on error
+     */
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
         try {
@@ -142,12 +176,24 @@ public class BeneficiaryController {
         }
     }
 
+    /**
+     * Populate the model with the data needed for the beneficiary creation form.
+     * @param model the Spring model to populate
+     * @throws SQLException if any database error occurs
+     * @throws ConnectionException if the database could not be reached
+     * @post the model contains a blank CreateBeneficiaryForm, all statuses and all interpreters
+     */
     private void populateCreationModel(Model model) throws SQLException, ConnectionException {
         model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
         model.addAttribute("allStatuses", statusService.getAllStatus());
         model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
     }
 
+    /**
+     * Handle the deletion of a beneficiary.
+     * @param id the id of the beneficiary to delete
+     * @return a redirect to the list, with an error parameter if the beneficiary has active missions
+     */
     @PostMapping("/{id}/supprimer")
     public String deleteBeneficiary(@PathVariable int id){
         try {
@@ -160,6 +206,12 @@ public class BeneficiaryController {
         return "redirect:/beneficiaires";
     }
 
+    /**
+     * Handle the submission of the beneficiary profile edit form.
+     * @param id the id of the beneficiary to update
+     * @param form the form containing the updated information
+     * @return a redirect to the beneficiary's profile on success, or to the list on error
+     */
     @PostMapping("/profil/{id}/modifier")
     public String updateBeneficiary(@PathVariable int id, @ModelAttribute UpdateBeneficiaryForm form){
         try{

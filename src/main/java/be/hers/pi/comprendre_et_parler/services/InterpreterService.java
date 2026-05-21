@@ -136,11 +136,11 @@ public class InterpreterService {
         SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, unavailability, interpreter);
     }
 
-    /***
-     *
-     * @return
-     * @throws SQLException
-     * @throws ConnectionException
+    /**
+     * Retrieve all Interpreters from the database.
+     * @return a list of all Interpreters
+     * @throws SQLException if any database error occurs
+     * @throws ConnectionException if the database could not be reached
      */
     public List<Interpreter> getAllInterpreters()throws SQLException, ConnectionException {
         return new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
@@ -177,8 +177,6 @@ public class InterpreterService {
         if (!(timeSlot instanceof PunctualTimeSlot)){
             throw new IllegalArgumentException("getAvailableInterpreters requiert un PunctualTimeSlot");
         }
-
-
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
 
         Set<Interpreter> candidates = SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate().toLocalTime(), slot.getEndDate().toLocalTime(), slot.getStartDate().toLocalDate());
@@ -189,7 +187,6 @@ public class InterpreterService {
                 available.add(interpreter);
             }
         }
-
         return available;
     }
 

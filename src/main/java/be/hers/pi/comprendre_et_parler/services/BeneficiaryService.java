@@ -70,25 +70,32 @@ public class BeneficiaryService {
         return new ArrayList<>(SQLWrap.call(new DAOBeneficiary()::findAll));
     }
 
+    /**
+     * Calculate the age of a person based on their birthdate.
+     * @param birthdate the birthdate of the person, must not be null
+     * @return the age in years
+     */
     public int calculateAge(LocalDate birthdate){
         return Period.between(birthdate, LocalDate.now()).getYears();
     }
 
-    /***
-     *
-     * @param id
-     * @throws SQLException if any other database error occurs
-     * @return
+    /**
+     * Retrieve a Beneficiary from the database by its id.
+     * @param id the id of the Beneficiary to retrieve
+     * @return the Beneficiary with the given id, or null if none was found
+     * @throws SQLException if any database error occurs
      */
     public Beneficiary getBeneficiary(int id)throws SQLException{
         return SQLWrap.call(
                 (FunctionWithSQLException<Integer, Beneficiary>) daoBeneficiary::find, id);
     }
 
-    /***
-     *
-     * @param id
-     * @throws SQLException
+    /**
+     * Delete a Beneficiary from the database by its id.
+     * @param id the id of the Beneficiary to delete
+     * @throws IllegalArgumentException if the Beneficiary has active missions
+     * @throws SQLException if any database error occurs
+     * @post the Beneficiary has been soft-deleted from the database
      */
     public void deleteBeneficiary(int id) throws SQLException, IllegalArgumentException{
         if(new DAOMission().hasMissions(id)){
@@ -97,6 +104,13 @@ public class BeneficiaryService {
         SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOBeneficiary()::delete, id);
     }
 
+    /**
+     * Update the personal information of a Beneficiary in the database.
+     * @param id the id of the Beneficiary to update
+     * @param beneficiaryForm the form containing the updated information, must not be null
+     * @throws SQLException if any database error occurs
+     * @post the Beneficiary's personal information has been updated in the database
+     */
     public void updateBeneficiary(int id, UpdateBeneficiaryForm beneficiaryForm)throws SQLException{
         Beneficiary beneficiary = getBeneficiary(id);
         beneficiary.setFirstName(beneficiaryForm.getFirstName());
