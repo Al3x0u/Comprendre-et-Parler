@@ -352,6 +352,29 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
+     * Counts interpreters
+     * @return the number of interpreters in database
+     * @throws SQLException if a database exception occurs
+     */
+    public int count() throws SQLException {
+        String query = "SELECT COUNT(*) AS cnt FROM " + TABLE;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            if (result.next()) {
+                return result.getInt("cnt");
+            }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return 0;
+    }
+
+    /**
      * Check if a time slot is already registered as an interpreter's availability in DB
      * @param interpreter the Interpreter
      * @param slot the BaseTimeSlot
