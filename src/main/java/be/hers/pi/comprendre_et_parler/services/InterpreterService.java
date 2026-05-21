@@ -161,7 +161,7 @@ public class InterpreterService {
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
-    public Interpreter getOneInterpreters(int id) throws SQLException, ConnectionException {
+    public Interpreter getOneInterpreter(int id) throws SQLException, ConnectionException {
         return SQLWrap.call(
                 (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
     }

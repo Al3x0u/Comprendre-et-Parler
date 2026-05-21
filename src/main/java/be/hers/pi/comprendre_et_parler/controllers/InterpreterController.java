@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -59,7 +58,7 @@ public class InterpreterController {
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            Interpreter interpreter = interpreterService.getOneInterpreters(id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
             List<Beneficiary> beneficiaries = new ArrayList<>(
@@ -85,7 +84,7 @@ public class InterpreterController {
                                              Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            Interpreter interpreter = interpreterService.getOneInterpreters(id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
             model.addAttribute("interprete", interpreter);
