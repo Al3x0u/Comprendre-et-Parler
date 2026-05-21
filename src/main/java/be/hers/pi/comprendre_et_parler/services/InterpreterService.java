@@ -28,6 +28,10 @@ public class InterpreterService {
         this.missionService = new MissionService();
     }
 
+    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
+        Interpreter interpreter = SQLWrap.call(daoInterpreter::find,id);
+        return interpreter;
+    }
     /**
      * Returns an interpreter according to the given id.
      * @param id the id of the interpreter which we want
