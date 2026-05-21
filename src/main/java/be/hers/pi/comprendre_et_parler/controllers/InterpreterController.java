@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,14 +133,11 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
-                throw new ConnectionException("test");
-                /**
-                UserCredentials credentials = new UserCredentials("new login", "new password", "new url", "new email");
-                model.addAttribute("credentials", credentials);
+                //Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
+                Interpreter interpreter = new Interpreter("i260004", "Toto", "Test", LocalDate.now(), "1234", "gtrre@fre.fezf", null, 4, 50, null, null, null, null, null);
+                model.addAttribute("newUser", interpreter);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
-                 */
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "Cet utilisateur possède déjà un compte.");
             } catch (Exception e) {

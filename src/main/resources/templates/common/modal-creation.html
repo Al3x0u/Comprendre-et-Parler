@@ -10,7 +10,7 @@
                     <h3 class="modal-title"><i class="bi bi-check-circle me-2"></i>Utilisateur créé avec succès</h3>
                 </div>
                 <div class="modal-body p-3">
-                    <h4>L'utilisateur <span th:text="${credentials.login}"></span> a été créé avec succès !</h4>
+                    <h4>L'utilisateur <span th:text="${newUser.firstName}"></span> a été créé avec le login <span th:text="${newUser.login}"></span> !</h4>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
