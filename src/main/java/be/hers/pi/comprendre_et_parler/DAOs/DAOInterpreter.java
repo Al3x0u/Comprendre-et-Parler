@@ -646,9 +646,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     * Unlink an Interpreter from an AcademicSkill in DB
-     * @param interpreter the interpreter for whom to remove an AcademicSkill
-     * @param skill the AcademicSkill to remove
+     * Unlink an Interpreter from a JobSkill in DB
+     * @param interpreter the interpreter for whom to remove a JobSkill
+     * @param skill the JobSkill to remove
      * @throws NoSuchElementException if the link does not exist in DB
      * @throws SQLException if a database error occurs
      */
