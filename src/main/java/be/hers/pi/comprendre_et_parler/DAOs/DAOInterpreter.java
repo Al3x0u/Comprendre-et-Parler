@@ -103,8 +103,11 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void create(Interpreter objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("The interpreter already exists in the database");
+        }
 
         int locationRef = -1;
         try {
