@@ -15,6 +15,8 @@ import tools.jackson.databind.ObjectMapper;
 
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Controller
@@ -65,6 +67,89 @@ public class ScheduleController {
         }
         return "schedule";
     }
+
+    @PostMapping("/horairerequests")
+    @ResponseBody
+    public ResponseEntity<String> createRequest(
+            @RequestBody Map<String, String> payload,
+            HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Beneficiary beneficiary)) {
+                return ResponseEntity.status(403).body("Accès refusé.");
+            }
+
+            String title = payload.get("title");
+            String type = payload.get("type");
+            String date = payload.get("date");
+            String startTime = payload.get("startTime");
+            String endTime = payload.get("endTime");
+            String locationDesignation = payload.get("locationDesignation");
+            String cityName = payload.get("city");
+            int postalCode = 0;
+            try{
+               postalCode =  Integer.parseInt(payload.get("postalCode"));
+            }catch(Exception e){
+                postalCode = 0;
+            }
+            String street = payload.get("street");
+            String streetNumber = payload.get("streetNumber");
+            int box = 0;
+            try{
+                box = Integer.parseInt(payload.get("box"));
+            }catch(Exception e){
+                box = 0;
+            }
+
+            String professor = payload.get("professor");
+            String comment = payload.get("comment");
+            String importanceRaw = payload.get("importance");
+
+            if (title == null || title.isBlank() || date == null || startTime == null || endTime == null || cityName == null || cityName.isBlank() ||  street == null || street.isBlank()) {
+                return ResponseEntity.badRequest().body("Champs requis manquants.");
+            }
+
+            int importance = 0;
+            if (importanceRaw != null && !importanceRaw.isBlank()) {
+                importance = Integer.parseInt(importanceRaw);
+            } else {
+                importance = 0;
+            }
+
+            LocalDate localDate = LocalDate.parse(date);
+            LocalTime start = LocalTime.parse(startTime);
+            LocalTime end = LocalTime.parse(endTime);
+
+            if (!end.isAfter(start)) {
+                return ResponseEntity.badRequest().body("L'heure de fin doit être après l'heure de début.");
+            }
+
+            City city = new City(cityName, postalCode);
+            Location location = new Location(locationDesignation, city, street, streetNumber, box);
+
+            PunctualTimeSlot slot = new PunctualTimeSlot(
+                    LocalDateTime.of(localDate, start),
+                    LocalDateTime.of(localDate, end)
+            );
+
+            Mission mission = new Mission();
+            mission.setSubject(title);
+            mission.setCommentary(comment);
+            mission.setTimeSlot(slot);
+            mission.setLocation(location);
+            mission.setRoom(professor);
+            mission.setImportance(importance);
+            mission.setBeneficiary(beneficiary);
+            mission.setInterpreters(Set.of());
+
+            missionService.createRequest(mission);
+
+            return ResponseEntity.ok("Demande créée.");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Erreur lors de la création de la demande : " + e.getMessage());
+        }
+    }
+
     @PostMapping("/horaire/missions/{id}/accept")
     @ResponseBody
     public ResponseEntity<?> acceptMission(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
