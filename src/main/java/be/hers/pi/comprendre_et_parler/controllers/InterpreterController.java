@@ -136,11 +136,9 @@ public class InterpreterController {
         if (returnUrl == null) {
             try {
                 // TODO: UserCredentials credentials = interpreterService.createInterpreter(interpreterForm);
-                System.out.println(interpreterForm.getJobSkillIds());
-                System.out.println(interpreterForm.getAcademicSkillIds());
                 throw new ConnectionException("test");
                 /**
-                UserCredentials credentials = new UserCredentials("new login", "new password", "new url");
+                UserCredentials credentials = new UserCredentials("new login", "new password", "new url", "new email");
                 model.addAttribute("credentials", credentials);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
