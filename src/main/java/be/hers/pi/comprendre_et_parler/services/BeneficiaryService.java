@@ -22,6 +22,20 @@ public class BeneficiaryService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**
+     * Returns an beneficiary according to the given id.
+     * @param id the id of the beneficiary which we want
+     * @return a beneficiary matching the id
+     * @throws SQLException if the database could not be reached
+     * @throws ConnectionException  if the connection to the database could not be established
+     */
+    public Beneficiary getBeneficiaryById(int id) throws ConnectionException, SQLException{
+        Beneficiary beneficiary = SQLWrap.call(
+                (Integer i) -> daoBeneficiary.find(i),
+                id
+        );
+        return beneficiary;
+    }
+    /**
      * Create a new Beneficiary in the database with a hashed password.
      * @param form the form containing the beneficiary's information entered by the manager, must not be null.
      *             Its password field must contain the plain text password — it will be hashed before insertion.
