@@ -156,11 +156,6 @@ public class ScheduleController {
                 event.put("beneficiary", "");
             }
 
-            if (mission.getStateOfMission() != null) {
-                event.put("status", mission.getStateOfMission().toString());
-            } else {
-                event.put("status", "");
-            }
 
             if (mission.getCommentary() != null) {
                 event.put("comment", mission.getCommentary());
@@ -175,10 +170,23 @@ public class ScheduleController {
             }
 
             event.put("importance", String.valueOf(mission.getImportance()));
+            event.put("status", getDisplayStatus(mission.getStateOfMission()));
             events.add(event);
         }
 
         return events;
+    }
+    private String getDisplayStatus(MissionState state) {
+        if (state == null) {
+            return "";
+        }
+        return switch (state) {
+            case ACCEPTED -> "Accepte";
+            case PENDING -> "En attente";
+            case DENIED -> "Refuse";
+            case CANCELED -> "Refuse";
+            default -> "";
+        };
     }
 
     private String getColor(MissionState state) {
