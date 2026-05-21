@@ -146,6 +146,7 @@ public class InterpreterController {
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterToCreate", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
+                e.printStackTrace();
                 model.addAttribute("submitState", "alreadyExist");
                 model.addAttribute("interpreterToCreate", interpreterForm);
             } catch (Exception e) {
