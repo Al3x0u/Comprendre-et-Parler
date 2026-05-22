@@ -79,8 +79,11 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void create(Beneficiary objectToInsert) throws AlreadyExistsException, SQLException {
-        if (find(objectToInsert.getLogin()) != null)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("Object already exists in database");
+        }
 
         String query = String.format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

@@ -134,7 +134,9 @@ public class InterpreterController {
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "Cet utilisateur possède déjà un compte.");
+                e.printStackTrace();
+                model.addAttribute("submitState", "alreadyExist");
+                model.addAttribute("interpreterToCreate", interpreterForm);
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
