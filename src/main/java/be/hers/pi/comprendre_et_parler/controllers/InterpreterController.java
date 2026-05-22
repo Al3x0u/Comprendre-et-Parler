@@ -163,7 +163,7 @@ public class InterpreterController {
     }
 
     /**
-     * Handle the submission of the interpreter  creation form.
+     * Handle the submission of the interpreter creation form.
      * @param interpreterForm the form containing the new interpreter's information
      * @param returnUrl the URL of the page the user wants to go to
      * @param model the Spring model to populate
@@ -175,8 +175,8 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                //Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-                UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), "i26", interpreterForm.getPassword(), interpreterForm.getEmail());
+                Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
+                UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), interpreter.getLogin(), interpreterForm.getPassword(), interpreterForm.getEmail());
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
@@ -193,11 +193,14 @@ public class InterpreterController {
         return "redirect:" + returnUrl;
     }
 
+    /**
+     * Email the new interpreter
+     * @param user the new interpreter's information
+     * @return redirect to the creation form
+     */
     @PostMapping("/creer/notifier")
     public String sendMailCreation(@ModelAttribute("newUser") UserCredentials user) {
-        System.out.println(user.getFirstName() + " " + user.getLogin() + " " + user.getPassword() + " " + user.getEmail());
         new NotificationService().sendUserCredentials(user);
-
         return "redirect:/interpretes/creer";
     }
 

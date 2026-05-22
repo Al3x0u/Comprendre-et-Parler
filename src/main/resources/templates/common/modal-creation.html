@@ -7,13 +7,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <form th:action="@{/interpretes/creer/notifier}" th:object="${newUser}"
                   method="post" class="modal-content border-0 rounded-4">
+                <input type="hidden" th:field="*{password}">
+                <input type="hidden" th:field="*{firstName}">
+                <input type="hidden" th:field="*{email}">
+                <input type="hidden" th:field="*{login}">
                 <div class="modal-header text-bg-success rounded-top-4">
                     <h3 class="modal-title"><i class="bi bi-check-circle me-2"></i>Utilisateur créé avec succès</h3>
                 </div>
                 <div class="modal-body p-3">
-                    <input hidden="" th:field="*{password}">
-                    <h4>L'utilisateur <input readonly th:field="*{firstName}"></input> a été créé avec le login <input readonly th:field="*{login}"></input> !</h4>
-                    <h5>Un mail va être envoyé à l'adresse <input readonly th:field="*{email}"></input></h5>
+                    <h4>L'utilisateur <span th:text="*{firstName}"></span> a été créé avec le login <span th:text="*{login}"></span> !</h4>
+                    <h5>Un mail va être envoyé à l'adresse <span th:text="*{email}"></span></h5>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler l'envoi</button>
