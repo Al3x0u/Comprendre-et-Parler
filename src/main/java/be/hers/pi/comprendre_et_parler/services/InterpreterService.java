@@ -235,4 +235,16 @@ public class InterpreterService {
         }
         return false;
     }
+
+
+    /**
+     * Retrieve a Beneficiary from the database by its id.
+     * @param interpreterId the id of the Beneficiary to retrieve
+     * @return the Beneficiary with the given id, or null if none was found
+     * @throws SQLException if any database error occurs
+     */
+    public Interpreter getInterpreter(int interpreterId)throws SQLException{
+        return SQLWrap.call(
+                (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, interpreterId);
+    }
 }

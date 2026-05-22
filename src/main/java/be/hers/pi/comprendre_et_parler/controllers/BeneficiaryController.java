@@ -97,6 +97,7 @@ public class BeneficiaryController {
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("interpreters", interpreterService.getAllInterpreters());
             model.addAttribute("age", beneficiaryService.calculateAge(beneficiary.getBirthDate()));
+            model.addAttribute("allStatuses", statusService.getAllStatus());
         } catch (SQLException e) {
             return "redirect:/beneficiaires";
         }catch (ConnectionException e){
@@ -222,4 +223,23 @@ public class BeneficiaryController {
         return "redirect:/beneficiaires/profil/"+ id;
     }
 
+    @PostMapping("/profil/{id}/modifier-interprete")
+    public String updateInterpreterRef(@PathVariable int id, @RequestParam int interpreterRefId){
+        try{
+            beneficiaryService.updateInterpreterRef(id, interpreterRefId);
+        } catch (SQLException e) {
+            return "redirect:/beneficiaires";
+        }
+        return "redirect:/beneficiaires/profil/" + id;
+    }
+
+    @PostMapping("/profil/{id}/modifier-statut")
+    public String updateStatus(@PathVariable int id, @RequestParam int statusId){
+        try{
+            beneficiaryService.updateStatus(id, statusId);
+        } catch (SQLException e) {
+            return "redirect:/beneficiaires";
+        }
+        return "redirect:/beneficiaires/profil/" + id;
+    }
 }

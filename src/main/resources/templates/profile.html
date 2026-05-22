@@ -80,6 +80,8 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
+            console.log('form:', document.getElementById('form-interpreter'));
+            document.getElementById('form-interpreter').submit();
             btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
             btn.classList.remove('editing', 'btn-outline-success');
             btn.classList.add('btn-outline-primary');
@@ -104,6 +106,7 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
+            document.getElementById('form-status').submit();
             btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
             btn.classList.remove('editing', 'btn-outline-success');
             btn.classList.add('btn-outline-primary');

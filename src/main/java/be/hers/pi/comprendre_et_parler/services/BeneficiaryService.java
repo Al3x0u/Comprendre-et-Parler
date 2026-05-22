@@ -19,6 +19,13 @@ public class BeneficiaryService {
 
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private InterpreterService interpreterService;
+    private StatusService statusService;
+
+    public BeneficiaryService(InterpreterService interpreterService, StatusService statusService){
+        this.interpreterService = interpreterService;
+        this.statusService = statusService;
+    }
 
     /**
      * Create a new Beneficiary in the database with a hashed password.
@@ -118,6 +125,32 @@ public class BeneficiaryService {
         beneficiary.setEmail(beneficiaryForm.getEmail());
         beneficiary.setBirthDate(beneficiaryForm.getBirthDate());
         beneficiary.setPhoneNumber(beneficiaryForm.getPhoneNumber());
-        daoBeneficiary.update(beneficiary);
+        SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
+    }
+
+    /***
+     *
+     * @param beneficiaryId
+     * @param interpreterId
+     * @throws SQLException
+     */
+    public void updateInterpreterRef(int beneficiaryId, int interpreterId)throws SQLException{
+        Beneficiary beneficiary = getBeneficiary(beneficiaryId);
+        Interpreter interpreterRef = interpreterService.getInterpreter(interpreterId);
+        beneficiary.setInterpreterRef(interpreterRef);
+        SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
+    }
+
+    /***
+     *
+     * @param beneficiaryId
+     * @param statusId
+     * @throws SQLException
+     */
+    public void updateStatus(int beneficiaryId, int statusId)throws SQLException{
+        Beneficiary beneficiary = getBeneficiary(beneficiaryId);
+        Status benefStatus = statusService.getStatus(statusId);
+        beneficiary.setStatus(benefStatus);
+        SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
     }
 }
