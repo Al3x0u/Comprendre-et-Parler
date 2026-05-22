@@ -55,6 +55,31 @@
                 padding-right: 0.5rem;
             }
         }
+
+        /* ── TOAST ── */
+        .toast-custom {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 9999;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 0.9rem;
+            max-width: 320px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast-custom.toast-success { background: #40c057; }
+        .toast-custom.toast-error   { background: #fa5252; }
+        .toast-custom.toast-info    { background: #4dabf7; }
+        .toast-custom.toast-hide    { opacity: 0; }
+
+        /* ── Champ invalide : affiche le message d'erreur ── */
+        .is-invalid ~ .invalid-feedback { display: block; }
+
     </style>
 </head>
 <body>
@@ -355,12 +380,14 @@
                 <div class="mb-3">
                     <label for="requestTitle" class="form-label fw-semibold">Titre*</label>
                     <input type="text" class="form-control" id="requestTitle" placeholder="Entrez le titre">
+                    <div id="requestTitleError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-12">
                         <label for="requestDate" class="form-label fw-semibold">Date*</label>
                         <input type="date" class="form-control" id="requestDate">
+                        <div id="requestDateError" class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-6">
@@ -549,12 +576,15 @@
                 <div class="mb-3">
                     <label for="missionTitle" class="form-label fw-semibold">Titre*</label>
                     <input type="text" class="form-control" id="missionTitle" placeholder="Entrez le titre">
+                    <div id="missionTitleError" class="invalid-feedback"></div>
+
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-12">
                         <label for="missionDate" class="form-label fw-semibold">Date*</label>
                         <input type="date" class="form-control" id="missionDate">
+                        <div id="missionDateError" class="invalid-feedback"></div>
                     </div>
 
                     <div class="col-6">
@@ -682,6 +712,7 @@
                                 th:text="${beneficiary.firstName + ' ' + beneficiary.lastName}">
                         </option>
                     </select>
+                    <div id="missionBeneficiaryError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="mb-4">
@@ -795,6 +826,48 @@
             }
         };
     }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast-custom toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('toast-hide'), 3000);
+        setTimeout(() => toast.remove(), 3300);
+    }
+
+    function validateFields(rules) {
+        let isValid = true;
+        rules.forEach(({ id, errorId, msg }) => {
+            const field = document.getElementById(id);
+            const errorEl = document.getElementById(errorId);
+            if (!field || !field.value.trim()) {
+                if (field) field.classList.add('is-invalid');
+                if (errorEl) errorEl.textContent = msg;
+                isValid = false;
+            }
+        });
+        return isValid;
+    }
+
+    function clearFormErrors(fieldIds) {
+        fieldIds.forEach(id => {
+            const field = document.getElementById(id);
+            if (field) field.classList.remove('is-invalid');
+            const errorEl = document.getElementById(id + 'Error');
+            if (errorEl) errorEl.textContent = '';
+        });
+    }
+
+    // Efface les erreurs dès que l'utilisateur retouche un champ invalide
+    document.addEventListener('input', function (e) {
+        if (e.target.classList.contains('is-invalid')) {
+            e.target.classList.remove('is-invalid');
+            const errorEl = document.getElementById(e.target.id + 'Error');
+            if (errorEl) errorEl.textContent = '';
+        }
+    });
+    // ──────────────────────────────────────────
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -960,39 +1033,41 @@
                         acceptBtn.addEventListener('click', async function () {
                             const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
                             if (!selectedInterpreter) {
-                                alert('Sélectionne un interprète');
+                                showToast("Veuillez sélectionner un interprète.", 'error');
                                 return;
                             }
-
-                            const res = await fetch('/horaire/missions/' + event.id + '/accept', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ interpreterId: selectedInterpreter })
-                            });
-
-                            if (res.ok) {
+                            try {
+                                const res = await fetch('/horaire/missions/' + event.id + '/accept', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ interpreterId: selectedInterpreter })
+                                });
+                                if (!res.ok) throw new Error(await res.text());
                                 bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
                                 calendar.refetchEvents();
-                            } else {
-                                alert(await res.text());
+                                showToast("Mission acceptée.", 'success');
+                            } catch (err) {
+                                showToast("Erreur : " + err.message, 'error');
                             }
-                        });
+                        }, { once: true });
                     }
 
                     if (refuseBtn) {
                         refuseBtn.addEventListener('click', async function () {
-                            const res = await fetch('/horaire/missions/' + event.id + '/refuse', {
-                                method: 'POST'
-                            });
-
-                            if (res.ok) {
+                            try {
+                                const res = await fetch('/horaire/missions/' + event.id + '/refuse', {
+                                    method: 'POST'
+                                });
+                                if (!res.ok) throw new Error(await res.text());
                                 bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
                                 calendar.refetchEvents();
-                            } else {
-                                alert(await res.text());
+                                showToast("Mission refusée.", 'info');
+                            } catch (err) {
+                                showToast("Erreur : " + err.message, 'error');
                             }
-                        });
+                        }, { once: true });
                     }
+
 
 
 
@@ -1121,83 +1196,124 @@
             const minutes = document.getElementById('delayMinutes').value;
             const absent = document.getElementById('delayAbsent').checked;
 
-            const res = await fetch('/horaire/missions/' + currentMissionId + '/delay', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ minutes, absent })
-            });
-
-            if (res.ok) {
+            try {
+                const res = await fetch('/horaire/missions/' + currentMissionId + '/delay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ minutes, absent })
+                });
+                if (!res.ok) throw new Error(await res.text());
                 bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
-            } else {
-                alert(await res.text());
+                showToast("Retard signalé avec succès.", 'success');
+            } catch (err) {
+                showToast("Erreur : " + err.message, 'error');
             }
         });
 
-        document.getElementById('sendMissionBtn').addEventListener('click',
-            async function(){
-                const payload = {
-                    type: document.querySelector('input[name="missionType"]:checked').value,
-                    title: document.getElementById('missionTitle').value,
-                    date: document.getElementById('missionDate').value,
-                    startTime: document.getElementById('missionStartTime').value,
-                    endTime: document.getElementById('missionEndTime').value,
-                    locationDesignation: document.getElementById('missionLocationDesignation').value,
-                    city: document.getElementById('missionCity').value,
-                    postalCode: document.getElementById('missionPostalCode').value,
-                    street: document.getElementById('missionStreet').value,
-                    streetNumber: document.getElementById('missionStreetNumber').value,
-                    box: document.getElementById('missionBox').value,
-                    professor: document.getElementById('missionProfessor').value,
-                    interpreterId: document.getElementById('missionInterpreter').value,
-                    beneficiaryId: document.getElementById('missionBeneficiary').value,
-                    comment: document.getElementById('missionComment').value
-                };
+        document.getElementById('sendMissionBtn').addEventListener('click', async function () {
+            clearFormErrors(['missionTitle', 'missionDate', 'missionBeneficiary']);
+
+            const rules = [
+                { id: 'missionTitle',       errorId: 'missionTitleError',       msg: 'Le titre est requis.' },
+                { id: 'missionDate',        errorId: 'missionDateError',        msg: 'La date est requise.' },
+                { id: 'missionBeneficiary', errorId: 'missionBeneficiaryError', msg: 'Veuillez sélectionner un bénéficiaire.' },
+            ];
+            if (!validateFields(rules)) return;
+
+            const startTime = document.getElementById('missionStartTime').value;
+            const endTime   = document.getElementById('missionEndTime').value;
+            if (startTime >= endTime) {
+                showToast("L'heure de fin doit être après l'heure de début.", 'error');
+                return;
+            }
+
+            const payload = {
+                type:                document.querySelector('input[name="missionType"]:checked').value,
+                title:               document.getElementById('missionTitle').value,
+                date:                document.getElementById('missionDate').value,
+                startTime,
+                endTime,
+                locationDesignation: document.getElementById('missionLocationDesignation').value,
+                city:                document.getElementById('missionCity').value,
+                postalCode:          document.getElementById('missionPostalCode').value,
+                street:              document.getElementById('missionStreet').value,
+                streetNumber:        document.getElementById('missionStreetNumber').value,
+                box:                 document.getElementById('missionBox').value,
+                professor:           document.getElementById('missionProfessor').value,
+                interpreterId:       document.getElementById('missionInterpreter').value,
+                beneficiaryId:       document.getElementById('missionBeneficiary').value,
+                comment:             document.getElementById('missionComment').value
+            };
+
+            try {
                 const res = await fetch('/horaire/missions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
-                if (res.ok) {
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).hide();
-                    calendar.refetchEvents();
-                } else {
-                    alert(await res.text());
-                }
-            });
-
-        document.getElementById('sendRequestBtn').addEventListener('click', async  function() {
-            const payload = {
-                type: document.querySelector('input[name="requestType"]:checked').value,
-                title: document.getElementById('requestTitle').value,
-                date: document.getElementById('requestDate').value,
-                startTime: document.getElementById('requestStartTime').value,
-                endTime: document.getElementById('requestEndTime').value,
-                locationDesignation: document.getElementById('requestLocationDesignation').value,
-                city: document.getElementById('requestCity').value,
-                postalCode: document.getElementById('requestPostalCode').value,
-                street: document.getElementById('requestStreet').value,
-                streetNumber: document.getElementById('requestStreetNumber').value,
-                box: document.getElementById('requestBox').value,
-                professor: document.getElementById('requestProfessor').value,
-                comment: document.getElementById('requestComment').value,
-                importance: document.querySelector('input[name="requestImportance"]:checked').value
-            };
-
-            const res = await fetch('/horaire/requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (res.ok) {
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).hide();
+                if (!res.ok) throw new Error(await res.text());
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).hide();
                 calendar.refetchEvents();
-            } else {
-                alert(await res.text());
+                showToast("Mission créée avec succès.", 'success');
+            } catch (err) {
+                showToast("Erreur : " + err.message, 'error');
             }
         });
+
+
+
+        document.getElementById('sendRequestBtn').addEventListener('click', async function () {
+            // ── Réinitialise les erreurs précédentes
+            clearFormErrors(['requestTitle', 'requestDate']);
+
+            // ── Validation des champs obligatoires
+            const rules = [
+                { id: 'requestTitle', errorId: 'requestTitleError', msg: 'Le titre est requis.' },
+                { id: 'requestDate',  errorId: 'requestDateError',  msg: 'La date est requise.' },
+            ];
+            if (!validateFields(rules)) return;
+
+            // ── Validation cohérence heures
+            const startTime = document.getElementById('requestStartTime').value;
+            const endTime   = document.getElementById('requestEndTime').value;
+            if (startTime >= endTime) {
+                showToast("L'heure de fin doit être après l'heure de début.", 'error');
+                return;
+            }
+
+            const payload = {
+                type:                document.querySelector('input[name="requestType"]:checked').value,
+                title:               document.getElementById('requestTitle').value,
+                date:                document.getElementById('requestDate').value,
+                startTime,
+                endTime,
+                locationDesignation: document.getElementById('requestLocationDesignation').value,
+                city:                document.getElementById('requestCity').value,
+                postalCode:          document.getElementById('requestPostalCode').value,
+                street:              document.getElementById('requestStreet').value,
+                streetNumber:        document.getElementById('requestStreetNumber').value,
+                box:                 document.getElementById('requestBox').value,
+                professor:           document.getElementById('requestProfessor').value,
+                comment:             document.getElementById('requestComment').value,
+                importance:          document.querySelector('input[name="requestImportance"]:checked').value
+            };
+
+            try {
+                const res = await fetch('/horaire/requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error(await res.text());
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).hide();
+                calendar.refetchEvents();
+                showToast("Demande envoyée avec succès.", 'success');
+            } catch (err) {
+                showToast("Erreur : " + err.message, 'error');
+            }
+        });
+
+
         calendar.render();
 
         document.querySelectorAll('.filter-status').forEach(item => {
