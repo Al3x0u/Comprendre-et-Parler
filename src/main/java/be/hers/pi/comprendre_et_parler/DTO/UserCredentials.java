@@ -3,13 +3,12 @@ package be.hers.pi.comprendre_et_parler.DTO;
 public class UserCredentials {
     private final String login;
     private final String password;
-    private final String loginUrl;
+    private final String loginUrl = "/login";
     private final String email;
 
-    public UserCredentials(String login, String password, String loginUrl, String email) {
+    public UserCredentials(String login, String password, String email) {
         this.login = login;
         this.password = password;
-        this.loginUrl = loginUrl;
         this.email = email;
     }
 
