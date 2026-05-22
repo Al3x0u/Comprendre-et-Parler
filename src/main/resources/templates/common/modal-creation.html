@@ -11,6 +11,7 @@
                 </div>
                 <div class="modal-body p-3">
                     <h4>L'utilisateur <span th:text="${newUser.firstName}"></span> a été créé avec le login <span th:text="${newUser.login}"></span> !</h4>
+                    <h5>Un mail va être envoyé à l'adresse <span th:text="${newUser.email}"></span></h5>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
