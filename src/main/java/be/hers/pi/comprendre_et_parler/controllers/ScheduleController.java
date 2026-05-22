@@ -68,7 +68,13 @@ public class ScheduleController {
         return "schedule";
     }
 
-    @PostMapping("/horairerequests")
+    /**
+     * Create a new interpretation request from a beneficiary
+     * @param payload the request body containing mission details (title, date, times, location, etc.)
+     * @param session the current HTTP session
+     * @return 200 if created, 400 if missing fields or invalid times, 403 if not a beneficiary, 500 on error
+     */
+    @PostMapping("/horaire/requests")
     @ResponseBody
     public ResponseEntity<String> createRequest(@RequestBody Map<String, String> payload, HttpSession session) {
         try {
@@ -148,6 +154,13 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Accept a pending mission and assign an interpreter to it
+     * @param id the mission ID
+     * @param body the request body containing the interpreter ID
+     * @param session the current HTTP session
+     * @return 200 if accepted, 400 if no interpreter selected, 403 if not a manager, 500 on error
+     */
     @PostMapping("/horaire/missions/{id}/accept")
     @ResponseBody
     public ResponseEntity<?> acceptMission(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
@@ -175,9 +188,15 @@ public class ScheduleController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur serveur");
     }
 
+    /**
+     * Refuse a pending mission
+     * @param id the mission ID
+     * @param session the current HTTP session
+     * @return 200 if refused, 500 on error
+     */
     @PostMapping("/horaire/missions/{id}/refuse")
     @ResponseBody
     public ResponseEntity<?> refuseMission(@PathVariable int id, HttpSession session) {
@@ -191,10 +210,16 @@ public class ScheduleController {
         }catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur serveur");
 
     }
 
+    /**
+     * Create a new mission directly (manager only)
+     * @param body the request body containing mission details (title, date, times, location, interpreter, beneficiary, etc.)
+     * @param session the current HTTP session
+     * @return 200 if created, 403 if not a manager, 500 on error
+     */
     @PostMapping("/horaire/missions")
     @ResponseBody
     public ResponseEntity<?> createMission(@RequestBody Map<String, String> body, HttpSession session) {
@@ -214,6 +239,13 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Report a delay or absence for a mission
+     * @param id the mission ID
+     * @param body the request body containing delay minutes and absence flag
+     * @param session the current HTTP session
+     * @return 200 if reported, 403 if not an interpreter or beneficiary, 500 on error
+     */
     @PostMapping("/horaire/missions/{id}/delay")
     @ResponseBody
     public ResponseEntity<?> reportDelay(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
@@ -251,6 +283,14 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Fetch events for a given week with optional filters
+     * @param weekDate the start date of the week to fetch (optional, defaults to current week)
+     * @param status the status filter to apply (optional)
+     * @param interpreter the interpreter name filter to apply (optional)
+     * @param session the current HTTP session
+     * @return the filtered list of events, or 500 on error
+     */
     @GetMapping("/horaire/events")
     @ResponseBody
     public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) {
@@ -287,10 +327,16 @@ public class ScheduleController {
             e.printStackTrace();
         }
 
-        return null;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
 
     }
 
+    /**
+     * Convert a list of missions to a list of FullCalendar-compatible event maps
+     * @param missions the list of missions to convert
+     * @return the list of event maps with title, start, end, color, status, and other display fields
+     */
     private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions) {
 
         List<Map<String, String>> events = new ArrayList<>();
@@ -361,6 +407,12 @@ public class ScheduleController {
 
         return events;
     }
+
+    /**
+     * Get the display label for a mission state
+     * @param state the mission state
+     * @return the French label corresponding to the state
+     */
     private String getDisplayStatus(MissionState state) {
         if (state == null) {
             return "";
@@ -374,6 +426,11 @@ public class ScheduleController {
         };
     }
 
+    /**
+     * Get the hex color code for a mission state
+     * @param state the mission state
+     * @return the hex color string corresponding to the state
+     */
     private String getColor(MissionState state) {
         if (state == null) {
             return "#adb5bd";
@@ -387,6 +444,13 @@ public class ScheduleController {
         };
     }
 
+    /**
+     * Build a Mission object from a request body map
+     * @param body the request body map containing all mission fields
+     * @param withInterpreter whether to also assign an interpreter and beneficiary from the body
+     * @return the constructed Mission object
+     * @throws Exception if date/time parsing fails or a required field is missing
+     */
     private Mission buildMissionFromBody(Map<String, String> body, boolean withInterpreter) throws Exception {
         Mission mission = new Mission();
 
