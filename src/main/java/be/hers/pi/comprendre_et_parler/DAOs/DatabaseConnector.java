@@ -12,8 +12,8 @@ import java.sql.DriverManager;
 import java.util.Properties;
 
 public class DatabaseConnector {
-    static final String URL = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
-    static Connection connection = null;
+    private static final String URL = "jdbc:oracle:thin:@labinfo.hers.be:1521:xe";
+    private static Connection connection = null;
 
     private DatabaseConnector() {}
 
