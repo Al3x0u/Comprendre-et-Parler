@@ -150,7 +150,7 @@ public class ScheduleController {
 
             return ResponseEntity.ok("Demande créée.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erreur lors de la création de la demande : " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Erreur lors de la création de la demande. Veuillez réessayer.");
         }
     }
 
@@ -187,8 +187,8 @@ public class ScheduleController {
 
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation de la mission. Veuillez réessayer.");
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur serveur");
     }
 
     /**
@@ -209,8 +209,8 @@ public class ScheduleController {
 
         }catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors du refus de la mission. Veuillez réessayer.");
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur serveur");
 
     }
 
@@ -235,7 +235,7 @@ public class ScheduleController {
             return ResponseEntity.ok().build();
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la création de la mission. Veuillez réessayer.");
         }
     }
 
@@ -279,7 +279,7 @@ public class ScheduleController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur : " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors du signalement du retard. Veuillez réessayer.");
         }
     }
 
