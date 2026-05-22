@@ -746,15 +746,38 @@
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
 <script th:inline="javascript">
+
+    /** @type {Array<Object>} List of all events loaded from the server */
     const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
+
+    /**
+     * @typedef {Object} ActiveFilters
+     * @property {string|null} status      - Active filter by status (e.g. "Acceptée", "En attente")
+     * @property {string|null} interpreter - Active filter by interpreter name
+     */
+
+    /** @type {ActiveFilters} */
     const activeFilters = {
         status: null,
         interpreter: null
     };
 
+    /** @type {number|null} ID of the currently selected mission */
     let currentMissionId = null;
 
+    /** @type {boolean} Whether this is the first calendar load */
     let premierChargement = true;
+
+    /**
+     * Fetches calendar events from the REST API based on the current date range
+     * and active filters (status, interpreter).
+     *
+     * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
+     * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
+     * @param {Function} successCallback    - Callback to call with the fetched events
+     * @param {Function} failureCallback    - Callback to call on network error
+     * @returns {Promise<void>}
+     */
     async function fetchEvents(fetchInfo, successCallback, failureCallback) {
         const params = new URLSearchParams();
         params.append('weekDate', fetchInfo.startStr.substring(0, 10));
@@ -776,8 +799,13 @@
     }
 
 
+    /** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
     const userRole = /*[[${userRole}]]*/ 'MANAGER';
+
+    /** @type {number} ID of the logged-in user */
     const userId = /*[[${session.user.id}]]*/ 0;
+
+    /** @type {boolean} True if the screen width is less than 768px */
     const isMobile = window.innerWidth < 768;
 
     const customButtons = {
@@ -835,6 +863,14 @@
         };
     }
 
+    /**
+     * Displays a notification toast in the bottom-right corner of the screen,
+     * which disappears after 3 seconds.
+     *
+     * @param {string} message                             - Text to display in the toast
+     * @param {'success'|'error'|'info'} [type='success'] - Visual type of the toast
+     * @returns {void}
+     */
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
         toast.className = `toast-custom toast-${type}`;
@@ -844,6 +880,20 @@
         setTimeout(() => toast.remove(), 3300);
     }
 
+    /**
+     * @typedef {Object} ValidationRule
+     * @property {string} id      - ID of the form field to validate
+     * @property {string} errorId - ID of the element displaying the error message
+     * @property {string} msg     - Error message to display if the field is empty
+     */
+
+    /**
+     * Validates a list of form fields. Marks each empty field as invalid
+     * and displays the associated error message.
+     *
+     * @param {ValidationRule[]} rules - Array of validation rules
+     * @returns {boolean} `true` if all fields are valid, `false` otherwise
+     */
     function validateFields(rules) {
         let isValid = true;
         rules.forEach(({ id, errorId, msg }) => {
@@ -858,6 +908,13 @@
         return isValid;
     }
 
+    /**
+     * Clears validation errors from a list of form fields.
+     * Removes the `is-invalid` class and empties the associated error text.
+     *
+     * @param {string[]} fieldIds - Array of field IDs to clean up
+     * @returns {void}
+     */
     function clearFormErrors(fieldIds) {
         fieldIds.forEach(id => {
             const field = document.getElementById(id);
@@ -867,7 +924,6 @@
         });
     }
 
-    // Efface les erreurs dès que l'utilisateur retouche un champ invalide
     document.addEventListener('input', function (e) {
         if (e.target.classList.contains('is-invalid')) {
             e.target.classList.remove('is-invalid');
@@ -875,7 +931,6 @@
             if (errorEl) errorEl.textContent = '';
         }
     });
-    // ──────────────────────────────────────────
 
     document.addEventListener('DOMContentLoaded', function() {
         const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -894,6 +949,16 @@
             slotMinTime: '08:00:00',
             slotMaxTime: '22:00:00',
             expandRows: true,
+
+            /**
+             * Event loading function for FullCalendar.
+             * Uses pre-loaded data on the first render, then queries
+             * the API on each subsequent navigation.
+             *
+             * @param {Object}   fetchInfo       - Information about the requested date range
+             * @param {Function} successCallback - Callback called with the events
+             * @param {Function} failureCallback - Callback called on error
+             */
             events: function(fetchInfo, successCallback, failureCallback) {
                 if (premierChargement) {
                     premierChargement = false;
@@ -915,6 +980,16 @@
                 day: 'Jour',
                 today: isMobile ? 'Auj.' : "Aujourd'hui"
             },
+
+            /**
+             * Customizes the HTML rendering of a calendar event.
+             * Displays importance stars, title, time, type and room.
+             *
+             * @param {Object} arg          - Argument provided by FullCalendar
+             * @param {Object} arg.event    - FullCalendar event object
+             * @param {string} arg.timeText - Time text formatted by FullCalendar
+             * @returns {{ html: string }}  - Object containing the custom HTML to inject
+             */
             eventContent: function(arg) {
                 const props = arg.event.extendedProps;
                 const importance = parseInt(props.importance);
@@ -937,6 +1012,15 @@
                 };
             },
 
+            /**
+             * Handles a click on an empty calendar slot.
+             * Opens the mission creation modal (MANAGER) or request creation modal (BENEFICIARY),
+             * pre-filling the date and start/end times based on the clicked slot.
+             *
+             * @param {Object} info      - Information about the clicked slot
+             * @param {Date}   info.date - Date and time of the clicked slot
+             * @returns {void}
+             */
             dateClick: function(info) {
                 const clickedDate = new Date(info.date);
                 const endHour = new Date(clickedDate);
@@ -972,6 +1056,15 @@
                 }
             },
 
+            /**
+             * Handles a click on a calendar event.
+             * Displays the appropriate detail modal based on the user's role and the event's
+             * status (manager modal for pending/accepted missions, standard modal otherwise).
+             *
+             * @param {Object} info       - Information about the clicked event
+             * @param {Object} info.event - FullCalendar event object
+             * @returns {void}
+             */
             eventClick: function(info) {
                 const event = info.event;
                 currentMissionId = event.id;
@@ -1038,6 +1131,13 @@
                     const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
 
                     if (acceptBtn) {
+                        /**
+                         * Sends a POST request to accept the selected mission with the chosen interpreter.
+                         * Displays a success toast and refreshes the calendar events.
+                         *
+                         * @listens click
+                         * @returns {Promise<void>}
+                         */
                         acceptBtn.addEventListener('click', async function () {
                             const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
                             if (!selectedInterpreter) {
@@ -1061,6 +1161,13 @@
                     }
 
                     if (refuseBtn) {
+                        /**
+                         * Sends a POST request to refuse the selected mission.
+                         * Displays an info toast and refreshes the calendar events.
+                         *
+                         * @listens click
+                         * @returns {Promise<void>}
+                         */
                         refuseBtn.addEventListener('click', async function () {
                             try {
                                 const res = await fetch('/horaire/missions/' + event.id + '/refuse', {
@@ -1076,10 +1183,12 @@
                         }, { once: true });
                     }
 
-
-
-
                     if (cancelAcceptedBtn) {
+                        /**
+                         * Closes the manager modal and opens the cancellation confirmation modal.
+                         *
+                         * @listens click
+                         */
                         cancelAcceptedBtn.addEventListener('click', function() {
                             const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
                             const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
@@ -1125,6 +1234,11 @@
                 const delayBtn = document.getElementById('btnDelayReport');
 
                 if (delayBtn) {
+                    /**
+                     * Closes the event modal and opens the delay report modal.
+                     *
+                     * @listens click
+                     */
                     delayBtn.addEventListener('click', function() {
                         const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
                         const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
@@ -1134,6 +1248,11 @@
                     });
                 }
                 if (cancelBtn) {
+                    /**
+                     * Closes the event modal and opens the cancellation confirmation modal.
+                     *
+                     * @listens click
+                     */
                     cancelBtn.addEventListener('click', function() {
                         const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
                         const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
@@ -1168,6 +1287,13 @@
             e.stopPropagation();
         });
 
+        /**
+         * Handles a click on the "No" button in the cancellation confirmation modal.
+         * Closes the confirmation modal and re-opens the previous modal
+         * based on the user's role.
+         *
+         * @listens click
+         */
         document.getElementById('cancelConfirmBackBtn').addEventListener('click', function() {
             const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
 
@@ -1185,7 +1311,12 @@
         const eventModalEl = document.getElementById('eventModal');
         const delayModalEl = document.getElementById('delayModal');
 
-
+        /**
+         * Handles a click on "Cancel" in the delay report modal.
+         * Closes the delay modal and re-opens the event modal.
+         *
+         * @listens click
+         */
         document.getElementById('cancelDelayModalBtn').addEventListener('click', function() {
             const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
             const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
@@ -1194,7 +1325,14 @@
             eventModal.show();
         });
 
-
+        /**
+         * Sends a POST request to report a delay for the selected mission.
+         * Includes the number of delay minutes and the absence indicator.
+         * Displays a confirmation or error toast.
+         *
+         * @listens click
+         * @returns {Promise<void>}
+         */
         document.getElementById('sendDelayBtn').addEventListener('click', async function () {
             if (!currentMissionId) {
                 alert("Aucune mission sélectionnée.");
@@ -1218,6 +1356,14 @@
             }
         });
 
+        /**
+         * Validates and submits the new mission creation form (MANAGER role).
+         * Checks required fields and time consistency, then sends
+         * the data via POST to `/horaire/missions`. Refreshes the calendar on success.
+         *
+         * @listens click
+         * @returns {Promise<void>}
+         */
         document.getElementById('sendMissionBtn').addEventListener('click', async function () {
             clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
 
@@ -1274,8 +1420,14 @@
             }
         });
 
-
-
+        /**
+         * Validates and submits the new request creation form (BENEFICIARY role).
+         * Checks required fields and time consistency, then sends
+         * the data via POST to `/horaire/requests`. Refreshes the calendar on success.
+         *
+         * @listens click
+         * @returns {Promise<void>}
+         */
         document.getElementById('sendRequestBtn').addEventListener('click', async function () {
             clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity']);
             const rules = [
