@@ -175,12 +175,12 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-                model.addAttribute("newUser", interpreter);
+                //Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
+                UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), "i26", interpreterForm.getPassword(), interpreterForm.getEmail());
+                model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                e.printStackTrace();
                 model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -191,6 +191,14 @@ public class InterpreterController {
             }
         }
         return "redirect:" + returnUrl;
+    }
+
+    @PostMapping("/creer/notifier")
+    public String sendMailCreation(@ModelAttribute("newUser") UserCredentials user) {
+        System.out.println(user.getFirstName() + " " + user.getLogin() + " " + user.getPassword() + " " + user.getEmail());
+        new NotificationService().sendUserCredentials(user);
+
+        return "redirect:/interpretes/creer";
     }
 
     /**
