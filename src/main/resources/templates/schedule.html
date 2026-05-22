@@ -460,14 +460,18 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu</label>
+                    <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu*</label>
                     <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Ex: Athénée Royal">
+                    <div id="requestLocationDesignationError" class="invalid-feedback"></div>
+
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="requestCity" class="form-label fw-semibold">Ville</label>
+                        <label for="requestCity" class="form-label fw-semibold">Ville*</label>
                         <input type="text" class="form-control" id="requestCity" placeholder="Ex: Bruxelles">
+                        <div id="requestCityError" class="invalid-feedback"></div>
+
                     </div>
                     <div class="col-md-6">
                         <label for="requestPostalCode" class="form-label fw-semibold">Code postal</label>
@@ -657,14 +661,17 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu</label>
+                    <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu*</label>
                     <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Ex: Athénée Royal">
+                    <div id="missionLocationDesignationError" class="invalid-feedback"></div>
+
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="missionCity" class="form-label fw-semibold">Ville</label>
+                        <label for="missionCity" class="form-label fw-semibold">Ville*</label>
                         <input type="text" class="form-control" id="missionCity" placeholder="Ex: Bruxelles">
+                        <div id="missionCityError" class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
                         <label for="missionPostalCode" class="form-label fw-semibold">Code postal</label>
@@ -695,12 +702,13 @@
                 <div class="mb-3">
                     <label for="missionInterpreter" class="form-label fw-semibold">Interprète</label>
                     <select id="missionInterpreter" class="form-select">
-                        <option value="">Sélectionner un interprète</option>
+                    <option value="">Sélectionner un interprète</option>
                         <option th:each="interpreter : ${interpreters}"
                                 th:value="${interpreter.id}"
                                 th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
                         </option>
                     </select>
+                    <div id="missionInterpreterError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="mb-3">
@@ -1211,13 +1219,19 @@
         });
 
         document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-            clearFormErrors(['missionTitle', 'missionDate', 'missionBeneficiary']);
+            clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
+
 
             const rules = [
-                { id: 'missionTitle',       errorId: 'missionTitleError',       msg: 'Le titre est requis.' },
-                { id: 'missionDate',        errorId: 'missionDateError',        msg: 'La date est requise.' },
-                { id: 'missionBeneficiary', errorId: 'missionBeneficiaryError', msg: 'Veuillez sélectionner un bénéficiaire.' },
+                { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
+                { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
+                { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
+                { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
+                { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
+                { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
             ];
+            if (!validateFields(rules)) return;
+
             if (!validateFields(rules)) return;
 
             const startTime = document.getElementById('missionStartTime').value;
@@ -1263,21 +1277,26 @@
 
 
         document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-            // ── Réinitialise les erreurs précédentes
-            clearFormErrors(['requestTitle', 'requestDate']);
-
-            // ── Validation des champs obligatoires
+            clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity']);
             const rules = [
-                { id: 'requestTitle', errorId: 'requestTitleError', msg: 'Le titre est requis.' },
-                { id: 'requestDate',  errorId: 'requestDateError',  msg: 'La date est requise.' },
+                { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
+                { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
+                { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
+                { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
             ];
             if (!validateFields(rules)) return;
 
-            // ── Validation cohérence heures
+            if (!validateFields(rules)) return;
+
             const startTime = document.getElementById('requestStartTime').value;
             const endTime   = document.getElementById('requestEndTime').value;
             if (startTime >= endTime) {
                 showToast("L'heure de fin doit être après l'heure de début.", 'error');
+                return;
+            }
+
+            if(startTime == endTime){
+                showToast("L'heure de début ne peut pas être égal à l'heure de fin.", 'error');
                 return;
             }
 
