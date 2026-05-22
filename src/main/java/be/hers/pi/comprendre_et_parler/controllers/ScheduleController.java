@@ -70,9 +70,7 @@ public class ScheduleController {
 
     @PostMapping("/horairerequests")
     @ResponseBody
-    public ResponseEntity<String> createRequest(
-            @RequestBody Map<String, String> payload,
-            HttpSession session) {
+    public ResponseEntity<String> createRequest(@RequestBody Map<String, String> payload, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
             if (!(user instanceof Beneficiary beneficiary)) {
@@ -213,6 +211,43 @@ public class ScheduleController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/horaire/missions/{id}/delay")
+    @ResponseBody
+    public ResponseEntity<?> reportDelay(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Interpreter) && !(user instanceof Beneficiary)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+
+            Mission mission = missionService.getMissionById(id);
+
+            String minutesStr = body.get("minutes");
+            String absentStr  = body.get("absent");
+
+            int minutes = 0;
+            if (minutesStr != null && !minutesStr.isBlank()) {
+                minutes = Integer.parseInt(minutesStr);
+            }
+            boolean absent = Boolean.parseBoolean(absentStr);
+
+            String delayInfo;
+            if (absent) {
+                delayInfo = "L'utilisateur ne pourra pas être présent.";
+            } else {
+                delayInfo = "Retard de " + minutes + " minutes.";
+            }
+
+            missionService.reportDelay(mission, delayInfo);
+
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur : " + e.getMessage());
         }
     }
 
