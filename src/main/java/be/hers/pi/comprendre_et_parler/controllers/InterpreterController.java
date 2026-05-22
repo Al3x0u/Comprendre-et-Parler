@@ -176,14 +176,12 @@ public class InterpreterController {
         if (returnUrl == null) {
             try {
                 Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-
                 model.addAttribute("newUser", interpreter);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
                 e.printStackTrace();
-                model.addAttribute("submitState", "alreadyExist");
-                model.addAttribute("interpreterToCreate", interpreterForm);
+                model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
