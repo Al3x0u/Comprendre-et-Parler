@@ -41,9 +41,11 @@ public class DAOCity extends DAO<City> {
 
     @Override
     public void create(City objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("City " + objectToInsert.getDesignation() + " already exists");
-
+        }
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?)", TABLE);
         PreparedStatement statement = null;
         ResultSet generatedKeys = null;

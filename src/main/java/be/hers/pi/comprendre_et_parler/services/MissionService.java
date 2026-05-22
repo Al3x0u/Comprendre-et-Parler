@@ -19,9 +19,11 @@ import java.util.stream.Collectors;
 public class MissionService {
 
     private final DAOMission daoMission;
+    private final NotificationService notificationService; // ← ajoute ça
 
     public MissionService() {
         this.daoMission = new DAOMission();
+        this.notificationService = new NotificationService(); // ← ajoute ça
     }
 
     /**
@@ -186,7 +188,7 @@ public class MissionService {
     public void cancelMission(Mission mission) throws NoSuchElementException, SQLException {
         mission.setStateOfMission(MissionState.CANCELED);
         SQLWrap.callTransaction(daoMission::update, mission);
-        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
+        notificationService.notifyCancellation(mission);
     }
 
     /**
@@ -196,7 +198,7 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     public void reportDelay(Mission mission, String delayInfo) throws SQLException {
-        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
+        notificationService.notifyDelay(mission, delayInfo);
     }
 
     /**
@@ -228,7 +230,7 @@ public class MissionService {
     public void refuseRequest(Mission mission) throws NoSuchElementException, SQLException {
         mission.setStateOfMission(MissionState.DENIED);
         SQLWrap.callTransaction(daoMission::update, mission);
-        // TODO : notifier l'interprète et le bénéficiaire via NotificationService
+        notificationService.notifyRefusal(mission);
     }
 
     /**

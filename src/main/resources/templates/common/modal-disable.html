@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="modal-disable">
+    <div class="modal fade" id="modalDisable" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-power me-2"></i>Désactiver un compte</h5>
+                </div>
+                <div class="modal-body rounded-4 py-5">
+                    Êtes-vous sûr de vouloir désactiver le compte de <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> ?
+                    L'utilisateur ne pourra plus utiliser son compte après la désactivation.
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/interpretes/profil/{id}/desactiver(id=${interprete.id})}" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-power me-2"></i>Désactiver
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</body>
+</html>

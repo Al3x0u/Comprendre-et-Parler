@@ -52,6 +52,7 @@ public class DAOMission extends DAO<Mission> {
         return mission;
     }
 
+    // Does not update objectToInsert's id when throwing an AlreadyExistException
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
         if (checkAlreadyExists(objectToInsert) >= 0)

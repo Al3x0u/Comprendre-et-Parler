@@ -4,14 +4,17 @@ public class UserCredentials {
     private final String login;
     private final String password;
     private final String loginUrl;
+    private final String email;
 
-    public UserCredentials(String login, String password, String loginUrl) {
+    public UserCredentials(String login, String password, String loginUrl, String email) {
         this.login = login;
         this.password = password;
         this.loginUrl = loginUrl;
+        this.email = email;
     }
 
     public String getLogin() { return login; }
     public String getPassword() { return password; }
     public String getLoginUrl() { return loginUrl; }
+    public String getEmail() { return email;}
 }

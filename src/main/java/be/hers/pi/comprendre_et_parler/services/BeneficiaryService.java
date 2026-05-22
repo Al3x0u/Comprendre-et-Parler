@@ -49,7 +49,7 @@ public class BeneficiaryService {
 
         SQLWrap.callTransaction(daoBeneficiary::create, beneficiary);
 
-        return new UserCredentials(beneficiary.getLogin(), plainPassword, "/login");
+        return new UserCredentials(beneficiary.getLogin(), plainPassword, "/login", beneficiary.getEmail());
     }
 
     private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {
@@ -136,7 +136,7 @@ public class BeneficiaryService {
      */
     public void updateInterpreterRef(int beneficiaryId, int interpreterId)throws SQLException{
         Beneficiary beneficiary = getBeneficiary(beneficiaryId);
-        Interpreter interpreterRef = interpreterService.getInterpreter(interpreterId);
+        Interpreter interpreterRef = interpreterService.getOneInterpreter(interpreterId);
         beneficiary.setInterpreterRef(interpreterRef);
         SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
     }

@@ -35,18 +35,14 @@ public class InterpreterService {
      * @throws AlreadyExistsException if the interpreter already exists in the database
      * @throws SQLException if the database could not be reached
      */
-    public void createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
-        City city = new City(form.getCityDesignation(), form.getPostalCode());
-        SQLWrap.callTransaction(new DAOCity()::create, city);
-
+    public Interpreter createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         Location location = new Location(
                 form.getLocationDesignation(),
-                city,
+                new City(form.getCityDesignation(), form.getPostalCode()),
                 form.getStreet(),
                 form.getStreetNumber(),
                 form.getBox() != null ? form.getBox() : 0
         );
-        SQLWrap.callTransaction(new DAOLocation()::create, location);
 
         String plainPassword = form.getPassword();
         String hashedPassword = new BCryptPasswordEncoder().encode(plainPassword);
@@ -69,6 +65,7 @@ public class InterpreterService {
         );
 
         SQLWrap.callTransaction(daoInterpreter::create, interpreter);
+        return interpreter;
     }
 
     /**
@@ -79,6 +76,17 @@ public class InterpreterService {
      */
     public void promoteInterpreter(int id) throws SQLException, ConnectionException {
         SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOManager()::create, id);
+    }
+
+    /**
+     * Demotes a manager to interpreter
+     * @param id the manager's id
+     * @throws NoSuchElementException if the manager does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void demoteManager(int id) throws SQLException, ConnectionException, NoSuchElementException {
+        SQLWrap.callTransaction(new DAOManager()::delete, id);
     }
 
     /**
@@ -141,9 +149,31 @@ public class InterpreterService {
      * @return a list of all Interpreters
      * @throws SQLException if any database error occurs
      * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
      */
-    public List<Interpreter> getAllInterpreters()throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
+    public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
+        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+    }
+
+    /**
+     * @return one interpreter present in database
+     * @param id the id of the interpreter to find
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public Interpreter getOneInterpreter(int id) throws SQLException, ConnectionException {
+        return SQLWrap.call(
+                (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, id);
+    }
+
+    /**
+     * Counts interpreters
+     * @return the number of interpreters in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public int countInterpreters() throws SQLException, ConnectionException {
+        return SQLWrap.call(new DAOInterpreter()::count);
     }
 
     /**
@@ -236,15 +266,84 @@ public class InterpreterService {
         return false;
     }
 
+    /**
+     * Modifies an interpreter's unavailability slot
+     * @param interpreter the interpreter to modify
+     * @param oldUn an up-to-date ExceptionalUnavailability object to modify
+     * @param newUn the object to replace it with
+     * @throws NoSuchElementException if interpreter does not exist or does not possess oldUn in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateUnavailability(Interpreter interpreter, ExceptionalUnavailability oldUn, ExceptionalUnavailability newUn) throws SQLException, ConnectionException, NoSuchElementException {
+        if (Objects.equals(oldUn, newUn)) return;
+
+        if (oldUn.getTimeSlot().equals(newUn.getTimeSlot())) {
+            SQLWrap.callTransaction(new DAOExceptionalUnavailability()::update, newUn, interpreter);
+        }
+        else {
+            SQLWrap.callTransaction(
+                    (Interpreter i, ExceptionalUnavailability oldEU, ExceptionalUnavailability newEU) -> {
+                        new DAOExceptionalUnavailability().delete(i.getId(), oldEU.getTimeSlot().getId());
+                        new DAOExceptionalUnavailability().create(newEU, i);
+                    }, interpreter, oldUn, newUn
+            );
+        }
+        interpreter.getUnavailability().remove(oldUn);
+        interpreter.addUnavailability(newUn);
+    }
 
     /**
-     * Retrieve a Beneficiary from the database by its id.
-     * @param interpreterId the id of the Beneficiary to retrieve
-     * @return the Beneficiary with the given id, or null if none was found
-     * @throws SQLException if any database error occurs
+     * Delete an interpreter's unavailability slot
+     * @param interpreter the interpreter to modify
+     * @param unavailability an up-to-date ExceptionalUnavailability object to delete
+     * @throws NoSuchElementException if the interpreter does not exist or does not possess unavailability in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
      */
-    public Interpreter getInterpreter(int interpreterId)throws SQLException{
-        return SQLWrap.call(
-                (FunctionWithSQLException<Integer, Interpreter>) daoInterpreter::find, interpreterId);
+    public void deleteUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
+        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::delete, interpreter.getId(), unavailability.getTimeSlot().getId());
     }
+
+    /**
+     * Modifies an interpreter's weekly and yearly quotas
+     * @param interpreter the interpreter to modify
+     * @param weekQuota the new weekly quota
+     * @param yearQuota the new yearly quota
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateQuota(Interpreter interpreter, int weekQuota, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
+        interpreter.setHourQuotaWeek(weekQuota);
+        interpreter.setHourQuotaYear(yearQuota);
+        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
+    }
+
+    /**
+     * Modifies an interpreter's weekly quota
+     * @param interpreter the interpreter to modify
+     * @param weekQuota the new weekly quota
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateWeeklyQuota(Interpreter interpreter, int weekQuota) throws SQLException, ConnectionException, NoSuchElementException {
+        interpreter.setHourQuotaWeek(weekQuota);
+        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
+    }
+
+    /**
+     * Modifies an interpreter's yearly quota
+     * @param interpreter the interpreter to modify
+     * @param yearQuota the new yearly quota
+     * @throws NoSuchElementException if the interpreter does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if a database error occurs
+     */
+    public void updateYearlyQuota(Interpreter interpreter, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
+        interpreter.setHourQuotaYear(yearQuota);
+        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
+    }
+
 }
