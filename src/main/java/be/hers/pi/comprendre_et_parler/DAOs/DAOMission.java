@@ -413,14 +413,17 @@ public class DAOMission extends DAO<Mission> {
         }
     }
 
-    /***
-     *
-     * @param beneficiaryId
-     * @return
-     * @throws SQLException
+    /**
+     * Retrieves a beneficiary by their unique identifier.
+     * @param beneficiaryId the unique identifier of the beneficiary to retrieve
+     * @return the {@link Beneficiary} associated with the given ID, or {@code null} if not found
+     * @throws SQLException if a database access error occurs
      */
-    public boolean hasMissions(int beneficiaryId) throws SQLException {
-        String query = "SELECT 1 FROM " + TABLE +" WHERE " + FIELD_BENEFICIARY + " = ?";
+    public boolean hasActiveMissions(int beneficiaryId) throws SQLException {
+        String query = "SELECT 1 FROM " + TABLE +
+                " JOIN TimeSlot ts ON ts.id = " + TABLE + "." + FIELD_TIME_SLOT +
+                " WHERE " + FIELD_BENEFICIARY + " = ?" +
+                " AND TRUNC(ts.startDateTime, 'IW') = TRUNC(SYSDATE, 'IW')";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {

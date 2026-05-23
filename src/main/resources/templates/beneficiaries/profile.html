@@ -27,6 +27,7 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
+            document.getElementById('form-interpreter').submit();
             btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
             btn.classList.remove('editing', 'btn-outline-success');
             btn.classList.add('btn-outline-primary');
@@ -44,6 +45,7 @@
     }
 
     function toggleEditStatus() {
+
         const btn = document.getElementById('btn-edit-status');
         const btnCancel = document.getElementById('btn-cancel-status');
         const view = document.getElementById('status-view');
@@ -51,6 +53,7 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
+            document.getElementById('form-status').submit();
             btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
             btn.classList.remove('editing', 'btn-outline-success');
             btn.classList.add('btn-outline-primary');

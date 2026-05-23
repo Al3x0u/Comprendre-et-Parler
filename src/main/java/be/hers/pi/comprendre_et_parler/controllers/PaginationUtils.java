@@ -24,6 +24,9 @@ public final class PaginationUtils {
      * @return a list of objects matching the keyword
      */
     public static <T extends AppliUser> List<T> filter(List<T> objectsToFilter, String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return objectsToFilter;
+        }
         List<T> filtered = new ArrayList<>();
         String searchedText = keyword.trim().toLowerCase();
 

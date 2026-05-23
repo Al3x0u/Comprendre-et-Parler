@@ -105,7 +105,7 @@ public class BeneficiaryService {
      * @post the Beneficiary has been soft-deleted from the database
      */
     public void deleteBeneficiary(int id) throws SQLException, IllegalArgumentException{
-        if(new DAOMission().hasMissions(id)){
+        if(new DAOMission().hasActiveMissions(id)){
             throw new IllegalArgumentException("Cannot delete beneficiary with existing missions");
         }
         SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOBeneficiary()::delete, id);

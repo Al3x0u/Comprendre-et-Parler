@@ -148,7 +148,7 @@
                     </div>
 
                     <!-- Vue édition -->
-                    <form id="form-status" th:action="@{/beneficiaires/profil/{id}/modifier-status(id=${beneficiaire.id})}" method="post">
+                    <form id="form-status" th:action="@{/beneficiaires/profil/{id}/modifier-statut(id=${beneficiaire.id})}" method="post">
                         <div id="status-edit" class="d-none">
                             <select name="statusId" class="form-select">
                                 <option th:each="s : ${allStatuses}"
@@ -165,7 +165,7 @@
 
     </div>
 
-    <div th:replace="~{common/modal-disable :: modal-disable}"></div>
+    <div th:replace="~{common/modal-disable :: modal-disable(${beneficiaire}, @{/beneficiaires/profil/{id}/desactiver(id=${beneficiaire.id})})}"></div>
 </div>
 
 </body>
