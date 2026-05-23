@@ -128,29 +128,44 @@ public class BeneficiaryService {
         SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
     }
 
-    /***
-     *
-     * @param beneficiaryId
-     * @param interpreterId
-     * @throws SQLException
+    /**
+     * Update the reference interpreter of a Beneficiary in the database.
+     * @param beneficiaryId the id of the Beneficiary to update
+     * @param interpreterId the id of the new reference interpreter
+     * @throws SQLException if any database error occurs
+     * @post the referenceInterpreter of the Beneficiary has been updated in the database
      */
     public void updateInterpreterRef(int beneficiaryId, int interpreterId)throws SQLException{
-        Beneficiary beneficiary = getBeneficiary(beneficiaryId);
-        Interpreter interpreterRef = interpreterService.getOneInterpreter(interpreterId);
-        beneficiary.setInterpreterRef(interpreterRef);
-        SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
+        SQLWrap.callTransaction(
+                (BiConsumerWithSQLException<Integer, Integer>) daoBeneficiary::updateInterpreterRef,
+                beneficiaryId, interpreterId);
     }
 
-    /***
-     *
-     * @param beneficiaryId
-     * @param statusId
-     * @throws SQLException
+    /**
+     * Update the status of a Beneficiary in the database.
+     * Does nothing if the new status is the same as the current one.
+     * @param beneficiaryId the id of the Beneficiary to update
+     * @param statusId the id of the new status
+     * @throws SQLException if any database error occurs
+     * @post the status of the Beneficiary has been updated in the database, unless the new status was identical to the current one
      */
     public void updateStatus(int beneficiaryId, int statusId)throws SQLException{
         Beneficiary beneficiary = getBeneficiary(beneficiaryId);
-        Status benefStatus = statusService.getStatus(statusId);
-        beneficiary.setStatus(benefStatus);
-        SQLWrap.callTransaction((ConsumerWithSQLException<Beneficiary>) daoBeneficiary::update, beneficiary);
+        if (beneficiary.getStatus().getId() == statusId) {
+            return;
+        }
+        SQLWrap.callTransaction(
+                (BiConsumerWithSQLException<Integer, Integer>) daoBeneficiary::updateStatus,
+                beneficiaryId, statusId);
+    }
+
+    /**
+     * Counts beneficiaries
+     * @return the number of beneficiaries in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public int countBeneficiaries() throws SQLException, ConnectionException {
+        return SQLWrap.call(daoBeneficiary::count);
     }
 }

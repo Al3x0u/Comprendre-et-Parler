@@ -223,6 +223,12 @@ public class BeneficiaryController {
         return "redirect:/beneficiaires/profil/"+ id;
     }
 
+    /**
+     * Handle the submission of the interpreter reference modification form.
+     * @param id the id of the beneficiary to update
+     * @param interpreterRefId the id of the new reference interpreter
+     * @return a redirect to the beneficiary's profile on success, or to the list on error
+     */
     @PostMapping("/profil/{id}/modifier-interprete")
     public String updateInterpreterRef(@PathVariable int id, @RequestParam int interpreterRefId){
         try{
@@ -233,6 +239,12 @@ public class BeneficiaryController {
         return "redirect:/beneficiaires/profil/" + id;
     }
 
+    /**
+     * Handle the submission of the status modification form.
+     * @param id the id of the beneficiary to update
+     * @param statusId the id of the new status
+     * @return a redirect to the beneficiary's profile on success, or to the list on error
+     */
     @PostMapping("/profil/{id}/modifier-statut")
     public String updateStatus(@PathVariable int id, @RequestParam int statusId){
         try{

@@ -39,7 +39,7 @@ public final class PaginationUtils {
             boolean matchesFirstName = firstName.contains(searchedText);
             boolean matchesLastName = lastName.contains(searchedText);
 
-            if (searchedText.isEmpty() || matchesLogin || matchesFirstName || matchesLastName) {
+            if (matchesLogin || matchesFirstName || matchesLastName) {
                 filtered.add(objectToFilter);
             }
         }
