@@ -48,8 +48,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String JOB_SKILL_REF_INTERPRETER = "interpreter";
     protected static final String JOB_SKILL_REF_SKILL = "skill";
 
-    protected static final String TABLE_INTERPRETER_MISSION = "InterpreterMission"; // Complete or delete depending on whether this or DAOMission handles the table
-
     @Override
     public Interpreter find(int id) throws SQLException {
         String query = String.format(
@@ -702,7 +700,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
         String query = String.format(
                 "SELECT i.* FROM %s i JOIN %s im ON i.%s = im.%s WHERE im.%s = ?",
-                TABLE, TABLE_INTERPRETER_MISSION, FIELD_ID, FIELD_INTERPRETER, FIELD_MISSION
+                TABLE, DAOMission.TABLE_INTERPRETER_MISSION, FIELD_ID, FIELD_INTERPRETER, FIELD_MISSION
         );
         Set<Interpreter> interpreters = new HashSet<>();
         PreparedStatement statement = null;
