@@ -37,7 +37,7 @@ public class ProfileController {
                         daoBeneficiary::findReferencedBeneficiaries, m.getId());
                 model.addAttribute("interprete", m);
                 model.addAttribute("beneficiaries", beneficiaries);
-
+                model.addAttribute("isInterpreterAManager", true);
                 model.addAttribute("userRole", "MANAGER");
             } else if (user instanceof Interpreter i) {
                 Set<Beneficiary> beneficiaries = SQLWrap.call(

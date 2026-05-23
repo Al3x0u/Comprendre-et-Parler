@@ -111,9 +111,10 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     private String extractCurrentPage(String uri) {
         if(uri.endsWith("/dashboard")) return "dashboard";
-        if(uri.endsWith("/horaire")) return "horaire";
+        if(uri.endsWith("/horaire")) return "schedule";
         if(uri.contains("/interpretes")) return "interpreters";
         if(uri.contains("/beneficiaires")) return "beneficiaries";
+        if(uri.contains("/gestion")) return "gestion";
         if(uri.contains("/profil")) return "profile";
         return "";
     }
