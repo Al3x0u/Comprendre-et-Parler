@@ -300,9 +300,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
     @Override
     protected int checkAlreadyExists(Interpreter objectToCheck) throws SQLException {
         String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? " +
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? " +
                         "AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD, FIELD_EMAIL,
+                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_EMAIL,
                 FIELD_PHONE_NUMBER, FIELD_WEEK_QUOTA, FIELD_YEAR_QUOTA, FIELD_TRANSPORT_MODE, FIELD_LOCATION
         );
         ResultSet result = null;
@@ -312,13 +312,12 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setString(1, objectToCheck.getFirstName());
             statement.setString(2, objectToCheck.getLastName());
             statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
-            statement.setString(4, objectToCheck.getHashedPassword());
-            statement.setString(5, objectToCheck.getEmail());
-            statement.setString(6, objectToCheck.getPhoneNumber());
-            statement.setInt(7, objectToCheck.getHourQuotaWeek());
-            statement.setInt(8, objectToCheck.getHourQuotaYear());
-            statement.setString(9, objectToCheck.getTransportMode());
-            statement.setInt(10, objectToCheck.getLocation().getId());
+            statement.setString(4, objectToCheck.getEmail());
+            statement.setString(5, objectToCheck.getPhoneNumber());
+            statement.setInt(6, objectToCheck.getHourQuotaWeek());
+            statement.setInt(7, objectToCheck.getHourQuotaYear());
+            statement.setString(8, objectToCheck.getTransportMode());
+            statement.setInt(9, objectToCheck.getLocation().getId());
 
             result = statement.executeQuery();
             if(result.next())
