@@ -94,6 +94,7 @@ public class ScheduleController {
             try{
                postalCode =  Integer.parseInt(payload.get("postalCode"));
             }catch(Exception e){
+                e.printStackTrace();
                 postalCode = 0;
             }
             String street = payload.get("street");
@@ -102,6 +103,7 @@ public class ScheduleController {
             try{
                 box = Integer.parseInt(payload.get("box"));
             }catch(Exception e){
+                e.printStackTrace();
                 box = 0;
             }
 
@@ -150,6 +152,7 @@ public class ScheduleController {
 
             return ResponseEntity.ok("Demande créée.");
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Erreur lors de la création de la demande. Veuillez réessayer.");
         }
     }
@@ -235,6 +238,7 @@ public class ScheduleController {
             return ResponseEntity.ok().build();
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la création de la mission. Veuillez réessayer.");
         }
     }
@@ -301,6 +305,7 @@ public class ScheduleController {
                 try{
                     date = LocalDate.parse(weekDate);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     date = LocalDate.now();
                 }
             }
