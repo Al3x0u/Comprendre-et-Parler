@@ -4,10 +4,6 @@ DROP TRIGGER IDR_DeleteAppliUser;
 DROP TRIGGER IIR_InsertionInterpreter;
 DROP TRIGGER IDR_DeleteInterpreter;
 DROP TRIGGER IUR_UpdateTransportModeInterpreter;
-DROP TRIGGER IIR_InsertionManager;
-DROP TRIGGER AIR_InsertionLoginManager;
-DROP TRIGGER IDR_DeleteManager;
-DROP TRIGGER IUR_UpdateTransportModeManager;
 DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
 DROP TRIGGER IUR_UpdateBeneficiary;
@@ -111,59 +107,6 @@ BEGIN
                          phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
     UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
                             transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
-END;
-/
-
-CREATE TRIGGER IIR_InsertionManager
-    INSTEAD OF INSERT ON Manager
-    FOR EACH ROW
-DECLARE
-    newID INTEGER;
-BEGIN
-    INSERT INTO Interpreter
-    VALUES
-        (NULL, NULL, :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL,
-         :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, :NEW.transportMode, :NEW.location);
-    SELECT id INTO newID
-    FROM AppliUser
-    WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
-    INSERT INTO ManagerT
-    VALUES (newID);
-END;
-/
-
-CREATE TRIGGER AIR_InsertionLoginManager
-    AFTER INSERT ON ManagerT
-    FOR EACH ROW
-DECLARE
-    newLogin VARCHAR2(7 CHAR);
-BEGIN
-    SELECT login INTO newLogin
-    FROM AppliUserT
-    WHERE id = :NEW.id;
-    newLogin := REPLACE(newLogin, 'i', 'r');
-    UPDATE AppliUserT SET login = newLogin WHERE id = :NEW.id;
-END;
-/
-
-CREATE TRIGGER IDR_DeleteManager
-    INSTEAD OF DELETE ON Manager
-    FOR EACH ROW
-BEGIN
-    DELETE FROM AppliUser WHERE login = :OLD.login;
-END;
-/
-
-CREATE TRIGGER IUR_UpdateTransportModeManager
-    INSTEAD OF UPDATE ON Manager
-    FOR EACH ROW
-BEGIN
-    UPDATE Interpreter SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-                           hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
-                           weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
-                           transportMode = :NEW.transportMode, location = :NEW.location WHERE id = :OLD.id;
 END;
 /
 
