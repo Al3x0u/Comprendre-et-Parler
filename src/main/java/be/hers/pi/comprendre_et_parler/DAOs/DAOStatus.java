@@ -41,8 +41,11 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() +  " already exists");
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
+            throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() + " already exists");
+        }
 
         String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?)", TABLE);
         PreparedStatement statement = null;

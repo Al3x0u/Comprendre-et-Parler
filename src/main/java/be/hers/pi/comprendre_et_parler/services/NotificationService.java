@@ -104,7 +104,7 @@ public class NotificationService {
      */
     public void sendUserCredentials(UserCredentials userCredentials) {
         String subject = "Vos informations de connexion";
-        String body = "Bonjour,\n\n"
+        String body = "Bonjour " + userCredentials.getFirstName() + ",\n\n"
                 + "Votre compte a été créé sur la plateforme Comprendre & Parler.\n\n"
                 + "Voici vos identifiants de première connexion :\n\n"
                 + "Login : " + userCredentials.getLogin() + "\n"

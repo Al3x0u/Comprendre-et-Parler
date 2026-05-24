@@ -44,8 +44,11 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists");
+        }
 
         int cityRef = -1;
         try {

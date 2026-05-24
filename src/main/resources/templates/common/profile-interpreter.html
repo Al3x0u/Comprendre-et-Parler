@@ -14,7 +14,7 @@
                 </div>
 
                 <div class="col-12 col-md">
-                    <p class="text-white-50 mb-1" th:text="${userRole == 'MANAGER'} ? 'Profil responsable' : 'Profil interprète'"></p>
+                    <p class="text-white-50 mb-1" th:text="${isInterpreterAManager == true} ? 'Profil responsable' : 'Profil interprète'"></p>
                     <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
                     <p class="fw-semibold mb-3" th:text="*{login}"></p>
                     <div>

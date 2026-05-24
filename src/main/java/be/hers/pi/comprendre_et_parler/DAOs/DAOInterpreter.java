@@ -103,8 +103,11 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void create(Interpreter objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("The interpreter already exists in the database");
+        }
 
         int locationRef = -1;
         try {
@@ -205,8 +208,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
     @Override
     public void update(Interpreter objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-
-        if (find(objectToUpdate.getId()) == null)
+        Interpreter objectInDB = find(objectToUpdate.getId());
+        if (objectInDB == null)
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
 
         if (checkAlreadyExists(objectToUpdate) >= 0)
@@ -227,7 +230,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
             }
         }
 
-
         String query = String.format(
                 "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
                 TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME,FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
@@ -246,13 +248,16 @@ public class DAOInterpreter extends DAO<Interpreter> {
             statement.setInt(7, objectToUpdate.getHourQuotaWeek());
             statement.setInt(8, objectToUpdate.getHourQuotaYear());
             statement.setString(9, objectToUpdate.getTransportMode());
-            statement.setInt(10, objectToUpdate.getLocation().getId());
+            statement.setInt(10, locationRef);
             statement.setInt(11, objectToUpdate.getId());
 
             statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
+
+        updateAcademicSkills(objectToUpdate, objectInDB.getAcademicSkills());
+        updateJobSkills(objectToUpdate, objectInDB.getJobSkills());
     }
 
     @Override
@@ -328,26 +333,29 @@ public class DAOInterpreter extends DAO<Interpreter> {
     @Override
     public Interpreter getResult(ResultSet result) throws SQLException {
         int id = result.getInt(FIELD_ID);
-        Interpreter ret = new Interpreter(
-                id,
-                result.getString(FIELD_LOGIN),
-                result.getString(FIELD_FIRST_NAME),
-                result.getString(FIELD_LAST_NAME),
-                result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
-                result.getString(FIELD_HASHED_PASSWORD),
-                result.getString(FIELD_EMAIL),
-                result.getString(FIELD_PHONE_NUMBER),
-                result.getInt(FIELD_WEEK_QUOTA),
-                result.getInt(FIELD_YEAR_QUOTA),
-                result.getString(FIELD_TRANSPORT_MODE),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(id),
-                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findAvailabilities(id)
-        );
-        ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
-        ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
-        ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
+        Interpreter ret = new DAOManager().find(id);
+        if (ret == null) {
+            ret = new Interpreter(
+                    id,
+                    result.getString(FIELD_LOGIN),
+                    result.getString(FIELD_FIRST_NAME),
+                    result.getString(FIELD_LAST_NAME),
+                    result.getDate(FIELD_BIRTH_DATE).toLocalDate(),
+                    result.getString(FIELD_HASHED_PASSWORD),
+                    result.getString(FIELD_EMAIL),
+                    result.getString(FIELD_PHONE_NUMBER),
+                    result.getInt(FIELD_WEEK_QUOTA),
+                    result.getInt(FIELD_YEAR_QUOTA),
+                    result.getString(FIELD_TRANSPORT_MODE),
+                    new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
+                    new DAOJobSkill().getJobSkillOfAnInterpreter(id),
+                    new DAOLocation().find(result.getInt(FIELD_LOCATION)),
+                    new DAOBaseTimeSlot().findAvailabilities(id)
+            );
+            ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+            ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
+            ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
+        }
         return ret;
     }
 
@@ -555,6 +563,24 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
+     * Update interpreter's academic skills in database
+     * @param interpreter the interpreter
+     * @param skillsInDB the skills as they are in DB
+     * @throws SQLException if a database exception occurs
+     */
+    private void updateAcademicSkills(Interpreter interpreter, Set<AcademicSkill> skillsInDB) throws SQLException {
+        Set<AcademicSkill> interpreterSkills = interpreter.getAcademicSkills();
+        for (AcademicSkill skill : interpreterSkills) {
+            if (!skillsInDB.contains(skill))
+                createAcademicSkillLink(interpreter, skill);
+        }
+        for(AcademicSkill skill : skillsInDB) {
+            if (!interpreterSkills.contains(skill))
+                deleteAcademicSkillLink(interpreter, skill);
+        }
+    }
+
+    /**
      * Check if a job skill is already registered to an interpreter in DB
      * @param interpreter the Interpreter
      * @param skill the JobSkill
@@ -642,6 +668,24 @@ public class DAOInterpreter extends DAO<Interpreter> {
                         + skill.getDesignation() + " does not exist in DB.");
         } finally {
             closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update interpreter's job skills in database
+     * @param interpreter the interpreter
+     * @param skillsInDB the skills as they are in DB
+     * @throws SQLException if a database exception occurs
+     */
+    private void updateJobSkills(Interpreter interpreter, Set<JobSkill> skillsInDB) throws SQLException {
+        Set<JobSkill> interpreterSkills = interpreter.getJobSkills();
+        for (JobSkill skill : interpreterSkills) {
+            if (!skillsInDB.contains(skill))
+                createJobSkillLink(interpreter, skill);
+        }
+        for(JobSkill skill : skillsInDB) {
+            if (!interpreterSkills.contains(skill))
+                deleteJobSkillLink(interpreter, skill);
         }
     }
 

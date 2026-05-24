@@ -43,8 +43,11 @@ public class DAOBaseTimeSlot extends DAO<BaseTimeSlot> {
 
     @Override
     public void create(BaseTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("BaseTimeSlot " + objectToInsert.getDay() + " already exists");
+        }
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, ?)", TABLE);
         PreparedStatement statement = null;
