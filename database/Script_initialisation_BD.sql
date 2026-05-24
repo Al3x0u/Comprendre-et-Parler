@@ -70,11 +70,31 @@ INSERT INTO Status VALUES (NULL, 'D4', 26);
 INSERT INTO Status VALUES (NULL, 'D5-e', 18);
 INSERT INTO Status VALUES (NULL, 'D5-a', 10);
 
-INSERT INTO Manager VALUES (NULL, NULL, 'Isabelle', 'Hulin', to_date('10/05/1975', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'isabelle.hulin@gmail.com', '0756/98.14.75', NULL, 25, 1201, 'Auto', 1);
-INSERT INTO Interpreter VALUES (NULL, NULL, 'Jeremy', 'Vanbrugen', to_date('05/10/1987', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'jeremy.vanbrugen@gmail.com', NULL, NULL, 34, 1507, 'Vélo', 3);
+INSERT INTO Interpreter VALUES (NULL, NULL, 'Isabelle', 'Hulin', to_date('10/05/1975', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'isabelle.hulin@gmail.com', '0756/98.14.75', NULL, 25, 1201, 'Auto', 1);
+INSERT INTO ManagerT VALUES (1);
+INSERT INTO Interpreter VALUES (NULL, NULL, 'Benoit', 'Brisefer', to_date('01/01/1960', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'benoit.brisefer@gmail.com', NULL, NULL, 12, 74, NULL, 2);
+INSERT INTO ManagerT VALUES (2);
+INSERT INTO Interpreter VALUES (NULL, NULL, 'Benjamin', 'Brisefer', to_date('05/10/1987', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'benjamin.brisefer@gmail.com', NULL, NULL, 34, 1507, 'Vélo', 3);
 INSERT INTO Interpreter VALUES (NULL, NULL, 'Alice', 'Charpentier', to_date('24/02/1972', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'alice.charpentier@gmail.com', '967/14.75.13', NULL, 29, 1342, NULL, 3);
 INSERT INTO Beneficiary VALUES (NULL, NULL, 'Jessica', 'DuBuisson', to_date('29/12/2012', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'jessica.dubuisson@gmail.com', '7544/35.98.74',NULL, 4, 2);
 INSERT INTO Beneficiary VALUES (NULL, NULL, 'Roberto', 'Roberto', to_date('29/12/2020', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'roberto.roberto@gmail.com', NULL, NULL, 1, 3);
+UPDATE AppliUserT SET passwordUpdated = 1;
+
+INSERT INTO academicskillinterpreter VALUES(1, 1);
+INSERT INTO academicskillinterpreter VALUES(1, 3);
+INSERT INTO academicskillinterpreter VALUES(1, 2);
+INSERT INTO academicskillinterpreter VALUES(1, 9);
+INSERT INTO academicskillinterpreter VALUES(2, 5);
+INSERT INTO academicskillinterpreter VALUES(2, 4);
+INSERT INTO academicskillinterpreter VALUES(3, 4);
+INSERT INTO academicskillinterpreter VALUES(3, 3);
+
+INSERT INTO JobSkillInterpreter VALUES(1, 1);
+INSERT INTO JobSkillInterpreter VALUES(1, 2);
+INSERT INTO JobSkillInterpreter VALUES(1, 3);
+INSERT INTO JobSkillInterpreter VALUES(2, 1);
+INSERT INTO JobSkillInterpreter VALUES(2, 3);
+INSERT INTO JobSkillInterpreter VALUES(4, 2);
 
 
 commit;

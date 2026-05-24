@@ -1,5 +1,8 @@
 package be.hers.pi.comprendre_et_parler.DTO;
 
+import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
+import be.hers.pi.comprendre_et_parler.models.JobSkill;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,8 +25,8 @@ public class CreateInterpreterForm {
     private Integer hourQuotaWeek;
     private Integer hourQuotaYear;
 
-    private List<Integer> academicSkillIds;
-    private List<Integer> jobSkillIds;
+    private List<AcademicSkill> academicSkillList;
+    private List<JobSkill> jobSkillList;
 
     public String getLastName() {
         return lastName;
@@ -145,19 +148,19 @@ public class CreateInterpreterForm {
         this.hourQuotaYear = hourQuotaYear;
     }
 
-    public List<Integer> getAcademicSkillIds() {
-        return academicSkillIds;
+    public List<AcademicSkill> getAcademicSkillList() {
+        return academicSkillList;
     }
 
-    public void setAcademicSkillIds(List<Integer> academicSkillIds) {
-        this.academicSkillIds = academicSkillIds;
+    public void setAcademicSkillList(List<AcademicSkill> academicSkillIds) {
+        this.academicSkillList = academicSkillIds;
     }
 
-    public List<Integer> getJobSkillIds() {
-        return jobSkillIds;
+    public List<JobSkill> getJobSkillList() {
+        return jobSkillList;
     }
 
-    public void setJobSkillIds(List<Integer> jobSkillIds) {
-        this.jobSkillIds = jobSkillIds;
+    public void setJobSkillList(List<JobSkill> jobSkillIds) {
+        this.jobSkillList = jobSkillIds;
     }
 }

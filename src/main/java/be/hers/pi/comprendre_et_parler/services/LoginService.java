@@ -20,21 +20,16 @@ public class LoginService {
      * if the credentials are incorrect, or if a database error occurred
      */
     public AppliUser getUserData(String login, String password) {
-        login = login.trim();
-        AppliUser user = null;
         try {
-            if (login.startsWith("i")) {
-                DAOInterpreter dao = new DAOInterpreter();
-                user = SQLWrap.call((FunctionWithSQLException<String, Interpreter>) dao::find, login);
-            } else if (login.startsWith("b")) {
-                DAOBeneficiary dao = new DAOBeneficiary();
-                user = SQLWrap.call((FunctionWithSQLException<String, Beneficiary>) dao::find, login);
-            } else if (login.startsWith("r")) {
-                DAOManager dao = new DAOManager();
-                user = SQLWrap.call((FunctionWithSQLException<String, Manager>) dao::find, login);
-            } else {
-                return null;
+            login = login.trim();
+            AppliUser user = SQLWrap.call((FunctionWithSQLException<String, Manager>) new DAOManager()::find, login);
+            if (user == null) {
+                user = SQLWrap.call((FunctionWithSQLException<String, Interpreter>) new DAOInterpreter()::find, login);
+                if (user == null) {
+                    user = SQLWrap.call((FunctionWithSQLException<String, Beneficiary>) new DAOBeneficiary()::find, login);
+                }
             }
+
             if (user == null || !checkUserLogin(user, login, password)) {
                 return null;
             }
@@ -47,16 +42,13 @@ public class LoginService {
                 passwordUpdated = new DAOBeneficiary().getPasswordUpdated(user.getId());
             }
             user.setPasswordUpdated(passwordUpdated);
-        } catch (ConnectionException e) {
+
+            return user;
+        } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
-            return null;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
         }
 
-
-        return user;
+        return null;
     }
 
     /**
