@@ -71,4 +71,15 @@ public class StatusService {
     public void deleteStatus(Status status) throws NoSuchElementException, SQLException, ConnectionException {
         SQLWrap.callTransaction(new DAOStatus()::delete, status.getId());
     }
+
+    /**
+     * Deletes a Status from database
+     * @param id the id of the status to delete
+     * @throws NoSuchElementException if status does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error
+     */
+    public void deleteStatus(int id) throws NoSuchElementException, SQLException, ConnectionException {
+        SQLWrap.callTransaction(new DAOStatus()::delete, id);
+    }
 }

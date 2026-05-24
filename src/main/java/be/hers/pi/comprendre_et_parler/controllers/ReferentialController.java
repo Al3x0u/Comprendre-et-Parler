@@ -60,7 +60,7 @@ public class ReferentialController {
     @PostMapping("/competences/academiques/{id}/supprimer")
     public String deleteAcademicSkill(@PathVariable int id) {
         try {
-            academicSkillService.deleteAcademicSkill(new AcademicSkill(id, null));
+            academicSkillService.deleteAcademicSkill(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,7 +92,7 @@ public class ReferentialController {
     @PostMapping("/competences/metier/{id}/supprimer")
     public String deleteJobSkill(@PathVariable int id) {
         try {
-            jobSkillService.deleteJobSkill(new JobSkill(id, null));
+            jobSkillService.deleteJobSkill(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -126,7 +126,7 @@ public class ReferentialController {
     @PostMapping("/statuts/{id}/supprimer")
     public String deleteStatus(@PathVariable int id) {
         try {
-            statusService.deleteStatus(new Status(id, null,0));
+            statusService.deleteStatus(id);
         } catch (Exception e) {
             e.printStackTrace();
         }

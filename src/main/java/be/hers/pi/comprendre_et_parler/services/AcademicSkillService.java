@@ -74,6 +74,17 @@ public class AcademicSkillService {
     }
 
     /**
+     * Deletes an AcademicSkill from database
+     * @param id the id of the skill to delete
+     * @throws NoSuchElementException if skill does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public void deleteAcademicSkill(int id) throws NoSuchElementException, ConnectionException, SQLException {
+        SQLWrap.callTransaction(new DAOAcademicSkill()::delete, id);
+    }
+
+    /**
      * Registers an AcademicSkill to an Interpreter in database, and creates the AcademicSkill if it wasn't already present
      * @param skill the skill to register
      * @param interpreter the interpreter to register the skill to. The object will be updated with the new skill to match the change in database
