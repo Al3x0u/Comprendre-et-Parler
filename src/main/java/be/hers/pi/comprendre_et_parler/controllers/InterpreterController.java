@@ -175,8 +175,6 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                System.out.println(interpreterForm.getAcademicSkillIds());
-                System.out.println(interpreterForm.getJobSkillIds());
                 Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
                 UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), interpreter.getLogin(), interpreterForm.getPassword(), interpreterForm.getEmail());
                 model.addAttribute("newUser", newUser);
