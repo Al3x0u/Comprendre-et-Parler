@@ -23,7 +23,8 @@ JOIN
     BeneficiaryT b ON a.id = b.id;
 
 CREATE VIEW Interpreter
-            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber, passwordUpdated, weekHourlyQuota, yearHourlyQuota, transportMode, location)
+            (id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber,
+                passwordUpdated, weekHourlyQuota, yearHourlyQuota, transportMode, location)
 AS SELECT
     a.*, weekHourlyQuota, yearHourlyQuota, designation, location
 FROM
