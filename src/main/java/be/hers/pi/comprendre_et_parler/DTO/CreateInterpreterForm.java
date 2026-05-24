@@ -25,8 +25,8 @@ public class CreateInterpreterForm {
     private Integer hourQuotaWeek;
     private Integer hourQuotaYear;
 
-    private List<AcademicSkill> academicSkillIds;
-    private List<JobSkill> jobSkillIds;
+    private List<AcademicSkill> academicSkillList;
+    private List<JobSkill> jobSkillList;
 
     public String getLastName() {
         return lastName;
@@ -148,19 +148,19 @@ public class CreateInterpreterForm {
         this.hourQuotaYear = hourQuotaYear;
     }
 
-    public List<AcademicSkill> getAcademicSkillIds() {
-        return academicSkillIds;
+    public List<AcademicSkill> getAcademicSkillList() {
+        return academicSkillList;
     }
 
-    public void setAcademicSkillIds(List<AcademicSkill> academicSkillIds) {
-        this.academicSkillIds = academicSkillIds;
+    public void setAcademicSkillList(List<AcademicSkill> academicSkillIds) {
+        this.academicSkillList = academicSkillIds;
     }
 
-    public List<JobSkill> getJobSkillIds() {
-        return jobSkillIds;
+    public List<JobSkill> getJobSkillList() {
+        return jobSkillList;
     }
 
-    public void setJobSkillIds(List<JobSkill> jobSkillIds) {
-        this.jobSkillIds = jobSkillIds;
+    public void setJobSkillList(List<JobSkill> jobSkillIds) {
+        this.jobSkillList = jobSkillIds;
     }
 }
