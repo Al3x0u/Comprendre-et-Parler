@@ -128,7 +128,7 @@
                                 <fieldset id="chosen-job" class="d-flex flex-wrap justify-content-end col-10">
                                     <div class="d-flex col-5 col-xl-4" th:each="skill : ${allJobSkills}">
                                         <input type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}"
-                                               th:field="*{jobSkillIds}" th:value="${skill.id}"/>
+                                               th:field="*{jobSkillIds}" th:value="${skill.designation}"/>
                                         <label class="ms-2" th:for="${skill.designation}" th:text="${skill.designation}"></label>
                                     </div>
                                 </fieldset>
@@ -138,7 +138,7 @@
                                 <fieldset id="chosen-academic" class="d-flex flex-wrap justify-content-end col-10">
                                     <div class="d-flex col-5 col-xl-4" th:each="skill : ${allAcademicSkills}">
                                         <input type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}"
-                                               th:field="*{academicSkillIds}" th:value="${skill.id}"/>
+                                               th:field="*{academicSkillIds}" th:value="${skill.designation}"/>
                                         <label class="ms-2" th:for="${skill.designation}" th:text="${skill.designation}"></label>
                                     </div>
                                 </fieldset>

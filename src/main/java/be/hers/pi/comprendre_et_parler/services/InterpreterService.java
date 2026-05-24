@@ -56,8 +56,8 @@ public class InterpreterService {
                 form.getHourQuotaWeek(),
                 form.getHourQuotaYear(),
                 form.getTransportMode(),
-                new HashSet<>(),
-                new HashSet<>(),
+                new HashSet<>(form.getAcademicSkillIds()),
+                new HashSet<>(form.getJobSkillIds()),
                 location,
                 new HashSet<>()
         );
