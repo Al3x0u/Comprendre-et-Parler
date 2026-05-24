@@ -214,10 +214,12 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     protected int checkAlreadyExists(Beneficiary objectToCheck) throws SQLException {
+        String phoneNumber = objectToCheck.getPhoneNumber();
         String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE,
-                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s",
+                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_EMAIL,
+                phoneNumber == null || phoneNumber.isEmpty() ? FIELD_PHONE_NUMBER + " IS NULL" : FIELD_PHONE_NUMBER + " = ?"
+
         );
         ResultSet result = null;
         PreparedStatement statement = null;
@@ -227,9 +229,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setString(2, objectToCheck.getLastName());
             statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
             statement.setString(4, objectToCheck.getEmail());
-            statement.setString(5, objectToCheck.getPhoneNumber());
-            statement.setInt(6, objectToCheck.getStatus().getId());
-            statement.setInt(7, objectToCheck.getInterpreterRef().getId());
+            if (phoneNumber != null && !phoneNumber.isEmpty()) statement.setString(5, objectToCheck.getPhoneNumber());
 
             result = statement.executeQuery();
             if(result.next())
