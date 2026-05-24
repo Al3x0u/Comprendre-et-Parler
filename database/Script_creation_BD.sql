@@ -163,7 +163,6 @@ ALTER TABLE Status ADD CONSTRAINT QuotaValue CHECK (hourQuota >= 0);
 
 ALTER TABLE AppliUserT ADD CONSTRAINT PhoneNumberUser CHECK (phoneNumber IS NULL OR REGEXP_LIKE(phoneNumber,'^[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+$'));
 ALTER TABLE AppliUserT ADD CONSTRAINT EmailUser CHECK (REGEXP_LIKE(email, '.+@.+\..+'));
-ALTER TABLE AppliUserT ADD CONSTRAINT loginUser CHECK (REGEXP_LIKE(login, '(b|i|r)[0-9]{6}'));
 
 ALTER TABLE InterpreterT ADD CONSTRAINT QuotaWeekValue CHECK (weekHourlyQuota >= 0);
 ALTER TABLE InterpreterT ADD CONSTRAINT QuotaYearValue CHECK (yearHourlyQuota >= 0);

@@ -26,16 +26,19 @@ CREATE TRIGGER BIR_InsertionLoginAppliUser
     FOR EACH ROW
 DECLARE
     numeroMax INTEGER;
-    beginLogin VARCHAR2(7 CHAR);
+    year VARCHAR2(2 CHAR);
+    beginLogin VARCHAR2(4 CHAR);
 BEGIN
-    SELECT to_char(SYSDATE, 'YY') INTO beginLogin FROM DUAL;
-    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
-    FROM AppliUserT WHERE login LIKE CONCAT(CONCAT('_', beginLogin), '%');
+    beginLogin := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
+    SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
+    beginLogin := CONCAT(beginLogin, year);
+    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(beginLogin, '\d+'))) INTO numeroMax
+    FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
 
     IF (numeroMax IS NULL) THEN
-        :NEW.login := CONCAT(CONCAT(:NEW.login, beginLogin), '0001');
+        :NEW.login := CONCAT(beginLogin, '01');
     ELSE
-        :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
+        :NEW.login := CONCAT(beginLogin, numeroMax + 1);
     END IF;
 END;
 /
