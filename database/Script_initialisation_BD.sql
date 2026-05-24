@@ -79,5 +79,21 @@ INSERT INTO Interpreter VALUES (NULL, NULL, 'Alice', 'Charpentier', to_date('24/
 INSERT INTO Beneficiary VALUES (NULL, NULL, 'Jessica', 'DuBuisson', to_date('29/12/2012', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'jessica.dubuisson@gmail.com', '7544/35.98.74',NULL, 4, 2);
 INSERT INTO Beneficiary VALUES (NULL, NULL, 'Roberto', 'Roberto', to_date('29/12/2020', 'dd/mm/yyyy'), '$2a$10$lTLeymVyNqFvWjFgtVVaUeCWAOgvLjifH9CReFXAvyA9J5Lvobgz6', 'roberto.roberto@gmail.com', NULL, NULL, 1, 3);
 
+INSERT INTO academicskillinterpreter VALUES(1, 1);
+INSERT INTO academicskillinterpreter VALUES(1, 3);
+INSERT INTO academicskillinterpreter VALUES(1, 2);
+INSERT INTO academicskillinterpreter VALUES(1, 9);
+INSERT INTO academicskillinterpreter VALUES(2, 5);
+INSERT INTO academicskillinterpreter VALUES(2, 4);
+INSERT INTO academicskillinterpreter VALUES(3, 4);
+INSERT INTO academicskillinterpreter VALUES(3, 3);
+
+INSERT INTO JobSkillInterpreter VALUES(1, 1);
+INSERT INTO JobSkillInterpreter VALUES(1, 2);
+INSERT INTO JobSkillInterpreter VALUES(1, 3);
+INSERT INTO JobSkillInterpreter VALUES(2, 1);
+INSERT INTO JobSkillInterpreter VALUES(2, 3);
+INSERT INTO JobSkillInterpreter VALUES(4, 2);
+
 
 commit;
