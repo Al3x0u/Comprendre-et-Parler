@@ -154,9 +154,15 @@ CREATE TRIGGER IIR_InsertionTransportationView
 DECLARE
     alreadyExist INTEGER;
 BEGIN
-    SELECT count(id) INTO alreadyExist
-    FROM TransportationView
-    WHERE designation = INITCAP(:NEW.designation);
+    IF :NEW.designation IS NOT NULL THEN
+        SELECT count(id) INTO alreadyExist
+        FROM TransportationView
+        WHERE designation = INITCAP(:NEW.designation);
+    ELSE
+        SELECT count(id) INTO alreadyExist
+        FROM TransportationView
+        WHERE designation IS NULL;
+    END IF;
     IF (alreadyExist = 0) THEN
         INSERT INTO Transportation
         VALUES (NULL, INITCAP(:NEW.designation));
