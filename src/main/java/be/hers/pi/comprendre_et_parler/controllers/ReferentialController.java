@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.AcademicSkillService;
 import be.hers.pi.comprendre_et_parler.services.JobSkillService;
+import be.hers.pi.comprendre_et_parler.services.StatusService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ReferentialController {
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
     private final JobSkillService jobSkillService = new JobSkillService();
+    private final StatusService statusService = new StatusService();
 
     /**
      * Display the referential management page
@@ -26,7 +28,7 @@ public class ReferentialController {
         try {
             model.addAttribute("academicSkills", academicSkillService.findAll());
             model.addAttribute("jobSkills", jobSkillService.findAll());
-            model.addAttribute("statuts", getHardcodedStatuts());
+            model.addAttribute("statuts", statusService.findAll());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -101,6 +103,11 @@ public class ReferentialController {
     @PostMapping("/statuts/ajouter")
     public String addStatus(@RequestParam String designation,
                             @RequestParam int hourQuota) {
+        try {
+            statusService.createStatus(new Status(designation, hourQuota));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
@@ -108,21 +115,21 @@ public class ReferentialController {
     public String updateStatus(@PathVariable int id,
                                @RequestParam String designation,
                                @RequestParam int hourQuota) {
+        try {
+            statusService.updateStatus(id, new Status(designation, hourQuota));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
     }
 
     @PostMapping("/statuts/{id}/supprimer")
     public String deleteStatus(@PathVariable int id) {
+        try {
+            statusService.deleteStatus(new Status(id, null,0));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return "redirect:/gestion";
-    }
-
-    // ─── Données hardcodées temporaires ──────────────────────────────────────
-
-    private List<Status> getHardcodedStatuts() {
-        List<Status> statuts = new ArrayList<>();
-        statuts.add(new Status(1, "Etudiant", 960));
-        statuts.add(new Status(2, "Travailleur", 1200));
-        statuts.add(new Status(3, "Sans emploi", 600));
-        return statuts;
     }
 }
