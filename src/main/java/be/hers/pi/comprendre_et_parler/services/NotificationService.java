@@ -5,7 +5,6 @@ import be.hers.pi.comprendre_et_parler.models.*;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
-import org.apache.catalina.User;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -44,16 +43,14 @@ public class NotificationService {
 
     /**
      * Notifies the interpreter(s) and the beneficiary of a reported delay
-     * @param mission the mission for which the delay is reported
-     * @param delayInfo a message describing the delay
      */
     public void notifyDelay(Mission mission, String delayInfo) {
         String subject = "Retard signalé pour votre mission";
-        String body = "Bonjour,\n\n"
-                + "Un retard a été signalé pour la mission \"" + mission.getSubject() + "\""
-                + " du " + formatTimeSlot(mission.getTimeSlot()) + ".\n"
-                + "Détails : " + delayInfo + "\n\n"
-                + "Cordialement,\nL'équipe Comprendre et Parler";
+        String body = "<p>Bonjour,</p>"
+                + "<p>Un retard a été signalé pour la mission <strong>\"" + mission.getSubject() + "\"</strong>"
+                + " du " + formatTimeSlot(mission.getTimeSlot()) + ".</p>"
+                + "<p>Détails : " + delayInfo + "</p>"
+                + "<p>Cordialement,<br>L'équipe Comprendre et Parler</p>";
 
         if (mission.getInterpreters() != null)
             for (Interpreter i : mission.getInterpreters())
@@ -65,14 +62,13 @@ public class NotificationService {
 
     /**
      * Notifies the interpreter(s) and the beneficiary that a mission has been cancelled.
-     * @param mission the cancelled mission
      */
     public void notifyCancellation(Mission mission) {
         String subject = "Mission annulée";
-        String body = "Bonjour,\n\n"
-                + "La mission \"" + mission.getSubject() + "\""
-                + " du " + formatTimeSlot(mission.getTimeSlot()) + " a été annulée.\n\n"
-                + "Cordialement,\nL'équipe Comprendre et Parler";
+        String body = "<p>Bonjour,</p>"
+                + "<p>La mission <strong>\"" + mission.getSubject() + "\"</strong>"
+                + " du " + formatTimeSlot(mission.getTimeSlot()) + " a été annulée.</p>"
+                + "<p>Cordialement,<br>L'équipe Comprendre et Parler</p>";
 
         if (mission.getInterpreters() != null)
             for (Interpreter i : mission.getInterpreters())
@@ -82,46 +78,43 @@ public class NotificationService {
             sendEmail(mission.getBeneficiary().getEmail(), subject, body);
     }
 
-
     /**
      * Notifies the beneficiary that their request has been refused.
-     * @param mission the refused mission
      */
     public void notifyRefusal(Mission mission) {
         String subject = "Demande de mission refusée";
-        String body = "Bonjour,\n\n"
-                + "Votre demande de mission \"" + mission.getSubject() + "\""
-                + " du " + formatTimeSlot(mission.getTimeSlot()) + " a été refusée.\n\n"
-                + "Cordialement,\nL'équipe Comprendre et Parler";
+        String body = "<p>Bonjour,</p>"
+                + "<p>Votre demande de mission <strong>\"" + mission.getSubject() + "\"</strong>"
+                + " du " + formatTimeSlot(mission.getTimeSlot()) + " a été refusée.</p>"
+                + "<p>Cordialement,<br>L'équipe Comprendre et Parler</p>";
 
         if (mission.getBeneficiary() != null)
             sendEmail(mission.getBeneficiary().getEmail(), subject, body);
     }
-
 
     /**
      * Notifies the User that his account has been created
      */
     public void sendUserCredentials(UserCredentials userCredentials) {
         String subject = "Vos informations de connexion";
-        String body = "Bonjour,\n\n"
-                + "Votre compte a été créé sur la plateforme Comprendre & Parler.\n\n"
-                + "Voici vos identifiants de première connexion :\n\n"
-                + "Login : " + userCredentials.getLogin() + "\n"
-                + "Mot de passe : " + userCredentials.getPassword() + "\n"
-                + "Connectez-vous via ce lien : " + userCredentials.getLoginUrl() + "\n\n"
-                + "Attention : Vous devrez changer votre mot de passe dès votre première connexion.";
+        String body = "<p>Bonjour " + userCredentials.getFirstName() + ",</p>"
+                + "<p>Votre compte a été créé sur la plateforme Comprendre &amp; Parler.</p>"
+                + "<p>Voici vos identifiants de première connexion :</p>"
+                + "<p>"
+                + "Login : <strong>" + userCredentials.getLogin() + "</strong><br>"
+                + "Mot de passe : <strong>" + userCredentials.getPassword() + "</strong><br>"
+                + "Connectez-vous via ce lien : "
+                + "<a href=\"" + userCredentials.getLoginUrl() + "\">" + userCredentials.getLoginUrl() + "</a>"
+                + "</p>"
+                + "<p><strong>Attention :</strong> Vous devrez changer votre mot de passe dès votre première connexion.</p>";
 
         sendEmail(userCredentials.getEmail(), subject, body);
     }
 
     /**
-     * Sends an email to the given recipient.
+     * Sends an HTML email to the given recipient.
      * Failures are logged but do not propagate, so a notification error
      * never rolls back the calling business transaction.
-     * @param dest      recipient email address
-     * @param subject email subject
-     * @param body    plain-text email body
      */
     private void sendEmail(String dest, String subject, String body) {
         try {
@@ -129,7 +122,7 @@ public class NotificationService {
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(dest));
             message.setSubject(subject);
-            message.setText(body);
+            message.setContent(body, "text/html; charset=utf-8");
             Transport.send(message);
         } catch (MessagingException e) {
             e.printStackTrace();

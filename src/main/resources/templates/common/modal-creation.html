@@ -5,17 +5,24 @@
 <th:block th:fragment="modal-success">
     <div class="modal fade" id="modalCredentials" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4">
+            <form th:action="@{/interpretes/creer/notifier}" th:object="${newUser}"
+                  method="post" class="modal-content border-0 rounded-4">
+                <input type="hidden" th:field="*{password}">
+                <input type="hidden" th:field="*{firstName}">
+                <input type="hidden" th:field="*{email}">
+                <input type="hidden" th:field="*{login}">
                 <div class="modal-header text-bg-success rounded-top-4">
                     <h3 class="modal-title"><i class="bi bi-check-circle me-2"></i>Utilisateur créé avec succès</h3>
                 </div>
                 <div class="modal-body p-3">
-                    <h4>L'utilisateur <span th:text="${newUser.firstName}"></span> a été créé avec le login <span th:text="${newUser.login}"></span> !</h4>
+                    <h4>L'utilisateur <span th:text="*{firstName}"></span> a été créé avec le login <span th:text="*{login}"></span> !</h4>
+                    <h5>Un mail va être envoyé à l'adresse <span th:text="*{email}"></span></h5>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler l'envoi</button>
+                    <button type="submit" class="btn btn-outline-secondary" data-bs-dismiss="modal">Envoyer</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
     <script>

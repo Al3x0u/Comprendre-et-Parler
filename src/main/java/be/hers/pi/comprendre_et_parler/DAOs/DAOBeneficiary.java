@@ -115,10 +115,13 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     private void getNewAttributes(Beneficiary newObject) throws SQLException {
+        String phoneNumber = newObject.getPhoneNumber();
         String query = String.format(
-                "SELECT %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
+                "SELECT %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s",
                 FIELD_ID, FIELD_LOGIN, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME,FIELD_BIRTH_DATE,
-                FIELD_HASHED_PASSWORD, FIELD_EMAIL, FIELD_PHONE_NUMBER
+                FIELD_HASHED_PASSWORD, FIELD_EMAIL,
+                phoneNumber == null || phoneNumber.isEmpty() ? FIELD_PHONE_NUMBER + " IS NULL" : FIELD_PHONE_NUMBER + " = ?"
+
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -129,7 +132,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setDate(3, Date.valueOf(newObject.getBirthDate()));
             statement.setString(4, newObject.getHashedPassword());
             statement.setString(5, newObject.getEmail());
-            statement.setString(6, newObject.getPhoneNumber());
+            if (phoneNumber != null && !phoneNumber.isEmpty()) statement.setString(6, phoneNumber);
+
 
             result = statement.executeQuery();
             if (result.next()) {
@@ -214,10 +218,12 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     protected int checkAlreadyExists(Beneficiary objectToCheck) throws SQLException {
+        String phoneNumber = objectToCheck.getPhoneNumber();
         String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
-                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s",
+                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_EMAIL,
+                phoneNumber == null || phoneNumber.isEmpty() ? FIELD_PHONE_NUMBER + " IS NULL" : FIELD_PHONE_NUMBER + " = ?"
+
         );
         ResultSet result = null;
         PreparedStatement statement = null;
@@ -226,11 +232,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setString(1, objectToCheck.getFirstName());
             statement.setString(2, objectToCheck.getLastName());
             statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
-            statement.setString(4, objectToCheck.getHashedPassword());
-            statement.setString(5, objectToCheck.getEmail());
-            statement.setString(6, objectToCheck.getPhoneNumber());
-            statement.setInt(7, objectToCheck.getStatus().getId());
-            statement.setInt(8, objectToCheck.getInterpreterRef().getId());
+            statement.setString(4, objectToCheck.getEmail());
+            if (phoneNumber != null && !phoneNumber.isEmpty()) statement.setString(5, objectToCheck.getPhoneNumber());
 
             result = statement.executeQuery();
             if(result.next())

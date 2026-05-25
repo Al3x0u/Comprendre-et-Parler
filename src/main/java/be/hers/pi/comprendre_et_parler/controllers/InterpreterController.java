@@ -22,6 +22,13 @@ public class InterpreterController {
     private final InterpreterService interpreterService = new InterpreterService();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
 
+    /**
+     * Display the paginated and filtered list of interpreters
+     * @param page the page number to display; defaults to 1
+     * @param keyword the search keyword to filter by login, firstName or lastName; defaults to empty
+     * @param model the Spring model to populate
+     * @return the interpreters list view, or a redirect to the list on error
+     */
     @GetMapping("")
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "") String keyword,
@@ -51,6 +58,14 @@ public class InterpreterController {
         return "interpreters/list";
     }
 
+    /**
+     * Display the profile of an interpreter
+     * @param id the ID of the interpreter to display
+     * @param referer the URL of the referring page, used for the back button
+     * @param session the current HTTP session, used to retrieve the connected user
+     * @param model the Spring model to populate
+     * @return the interpreter profile view, or a redirect to the list if not found
+     */
     @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
@@ -77,6 +92,14 @@ public class InterpreterController {
         return "interpreters/profile";
     }
 
+    /**
+     * Display the edit form for an interpreter's profile
+     * @param id the ID of the interpreter to edit
+     * @param referer the URL of the referring page, used for the back button
+     * @param session the current HTTP session, used to retrieve the connected user
+     * @param model the Spring model to populate
+     * @return the edit profile view, or a redirect to the list if not found
+     */
     @GetMapping("/profil/{id}/modifier")
     public String showEditInterpreterProfile(@PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
@@ -97,6 +120,13 @@ public class InterpreterController {
         return "interpreters/edit-profile";
     }
 
+    /**
+     * Handle the submission of the interpreter profile edit form
+     * @param id the id of the interpreter to update
+     * @param returnUrl the URL of the page the user wants to go to
+     * @param formInterpreter the form containing the updated information
+     * @return the interpreter's profile views on success, or the list on error
+     */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
@@ -104,6 +134,11 @@ public class InterpreterController {
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
     }
 
+    /**
+     * Handle the promotion of an interpreter into a manager
+     * @param id the id of the interpreter to promote
+     * @return the profile view shows the result of the promotion
+     */
     @PostMapping("/profil/{id}/promouvoir")
     public String promoteInterpreter(@PathVariable int id) {
         try {
@@ -114,6 +149,11 @@ public class InterpreterController {
         return "redirect:/interpretes/profil/" + id;
     }
 
+    /**
+     * Display the creation form for a new interpreter
+     * @param model the Spring model to populate
+     * @return the creation view, or a redirect to the list on error
+     */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
         sortSkills(model);
@@ -122,6 +162,13 @@ public class InterpreterController {
         return "interpreters/creation";
     }
 
+    /**
+     * Handle the submission of the interpreter creation form.
+     * @param interpreterForm the form containing the new interpreter's information
+     * @param returnUrl the URL of the page the user wants to go to
+     * @param model the Spring model to populate
+     * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
+     */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
                                     @RequestParam(required = false) String returnUrl,
@@ -129,14 +176,12 @@ public class InterpreterController {
         if (returnUrl == null) {
             try {
                 Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-
-                model.addAttribute("newUser", interpreter);
+                UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), interpreter.getLogin(), interpreterForm.getPassword(), interpreterForm.getEmail());
+                model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                e.printStackTrace();
-                model.addAttribute("submitState", "alreadyExist");
-                model.addAttribute("interpreterToCreate", interpreterForm);
+                model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
@@ -146,6 +191,17 @@ public class InterpreterController {
             }
         }
         return "redirect:" + returnUrl;
+    }
+
+    /**
+     * Email the new interpreter
+     * @param user the new interpreter's information
+     * @return redirect to the creation form
+     */
+    @PostMapping("/creer/notifier")
+    public String sendMailCreation(@ModelAttribute("newUser") UserCredentials user) {
+        new NotificationService().sendUserCredentials(user);
+        return "redirect:/interpretes/creer";
     }
 
     /**

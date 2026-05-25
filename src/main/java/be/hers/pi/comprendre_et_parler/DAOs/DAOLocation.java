@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
@@ -161,19 +162,30 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     protected int checkAlreadyExists(Location location) throws SQLException {
+        City c1 = location.getCity();
+        c1.setId(new DAOCity().checkAlreadyExists(c1));
+        String designation = location.getDesignation();
+        String streetNumber = location.getStreetNumber();
+
         String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX
+                "SELECT %s FROM %s WHERE %s AND %s = ? AND %s = ? AND %s AND %s = ?",
+                FIELD_ID, TABLE,
+                designation == null || designation.isEmpty() ? FIELD_DESIGNATION + " IS NULL" : FIELD_DESIGNATION + " = ?",
+                FIELD_CITY,
+                FIELD_STREET,
+                streetNumber == null || streetNumber.isEmpty() ? FIELD_STREET_NUMBER + " IS NULL" : FIELD_STREET_NUMBER + " = ?",
+                FIELD_BOX
         );
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
+            int field = 1;
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, location.getDesignation());
-            statement.setInt(2, location.getCity().getId());
-            statement.setString(3, location.getStreet());
-            statement.setString(4, location.getStreetNumber());
-            statement.setInt(5, location.getBox());
+            if (designation != null && !designation.isEmpty()) statement.setString(field++, designation);
+            statement.setInt(field++, location.getCity().getId());
+            statement.setString(field++, location.getStreet());
+            if (streetNumber != null && !streetNumber.isEmpty()) statement.setString(field++, streetNumber);
+            statement.setInt(field, location.getBox());
 
             result = statement.executeQuery();
             if(result.next())

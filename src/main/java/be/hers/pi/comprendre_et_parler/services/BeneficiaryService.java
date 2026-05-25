@@ -49,7 +49,7 @@ public class BeneficiaryService {
 
         SQLWrap.callTransaction(daoBeneficiary::create, beneficiary);
 
-        return new UserCredentials(beneficiary.getLogin(), plainPassword, "/login", beneficiary.getEmail());
+        return new UserCredentials(beneficiary.getFirstName(), beneficiary.getLogin(), plainPassword, beneficiary.getEmail());
     }
 
     private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {

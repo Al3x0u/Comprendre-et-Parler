@@ -3,11 +3,7 @@ DROP TRIGGER BIR_InsertionLoginAppliUser;
 DROP TRIGGER IDR_DeleteAppliUser;
 DROP TRIGGER IIR_InsertionInterpreter;
 DROP TRIGGER IDR_DeleteInterpreter;
-DROP TRIGGER IUR_UpdateTransportModeInterpreter;
-DROP TRIGGER IIR_InsertionManager;
-DROP TRIGGER AIR_InsertionLoginManager;
-DROP TRIGGER IDR_DeleteManager;
-DROP TRIGGER IUR_UpdateTransportModeManager;
+DROP TRIGGER IUR_UpdateInterpreter;
 DROP TRIGGER IIR_InsertionBeneficiary;
 DROP TRIGGER IDR_DeleteBeneficiary;
 DROP TRIGGER IUR_UpdateBeneficiary;
@@ -21,7 +17,7 @@ BEGIN
     INSERT INTO AppliUserT
     VALUES
         (NULL, SYSDATE, NULL, :NEW.login, :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, 0);
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
 END;
 /
 
@@ -30,16 +26,22 @@ CREATE TRIGGER BIR_InsertionLoginAppliUser
     FOR EACH ROW
 DECLARE
     numeroMax INTEGER;
-    beginLogin VARCHAR2(7 CHAR);
+    year VARCHAR2(2 CHAR);
+    initial VARCHAR2(2 CHAR);
+    beginLogin VARCHAR2(4 CHAR);
 BEGIN
-    SELECT to_char(SYSDATE, 'YY') INTO beginLogin FROM DUAL;
-    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
-    FROM AppliUserT WHERE login LIKE CONCAT(CONCAT('_', beginLogin), '%');
-
-    IF (numeroMax IS NULL) THEN
-        :NEW.login := CONCAT(CONCAT(:NEW.login, beginLogin), '0001');
-    ELSE
-        :NEW.login := CONCAT(:NEW.login, numeroMax + 1);
+    IF :NEW.login IS NULL THEN
+        initial := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
+        SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
+        beginLogin := CONCAT(initial, year);
+        SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
+        FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
+    
+        IF (numeroMax IS NULL) THEN
+           :NEW.login := CONCAT(beginLogin, '01');
+        ELSE
+            :NEW.login := CONCAT(initial, numeroMax + 1);
+        END IF;
     END IF;
 END;
 /
@@ -78,8 +80,8 @@ BEGIN
     END IF;
     INSERT INTO AppliUser
     VALUES
-        (NULL, 'i', :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL);
+        (NULL, NULL, :NEW.firstName, :NEW.lastName,
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, 0);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
@@ -97,73 +99,33 @@ BEGIN
 END;
 /
 
-CREATE TRIGGER IUR_UpdateTransportModeInterpreter
+CREATE TRIGGER IUR_UpdateInterpreter
     INSTEAD OF UPDATE ON Interpreter
     FOR EACH ROW
 DECLARE
     idTransportation INTEGER;
+    newID INTEGER;
 BEGIN
     INSERT INTO TransportationView VALUES (NULL, :NEW.transportMode);
     SELECT id INTO idTransportation FROM TransportationView
     WHERE designation = INITCAP(:NEW.transportMode);
-    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
-                         birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                         phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-    UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
-                            transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
-END;
-/
-
-CREATE TRIGGER IIR_InsertionManager
-    INSTEAD OF INSERT ON Manager
-    FOR EACH ROW
-DECLARE
-    newID INTEGER;
-BEGIN
-    INSERT INTO Interpreter
-    VALUES
-        (NULL, NULL, :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL,
-         :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, :NEW.transportMode, :NEW.location);
-    SELECT id INTO newID
-    FROM AppliUser
-    WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
-    INSERT INTO ManagerT
-    VALUES (newID);
-END;
-/
-
-CREATE TRIGGER AIR_InsertionLoginManager
-    AFTER INSERT ON ManagerT
-    FOR EACH ROW
-DECLARE
-    newLogin VARCHAR2(7 CHAR);
-BEGIN
-    SELECT login INTO newLogin
-    FROM AppliUserT
-    WHERE id = :NEW.id;
-    newLogin := REPLACE(newLogin, 'i', 'r');
-    UPDATE AppliUserT SET login = newLogin WHERE id = :NEW.id;
-END;
-/
-
-CREATE TRIGGER IDR_DeleteManager
-    INSTEAD OF DELETE ON Manager
-    FOR EACH ROW
-BEGIN
-    DELETE FROM AppliUser WHERE login = :OLD.login;
-END;
-/
-
-CREATE TRIGGER IUR_UpdateTransportModeManager
-    INSTEAD OF UPDATE ON Manager
-    FOR EACH ROW
-BEGIN
-    UPDATE Interpreter SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
-                           hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
-                           weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
-                           transportMode = :NEW.transportMode, location = :NEW.location WHERE id = :OLD.id;
+    IF :NEW.weekHourlyQuota = :OLD.weekHourlyQuota AND :NEW.yearHourlyQuota = :OLD.yearHourlyQuota THEN
+        UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
+                             birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
+                             phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+        UPDATE InterpreterT SET transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+    ELSE
+        DELETE FROM AppliUser WHERE id = :OLD.id;
+        INSERT INTO AppliUser
+        VALUES
+            (NULL, :OLD.login, :NEW.firstName, :NEW.lastName,
+             :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
+        SELECT id INTO newID
+        FROM AppliUser
+        WHERE login = :OLD.login;
+        INSERT INTO InterpreterT
+        VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
+    END IF;
 END;
 /
 
@@ -175,8 +137,8 @@ DECLARE
 BEGIN
     INSERT INTO AppliUser
     VALUES
-        (NULL, 'b', :NEW.firstName, :NEW.lastName,
-         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, NULL);
+        (NULL, NULL, :NEW.firstName, :NEW.lastName,
+         :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, 0);
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
@@ -197,11 +159,26 @@ END;
 CREATE TRIGGER IUR_UpdateBeneficiary
     INSTEAD OF UPDATE ON Beneficiary
     FOR EACH ROW
+DECLARE
+    newId INTEGER;
 BEGIN
-    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
-                         birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                         phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-    UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
+    IF :NEW.status = :OLD.status THEN
+        UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
+                             birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
+                             phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+        UPDATE BeneficiaryT SET referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
+    ELSE
+        DELETE FROM AppliUser WHERE id = :OLD.id;
+        INSERT INTO AppliUser
+        VALUES
+            (NULL, :OLD.login, :NEW.firstName, :NEW.lastName,
+             :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
+        SELECT id INTO newID
+        FROM AppliUser
+        WHERE login = :OLD.login;
+        INSERT INTO BeneficiaryT
+        VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
+    END IF;
 END;
 /
 
@@ -211,9 +188,15 @@ CREATE TRIGGER IIR_InsertionTransportationView
 DECLARE
     alreadyExist INTEGER;
 BEGIN
-    SELECT count(id) INTO alreadyExist
-    FROM TransportationView
-    WHERE designation = INITCAP(:NEW.designation);
+    IF :NEW.designation IS NOT NULL THEN
+        SELECT count(id) INTO alreadyExist
+        FROM TransportationView
+        WHERE designation = INITCAP(:NEW.designation);
+    ELSE
+        SELECT count(id) INTO alreadyExist
+        FROM TransportationView
+        WHERE designation IS NULL;
+    END IF;
     IF (alreadyExist = 0) THEN
         INSERT INTO Transportation
         VALUES (NULL, INITCAP(:NEW.designation));
