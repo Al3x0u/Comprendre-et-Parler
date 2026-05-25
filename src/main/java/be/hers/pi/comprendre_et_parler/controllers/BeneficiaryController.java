@@ -19,17 +19,9 @@ import java.util.List;
 @RequestMapping("beneficiaires")
 public class BeneficiaryController {
 
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-
-    private final BeneficiaryService beneficiaryService;
-    private final InterpreterService interpreterService;
-    private final StatusService statusService;
-
-    public BeneficiaryController(BeneficiaryService beneficiaryService, InterpreterService interpreterService, StatusService statusService) {
-        this.beneficiaryService = beneficiaryService;
-        this.interpreterService = interpreterService;
-        this.statusService = statusService;
-    }
+    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final InterpreterService interpreterService = new InterpreterService();
+    private final StatusService statusService = new StatusService();
 
     /**
      * Display the paginated and filtered list of beneficiaries.

@@ -17,18 +17,10 @@ import java.util.*;
 @Service
 public class InterpreterService {
 
-    private final DAOInterpreter daoInterpreter;
-    private final DAOBeneficiary daoBeneficiary;
-    private final DAOMission daoMission;
-    private final MissionService missionService;
-
-
-    public InterpreterService() {
-        this.daoInterpreter = new DAOInterpreter();
-        this.daoBeneficiary = new DAOBeneficiary();
-        this.daoMission = new DAOMission();
-        this.missionService = new MissionService();
-    }
+    private final DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final DAOMission daoMission = new DAOMission();
+    private final MissionService missionService = new MissionService();
 
     /**
      * Creates a new interpreter in the system.

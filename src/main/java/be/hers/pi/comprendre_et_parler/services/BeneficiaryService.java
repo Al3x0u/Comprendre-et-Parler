@@ -19,13 +19,6 @@ public class BeneficiaryService {
 
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    private InterpreterService interpreterService;
-    private StatusService statusService;
-
-    public BeneficiaryService(InterpreterService interpreterService, StatusService statusService){
-        this.interpreterService = interpreterService;
-        this.statusService = statusService;
-    }
 
     /**
      * Create a new Beneficiary in the database with a hashed password.
