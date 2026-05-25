@@ -44,8 +44,20 @@ public class StatusService {
         if (oldStatus.equals(newStatus))
             return;
 
-        newStatus.setId(oldStatus.getId());
+        updateStatus(oldStatus.getId(), newStatus);
+    }
 
+    /**
+     * Updates a Status in database
+     * @param oldStatusId the id of the status to modify
+     * @param newStatus the new version of the status. Its id will be updated to match oldStatusId.
+     * @throws NoSuchElementException if status does not exist in database
+     * @throws AlreadyExistsException if updated status already exists
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error
+     */
+    public void updateStatus(int oldStatusId, Status newStatus) throws NoSuchElementException, AlreadyExistsException, SQLException, ConnectionException {
+        newStatus.setId(oldStatusId);
         SQLWrap.callTransaction(new DAOStatus()::update, newStatus);
     }
 
@@ -58,5 +70,16 @@ public class StatusService {
      */
     public void deleteStatus(Status status) throws NoSuchElementException, SQLException, ConnectionException {
         SQLWrap.callTransaction(new DAOStatus()::delete, status.getId());
+    }
+
+    /**
+     * Deletes a Status from database
+     * @param id the id of the status to delete
+     * @throws NoSuchElementException if status does not exist in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error
+     */
+    public void deleteStatus(int id) throws NoSuchElementException, SQLException, ConnectionException {
+        SQLWrap.callTransaction(new DAOStatus()::delete, id);
     }
 }
