@@ -97,7 +97,7 @@ public class BeneficiaryController {
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("interpreters", interpreterService.getAllInterpreters());
             model.addAttribute("age", beneficiaryService.calculateAge(beneficiary.getBirthDate()));
-            model.addAttribute("allStatuses", statusService.getAllStatus());
+            model.addAttribute("allStatuses", statusService.findAll());
         } catch (SQLException e) {
             return "redirect:/beneficiaires";
         }catch (ConnectionException e){
@@ -142,7 +142,7 @@ public class BeneficiaryController {
     public String showCreateBeneficiaryForm(Model model) {
         try {
             model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-            model.addAttribute("allStatuses", statusService.getAllStatus());
+            model.addAttribute("allStatuses", statusService.findAll());
             model.addAttribute("interpreters", interpreterService.getAllInterpreters());
             return "beneficiaries/creation";
         } catch (ConnectionException e) {
@@ -186,7 +186,7 @@ public class BeneficiaryController {
      */
     private void populateCreationModel(Model model) throws SQLException, ConnectionException {
         model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-        model.addAttribute("allStatuses", statusService.getAllStatus());
+        model.addAttribute("allStatuses", statusService.findAll());
         model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
     }
 
