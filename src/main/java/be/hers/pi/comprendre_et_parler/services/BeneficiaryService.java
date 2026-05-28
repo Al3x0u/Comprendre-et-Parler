@@ -29,7 +29,7 @@ public class BeneficiaryService {
      * @throws SQLException if the database could not be reached
      * @throws ConnectionException  if the connection to the database could not be established
      */
-    public Beneficiary getBeneficiaryById(int id) throws ConnectionException, SQLException{
+    public Beneficiary getOneBeneficiary(int id) throws ConnectionException, SQLException{
         Beneficiary beneficiary = SQLWrap.call(
                 (Integer i) -> daoBeneficiary.find(i),
                 id
@@ -43,11 +43,14 @@ public class BeneficiaryService {
      * @throws SQLException if the database could not be reached
      * @throws ConnectionException if the connection to the database could not be established
      */
-    public Set<Beneficiary> findAll() throws SQLException, ConnectionException {
+    public Set<Beneficiary> getAllBeneficiary() throws SQLException, ConnectionException {
 
         return SQLWrap.call(daoBeneficiary::findAll);
 
     }
+
+
+
     /**
      * Create a new Beneficiary in the database with a hashed password.
      * @param form the form containing the beneficiary's information entered by the manager, must not be null.
@@ -70,7 +73,7 @@ public class BeneficiaryService {
 
         SQLWrap.callTransaction(daoBeneficiary::create, beneficiary);
 
-        return new UserCredentials(beneficiary.getLogin(), plainPassword, "/login");
+        return new UserCredentials(beneficiary.getFirstName(), beneficiary.getLogin(), plainPassword, beneficiary.getEmail());
     }
 
     private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {
