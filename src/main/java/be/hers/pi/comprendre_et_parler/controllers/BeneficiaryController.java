@@ -69,10 +69,7 @@ public class BeneficiaryController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                // TODO Beneficiary beneficiary = beneficiaryService.createBeneficiary(beneficiaryForm);
-                Beneficiary beneficiary = new Beneficiary("b001", "Toto", "toto", LocalDate.now(),
-                        "1234", "toto@gmail.com", null, null, null);
-                UserCredentials newUser = new UserCredentials(beneficiaryForm.getFirstName(), beneficiary.getLogin(), beneficiaryForm.getPassword(), beneficiaryForm.getEmail());
+                UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());

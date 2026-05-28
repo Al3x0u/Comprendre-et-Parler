@@ -176,8 +176,7 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-                UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), interpreter.getLogin(), interpreterForm.getPassword(), interpreterForm.getEmail());
+                UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
@@ -206,9 +205,9 @@ public class InterpreterController {
 
         if (referer != null) {
             referer = referer.replaceFirst(".*?[^\\/]\\/([^\\/])", "redirect:\\/$1");
-            System.out.println(referer);
+            return referer;
         }
-        return referer != null ? referer : "redirect:/dashboard";
+        return "redirect:/dashboard";
     }
 
     /**
