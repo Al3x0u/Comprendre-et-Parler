@@ -28,34 +28,8 @@ public class InterpreterService {
         this.missionService = new MissionService();
     }
 
-    /**
-     * Returns an interpreter according to the given id.
-     * @param id the id of the interpreter which we want
-     * @return a interpreter matching the id
-     * @throws SQLException if the database could not be reached
-     * @throws ConnectionException  if the connection to the database could not be established
-     */
-    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
-        Interpreter interpreter = SQLWrap.call(
-                (Integer i) -> daoInterpreter.find(i),
-                id
-        );
-        return interpreter;
-    }
-    /**
-     * Returns an interpreter according to the given id.
-     * @param id the id of the interpreter which we want
-     * @return a interpreter matching the id
-     * @throws SQLException if the database could not be reached
-     * @throws ConnectionException  if the connection to the database could not be established
-     */
-    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
-        Interpreter interpreter = SQLWrap.call(
-                (Integer i) -> daoInterpreter.find(i),
-                id
-        );
-        return interpreter;
-    }
+
+
     /**
      * Creates a new interpreter in the system.
      * @throws AlreadyExistsException if the interpreter already exists in the database
