@@ -59,7 +59,8 @@ public class BeneficiaryController {
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-        return populateCreationModel(model);
+        populateCreationModel(model);
+        return "beneficiaries/creation";
     }
 
     @PostMapping("/creer")
@@ -68,8 +69,7 @@ public class BeneficiaryController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                //Beneficiary beneficiary = beneficiaryService.createBeneficiary(beneficiaryForm);
-                System.out.println(beneficiaryForm.getStatusId() + " " + beneficiaryForm.getInterpreterRefId());
+                // TODO Beneficiary beneficiary = beneficiaryService.createBeneficiary(beneficiaryForm);
                 Beneficiary beneficiary = new Beneficiary("b001", "Toto", "toto", LocalDate.now(),
                         "1234", "toto@gmail.com", null, null, null);
                 UserCredentials newUser = new UserCredentials(beneficiaryForm.getFirstName(), beneficiary.getLogin(), beneficiaryForm.getPassword(), beneficiaryForm.getEmail());
@@ -82,13 +82,14 @@ public class BeneficiaryController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                return populateCreationModel(model);
+                populateCreationModel(model);
+                return "beneficiaries/creation";
             }
         }
         return "redirect:" + returnUrl;
     }
 
-    private String populateCreationModel(Model model) {
+    private void populateCreationModel(Model model) {
         try {
             List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
             allStatus.sort((s1, s2) -> s1.getDesignation().compareTo(s2.getDesignation()));
@@ -97,10 +98,8 @@ public class BeneficiaryController {
 
             model.addAttribute("allStatuses", allStatus);
             model.addAttribute("allInterpreters", allInterpreters);
-            return "beneficiaries/creation";
         } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
-            return "redirect:/beneficiaires";
         }
     }
 }
