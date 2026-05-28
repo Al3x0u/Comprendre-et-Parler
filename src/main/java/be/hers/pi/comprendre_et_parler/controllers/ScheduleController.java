@@ -53,7 +53,7 @@ public class ScheduleController {
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
-            Set<Beneficiary> beneficiaries= beneficiaryService.findAll();
+            Set<Beneficiary> beneficiaries= beneficiaryService.getAllBeneficiary();
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
@@ -547,7 +547,7 @@ public class ScheduleController {
 
             String beneficiaryId = body.get("beneficiaryId");
             if (beneficiaryId != null && !beneficiaryId.isBlank()) {
-                Beneficiary beneficiary = beneficiaryService.getBeneficiaryById(Integer.parseInt(beneficiaryId));
+                Beneficiary beneficiary = beneficiaryService.getOneBeneficiary(Integer.parseInt(beneficiaryId));
                 mission.setBeneficiary(beneficiary);
             }
         }
