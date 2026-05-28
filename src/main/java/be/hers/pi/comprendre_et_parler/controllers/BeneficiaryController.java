@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("beneficiaires")
@@ -55,40 +56,43 @@ public class BeneficiaryController {
 
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
-        try {
-            model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-            model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
-            model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
-            return "beneficiaries/creation";
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
-        }
+        model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+        return populateCreationModel(model);
     }
 
     @PostMapping("/creer")
-    public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
-        try {
-            UserCredentials credentials = beneficiaryService.createBeneficiary(form);
-            populateCreationModel(model);
-            model.addAttribute("credentials", credentials);
-            return "beneficiaries/creation";
+    public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
+                                    @RequestParam(required = false) String returnUrl,
+                                    Model model) {
+        if (returnUrl == null) {
+            try {
+                //Beneficiary beneficiary = beneficiaryService.createBeneficiary(beneficiaryForm);
+                Beneficiary beneficiary = new Beneficiary("b001", "Toto", "toto", LocalDate.now(),
+                        "1234", "toto@gmail.com", null, null, null);
+                UserCredentials newUser = new UserCredentials(beneficiaryForm.getFirstName(), beneficiary.getLogin(), beneficiaryForm.getPassword(), beneficiaryForm.getEmail());
+                model.addAttribute("newUser", newUser);
+                model.addAttribute("submitState", "success");
+                model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+            } catch (AlreadyExistsException e) {
+                model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+            } finally {
+                return populateCreationModel(model);
+            }
+        }
+        return "redirect:" + returnUrl;
+    }
 
-        } catch (AlreadyExistsException e) {
-            model.addAttribute("error", "Ce bénéficiaire existe déjà.");
+    private String populateCreationModel(Model model) {
+        try {
+            model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
+            model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
             return "beneficiaries/creation";
         } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
             return "redirect:/beneficiaires";
         }
-    }
-
-    private void populateCreationModel(Model model) throws SQLException, ConnectionException {
-        model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-        model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
-        model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
     }
 }

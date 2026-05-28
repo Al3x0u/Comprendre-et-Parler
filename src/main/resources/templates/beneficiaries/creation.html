@@ -5,43 +5,55 @@
 <body>
 <div th:replace="~{common/navbar :: navbar}"></div>
 <main class="container py-4">
+    <div>
+        <div th:if="${submitState} != null">
+            <div th:if="${submitState} == 'success'">
+                <div th:replace="~{common/modal-creation :: modal-success}"></div>
+            </div>
+            <div th:unless="${submitState} == 'success'">
+                <div th:replace="~{common/modal-creation :: modal-error}"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="card border-0 rounded-4 shadow-sm">
         <div class="card-header rounded-top-4 bg-primary text-white p-3">
             <h1 class="h3 mb-0 py-1"><i class="bi bi-person-fill-add me-2"></i>Créer un bénéficiaire</h1>
         </div>
 
         <div>
-            <form class="p-2" th:action="@{/beneficiaires/creer}" th:object="${beneficiaireToCreate}" method="post">
-                <div>
-                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
-                        <div class="m-2">
-                            <label for="lastName">Nom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="text" name="lastName" id="lastName" th:field="*{lastName}" required />
+            <form name="creation-user" id="creation-interpreter" class="p-2" th:action="@{/beneficiaires/creer}"
+                  th:object="${beneficiaryForm}" method="post">
+                <div class="d-flex flex-column align-items-center">
+                    <div class="d-flex flex-column flex-lg-row col-8">
+                        <div class="d-flex justify-content-end m-2 col-lg-6">
+                            <label class="d-flex justify-content-end col-5" for="lastname">Nom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-7 ms-2" type="text" name="lastname" id="lastname" th:field="*{lastName}" required />
                         </div>
-                        <div class="m-2">
-                            <label for="firstName">Prénom&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="text" name="firstName" id="firstName" th:field="*{firstName}" required />
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
-                        <div class="m-2">
-                            <label for="email">Mail&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="email" name="email" id="email" th:field="*{email}" required />
-                        </div>
-                        <div class="m-2">
-                            <label for="phoneNumber">Téléphone&nbsp;: </label>
-                            <input type="tel" name="phoneNumber" id="phoneNumber" th:field="*{phoneNumber}"
-                                   pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx" />
+                        <div class="d-flex justify-content-end m-2 col-lg-6">
+                            <label class="d-flex justify-content-end col-5" for="firstname">Prénom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-7 ms-2" type="text" name="firstname" id="firstname" th:field="*{firstName}" required />
                         </div>
                     </div>
-                    <div class="d-flex flex-column flex-md-row justify-content-between m-2">
-                        <div class="m-2">
-                            <label for="password">Mot de passe temporaire&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="password" name="password" id="password" th:field="*{password}" autocomplete="new-password" required />
+                    <div class="d-flex flex-column flex-lg-row col-8">
+                        <div class="d-flex justify-content-end m-2 col-lg-6">
+                            <label class="d-flex justify-content-end col-5" for="email"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-7 ms-2" type="email" name="email" id="email" th:field="*{email}" required />
                         </div>
-                        <div class="m-2">
-                            <label for="birthDate">Date de naissance&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                            <input type="date" name="birthDate" id="birthDate" th:field="*{birthDate}" required />
+                        <div class="d-flex justify-content-end m-2 col-lg-6">
+                            <label class="d-flex justify-content-end col-5" for="phone"><i class="bi bi-telephone-fill me-2"></i>Téléphone&nbsp;: </label>
+                            <input class="col-7 ms-2" type="tel" name="phone" id="phone"
+                                   pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx" th:field="*{phoneNumber}" />
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column flex-lg-row col-8">
+                        <div class="d-flex justify-content-end m-2 col-lg-6">
+                            <label class="d-flex justify-content-end col-5" for="password">Mot de passe&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-7 ms-2" type="password" name="password" id="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
+                        </div>
+                        <div class="d-flex justify-content-end m-2 col-lg-6">
+                            <label class="d-flex justify-content-end col-5" for="birthdate"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-7 ms-2" type="date" name="birthdate" id="birthdate" th:field="*{birthDate}" required />
                         </div>
                     </div>
                 </div>
