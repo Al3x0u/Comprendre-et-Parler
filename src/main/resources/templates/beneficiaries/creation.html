@@ -65,8 +65,8 @@
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <div class="m-2">
                                     <label for="statusId">Statut&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                                    <select name="statusId" id="statusId" required>
-                                        <option value="">-- Sélectionner --</option>
+                                    <select class="form-select" name="statusId" id="statusId" required>
+                                        <option value="-1" selected>-- Sélectionner --</option>
                                         <option th:each="status : ${allStatuses}"
                                                 th:value="${status.id}"
                                                 th:text="${status.designation}"></option>
@@ -76,8 +76,8 @@
                             <div class="d-flex justify-content-end m-2 col-lg-6">
                                 <div class="m-2">
                                     <label for="interpreterRefId">Interprète de référence&nbsp;<p class="d-inline text-danger">*</p>&nbsp;: </label>
-                                    <select name="interpreterRefId" id="interpreterRefId" required>
-                                        <option value="">-- Sélectionner --</option>
+                                    <select class="form-select" name="interpreterRefId" id="interpreterRefId" required>
+                                        <option value="-1" selected>-- Sélectionner --</option>
                                         <option th:each="interpreter : ${allInterpreters}"
                                                 th:value="${interpreter.id}"
                                                 th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
