@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("beneficiaires")
@@ -67,6 +69,7 @@ public class BeneficiaryController {
         if (returnUrl == null) {
             try {
                 //Beneficiary beneficiary = beneficiaryService.createBeneficiary(beneficiaryForm);
+                System.out.println(beneficiaryForm.getStatusId() + " " + beneficiaryForm.getInterpreterRefId());
                 Beneficiary beneficiary = new Beneficiary("b001", "Toto", "toto", LocalDate.now(),
                         "1234", "toto@gmail.com", null, null, null);
                 UserCredentials newUser = new UserCredentials(beneficiaryForm.getFirstName(), beneficiary.getLogin(), beneficiaryForm.getPassword(), beneficiaryForm.getEmail());
@@ -87,8 +90,13 @@ public class BeneficiaryController {
 
     private String populateCreationModel(Model model) {
         try {
-            model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
-            model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
+            List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+            allStatus.sort((s1, s2) -> s1.getDesignation().compareTo(s2.getDesignation()));
+            List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
+            allInterpreters.sort((i1, i2) -> i1.getFirstName().compareTo(i2.getFirstName()));
+
+            model.addAttribute("allStatuses", allStatus);
+            model.addAttribute("allInterpreters", allInterpreters);
             return "beneficiaries/creation";
         } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
