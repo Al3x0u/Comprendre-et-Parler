@@ -1376,7 +1376,7 @@
                 { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
                 { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
             ];
-            if (!validateFields(rules)) return;
+
 
             if (!validateFields(rules)) return;
 
@@ -1436,7 +1436,7 @@
                 { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
                 { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
             ];
-            if (!validateFields(rules)) return;
+
 
             if (!validateFields(rules)) return;
 
@@ -1447,10 +1447,7 @@
                 return;
             }
 
-            if(startTime == endTime){
-                showToast("L'heure de début ne peut pas être égal à l'heure de fin.", 'error');
-                return;
-            }
+
 
             const payload = {
                 type:                document.querySelector('input[name="requestType"]:checked').value,
