@@ -702,7 +702,7 @@
                 <div class="mb-3">
                     <label for="missionInterpreter" class="form-label fw-semibold">Interprète</label>
                     <select id="missionInterpreter" class="form-select">
-                    <option value="">Sélectionner un interprète</option>
+                        <option value="">Sélectionner un interprète</option>
                         <option th:each="interpreter : ${interpreters}"
                                 th:value="${interpreter.id}"
                                 th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
@@ -790,7 +790,7 @@
         }
 
         try {
-            const r = await fetch('/horaire/events?' + params.toString());
+            const r = await fetch('/horaire/evenements?' + params.toString());
             const data = await r.json();
             successCallback(data);
         } catch (err) {
@@ -1145,7 +1145,7 @@
                                 return;
                             }
                             try {
-                                const res = await fetch('/horaire/missions/' + event.id + '/accept', {
+                                const res = await fetch('/horaire/missions/' + event.id + '/accepter', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ interpreterId: selectedInterpreter })
@@ -1170,7 +1170,7 @@
                          */
                         refuseBtn.addEventListener('click', async function () {
                             try {
-                                const res = await fetch('/horaire/missions/' + event.id + '/refuse', {
+                                const res = await fetch('/horaire/missions/' + event.id + '/refuser', {
                                     method: 'POST'
                                 });
                                 if (!res.ok) throw new Error(await res.text());
@@ -1343,7 +1343,7 @@
             const absent = document.getElementById('delayAbsent').checked;
 
             try {
-                const res = await fetch('/horaire/missions/' + currentMissionId + '/delay', {
+                const res = await fetch('/horaire/missions/' + currentMissionId + '/retard', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ minutes, absent })
@@ -1423,7 +1423,7 @@
         /**
          * Validates and submits the new request creation form (BENEFICIARY role).
          * Checks required fields and time consistency, then sends
-         * the data via POST to `/horaire/requests`. Refreshes the calendar on success.
+         * the data via POST to `/horaire/requetes`. Refreshes the calendar on success.
          *
          * @listens click
          * @returns {Promise<void>}
@@ -1467,7 +1467,7 @@
             };
 
             try {
-                const res = await fetch('/horaire/requests', {
+                const res = await fetch('/horaire/requetes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
