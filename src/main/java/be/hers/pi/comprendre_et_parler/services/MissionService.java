@@ -33,7 +33,7 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      * @throws ConnectionException  if the connection to the database could not be established
      */
-    public Mission getMissionById(int id)  throws SQLException, ConnectionException{
+    public Mission getOneMission(int id)  throws SQLException, ConnectionException{
         Mission mission = SQLWrap.call(daoMission::find, id);
         return mission;
     }
