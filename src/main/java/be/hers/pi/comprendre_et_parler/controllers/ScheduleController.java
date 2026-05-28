@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 @Controller
+@RequestMapping("/horaire")
 public class ScheduleController {
 
     private final MissionService missionService = new MissionService();
@@ -34,7 +35,7 @@ public class ScheduleController {
      * @param model the model to pass data to the view
      * @return the schedule view or redirect to the connection if not authenticated
      */
-    @GetMapping("/horaire")
+    @GetMapping
     public String showSchedule(HttpSession session, Model model)  {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
@@ -74,7 +75,7 @@ public class ScheduleController {
      * @param session the current HTTP session
      * @return 200 if created, 400 if missing fields or invalid times, 403 if not a beneficiary, 500 on error
      */
-    @PostMapping("/horaire/requests")
+    @PostMapping("/requetes")
     @ResponseBody
     public ResponseEntity<String> createRequest(@RequestBody Map<String, String> payload, HttpSession session) {
         try {
@@ -92,7 +93,7 @@ public class ScheduleController {
             String cityName = payload.get("city");
             int postalCode = 0;
             try{
-               postalCode =  Integer.parseInt(payload.get("postalCode"));
+                postalCode =  Integer.parseInt(payload.get("postalCode"));
             }catch(Exception e){
                 e.printStackTrace();
                 postalCode = 0;
@@ -164,7 +165,7 @@ public class ScheduleController {
      * @param session the current HTTP session
      * @return 200 if accepted, 400 if no interpreter selected, 403 if not a manager, 500 on error
      */
-    @PostMapping("/horaire/missions/{id}/accept")
+    @PostMapping("/missions/{id}/accepter")
     @ResponseBody
     public ResponseEntity<?> acceptMission(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
         try {
@@ -178,8 +179,8 @@ public class ScheduleController {
                 return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
             }
 
-            Mission mission = missionService.getMissionById(id);
-            Interpreter interpreter = interpreterService.getInterpreterById(Integer.parseInt(interpreterIdStr));
+            Mission mission = missionService.getOneMission(id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterIdStr));
 
             Set<Interpreter> interpreters = new HashSet<>();
             interpreters.add(interpreter);
@@ -200,12 +201,12 @@ public class ScheduleController {
      * @param session the current HTTP session
      * @return 200 if refused, 500 on error
      */
-    @PostMapping("/horaire/missions/{id}/refuse")
+    @PostMapping("/missions/{id}/refuser")
     @ResponseBody
     public ResponseEntity<?> refuseMission(@PathVariable int id, HttpSession session) {
         try {
 
-            Mission mission = missionService.getMissionById(id);
+            Mission mission = missionService.getOneMission(id);
             missionService.refuseRequest(mission);
 
             return ResponseEntity.ok().build();
@@ -223,7 +224,7 @@ public class ScheduleController {
      * @param session the current HTTP session
      * @return 200 if created, 403 if not a manager, 500 on error
      */
-    @PostMapping("/horaire/missions")
+    @PostMapping("/missions")
     @ResponseBody
     public ResponseEntity<?> createMission(@RequestBody Map<String, String> body, HttpSession session) {
         try {
@@ -250,7 +251,7 @@ public class ScheduleController {
      * @param session the current HTTP session
      * @return 200 if reported, 403 if not an interpreter or beneficiary, 500 on error
      */
-    @PostMapping("/horaire/missions/{id}/delay")
+    @PostMapping("/missions/{id}/retard")
     @ResponseBody
     public ResponseEntity<?> reportDelay(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
         try {
@@ -259,7 +260,7 @@ public class ScheduleController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
 
-            Mission mission = missionService.getMissionById(id);
+            Mission mission = missionService.getOneMission(id);
 
             String minutesStr = body.get("minutes");
             String absentStr  = body.get("absent");
@@ -295,7 +296,7 @@ public class ScheduleController {
      * @param session the current HTTP session
      * @return the filtered list of events, or 500 on error
      */
-    @GetMapping("/horaire/events")
+    @GetMapping("/evenements")
     @ResponseBody
     public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) {
         try {
@@ -497,7 +498,7 @@ public class ScheduleController {
             City city = new City(cityName, parsedPostalCode);
 
             Location location = new Location(
-                   designation,
+                    designation,
                     city,
                     street,
                     streetNumber,
@@ -538,7 +539,7 @@ public class ScheduleController {
         if (withInterpreter) {
             String interpreterId = body.get("interpreterId");
             if (interpreterId != null && !interpreterId.isBlank()) {
-                Interpreter interpreter = interpreterService.getInterpreterById(Integer.parseInt(interpreterId));
+                Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterId));
                 Set<Interpreter> interpreters = new HashSet<>();
                 interpreters.add(interpreter);
                 mission.setInterpreters(interpreters);
