@@ -97,7 +97,6 @@ BEGIN
     DELETE FROM AppliUser WHERE login = :OLD.login;
 END;
 /
-DROP TRIGGER IUR_UpdateInterpreter;
 
 CREATE TRIGGER IUR_UpdateInterpreter
     INSTEAD OF UPDATE ON Interpreter
@@ -136,7 +135,7 @@ BEGIN
     UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName,
                     birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
                     phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-    UPDATE InterpreterT SET transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+    UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota, transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
     
 END;
 /
@@ -173,24 +172,26 @@ CREATE TRIGGER IUR_UpdateBeneficiary
     FOR EACH ROW
 DECLARE
     newId INTEGER;
+    beginDate DATE;
 BEGIN
-    IF :NEW.status = :OLD.status THEN
-        UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
+    IF :NEW.status <> :OLD.status THEN
+        SELECT begin INTO beginDate FROM AppliUserT WHERE
+            login = :OLD.login AND firstName = :OLD.firstName AND lastName = :OLD.lastName AND
+             birthDate = :OLD.birthDate AND email = :OLD.email AND end IS NULL;
+        INSERT INTO AppliUserT
+        VALUES
+            (NULL, beginDate, SYSDATE, :OLD.login, :OLD.firstName, :OLD.lastName,
+             :OLD.birthDate, :OLD.hashedPassword, :OLD.email, :OLD.phoneNumber, :OLD.passwordUpdated);
+        SELECT id INTO newID
+        FROM AppliUserT
+        WHERE login = :OLD.login AND end = SYSDATE;
+        INSERT INTO BeneficiaryT
+        VALUES (newID, :OLD.status, :OLD.referenceInterpreter);
+    END IF;
+    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
                              birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
                              phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-        UPDATE BeneficiaryT SET referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
-    ELSE
-        DELETE FROM AppliUser WHERE id = :OLD.id;
-        INSERT INTO AppliUser
-        VALUES
-            (NULL, :OLD.login, :NEW.firstName, :NEW.lastName,
-             :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
-        SELECT id INTO newID
-        FROM AppliUser
-        WHERE login = :OLD.login;
-        INSERT INTO BeneficiaryT
-        VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
-    END IF;
+    UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
 END;
 /
 
