@@ -67,15 +67,15 @@ DECLARE
     idTransportation INTEGER;
 BEGIN
     INSERT INTO TransportationView
-    VALUES (NULL, :NEW.transportMode);
-    IF (:NEW.transportMode IS NULL) THEN
+    VALUES (NULL, :NEW.TransportMode);
+    IF (:NEW.TransportMode IS NULL) THEN
         SELECT id INTO idTransportation
         FROM TransportationView
         WHERE designation IS NULL;
     ELSE
         SELECT id INTO idTransportation
         FROM TransportationView
-        WHERE designation = INITCAP(:NEW.transportMode);
+        WHERE designation = INITCAP(:NEW.TransportMode);
     END IF;
     INSERT INTO AppliUser
     VALUES
@@ -105,9 +105,17 @@ DECLARE
     idTransportation INTEGER;
     newID INTEGER;
 BEGIN
-    INSERT INTO TransportationView VALUES (NULL, :NEW.transportMode);
-    SELECT id INTO idTransportation FROM TransportationView
-    WHERE designation = INITCAP(:NEW.transportMode);
+    INSERT INTO TransportationView
+    VALUES (NULL, :NEW.TransportMode);
+    IF (:NEW.TransportMode IS NULL) THEN
+        SELECT id INTO idTransportation
+        FROM TransportationView
+        WHERE designation IS NULL;
+    ELSE
+        SELECT id INTO idTransportation
+        FROM TransportationView
+        WHERE designation = INITCAP(:NEW.TransportMode);
+    END IF;
     IF :NEW.weekHourlyQuota = :OLD.weekHourlyQuota AND :NEW.yearHourlyQuota = :OLD.yearHourlyQuota THEN
         UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
                              birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
