@@ -131,6 +131,7 @@ BEGIN
         WHERE login = :OLD.login AND end = SYSDATE; 
         INSERT INTO InterpreterT
         VALUES (newID, :OLD.weekHourlyQuota, :OLD.yearHourlyQuota, idTransportation, :OLD.location);
+        UPDATE AppliUserT SET begin = SYSDATE WHERE id = :OLD.id;
     END IF;
 
     UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
@@ -190,6 +191,7 @@ BEGIN
         WHERE login = :OLD.login AND end = SYSDATE;
         INSERT INTO BeneficiaryT
         VALUES (newID, :OLD.status, :OLD.referenceInterpreter);
+        UPDATE AppliUserT SET begin = SYSDATE WHERE id = :OLD.id;
     END IF;
     UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
                          hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
