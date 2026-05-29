@@ -84,7 +84,8 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email
+      AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO InterpreterT
     VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
 END;
@@ -132,10 +133,11 @@ BEGIN
         VALUES (newID, :OLD.weekHourlyQuota, :OLD.yearHourlyQuota, idTransportation, :OLD.location);
     END IF;
 
-    UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName,
-                    birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                    phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-    UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota, transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+    UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
+                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
+                         passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+    UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
+                            transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
     
 END;
 /
@@ -153,7 +155,8 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email
+      AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO BeneficiaryT
     VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
 END;
@@ -177,7 +180,7 @@ BEGIN
     IF :NEW.status <> :OLD.status THEN
         SELECT begin INTO beginDate FROM AppliUserT WHERE
             login = :OLD.login AND firstName = :OLD.firstName AND lastName = :OLD.lastName AND
-             birthDate = :OLD.birthDate AND email = :OLD.email AND end IS NULL;
+            birthDate = :OLD.birthDate AND email = :OLD.email AND end IS NULL;
         INSERT INTO AppliUserT
         VALUES
             (NULL, beginDate, SYSDATE, :OLD.login, :OLD.firstName, :OLD.lastName,
@@ -188,9 +191,9 @@ BEGIN
         INSERT INTO BeneficiaryT
         VALUES (newID, :OLD.status, :OLD.referenceInterpreter);
     END IF;
-    UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
-                             birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                             phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+    UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
+                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
+                         passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
     UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
 END;
 /
