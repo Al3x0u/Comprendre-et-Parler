@@ -14,12 +14,42 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.Set;
 
 @Service
 public class BeneficiaryService {
 
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    /**
+     * Returns an beneficiary according to the given id.
+     * @param id the id of the beneficiary which we want
+     * @return a beneficiary matching the id
+     * @throws SQLException if the database could not be reached
+     * @throws ConnectionException  if the connection to the database could not be established
+     */
+    public Beneficiary getOneBeneficiary(int id) throws ConnectionException, SQLException{
+        Beneficiary beneficiary = SQLWrap.call(
+                (Integer i) -> daoBeneficiary.find(i),
+                id
+        );
+        return beneficiary;
+    }
+
+    /**
+     * Returns all beneficiaries.
+     * @return a set containing all beneficiaries
+     * @throws SQLException if the database could not be reached
+     * @throws ConnectionException if the connection to the database could not be established
+     */
+    public Set<Beneficiary> getAllBeneficiary() throws SQLException, ConnectionException {
+
+        return SQLWrap.call(daoBeneficiary::findAll);
+
+    }
+
+
 
     /**
      * Create a new Beneficiary in the database with a hashed password.

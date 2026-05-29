@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,8 +176,7 @@ public class InterpreterController {
                                     Model model) {
         if (returnUrl == null) {
             try {
-                Interpreter interpreter = interpreterService.createInterpreter(interpreterForm);
-                UserCredentials newUser = new UserCredentials(interpreterForm.getFirstName(), interpreter.getLogin(), interpreterForm.getPassword(), interpreterForm.getEmail());
+                UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
@@ -199,9 +199,15 @@ public class InterpreterController {
      * @return redirect to the creation form
      */
     @PostMapping("/creer/notifier")
-    public String sendMailCreation(@ModelAttribute("newUser") UserCredentials user) {
+    public String sendMailCreation(@ModelAttribute("newUser") UserCredentials user,
+                                   @RequestHeader(value = "Referer", required = false) String referer) {
         new NotificationService().sendUserCredentials(user);
-        return "redirect:/interpretes/creer";
+
+        if (referer != null) {
+            referer = referer.replaceFirst(".*?[^\\/]\\/([^\\/])", "redirect:\\/$1");
+            return referer;
+        }
+        return "redirect:/dashboard";
     }
 
     /**
