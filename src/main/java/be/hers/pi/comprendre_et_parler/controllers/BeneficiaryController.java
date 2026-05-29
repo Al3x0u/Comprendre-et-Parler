@@ -11,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("beneficiaires")
@@ -55,40 +58,45 @@ public class BeneficiaryController {
 
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
-        try {
-            model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-            model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
-            model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
-            return "beneficiaries/creation";
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
-        }
+        model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+        populateCreationModel(model);
+        return "beneficiaries/creation";
     }
 
     @PostMapping("/creer")
-    public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
-        try {
-            UserCredentials credentials = beneficiaryService.createBeneficiary(form);
-            populateCreationModel(model);
-            model.addAttribute("credentials", credentials);
-            return "beneficiaries/creation";
-
-        } catch (AlreadyExistsException e) {
-            model.addAttribute("error", "Ce bénéficiaire existe déjà.");
-            return "beneficiaries/creation";
-        } catch (ConnectionException | SQLException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
+    public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
+                                    @RequestParam(required = false) String returnUrl,
+                                    Model model) {
+        if (returnUrl == null) {
+            try {
+                UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
+                model.addAttribute("newUser", newUser);
+                model.addAttribute("submitState", "success");
+                model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+            } catch (AlreadyExistsException e) {
+                model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+            } finally {
+                populateCreationModel(model);
+                return "beneficiaries/creation";
+            }
         }
+        return "redirect:" + returnUrl;
     }
 
-    private void populateCreationModel(Model model) throws SQLException, ConnectionException {
-        model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-        model.addAttribute("allStatuses", SQLWrap.call(new DAOStatus()::findAll));
-        model.addAttribute("allInterpreters", SQLWrap.call(new DAOInterpreter()::findAll));
+    private void populateCreationModel(Model model) {
+        try {
+            List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+            allStatus.sort((s1, s2) -> s1.getDesignation().compareTo(s2.getDesignation()));
+            List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
+            allInterpreters.sort((i1, i2) -> i1.getFirstName().compareTo(i2.getFirstName()));
+
+            model.addAttribute("allStatuses", allStatus);
+            model.addAttribute("allInterpreters", allInterpreters);
+        } catch (ConnectionException | SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
