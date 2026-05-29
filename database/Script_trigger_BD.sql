@@ -97,6 +97,7 @@ BEGIN
     DELETE FROM AppliUser WHERE login = :OLD.login;
 END;
 /
+DROP TRIGGER IUR_UpdateInterpreter;
 
 CREATE TRIGGER IUR_UpdateInterpreter
     INSTEAD OF UPDATE ON Interpreter
@@ -104,6 +105,7 @@ CREATE TRIGGER IUR_UpdateInterpreter
 DECLARE
     idTransportation INTEGER;
     newID INTEGER;
+    beginDate DATE;
 BEGIN
     INSERT INTO TransportationView
     VALUES (NULL, :NEW.TransportMode);
@@ -116,23 +118,26 @@ BEGIN
         FROM TransportationView
         WHERE designation = INITCAP(:NEW.TransportMode);
     END IF;
-    IF :NEW.weekHourlyQuota = :OLD.weekHourlyQuota AND :NEW.yearHourlyQuota = :OLD.yearHourlyQuota THEN
-        UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
-                             birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                             phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-        UPDATE InterpreterT SET transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
-    ELSE
-        DELETE FROM AppliUser WHERE id = :OLD.id;
-        INSERT INTO AppliUser
+    IF :NEW.weekHourlyQuota <> :OLD.weekHourlyQuota OR :NEW.yearHourlyQuota <> :OLD.yearHourlyQuota THEN
+        SELECT begin INTO beginDate FROM AppliUserT WHERE
+            login = :OLD.login AND firstName = :OLD.firstName AND lastName = :OLD.lastName AND
+             birthDate = :OLD.birthDate AND email = :OLD.email AND end IS NULL;
+        INSERT INTO AppliUserT
         VALUES
-            (NULL, :OLD.login, :NEW.firstName, :NEW.lastName,
-             :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
+            (NULL, beginDate, SYSDATE, :OLD.login, :OLD.firstName, :OLD.lastName,
+             :OLD.birthDate, :OLD.hashedPassword, :OLD.email, :OLD.phoneNumber, :OLD.passwordUpdated);
         SELECT id INTO newID
-        FROM AppliUser
-        WHERE login = :OLD.login;
+        FROM AppliUserT
+        WHERE login = :OLD.login AND end = SYSDATE; 
         INSERT INTO InterpreterT
-        VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
+        VALUES (newID, :OLD.weekHourlyQuota, :OLD.yearHourlyQuota, idTransportation, :OLD.location);
     END IF;
+
+    UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName,
+                    birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
+                    phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+    UPDATE InterpreterT SET transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+    
 END;
 /
 
