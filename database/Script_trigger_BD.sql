@@ -24,24 +24,23 @@ END;
 CREATE TRIGGER BIR_InsertionLoginAppliUser
     BEFORE INSERT ON AppliUserT
     FOR EACH ROW
+    WHEN (NEW.login IS NULL)
 DECLARE
     numeroMax INTEGER;
     year VARCHAR2(2 CHAR);
     initial VARCHAR2(2 CHAR);
     beginLogin VARCHAR2(4 CHAR);
 BEGIN
-    IF :NEW.login IS NULL THEN
-        initial := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
-        SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
-        beginLogin := CONCAT(initial, year);
-        SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
-        FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
+    initial := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
+    SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
+    beginLogin := CONCAT(initial, year);
+    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
+    FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
     
-        IF (numeroMax IS NULL) THEN
-           :NEW.login := CONCAT(beginLogin, '01');
-        ELSE
-            :NEW.login := CONCAT(initial, numeroMax + 1);
-        END IF;
+    IF (numeroMax IS NULL) THEN
+        :NEW.login := CONCAT(beginLogin, '01');
+    ELSE
+        :NEW.login := CONCAT(initial, numeroMax + 1);
     END IF;
 END;
 /
