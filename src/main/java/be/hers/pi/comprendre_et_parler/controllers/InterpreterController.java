@@ -216,7 +216,7 @@ public class InterpreterController {
     private void populateCreationModel(Model model) {
         sortSkills(model);
         try {
-            List<City> allCities = new ArrayList<>(SQLWrap.call(new DAOCity()::findAll));
+            List<City> allCities = new CityService().getAllCities();
             allCities.sort((c1, c2) -> c1.compareTo(c2));
 
             model.addAttribute("allCities", allCities);
