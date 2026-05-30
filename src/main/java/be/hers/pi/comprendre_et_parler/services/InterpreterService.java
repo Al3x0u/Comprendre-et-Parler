@@ -337,5 +337,4 @@ public class InterpreterService {
         interpreter.setHourQuotaYear(yearQuota);
         SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
-
 }
