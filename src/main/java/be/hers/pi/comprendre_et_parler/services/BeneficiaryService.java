@@ -45,6 +45,13 @@ public class BeneficiaryService {
         return new UserCredentials(beneficiary.getFirstName(), beneficiary.getLogin(), plainPassword, beneficiary.getEmail());
     }
 
+    /**
+     * Build a Beneficiary object from a CreateBeneficiaryForm.
+     * @param form the form containing the beneficiary's information, must not be null
+     * @return a Beneficiary object built from the form data, with status and interpreter loaded from the database
+     * @throws SQLException if any database error occurs
+     * @throws ConnectionException if the database could not be reached
+     */
     private Beneficiary buildBeneficiary(CreateBeneficiaryForm form) throws SQLException, ConnectionException {
         Status status = SQLWrap.call((FunctionWithSQLException<Integer, Status>) new DAOStatus()::find, form.getStatusId());
         Interpreter interpreter = SQLWrap.call((FunctionWithSQLException<Integer, Interpreter>) new DAOInterpreter()::find, form.getInterpreterRefId());
@@ -98,9 +105,12 @@ public class BeneficiaryService {
      * @post the Beneficiary has been soft-deleted from the database
      */
     public void deleteBeneficiary(int id) throws SQLException, IllegalArgumentException{
-        if(new DAOMission().hasActiveMissions(id)){
-            throw new IllegalArgumentException("Cannot delete beneficiary with existing missions");
-        }
+        SQLWrap.callTransaction( (userId) -> {
+            if(new DAOMission().hasActiveMissions(userId)){
+                throw new IllegalArgumentException("Cannot delete beneficiary with existing missions");
+            }
+            new DAOBeneficiary().delete(userId);
+        }, id);
         SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOBeneficiary()::delete, id);
     }
 

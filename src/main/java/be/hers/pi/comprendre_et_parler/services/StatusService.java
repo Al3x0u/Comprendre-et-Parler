@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 public class StatusService {
 
     /***
-     * get the a status by it id
+     * get a status by it id
      * @param id the id of the status to get
      * @return the status with the id id
      */

@@ -135,7 +135,7 @@ public class BeneficiaryController {
         try {
             model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
             model.addAttribute("allStatuses", statusService.findAll());
-            model.addAttribute("interpreters", interpreterService.getAllInterpreters());
+            model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
             return "beneficiaries/creation";
         } catch (ConnectionException e) {
             e.printStackTrace();
