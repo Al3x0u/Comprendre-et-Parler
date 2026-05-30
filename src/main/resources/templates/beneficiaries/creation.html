@@ -25,7 +25,7 @@
             <form name="creation-user" id="creation-beneficiary" th:action="@{/beneficiaires/creer}"
                   th:object="${beneficiaryForm}" method="post">
 
-                <!-- Nom / Prénom -->
+                <!-- Last name / First name -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="lastname" class="form-label">Nom&nbsp;<span class="text-danger">*</span></label>
@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <!-- Mail / Téléphone -->
+                <!-- Email / Phone -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="email" class="form-label"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<span class="text-danger">*</span></label>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
 
-                <!-- Mot de passe / Naissance -->
+                <!-- Password / BirthDate -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="password" class="form-label"><i class="bi bi-lock-fill me-2"></i>Mot de passe&nbsp;<span class="text-danger">*</span></label>
@@ -64,7 +64,7 @@
 
                 <hr class="my-4">
 
-                <!-- Statut / Interprète de référence -->
+                <!-- Status / Reference interpreter -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="statusId" class="form-label">Statut&nbsp;<span class="text-danger">*</span></label>

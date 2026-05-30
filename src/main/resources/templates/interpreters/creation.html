@@ -25,7 +25,7 @@
             <form name="creation-user" id="creation-interpreter" th:action="@{/interpretes/creer}"
                   th:object="${interpreterForm}" method="post">
 
-                <!-- Nom / Prénom -->
+                <!-- Last name / First name -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="lastname" class="form-label">Nom&nbsp;<span class="text-danger">*</span></label>
@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <!-- Mail / Téléphone -->
+                <!-- Email / Phone -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="email" class="form-label"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<span class="text-danger">*</span></label>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
 
-                <!-- Mot de passe / Naissance -->
+                <!-- Password / BirthDate -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="password" class="form-label"><i class="bi bi-lock-fill me-2"></i>Mot de passe&nbsp;<span class="text-danger">*</span></label>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
 
-                <!-- Mobilité -->
+                <!-- Transport mode -->
                 <div class="col-12 col-md-6 mb-4">
                     <label for="transportMode" class="form-label"><i class="bi bi-car-front-fill me-2"></i>Mobilité</label>
                     <input id="transportMode" type="text" class="form-control" name="transportMode" th:field="*{transportMode}" />
@@ -71,7 +71,7 @@
                 <hr class="my-4">
                 <h2 class="h5 text-primary mb-3"></i>Localisation</h2>
 
-                <!-- Désignation / Rue / Numéro / Boîte -->
+                <!-- Designation / Street / Street number / Box -->
                 <div class="row g-3 mb-4">
                     <div class="col-12">
                         <label for="designation" class="form-label">Désignation</label>
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <!-- Ville -->
+                <!-- City -->
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="cityId" class="form-label">Ville&nbsp;<span class="text-danger">*</span></label>
@@ -133,7 +133,7 @@
                         </fieldset>
                     </div>
                     <div class="col-12 col-lg-6 mb-4">
-                        <h3 class="h6 mb-3 ">Académiques</h3>
+                        <h3 class="h6 mb-3">Académiques</h3>
                         <fieldset id="chosen-academic" class="d-flex flex-wrap gap-2">
                             <div class="form-check col-12 col-sm-5 col-xl-4" th:each="skill : ${allAcademicSkills}">
                                 <input class="form-check-input" type="checkbox" th:id="${skill.designation}" th:name="${skill.designation}"
