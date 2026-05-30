@@ -23,7 +23,7 @@
                         <span class="text-white-50 ms-2" th:text="'(' + ${age} + ' ans)'"></span>
                     </p>
                     <a th:if="${isManager or isOwnProfile}" th:href="@{/beneficiaires/profil/{id}/modifier(id=${beneficiaire.id})}"
-                       class="btn btn-light btn-lg text-primary fw-semibold">
+                       class="btn btn-light btn-lg text-primary fw-semibold mb-1 me-2">
                         <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
                     </a>
                     <a th:if="${isManager and beneficiaire.id != session.user.id}" class="btn btn-light btn-lg text-danger fw-semibold mb-1"

@@ -24,24 +24,23 @@ END;
 CREATE TRIGGER BIR_InsertionLoginAppliUser
     BEFORE INSERT ON AppliUserT
     FOR EACH ROW
+    WHEN (NEW.login IS NULL)
 DECLARE
     numeroMax INTEGER;
     year VARCHAR2(2 CHAR);
     initial VARCHAR2(2 CHAR);
     beginLogin VARCHAR2(4 CHAR);
 BEGIN
-    IF :NEW.login IS NULL THEN
-        initial := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
-        SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
-        beginLogin := CONCAT(initial, year);
-        SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
-        FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
+    initial := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
+    SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
+    beginLogin := CONCAT(initial, year);
+    SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
+    FROM AppliUserT WHERE login LIKE CONCAT(beginLogin, '%');
     
-        IF (numeroMax IS NULL) THEN
-           :NEW.login := CONCAT(beginLogin, '01');
-        ELSE
-            :NEW.login := CONCAT(initial, numeroMax + 1);
-        END IF;
+    IF (numeroMax IS NULL) THEN
+        :NEW.login := CONCAT(beginLogin, '01');
+    ELSE
+        :NEW.login := CONCAT(initial, numeroMax + 1);
     END IF;
 END;
 /
@@ -68,15 +67,15 @@ DECLARE
     idTransportation INTEGER;
 BEGIN
     INSERT INTO TransportationView
-    VALUES (NULL, :NEW.transportMode);
-    IF (:NEW.transportMode IS NULL) THEN
+    VALUES (NULL, :NEW.TransportMode);
+    IF (:NEW.TransportMode IS NULL) THEN
         SELECT id INTO idTransportation
         FROM TransportationView
         WHERE designation IS NULL;
     ELSE
         SELECT id INTO idTransportation
         FROM TransportationView
-        WHERE designation = INITCAP(:NEW.transportMode);
+        WHERE designation = INITCAP(:NEW.TransportMode);
     END IF;
     INSERT INTO AppliUser
     VALUES
@@ -85,7 +84,8 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email
+      AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO InterpreterT
     VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
 END;
@@ -105,27 +105,41 @@ CREATE TRIGGER IUR_UpdateInterpreter
 DECLARE
     idTransportation INTEGER;
     newID INTEGER;
+    beginDate DATE;
 BEGIN
-    INSERT INTO TransportationView VALUES (NULL, :NEW.transportMode);
-    SELECT id INTO idTransportation FROM TransportationView
-    WHERE designation = INITCAP(:NEW.transportMode);
-    IF :NEW.weekHourlyQuota = :OLD.weekHourlyQuota AND :NEW.yearHourlyQuota = :OLD.yearHourlyQuota THEN
-        UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
-                             birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                             phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-        UPDATE InterpreterT SET transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+    INSERT INTO TransportationView
+    VALUES (NULL, :NEW.TransportMode);
+    IF (:NEW.TransportMode IS NULL) THEN
+        SELECT id INTO idTransportation
+        FROM TransportationView
+        WHERE designation IS NULL;
     ELSE
-        DELETE FROM AppliUser WHERE id = :OLD.id;
-        INSERT INTO AppliUser
-        VALUES
-            (NULL, :OLD.login, :NEW.firstName, :NEW.lastName,
-             :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
-        SELECT id INTO newID
-        FROM AppliUser
-        WHERE login = :OLD.login;
-        INSERT INTO InterpreterT
-        VALUES (newID, :NEW.weekHourlyQuota, :NEW.yearHourlyQuota, idTransportation, :NEW.location);
+        SELECT id INTO idTransportation
+        FROM TransportationView
+        WHERE designation = INITCAP(:NEW.TransportMode);
     END IF;
+    IF :NEW.weekHourlyQuota <> :OLD.weekHourlyQuota OR :NEW.yearHourlyQuota <> :OLD.yearHourlyQuota THEN
+        SELECT begin INTO beginDate FROM AppliUserT WHERE
+            login = :OLD.login AND firstName = :OLD.firstName AND lastName = :OLD.lastName AND
+             birthDate = :OLD.birthDate AND email = :OLD.email AND end IS NULL;
+        INSERT INTO AppliUserT
+        VALUES
+            (NULL, beginDate, SYSDATE, :OLD.login, :OLD.firstName, :OLD.lastName,
+             :OLD.birthDate, :OLD.hashedPassword, :OLD.email, :OLD.phoneNumber, :OLD.passwordUpdated);
+        SELECT id INTO newID
+        FROM AppliUserT
+        WHERE login = :OLD.login AND end = SYSDATE; 
+        INSERT INTO InterpreterT
+        VALUES (newID, :OLD.weekHourlyQuota, :OLD.yearHourlyQuota, idTransportation, :OLD.location);
+        UPDATE AppliUserT SET begin = SYSDATE WHERE id = :OLD.id;
+    END IF;
+
+    UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
+                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
+                         passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+    UPDATE InterpreterT SET weekHourlyQuota = :NEW.weekHourlyQuota, yearHourlyQuota = :NEW.yearHourlyQuota,
+                            transportMode = idTransportation, location = :NEW.location WHERE id = :OLD.id;
+    
 END;
 /
 
@@ -142,7 +156,8 @@ BEGIN
     SELECT id INTO newID
     FROM AppliUser
     WHERE firstName = :NEW.firstName AND lastName = :NEW.lastName AND birthDate = :NEW.birthDate
-      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
+      AND hashedPassword = :NEW.hashedPassword AND email = :NEW.email
+      AND (phoneNumber = :NEW.phoneNumber OR phoneNumber IS NULL);
     INSERT INTO BeneficiaryT
     VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
 END;
@@ -161,24 +176,27 @@ CREATE TRIGGER IUR_UpdateBeneficiary
     FOR EACH ROW
 DECLARE
     newId INTEGER;
+    beginDate DATE;
 BEGIN
-    IF :NEW.status = :OLD.status THEN
-        UPDATE AppliUser SET login = :NEW.login, firstName = :NEW.firstName, lastName = :NEW.lastName,
-                             birthDate = :NEW.birthDate, hashedPassword = :NEW.hashedPassword, email = :NEW.email,
-                             phoneNumber = :NEW.phoneNumber, passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
-        UPDATE BeneficiaryT SET referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
-    ELSE
-        DELETE FROM AppliUser WHERE id = :OLD.id;
-        INSERT INTO AppliUser
+    IF :NEW.status <> :OLD.status THEN
+        SELECT begin INTO beginDate FROM AppliUserT WHERE
+            login = :OLD.login AND firstName = :OLD.firstName AND lastName = :OLD.lastName AND
+            birthDate = :OLD.birthDate AND email = :OLD.email AND end IS NULL;
+        INSERT INTO AppliUserT
         VALUES
-            (NULL, :OLD.login, :NEW.firstName, :NEW.lastName,
-             :NEW.birthDate, :NEW.hashedPassword, :NEW.email, :NEW.phoneNumber, :NEW.passwordUpdated);
+            (NULL, beginDate, SYSDATE, :OLD.login, :OLD.firstName, :OLD.lastName,
+             :OLD.birthDate, :OLD.hashedPassword, :OLD.email, :OLD.phoneNumber, :OLD.passwordUpdated);
         SELECT id INTO newID
-        FROM AppliUser
-        WHERE login = :OLD.login;
+        FROM AppliUserT
+        WHERE login = :OLD.login AND end = SYSDATE;
         INSERT INTO BeneficiaryT
-        VALUES (newID, :NEW.status, :NEW.referenceInterpreter);
+        VALUES (newID, :OLD.status, :OLD.referenceInterpreter);
+        UPDATE AppliUserT SET begin = SYSDATE WHERE id = :OLD.id;
     END IF;
+    UPDATE AppliUser SET firstName = :NEW.firstName, lastName = :NEW.lastName, birthDate = :NEW.birthDate,
+                         hashedPassword = :NEW.hashedPassword, email = :NEW.email, phoneNumber = :NEW.phoneNumber,
+                         passwordUpdated = :NEW.passwordUpdated WHERE id = :OLD.id;
+    UPDATE BeneficiaryT SET status = :NEW.status, referenceInterpreter = :NEW.referenceInterpreter WHERE id = :OLD.id;
 END;
 /
 

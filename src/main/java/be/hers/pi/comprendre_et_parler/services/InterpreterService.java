@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.CreateInterpreterForm;
+import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
@@ -22,12 +23,28 @@ public class InterpreterService {
     private final DAOMission daoMission = new DAOMission();
     private final MissionService missionService = new MissionService();
 
+
+
+    /**
+     * Returns an interpreter according to the given id.
+     * @param id the id of the interpreter which we want
+     * @return a interpreter matching the id
+     * @throws SQLException if the database could not be reached
+     * @throws ConnectionException  if the connection to the database could not be established
+     */
+    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
+        Interpreter interpreter = SQLWrap.call(
+                (Integer i) -> daoInterpreter.find(i),
+                id
+        );
+        return interpreter;
+    }
     /**
      * Creates a new interpreter in the system.
      * @throws AlreadyExistsException if the interpreter already exists in the database
      * @throws SQLException if the database could not be reached
      */
-    public Interpreter createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
+    public UserCredentials createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         Location location = new Location(
                 form.getLocationDesignation(),
                 new City(form.getCityDesignation(), form.getPostalCode()),
@@ -57,7 +74,7 @@ public class InterpreterService {
         );
 
         SQLWrap.callTransaction(daoInterpreter::create, interpreter);
-        return interpreter;
+        return new UserCredentials(interpreter.getFirstName(), interpreter.getLogin(), plainPassword, interpreter.getEmail());
     }
 
     /**
