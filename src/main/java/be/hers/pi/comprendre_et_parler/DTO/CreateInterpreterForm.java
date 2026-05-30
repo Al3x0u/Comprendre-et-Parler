@@ -15,10 +15,9 @@ public class CreateInterpreterForm {
     private LocalDate birthDate;
     private String transportMode;
 
-    private Integer postalCode;
+    private Integer cityId;
     private String street;
     private String streetNumber;
-    private String cityDesignation;
     private String locationDesignation;
     private Integer box;
 
@@ -84,12 +83,12 @@ public class CreateInterpreterForm {
         this.transportMode = transportMode;
     }
 
-    public Integer getPostalCode() {
-        return postalCode;
+    public Integer getCityId() {
+        return cityId;
     }
 
-    public void setPostalCode(Integer postalCode) {
-        this.postalCode = postalCode;
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
     }
 
     public String getStreet() {
@@ -106,14 +105,6 @@ public class CreateInterpreterForm {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
-    }
-
-    public String getCityDesignation() {
-        return cityDesignation;
-    }
-
-    public void setCityDesignation(String city_designation) {
-        this.cityDesignation = city_designation;
     }
 
     public String getLocationDesignation() {

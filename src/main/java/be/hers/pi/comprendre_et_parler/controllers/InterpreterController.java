@@ -157,7 +157,7 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        sortSkills(model);
+        populateCreationModel(model);
         model.addAttribute("interpreterForm", new CreateInterpreterForm());
         return "interpreters/creation";
     }
@@ -185,7 +185,7 @@ public class InterpreterController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                sortSkills(model);
+                populateCreationModel(model);
                 return "interpreters/creation";
             }
         }
@@ -210,15 +210,31 @@ public class InterpreterController {
     }
 
     /**
+     * Get all the cities and skills from the database and sort them according to their compareTo()
+     * @param model The model to which the list will be added
+     */
+    private void populateCreationModel(Model model) {
+        sortSkills(model);
+        try {
+            List<City> allCities = new ArrayList<>(SQLWrap.call(new DAOCity()::findAll));
+            allCities.sort((c1, c2) -> c1.compareTo(c2));
+
+            model.addAttribute("allCities", allCities);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Get all the skills from the database and sort them according to their compareTo()
      * @param model The model to which the skills will be added
      */
     private void sortSkills(Model model) {
         try {
             List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
+            allAcademicSkills.sort((a1, a2) -> a1.compareTo(a2));
             List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
+            allJobSkills.sort((j1, j2) -> j1.compareTo(j2));
 
             model.addAttribute("allAcademicSkills", allAcademicSkills);
             model.addAttribute("allJobSkills", allJobSkills);

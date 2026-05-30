@@ -53,7 +53,7 @@ public class InterpreterService {
     public UserCredentials createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         Location location = new Location(
                 form.getLocationDesignation(),
-                new City(form.getCityDesignation(), form.getPostalCode()),
+                SQLWrap.call((FunctionWithSQLException<Integer, City>) new DAOCity()::find, form.getCityId()),
                 form.getStreet(),
                 form.getStreetNumber(),
                 form.getBox() != null ? form.getBox() : 0
