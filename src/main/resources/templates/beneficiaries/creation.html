@@ -26,34 +26,34 @@
                   th:object="${beneficiaryForm}" method="post">
                 <div class="d-flex flex-column align-items-center">
                     <div class="d-flex flex-column flex-lg-row col-8">
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="lastname">Nom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="text" name="lastname" id="lastname" th:field="*{lastName}" required />
+                        <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                            <label class="ms-2 col-9" for="lastname">Nom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-10" type="text" name="lastname" id="lastname" th:field="*{lastName}" required />
                         </div>
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="firstname">Prénom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="text" name="firstname" id="firstname" th:field="*{firstName}" required />
+                        <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                            <label class="ms-2 col-9" for="firstname">Prénom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-10" type="text" name="firstname" id="firstname" th:field="*{firstName}" required />
                         </div>
                     </div>
                     <div class="d-flex flex-column flex-lg-row col-8">
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="email"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="email" name="email" id="email" th:field="*{email}" required />
+                        <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                            <label class="ms-2 col-9" for="email"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-10" type="email" name="email" id="email" th:field="*{email}" required />
                         </div>
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="phone"><i class="bi bi-telephone-fill me-2"></i>Téléphone&nbsp;: </label>
-                            <input class="col-7 ms-2" type="tel" name="phone" id="phone"
+                        <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                            <label class="ms-2 col-9" for="phone"><i class="bi bi-telephone-fill me-2"></i>Téléphone&nbsp;: </label>
+                            <input class="col-10" type="tel" name="phone" id="phone"
                                    pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx" th:field="*{phoneNumber}" />
                         </div>
                     </div>
                     <div class="d-flex flex-column flex-lg-row col-8">
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="password">Mot de passe&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="password" name="password" id="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
+                        <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                            <label class="ms-2 col-9" for="password">Mot de passe&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-10" type="password" name="password" id="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
                         </div>
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="birthdate"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="date" name="birthdate" id="birthdate" th:field="*{birthDate}" required />
+                        <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                            <label class="ms-2 col-9" for="birthdate"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
+                            <input class="col-10" type="date" name="birthdate" id="birthdate" th:field="*{birthDate}" required />
                         </div>
                     </div>
                 </div>
@@ -62,9 +62,9 @@
                 <div>
                     <div class="d-flex flex-column align-items-center">
                         <div class="d-flex flex-column flex-lg-row col-8">
-                            <div class="d-flex justify-content-end m-2 col-lg-6">
-                                <div class="m-2 d-flex flex-column align-items-center col-10">
-                                    <label for="statusId">Statut&nbsp;<p class="d-inline text-danger">*</p></label>
+                            <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                                <label class="col-9" for="statusId">Statut&nbsp;<p class="d-inline text-danger">*</p></label>
+                                <div class="col-10">
                                     <select class="form-select" name="statusId" id="statusId" required>
                                         <option value="" selected>-- Sélectionner --</option>
                                         <option th:each="status : ${allStatuses}"
@@ -73,9 +73,9 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end m-2 col-lg-6">
-                                <div class="m-2 d-flex flex-column align-items-center col-10">
-                                    <label for="interpreterRefId">Interprète de référence&nbsp;<p class="d-inline text-danger">*</p></label>
+                            <div class="d-flex flex-column align-items-center m-2 col-lg-6">
+                                <label class="col-9" for="interpreterRefId">Interprète de référence&nbsp;<p class="d-inline text-danger">*</p></label>
+                                <div class="col-10">
                                     <select class="form-select" name="interpreterRefId" id="interpreterRefId" required>
                                         <option value="" selected>-- Sélectionner --</option>
                                         <option th:each="interpreter : ${allInterpreters}"
