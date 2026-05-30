@@ -92,7 +92,7 @@ public class BeneficiaryService {
      * @return the Beneficiary with the given id, or null if none was found
      * @throws SQLException if any database error occurs
      */
-    public Beneficiary getBeneficiary(int id)throws SQLException{
+    public Beneficiary getOneBeneficiary(int id)throws SQLException{
         return SQLWrap.call(
                 (FunctionWithSQLException<Integer, Beneficiary>) daoBeneficiary::find, id);
     }
@@ -122,7 +122,7 @@ public class BeneficiaryService {
      * @post the Beneficiary's personal information has been updated in the database
      */
     public void updateBeneficiary(int id, UpdateBeneficiaryForm beneficiaryForm)throws SQLException{
-        Beneficiary beneficiary = getBeneficiary(id);
+        Beneficiary beneficiary = getOneBeneficiary(id);
         beneficiary.setFirstName(beneficiaryForm.getFirstName());
         beneficiary.setLastName(beneficiaryForm.getLastName());
         beneficiary.setEmail(beneficiaryForm.getEmail());
@@ -153,7 +153,7 @@ public class BeneficiaryService {
      * @post the status of the Beneficiary has been updated in the database, unless the new status was identical to the current one
      */
     public void updateStatus(int beneficiaryId, int statusId)throws SQLException{
-        Beneficiary beneficiary = getBeneficiary(beneficiaryId);
+        Beneficiary beneficiary = getOneBeneficiary(beneficiaryId);
         if (beneficiary.getStatus().getId() == statusId) {
             return;
         }

@@ -1,18 +1,15 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
-import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -81,7 +78,7 @@ public class BeneficiaryController {
                                          Model model) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-            Beneficiary beneficiary = beneficiaryService.getBeneficiary(id);
+            Beneficiary beneficiary = beneficiaryService.getOneBeneficiary(id);
             if (beneficiary == null) return "redirect:/beneficiaires";
 
             model.addAttribute("beneficiaire", beneficiary);
@@ -112,7 +109,7 @@ public class BeneficiaryController {
                                              Model model) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-            Beneficiary beneficiary = beneficiaryService.getBeneficiary(id);
+            Beneficiary beneficiary = beneficiaryService.getOneBeneficiary(id);
             if (beneficiary == null) return "redirect:/beneficiaires";
 
             model.addAttribute("updateBeneficiaryForm", new UpdateBeneficiaryForm(beneficiary));
