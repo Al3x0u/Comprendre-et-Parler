@@ -107,16 +107,17 @@ public class BeneficiaryController {
      * @return the edit profile view, or a redirect to the list if not found
      */
     @GetMapping("/profil/{id}/modifier")
-    public String showEditBeneficiaryProfile(@PathVariable int id,
+    public String showEditBeneficiaryProfile(HttpSession session, @PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
                                              Model model) {
         try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
             Beneficiary beneficiary = beneficiaryService.getBeneficiary(id);
             if (beneficiary == null) return "redirect:/beneficiaires";
 
             model.addAttribute("updateBeneficiaryForm", new UpdateBeneficiaryForm(beneficiary));
             model.addAttribute("referer", referer);
-            model.addAttribute("isOwnProfile", false);
+            model.addAttribute("isOwnProfile", user.getId() == beneficiary.getId());
         } catch (SQLException e) {
             return "redirect:/beneficiaires";
         } catch (ConnectionException e) {
