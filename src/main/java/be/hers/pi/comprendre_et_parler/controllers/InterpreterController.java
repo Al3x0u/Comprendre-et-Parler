@@ -159,7 +159,6 @@ public class InterpreterController {
     public String showCreateInterpreter(Model model) {
         sortSkills(model);
         model.addAttribute("interpreterForm", new CreateInterpreterForm());
-        model.addAttribute("submitState", null);
         return "interpreters/creation";
     }
 
