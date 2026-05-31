@@ -58,7 +58,8 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <label for="birthdate" class="form-label"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<span class="text-danger">*</span></label>
-                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:field="*{birthDate}" required />
+                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:field="*{birthDate}"
+                               th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
                     </div>
                 </div>
 
@@ -97,14 +98,6 @@
         </div>
     </div>
 </main>
-
-<script>
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    document.getElementById('birthdate').setAttribute('max', `${year}-${month}-${day}`);
-</script>
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
