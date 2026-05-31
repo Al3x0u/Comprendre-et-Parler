@@ -65,10 +65,12 @@ public class BeneficiaryController {
 
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
+                                    @RequestParam LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                beneficiaryForm.setBirthDate(birthdate);
                 UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");

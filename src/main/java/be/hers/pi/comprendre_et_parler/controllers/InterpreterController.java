@@ -165,16 +165,19 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter creation form.
      * @param interpreterForm the form containing the new interpreter's information
+     * @param birthdate the birthdate of the new interpreter
      * @param returnUrl the URL of the page the user wants to go to
      * @param model the Spring model to populate
      * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                                    @RequestParam LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                interpreterForm.setBirthDate(birthdate);
                 UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");

@@ -58,7 +58,7 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <label for="birthdate" class="form-label"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<span class="text-danger">*</span></label>
-                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:field="*{birthDate}"
+                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:value="*{birthDate != null}? *{birthDate} : ''"
                                th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
                     </div>
                 </div>
