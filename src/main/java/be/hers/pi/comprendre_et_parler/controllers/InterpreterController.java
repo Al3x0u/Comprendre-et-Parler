@@ -36,6 +36,7 @@ public class InterpreterController {
                                       Model model) {
         try {
             List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
+            allInterpreters.sort(Interpreter::compareTo);
             List<Interpreter> filtered = filterInterpreters(allInterpreters, keyword);
             int total = filtered.size();
             int totalPages = calculateTotalPages(total, 10);
