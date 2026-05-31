@@ -21,89 +21,88 @@
             <h1 class="h3 mb-0 py-1"><i class="bi bi-person-fill-add me-2"></i>Créer un bénéficiaire</h1>
         </div>
 
-        <div>
-            <form name="creation-user" id="creation-interpreter" class="p-2" th:action="@{/beneficiaires/creer}"
+        <div class="card-body p-5">
+            <form name="creation-user" id="creation-beneficiary" th:action="@{/beneficiaires/creer}"
                   th:object="${beneficiaryForm}" method="post">
-                <div class="d-flex flex-column align-items-center">
-                    <div class="d-flex flex-column flex-lg-row col-8">
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="lastname">Nom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="text" name="lastname" id="lastname" th:field="*{lastName}" required />
-                        </div>
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="firstname">Prénom&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="text" name="firstname" id="firstname" th:field="*{firstName}" required />
-                        </div>
+
+                <!-- Last name / First name -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="lastname" class="form-label">Nom&nbsp;<span class="text-danger">*</span></label>
+                        <input id="lastname" type="text" class="form-control" name="lastname" th:field="*{lastName}" required />
                     </div>
-                    <div class="d-flex flex-column flex-lg-row col-8">
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="email"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="email" name="email" id="email" th:field="*{email}" required />
-                        </div>
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="phone"><i class="bi bi-telephone-fill me-2"></i>Téléphone&nbsp;: </label>
-                            <input class="col-7 ms-2" type="tel" name="phone" id="phone"
-                                   pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx" th:field="*{phoneNumber}" />
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column flex-lg-row col-8">
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="password">Mot de passe&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="password" name="password" id="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
-                        </div>
-                        <div class="d-flex justify-content-end m-2 col-lg-6">
-                            <label class="d-flex justify-content-end col-5" for="birthdate"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<p class="d-inline text-danger m-0">*</p>&nbsp;: </label>
-                            <input class="col-7 ms-2" type="date" name="birthdate" id="birthdate" th:field="*{birthDate}" required />
-                        </div>
+                    <div class="col-12 col-md-6">
+                        <label for="firstname" class="form-label">Prénom&nbsp;<span class="text-danger">*</span></label>
+                        <input id="firstname" type="text" class="form-control" name="firstname" th:field="*{firstName}" required />
                     </div>
                 </div>
 
-                <hr>
-                <div>
-                    <div class="d-flex flex-column align-items-center">
-                        <div class="d-flex flex-column flex-lg-row col-8">
-                            <div class="d-flex justify-content-end m-2 col-lg-6">
-                                <div class="m-2 d-flex flex-column align-items-center col-10">
-                                    <label for="statusId">Statut&nbsp;<p class="d-inline text-danger">*</p></label>
-                                    <select class="form-select" name="statusId" id="statusId" required>
-                                        <option value="" selected>-- Sélectionner --</option>
-                                        <option th:each="status : ${allStatuses}"
-                                                th:value="${status.id}"
-                                                th:text="${status.designation}"></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-end m-2 col-lg-6">
-                                <div class="m-2 d-flex flex-column align-items-center col-10">
-                                    <label for="interpreterRefId">Interprète de référence&nbsp;<p class="d-inline text-danger">*</p></label>
-                                    <select class="form-select" name="interpreterRefId" id="interpreterRefId" required>
-                                        <option value="" selected>-- Sélectionner --</option>
-                                        <option th:each="interpreter : ${allInterpreters}"
-                                                th:value="${interpreter.id}"
-                                                th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Email / Phone -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="email" class="form-label"><i class="bi bi-envelope-fill me-2"></i>Mail&nbsp;<span class="text-danger">*</span></label>
+                        <input id="email" type="email" class="form-control" name="email" th:field="*{email}" required />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="phone" class="form-label"><i class="bi bi-telephone-fill me-2"></i>Téléphone</label>
+                        <input id="phone" type="tel" class="form-control" name="phone"
+                               pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx" th:field="*{phoneNumber}" />
                     </div>
                 </div>
 
-                <hr>
-                <div class="d-grid d-md-flex justify-content-md-center gap-2">
+                <!-- Password / BirthDate -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="password" class="form-label"><i class="bi bi-lock-fill me-2"></i>Mot de passe&nbsp;<span class="text-danger">*</span></label>
+                        <input id="password" type="password" class="form-control" name="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="birthdate" class="form-label"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<span class="text-danger">*</span></label>
+                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:field="*{birthDate}" required />
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Status / Reference interpreter -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="statusId" class="form-label">Statut&nbsp;<span class="text-danger">*</span></label>
+                        <select id="statusId" class="form-select" name="statusId" required>
+                            <option value="" selected>-- Sélectionner --</option>
+                            <option th:each="status : ${allStatuses}"
+                                    th:value="${status.id}"
+                                    th:text="${status.designation}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="interpreterRefId" class="form-label">Interprète de référence&nbsp;<span class="text-danger">*</span></label>
+                        <select id="interpreterRefId" class="form-select" name="interpreterRefId" required>
+                            <option value="" selected>-- Sélectionner --</option>
+                            <option th:each="interpreter : ${allInterpreters}"
+                                    th:value="${interpreter.id}"
+                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-grid d-md-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="bi-floppy-fill me-2"></i>Créer</button>
-                    <a th:href="@{/beneficiaires}"
-                       class="btn btn-outline-secondary btn-lg">Annuler</a>
+                    <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary btn-lg">Annuler</a>
                 </div>
+
             </form>
         </div>
     </div>
 </main>
+
 <script>
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
-
     document.getElementById('birthdate').setAttribute('max', `${year}-${month}-${day}`);
 </script>
 

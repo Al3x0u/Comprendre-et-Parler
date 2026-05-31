@@ -53,7 +53,7 @@ public class InterpreterService {
     public UserCredentials createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         Location location = new Location(
                 form.getLocationDesignation(),
-                new City(form.getCityDesignation(), form.getPostalCode()),
+                new CityService().getOneCity(form.getCityId()),
                 form.getStreet(),
                 form.getStreetNumber(),
                 form.getBox() != null ? form.getBox() : 0
@@ -160,6 +160,7 @@ public class InterpreterService {
     }
 
     /**
+     * Get all interpreters from the database.
      * @return all interpreters present in database
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
@@ -169,6 +170,7 @@ public class InterpreterService {
     }
 
     /**
+     * Search for an interpreter in the database.
      * @return one interpreter present in database
      * @param id the id of the interpreter to find
      * @throws ConnectionException if the database could not be reached
