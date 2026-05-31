@@ -77,10 +77,17 @@
                                pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx">
                     </div>
                 </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="birthDate" class="form-label"><i class="bi bi-calendar me-2"></i>Date de naissance</label>
+                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:value="*{birthDate != null}? *{birthDate} : ''"
+                               th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
+                    </div>
 
-                <div class="col-12 col-md-6 mb-4">
-                    <label for="transportMode" class="form-label"><i class="bi bi-bus-front me-2"></i>Mobilité</label>
-                    <input id="transportMode" type="text" class="form-control" th:field="*{transportMode}">
+                    <div class="col-12 col-md-6">
+                        <label for="transportMode" class="form-label"><i class="bi bi-bus-front me-2"></i>Mobilité</label>
+                        <input id="transportMode" type="text" class="form-control" th:field="*{transportMode}">
+                    </div>
                 </div>
 
                 <h2 class="h5 text-primary mb-3">Localisation</h2>
