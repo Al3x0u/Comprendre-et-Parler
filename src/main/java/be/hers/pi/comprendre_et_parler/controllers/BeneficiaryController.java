@@ -20,7 +20,6 @@ import java.util.List;
 public class BeneficiaryController {
 
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-
     private final BeneficiaryService beneficiaryService;
 
     public BeneficiaryController(BeneficiaryService beneficiaryService) {
@@ -67,7 +66,7 @@ public class BeneficiaryController {
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-        populateCreationModel(model);
+        populateCreationModel(model, 0, 0);
         return "beneficiaries/creation";
     }
 
@@ -89,19 +88,28 @@ public class BeneficiaryController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                populateCreationModel(model);
+                populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
                 return "beneficiaries/creation";
             }
         }
         return "redirect:" + returnUrl;
     }
 
-    private void populateCreationModel(Model model) {
+    private void populateCreationModel(Model model, int statusId, int interpreterRefId) {
         try {
             List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
             allStatus.sort(Status::compareTo);
-            List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
+            if (statusId > 0 && allStatus.removeIf(s -> s.getId() == statusId)) {
+                Status status = SQLWrap.call(new DAOStatus()::find, statusId);
+                allStatus.addFirst(status);
+            }
+
+            List<Interpreter> allInterpreters = new InterpreterService().getAllInterpreters();
             allInterpreters.sort(Interpreter::compareTo);
+            if (interpreterRefId > 0 && allInterpreters.removeIf(i -> i.getId() == interpreterRefId)) {
+                Interpreter interpreter = new InterpreterService().getOneInterpreter(interpreterRefId);
+                allInterpreters.addFirst(interpreter);
+            }
 
             model.addAttribute("allStatuses", allStatus);
             model.addAttribute("allInterpreters", allInterpreters);

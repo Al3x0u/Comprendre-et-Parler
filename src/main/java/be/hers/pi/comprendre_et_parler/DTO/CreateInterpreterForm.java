@@ -7,15 +7,17 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CreateInterpreterForm {
-    private String lastName;
+
     private String firstName;
+    private String lastName;
+    private LocalDate birthDate;
     private String email;
     private String phoneNumber;
     private String password;
-    private LocalDate birthDate;
+
     private String transportMode;
 
-    private Integer cityId;
+    private int cityId;
     private String street;
     private String streetNumber;
     private String locationDesignation;
@@ -83,11 +85,11 @@ public class CreateInterpreterForm {
         this.transportMode = transportMode;
     }
 
-    public Integer getCityId() {
+    public int getCityId() {
         return cityId;
     }
 
-    public void setCityId(Integer cityId) {
+    public void setCityId(int cityId) {
         this.cityId = cityId;
     }
 

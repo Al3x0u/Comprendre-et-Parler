@@ -159,7 +159,7 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        populateCreationModel(model);
+        populateCreationModel(model, 0);
         model.addAttribute("interpreterForm", new CreateInterpreterForm());
         return "interpreters/creation";
     }
@@ -190,7 +190,7 @@ public class InterpreterController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                populateCreationModel(model);
+                populateCreationModel(model, interpreterForm.getCityId());
                 return "interpreters/creation";
             }
         }
@@ -217,12 +217,17 @@ public class InterpreterController {
     /**
      * Get all the cities and skills from the database and sort them according to their compareTo()
      * @param model The model to which the list will be added
+     * @param cityId The ID of the city to send on first line
      */
-    private void populateCreationModel(Model model) {
+    private void populateCreationModel(Model model, int cityId) {
         sortSkills(model);
         try {
             List<City> allCities = new CityService().getAllCities();
             allCities.sort(City::compareTo);
+            if (cityId > 0 && allCities.removeIf(c -> c.getId() == cityId)) {
+                City city = new CityService().getOneCity(cityId);
+                allCities.addFirst(city);
+            }
 
             model.addAttribute("allCities", allCities);
         } catch (SQLException e) {

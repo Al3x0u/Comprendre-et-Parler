@@ -97,7 +97,7 @@
                     <div class="col-12 col-md-6">
                         <label for="cityId" class="form-label">Ville&nbsp;<span class="text-danger">*</span></label>
                         <select id="cityId" class="form-select" name="cityId" required>
-                            <option value="">-- Sélectionner --</option>
+                            <option th:if="*{cityId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="city : ${allCities}"
                                     th:value="${city.id}"
                                     th:text="${city.postalCode + ' - ' + city.designation}"></option>
