@@ -56,6 +56,14 @@ public class BeneficiaryController {
         }
     }
 
+    @PostMapping("/profil/{id}/modifier")
+    public String editBeneficiaryProfile(@PathVariable int id,
+                                         @ModelAttribute("beneficiaire") Beneficiary formBeneficiary,
+                                         @RequestParam LocalDate birthdate,
+                                         @RequestParam(required = false) String returnUrl) {
+            return "redirect:/beneficiaires";
+    }
+
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
