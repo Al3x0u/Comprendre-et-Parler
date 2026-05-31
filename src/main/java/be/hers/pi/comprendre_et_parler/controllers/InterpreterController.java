@@ -222,7 +222,7 @@ public class InterpreterController {
         sortSkills(model);
         try {
             List<City> allCities = new CityService().getAllCities();
-            allCities.sort((c1, c2) -> c1.compareTo(c2));
+            allCities.sort(City::compareTo);
 
             model.addAttribute("allCities", allCities);
         } catch (SQLException e) {
@@ -237,9 +237,9 @@ public class InterpreterController {
     private void sortSkills(Model model) {
         try {
             List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort((a1, a2) -> a1.compareTo(a2));
+            allAcademicSkills.sort(AcademicSkill::compareTo);
             List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort((j1, j2) -> j1.compareTo(j2));
+            allJobSkills.sort(JobSkill::compareTo);
 
             model.addAttribute("allAcademicSkills", allAcademicSkills);
             model.addAttribute("allJobSkills", allJobSkills);

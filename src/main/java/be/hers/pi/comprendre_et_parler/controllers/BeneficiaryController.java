@@ -99,9 +99,9 @@ public class BeneficiaryController {
     private void populateCreationModel(Model model) {
         try {
             List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
-            allStatus.sort((s1, s2) -> s1.getDesignation().compareTo(s2.getDesignation()));
+            allStatus.sort(Status::compareTo);
             List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
-            allInterpreters.sort((i1, i2) -> i1.getFirstName().compareTo(i2.getFirstName()));
+            allInterpreters.sort(Interpreter::compareTo);
 
             model.addAttribute("allStatuses", allStatus);
             model.addAttribute("allInterpreters", allInterpreters);
