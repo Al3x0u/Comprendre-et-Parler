@@ -1,9 +1,14 @@
 package be.hers.pi.comprendre_et_parler.services;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOStatus;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.Status;
+import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
@@ -13,11 +18,28 @@ import java.util.NoSuchElementException;
 
 public class StatusService {
 
+    private final DAOStatus daoStatus;
+
+    public StatusService() {
+        this.daoStatus = new DAOStatus();
+    }
+
     /**
      * Return all existing status
      */
     public List<Status> findAll() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+        return new ArrayList<>(SQLWrap.call(daoStatus::findAll));
+    }
+
+    /**
+     * Search for an interpreter in the database.
+     * @return one interpreter present in database
+     * @param id the id of the interpreter to find
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public Status getOneInterpreter(int id) throws SQLException, ConnectionException {
+        return SQLWrap.call(daoStatus::find, id);
     }
 
     /**
@@ -28,7 +50,7 @@ public class StatusService {
      * @throws SQLException if any other database error
      */
     public void createStatus(Status status) throws AlreadyExistsException, SQLException, ConnectionException {
-        SQLWrap.callTransaction(new DAOStatus()::create, status);
+        SQLWrap.callTransaction(daoStatus::create, status);
     }
 
     /**
@@ -58,7 +80,7 @@ public class StatusService {
      */
     public void updateStatus(int oldStatusId, Status newStatus) throws NoSuchElementException, AlreadyExistsException, SQLException, ConnectionException {
         newStatus.setId(oldStatusId);
-        SQLWrap.callTransaction(new DAOStatus()::update, newStatus);
+        SQLWrap.callTransaction(daoStatus::update, newStatus);
     }
 
     /**
@@ -69,7 +91,7 @@ public class StatusService {
      * @throws SQLException if any other database error
      */
     public void deleteStatus(Status status) throws NoSuchElementException, SQLException, ConnectionException {
-        SQLWrap.callTransaction(new DAOStatus()::delete, status.getId());
+        SQLWrap.callTransaction(daoStatus::delete, status.getId());
     }
 
     /**
@@ -80,6 +102,6 @@ public class StatusService {
      * @throws SQLException if any other database error
      */
     public void deleteStatus(int id) throws NoSuchElementException, SQLException, ConnectionException {
-        SQLWrap.callTransaction(new DAOStatus()::delete, id);
+        SQLWrap.callTransaction(daoStatus::delete, id);
     }
 }
