@@ -198,6 +198,21 @@ function setupFilter(selector, filterKey) {
     });
 }
 
+/**
+ * Generates a string of Bootstrap star icons for a given importance level.
+ *
+ * @param {number} importance - Number of stars to display
+ * @param {number} [max=3]    - Maximum number of stars to display
+ * @returns {string} HTML string of star icons
+ */
+function buildStars(importance, max = 3) {
+    let stars = '';
+    for (let i = 0; i < importance && i < max; i++) {
+        stars += `<i class="bi bi-star-fill me-1"></i>`;
+    }
+    return stars;
+}
+
 document.addEventListener('input', function (e) {
     if (e.target.classList.contains('is-invalid')) {
         e.target.classList.remove('is-invalid');
@@ -267,10 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventContent: function(arg) {
             const props = arg.event.extendedProps;
             const importance = parseInt(props.importance);
-            let stars = '';
-            for(let i = 0; i < importance && i < 3; i++){
-                stars += `<i class="bi bi-star-fill me-1"></i>`;
-            }
+            const stars = buildStars(importance);
             return {
                 html: `
                         <div class="fc-event-content-inner p-1">
@@ -353,9 +365,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const isPending = status.includes('en attente');
             const isAccepted = status.includes('accept');
             const interpreterSelect = document.getElementById('managerPendingInterpreter');
-            const canChangeInterpreter = isPending && beforeStart;
             interpreterSelect.value = props.interpreter || '';
-            interpreterSelect.disabled = !canChangeInterpreter;
+            interpreterSelect.disabled = !(isPending && beforeStart);
             const timeFormatter = new Intl.DateTimeFormat('fr-BE', {hour: '2-digit', minute: '2-digit'});
 
             let timeText = '';
@@ -368,12 +379,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             if (isManager && (isPending || isAccepted)) {
-                let importanceStars = '';
                 const importance = parseInt(props.importance || '0', 10);
-
-                for (let i = 0; i < importance && i < 5; i++) {
-                    importanceStars += `<i class="bi bi-star-fill me-1"></i>`;
-                }
+                const importanceStars = buildStars(importance, 5);
                 document.getElementById('managerPendingImportance').innerHTML = importanceStars;
                 document.getElementById('managerPendingTitle').innerText = event.title || '';
                 document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
@@ -487,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const actions = document.getElementById('modalActions');
             actions.innerHTML = '';
 
-            const type = (props.type || '').toLowerCase();
+            //const type = (props.type || '').toLowerCase();
 
             const isSameDay =   now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
             const isBeforeEnd = now < end;
@@ -582,8 +589,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    const eventModalEl = document.getElementById('eventModal');
-    const delayModalEl = document.getElementById('delayModal');
+    //const eventModalEl = document.getElementById('eventModal');
+    //const delayModalEl = document.getElementById('delayModal');
 
     /**
      * Handles a click on "Cancel" in the delay report modal.
