@@ -111,6 +111,7 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
+            sortCity(model, interpreter.getLocation().getCity().getId());
             model.addAttribute("interprete", interpreter);
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -221,6 +222,15 @@ public class InterpreterController {
      */
     private void populateCreationModel(Model model, int cityId) {
         sortSkills(model);
+        sortCity(model, cityId);
+    }
+
+    /**
+     * Get all the cities from the database and sort them according to their compareTo()
+     * @param model The model to which the list will be added
+     * @param cityId The ID of the city to send on first line
+     */
+    private void sortCity(Model model, int cityId) {
         try {
             List<City> allCities = new CityService().getAllCities();
             allCities.sort(City::compareTo);
