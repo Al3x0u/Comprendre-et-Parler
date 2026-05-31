@@ -176,6 +176,28 @@ function clearFormErrors(fieldIds) {
     });
 }
 
+/**
+ * Sets up a toggle filter on a group of elements.
+ * Clicking an item activates or deactivates the filter,
+ * updates the bold style, refreshes the calendar and closes the dropdown.
+ *
+ * @param {string} selector  - CSS selector targeting the filter items
+ * @param {string} filterKey - Key in activeFilters to update ('status' or 'interpreter')
+ * @returns {void}
+ */
+function setupFilter(selector, filterKey) {
+    document.querySelectorAll(selector).forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+            activeFilters[filterKey] = activeFilters[filterKey] === item.dataset.value ? null : item.dataset.value;
+            document.querySelectorAll(selector).forEach(i => i.classList.remove('fw-bold'));
+            if (activeFilters[filterKey]) item.classList.add('fw-bold');
+            calendar.refetchEvents();
+            document.getElementById('dropdown-filtre').classList.remove('show');
+        });
+    });
+}
+
 document.addEventListener('input', function (e) {
     if (e.target.classList.contains('is-invalid')) {
         e.target.classList.remove('is-invalid');
@@ -731,44 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    setupFilter('.filter-status', 'status');
+    setupFilter('.filter-interpreter', 'interpreter');
     calendar.render();
-
-    document.querySelectorAll('.filter-status').forEach(item => {
-        item.addEventListener('click', e => {
-            e.preventDefault();
-
-            if (activeFilters.status === item.dataset.value) {
-                activeFilters.status = null;
-            } else {
-                activeFilters.status = item.dataset.value;
-            }
-
-            document.querySelectorAll('.filter-status').forEach(i => i.classList.remove('fw-bold'));
-
-            if (activeFilters.status !== null) {
-                item.classList.add('fw-bold');
-            }
-
-            calendar.refetchEvents();
-            document.getElementById('dropdown-filtre').classList.remove('show');
-        });
-    });
-
-    document.querySelectorAll('.filter-interpreter').forEach(function(item) {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (activeFilters.interpreter === item.dataset.value){
-                activeFilters.interpreter = null;
-            }else{
-                activeFilters.interpreter = this.dataset.value
-            }
-
-            document.querySelectorAll('.filter-interpreter').forEach(function(i) { i.classList.remove('fw-bold'); });
-            if (activeFilters.interpreter !== null){
-                this.classList.add('fw-bold');
-            }
-            calendar.refetchEvents();
-            document.getElementById('dropdown-filtre').classList.remove('show');
-        });
-    });
 });
