@@ -1,6 +1,22 @@
-/** @type {Array<Object>} List of all events loaded from the server */
+// ── CONFIG ────────────────────────────────────────────────────────────────
+
+/** @type {HTMLElement} Hidden element containing server-side configuration */
 const config = document.getElementById('schedule-config');
+
+/** @type {Array<Object>} List of all events loaded from the server */
 const allEvents = JSON.parse(config.dataset.events);
+
+/** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
+const userRole = config.dataset.role;
+
+/** @type {number} ID of the logged-in user */
+const userId = parseInt(config.dataset.userId);
+
+/** @type {boolean} True if the screen width is less than 768px */
+const isMobile = window.innerWidth < 768;
+
+
+// ── STATE ─────────────────────────────────────────────────────────────────
 
 /**
  * @typedef {Object} ActiveFilters
@@ -20,100 +36,8 @@ let currentMissionId = null;
 /** @type {boolean} Whether this is the first calendar load */
 let premierChargement = true;
 
-/**
- * Fetches calendar events from the REST API based on the current date range
- * and active filters (status, interpreter).
- *
- * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
- * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
- * @param {Function} successCallback    - Callback to call with the fetched events
- * @param {Function} failureCallback    - Callback to call on network error
- * @returns {Promise<void>}
- */
-async function fetchEvents(fetchInfo, successCallback, failureCallback) {
-    const params = new URLSearchParams();
-    params.append('weekDate', fetchInfo.startStr.substring(0, 10));
 
-    if (activeFilters.status !== null){
-        params.append('status', activeFilters.status);
-    }
-    if (activeFilters.interpreter !== null){
-        params.append('interpreter', activeFilters.interpreter);
-    }
-
-    try {
-        const r = await fetch('/horaire/evenements?' + params.toString());
-        const data = await r.json();
-        successCallback(data);
-    } catch (err) {
-        failureCallback(err);
-    }
-}
-
-
-/** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
-const userRole = config.dataset.role;
-
-/** @type {number} ID of the logged-in user */
-const userId = parseInt(config.dataset.userId);
-
-/** @type {boolean} True if the screen width is less than 768px */
-const isMobile = window.innerWidth < 768;
-
-const customButtons = {
-    filterBtn: {
-        text: 'Filtre ▾',
-        click: function() {
-            const btn = document.querySelector('.fc-filterBtn-button');
-            const rect = btn.getBoundingClientRect();
-            const dropdown = document.getElementById('dropdown-filtre');
-
-            dropdown.style.cssText = ` position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
-
-            dropdown.classList.toggle('show');
-            btn.classList.toggle('active');
-        }
-    }
-};
-
-if (userRole === 'BENEFICIARY') {
-    customButtons.newRequest = {
-        text: '+ Nouvelle demande',
-        click: function() {
-            const newRequestModal = bootstrap.Modal.getOrCreateInstance(
-                document.getElementById('newRequestModal')
-            );
-            newRequestModal.show();
-        }
-    };
-}
-
-if (userRole === 'INTERPRETER') {
-    customButtons.newUnavailability = {
-        text: '+ Nouvelle indisponibilité',
-        click: function() {
-            window.location.href = '/interpretes/profil/' + userId;
-        }
-    };
-}
-
-if (userRole === 'MANAGER') {
-    customButtons.newUnavailability = {
-        text: isMobile ? '+ Indispo' : '+ Nouvelle indisponibilité',
-        click: function() {
-            window.location.href = '/interpretes/profil/' + userId;
-        }
-    };
-    customButtons.newMission = {
-        text: isMobile ? '+ Mission' : '+ Nouvelle mission',
-        click: function () {
-            const newMissionModal = bootstrap.Modal.getOrCreateInstance(
-                document.getElementById('newMissionModal')
-            );
-            newMissionModal.show();
-        }
-    };
-}
+// ── UTILS ─────────────────────────────────────────────────────────────────
 
 /**
  * Displays a notification toast in the bottom-right corner of the screen,
@@ -213,6 +137,97 @@ function buildStars(importance, max = 3) {
     return stars;
 }
 
+
+// ── CALENDAR BUTTONS ──────────────────────────────────────────────────────
+
+const customButtons = {
+    filterBtn: {
+        text: 'Filtre ▾',
+        click: function() {
+            const btn = document.querySelector('.fc-filterBtn-button');
+            const rect = btn.getBoundingClientRect();
+            const dropdown = document.getElementById('dropdown-filtre');
+
+            dropdown.style.cssText = ` position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
+
+            dropdown.classList.toggle('show');
+            btn.classList.toggle('active');
+        }
+    }
+};
+
+if (userRole === 'BENEFICIARY') {
+    customButtons.newRequest = {
+        text: '+ Nouvelle demande',
+        click: function() {
+            const newRequestModal = bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('newRequestModal')
+            );
+            newRequestModal.show();
+        }
+    };
+}
+
+if (userRole === 'INTERPRETER') {
+    customButtons.newUnavailability = {
+        text: '+ Nouvelle indisponibilité',
+        click: function() {
+            window.location.href = '/interpretes/profil/' + userId;
+        }
+    };
+}
+
+if (userRole === 'MANAGER') {
+    customButtons.newUnavailability = {
+        text: isMobile ? '+ Indispo' : '+ Nouvelle indisponibilité',
+        click: function() {
+            window.location.href = '/interpretes/profil/' + userId;
+        }
+    };
+    customButtons.newMission = {
+        text: isMobile ? '+ Mission' : '+ Nouvelle mission',
+        click: function () {
+            const newMissionModal = bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('newMissionModal')
+            );
+            newMissionModal.show();
+        }
+    };
+}
+
+
+// ── CALENDAR INIT ─────────────────────────────────────────────────────────
+
+/**
+ * Fetches calendar events from the REST API based on the current date range
+ * and active filters (status, interpreter).
+ *
+ * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
+ * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
+ * @param {Function} successCallback    - Callback to call with the fetched events
+ * @param {Function} failureCallback    - Callback to call on network error
+ * @returns {Promise<void>}
+ */
+async function fetchEvents(fetchInfo, successCallback, failureCallback) {
+    const params = new URLSearchParams();
+    params.append('weekDate', fetchInfo.startStr.substring(0, 10));
+
+    if (activeFilters.status !== null){
+        params.append('status', activeFilters.status);
+    }
+    if (activeFilters.interpreter !== null){
+        params.append('interpreter', activeFilters.interpreter);
+    }
+
+    try {
+        const r = await fetch('/horaire/evenements?' + params.toString());
+        const data = await r.json();
+        successCallback(data);
+    } catch (err) {
+        failureCallback(err);
+    }
+}
+
 document.addEventListener('input', function (e) {
     if (e.target.classList.contains('is-invalid')) {
         e.target.classList.remove('is-invalid');
@@ -230,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         weekends: true,
         allDaySlot: false,
         businessHours: {
-            daysOfWeek: [ 1, 2, 3, 4, 5 ], // Monday - Thursday
+            daysOfWeek: [ 1, 2, 3, 4, 5 ],
             startTime: '00:00',
             endTime: '23:59',
         },
@@ -285,16 +300,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const stars = buildStars(importance);
             return {
                 html: `
-                        <div class="fc-event-content-inner p-1">
+                    <div class="fc-event-content-inner p-1">
                         <div class="position-absolute top-0 end-0 pe-1 text-white fw-bold">
-                    ${stars}
-                </div>
-                            <div class="fw-bold">${arg.event.title}</div>
-                            <div>${arg.timeText}</div>
-                            <div>${props.type || ''}</div>
-                            <div><i class="bi bi-pin-map-fill"></i> ${props.room || ''}</div>
+                            ${stars}
                         </div>
-                    `
+                        <div class="fw-bold">${arg.event.title}</div>
+                        <div>${arg.timeText}</div>
+                        <div>${props.type || ''}</div>
+                        <div><i class="bi bi-pin-map-fill"></i> ${props.room || ''}</div>
+                    </div>
+                `
             };
         },
 
@@ -310,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dateClick: function(info) {
             const clickedDate = new Date(info.date);
             const endHour = new Date(clickedDate);
-            endHour.setMinutes(endHour.getMinutes()+60);
+            endHour.setMinutes(endHour.getMinutes() + 60);
 
             const formatDate = (date) => date.toLocaleDateString('en-CA');
             const formatTime = (date) => date.toLocaleTimeString('fr-BE', {
@@ -320,25 +335,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const dateValue = formatDate(clickedDate);
             const startHourValue = formatTime(clickedDate);
             const endHourValue = formatTime(endHour);
+
             if (userRole === 'MANAGER') {
                 document.getElementById('missionDate').value = dateValue;
                 document.getElementById('missionStartTime').value = startHourValue;
-
                 document.getElementById('missionEndTime').value = endHourValue;
-
-                const newMissionModal = bootstrap.Modal.getOrCreateInstance(
-                    document.getElementById('newMissionModal')
-                );
-                newMissionModal.show();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).show();
             } else if (userRole === 'BENEFICIARY') {
                 document.getElementById('requestDate').value = dateValue;
                 document.getElementById('requestStartTime').value = startHourValue;
                 document.getElementById('requestEndTime').value = endHourValue;
-
-                const newRequestModal = bootstrap.Modal.getOrCreateInstance(
-                    document.getElementById('newRequestModal')
-                );
-                newRequestModal.show();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).show();
             }
         },
 
@@ -367,21 +374,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const interpreterSelect = document.getElementById('managerPendingInterpreter');
             interpreterSelect.value = props.interpreter || '';
             interpreterSelect.disabled = !(isPending && beforeStart);
-            const timeFormatter = new Intl.DateTimeFormat('fr-BE', {hour: '2-digit', minute: '2-digit'});
 
+            const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
             let timeText = '';
-
             if (start) {
                 timeText = timeFormatter.format(start);
-
-                if (end) {
-                    timeText += ' - ' + timeFormatter.format(end);
-                }
+                if (end) timeText += ' - ' + timeFormatter.format(end);
             }
+
             if (isManager && (isPending || isAccepted)) {
                 const importance = parseInt(props.importance || '0', 10);
-                const importanceStars = buildStars(importance, 5);
-                document.getElementById('managerPendingImportance').innerHTML = importanceStars;
+                document.getElementById('managerPendingImportance').innerHTML = buildStars(importance, 5);
                 document.getElementById('managerPendingTitle').innerText = event.title || '';
                 document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
                 document.getElementById('managerPendingTime').innerText = timeText || '';
@@ -392,19 +395,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('managerPendingStatus').innerText = props.status || '';
                 document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
 
-
                 const footer = document.querySelector('#managerPendingModal .modal-footer');
                 footer.innerHTML = '';
 
                 if (isPending && beforeStart) {
                     footer.innerHTML = `
-                            <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
-                            <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
-                        `;
-                } else  {
+                        <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
+                        <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
+                    `;
+                } else {
                     footer.innerHTML = `
-                            <button type="button" class="btn btn-danger" id="btnCancelAcceptedMission">Annuler la mission</button>
-                        `;
+                        <button type="button" class="btn btn-danger" id="btnCancelAcceptedMission">Annuler la mission</button>
+                    `;
                 }
 
                 const acceptBtn = document.getElementById('btnAcceptMission');
@@ -471,11 +473,8 @@ document.addEventListener('DOMContentLoaded', function() {
                      * @listens click
                      */
                     cancelAcceptedBtn.addEventListener('click', function() {
-                        const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
-                        const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-
-                        managerPendingModal.hide();
-                        confirmCancelModal.show();
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
                     });
                 }
 
@@ -494,9 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const actions = document.getElementById('modalActions');
             actions.innerHTML = '';
 
-            //const type = (props.type || '').toLowerCase();
-
-            const isSameDay =   now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
+            const isSameDay = now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
             const isBeforeEnd = now < end;
 
             if (isPending) {
@@ -504,13 +501,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
                     <button type="button" class="btn btn-primary">Modifier la demande</button>
                 `;
-
-
             } else if (isAccepted && isSameDay && isBeforeEnd) {
                 actions.innerHTML = `
-                        <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
-                    `;
+                    <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
+                `;
             }
+
             const cancelBtn = document.getElementById('btnCancelRequest');
             const delayBtn = document.getElementById('btnDelayReport');
 
@@ -521,13 +517,11 @@ document.addEventListener('DOMContentLoaded', function() {
                  * @listens click
                  */
                 delayBtn.addEventListener('click', function() {
-                    const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-                    const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
-
-                    eventModal.hide();
-                    delayModal.show();
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).show();
                 });
             }
+
             if (cancelBtn) {
                 /**
                  * Closes the event modal and opens the cancellation confirmation modal.
@@ -535,17 +529,13 @@ document.addEventListener('DOMContentLoaded', function() {
                  * @listens click
                  */
                 cancelBtn.addEventListener('click', function() {
-                    const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-                    const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-                    eventModal.hide();
-                    confirmCancelModal.show();
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
                 });
             }
 
-
             document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
-            const modal = new bootstrap.Modal(document.getElementById('eventModal'));
-            modal.show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
         }
     });
 
@@ -576,21 +566,13 @@ document.addEventListener('DOMContentLoaded', function() {
      * @listens click
      */
     document.getElementById('cancelConfirmBackBtn').addEventListener('click', function() {
-        const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-
-        confirmCancelModal.hide();
-
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
         if (userRole === 'MANAGER') {
-            const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
-            managerPendingModal.show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
         } else {
-            const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-            eventModal.show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
         }
     });
-
-    //const eventModalEl = document.getElementById('eventModal');
-    //const delayModalEl = document.getElementById('delayModal');
 
     /**
      * Handles a click on "Cancel" in the delay report modal.
@@ -599,11 +581,8 @@ document.addEventListener('DOMContentLoaded', function() {
      * @listens click
      */
     document.getElementById('cancelDelayModalBtn').addEventListener('click', function() {
-        const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
-        const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-
-        delayModal.hide();
-        eventModal.show();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
     });
 
     /**
@@ -619,10 +598,8 @@ document.addEventListener('DOMContentLoaded', function() {
             alert("Aucune mission sélectionnée.");
             return;
         }
-
         const minutes = document.getElementById('delayMinutes').value;
         const absent = document.getElementById('delayAbsent').checked;
-
         try {
             const res = await fetch('/horaire/missions/' + currentMissionId + '/retard', {
                 method: 'POST',
@@ -647,8 +624,6 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     document.getElementById('sendMissionBtn').addEventListener('click', async function () {
         clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
-
-
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
@@ -657,17 +632,13 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
             { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
         ];
-
-
         if (!validateFields(rules)) return;
-
         const startTime = document.getElementById('missionStartTime').value;
         const endTime   = document.getElementById('missionEndTime').value;
         if (startTime >= endTime) {
             showToast("L'heure de fin doit être après l'heure de début.", 'error');
             return;
         }
-
         const payload = {
             type:                document.querySelector('input[name="missionType"]:checked').value,
             title:               document.getElementById('missionTitle').value,
@@ -685,7 +656,6 @@ document.addEventListener('DOMContentLoaded', function() {
             beneficiaryId:       document.getElementById('missionBeneficiary').value,
             comment:             document.getElementById('missionComment').value
         };
-
         try {
             const res = await fetch('/horaire/missions', {
                 method: 'POST',
@@ -717,17 +687,13 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
         ];
-
-
         if (!validateFields(rules)) return;
-
         const startTime = document.getElementById('requestStartTime').value;
         const endTime   = document.getElementById('requestEndTime').value;
         if (startTime >= endTime) {
             showToast("L'heure de fin doit être après l'heure de début.", 'error');
             return;
         }
-
         const payload = {
             type:                document.querySelector('input[name="requestType"]:checked').value,
             title:               document.getElementById('requestTitle').value,
@@ -744,7 +710,6 @@ document.addEventListener('DOMContentLoaded', function() {
             comment:             document.getElementById('requestComment').value,
             importance:          document.querySelector('input[name="requestImportance"]:checked').value
         };
-
         try {
             const res = await fetch('/horaire/requetes', {
                 method: 'POST',
