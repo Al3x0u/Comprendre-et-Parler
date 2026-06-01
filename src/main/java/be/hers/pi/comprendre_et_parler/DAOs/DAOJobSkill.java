@@ -162,7 +162,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
      * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if the database could not be reached
      */
-    public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws SQLException{
+    public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws IllegalArgumentException, SQLException{
         if (idInterpreter < 0)
             throw new IllegalArgumentException("Invalid id : " + idInterpreter);
 

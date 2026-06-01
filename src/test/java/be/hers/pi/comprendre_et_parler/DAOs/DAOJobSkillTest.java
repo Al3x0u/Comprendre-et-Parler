@@ -118,6 +118,10 @@ class DAOJobSkillTest {
     @Test
     @Order(5)
     public void testGetAcademicSkillOfAnInterpreter() throws SQLException {
+        assertThrows(IllegalArgumentException.class, () -> {
+            jobSkillDAO.getJobSkillOfAnInterpreter(-1);
+        }, "ID cannot be less than 0.");
+
         City c1 = new City(1, "Bruxelles", 1000);
         new DAOCity().create(c1);
         Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
@@ -129,12 +133,14 @@ class DAOJobSkillTest {
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), jobSkills, l1, new HashSet<>());
         new DAOInterpreter().create(i1);
+        jobSkills.add(j2);
+        Interpreter i2 = new Interpreter(1, "i260001", "Toto", "Toto", LocalDate.now().minusYears(50),
+                "9874", "toto@gmail.com", "123/45.67.89", 30, 450,
+                "Auto", new HashSet<>(), jobSkills, l1, new HashSet<>());
+        new DAOInterpreter().create(i2);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            jobSkillDAO.getJobSkillOfAnInterpreter(-1);
-        }, "ID cannot be less than 0.");
-
-        Set<JobSkill> databaseJobSkill = jobSkillDAO.getJobSkillOfAnInterpreter(i1.getId());
-        assertEquals(i1.getJobSkills(), databaseJobSkill);
+        Set<JobSkill> databaseJobSkills = jobSkillDAO.getJobSkillOfAnInterpreter(i1.getId());
+        assertEquals(1, databaseJobSkills.size(), "There is one object in the database for this interpreter.");
+        assertTrue(databaseJobSkills.contains(j2));
     }
 }
