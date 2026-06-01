@@ -67,9 +67,9 @@ class DAOExceptionalUnavailabilityTest {
     @Test
     @Order(4)
     public void testFind() throws SQLException {
-        assertEquals(u1, unavailabilityDAO.find(1, 1), "Find the updated object.");
-        assertEquals(u2, unavailabilityDAO.find(1, 2), "Find the unchanged object.");
-        assertNull(unavailabilityDAO.find(2, 1), "There is no object with this ID.");
+        assertEquals(u1, unavailabilityDAO.find(i1.getId(), u1.getTimeSlot().getId()), "Find the updated object.");
+        assertEquals(u2, unavailabilityDAO.find(i1.getId(), u2.getTimeSlot().getId()), "Find the unchanged object.");
+        assertNull(unavailabilityDAO.find(i2.getId(), u1.getTimeSlot().getId()), "There is no object with this ID.");
     }
 
     @Test
@@ -110,19 +110,19 @@ class DAOExceptionalUnavailabilityTest {
         }, "There are no objects with these IDs.");
 
         assertThrows(NoSuchElementException.class, () -> {
-            unavailabilityDAO.delete(2, 2);
+            unavailabilityDAO.delete(i2.getId(), u2.getTimeSlot().getId());
         }, "There are no objects with this combination of IDs.");
 
         assertDoesNotThrow(() -> {
-            unavailabilityDAO.delete(1, 1);
+            unavailabilityDAO.delete(i1.getId(), u1.getTimeSlot().getId());
         }, "The object has been removed from the database.");
 
         assertThrows(NoSuchElementException.class, () -> {
-            unavailabilityDAO.delete(1, 1);
+            unavailabilityDAO.delete(i1.getId(), u1.getTimeSlot().getId());
         }, "The object has already been removed from the database.");
 
         assertDoesNotThrow(() -> {
-            unavailabilityDAO.delete(1, 2);
+            unavailabilityDAO.delete(i1.getId(), u2.getTimeSlot().getId());
         }, "The object has been removed from the database.");
     }
 
