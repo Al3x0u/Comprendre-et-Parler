@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOExceptionalUnavailabilityTest {
@@ -102,14 +103,14 @@ class DAOExceptionalUnavailabilityTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertThrows(NoSuchElementException.class, () -> {
             unavailabilityDAO.delete(3, 3);
         }, "There are no objects with these IDs.");
 
         assertThrows(NoSuchElementException.class, () -> {
-            unavailabilityDAO.delete(2, 1);
+            unavailabilityDAO.delete(2, 2);
         }, "There are no objects with this combination of IDs.");
 
         assertDoesNotThrow(() -> {
@@ -131,6 +132,24 @@ class DAOExceptionalUnavailabilityTest {
         Set<ExceptionalUnavailability> unavailability = unavailabilityDAO.findAll();
         assertEquals(2, unavailability.size(), "There are two objects in the database.");
         u1.setReason("Sick");
+        assertTrue(unavailability.contains(u1));
+        assertTrue(unavailability.contains(u2));
+    }
+
+    @Test
+    @Order(5)
+    public void testFindForInterpreter() throws SQLException {
+        assertThrows(IllegalArgumentException.class, () -> {
+            unavailabilityDAO.findForInterpreter(-1);
+        }, "ID cannot be less than 0.");
+
+        Set<ExceptionalUnavailability> unavailability = unavailabilityDAO.findForInterpreter(50);
+        assertTrue(unavailability.isEmpty(), "There is no interpreter with this ID.");
+
+        unavailabilityDAO.create(u1, i2);
+
+        unavailability = unavailabilityDAO.findForInterpreter(i1.getId());
+        assertEquals(2, unavailability.size(), "There are two objects in the database for this interpreter.");
         assertTrue(unavailability.contains(u1));
         assertTrue(unavailability.contains(u2));
     }

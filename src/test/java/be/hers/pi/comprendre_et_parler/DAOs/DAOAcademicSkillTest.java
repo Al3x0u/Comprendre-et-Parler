@@ -124,6 +124,9 @@ class DAOAcademicSkillTest {
             academicSkillDAO.getAcademicSkillOfAnInterpreter(-1);
         }, "ID cannot be less than 0.");
 
+        Set<AcademicSkill> databaseAcademicSkills = academicSkillDAO.getAcademicSkillOfAnInterpreter(50);
+        assertTrue(databaseAcademicSkills.isEmpty(), "There is no interpreter with this ID.");
+
         City c1 = new City(1, "Bruxelles", 1000);
         new DAOCity().create(c1);
         Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
@@ -141,7 +144,7 @@ class DAOAcademicSkillTest {
                 "Auto", academicSkills, new HashSet<>(), l1, new HashSet<>());
         new DAOInterpreter().create(i2);
 
-        Set<AcademicSkill> databaseAcademicSkills = academicSkillDAO.getAcademicSkillOfAnInterpreter(i1.getId());
+        databaseAcademicSkills = academicSkillDAO.getAcademicSkillOfAnInterpreter(i1.getId());
         assertEquals(1, databaseAcademicSkills.size(), "There is one object in the database for this interpreter.");
         assertTrue(databaseAcademicSkills.contains(a1));
     }

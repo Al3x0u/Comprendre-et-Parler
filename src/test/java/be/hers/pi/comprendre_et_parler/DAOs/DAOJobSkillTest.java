@@ -122,6 +122,9 @@ class DAOJobSkillTest {
             jobSkillDAO.getJobSkillOfAnInterpreter(-1);
         }, "ID cannot be less than 0.");
 
+        Set<JobSkill> databaseJobSkills = jobSkillDAO.getJobSkillOfAnInterpreter(50);
+        assertTrue(databaseJobSkills.isEmpty(), "There is no interpreter with this ID.");
+
         City c1 = new City(1, "Bruxelles", 1000);
         new DAOCity().create(c1);
         Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
@@ -139,8 +142,8 @@ class DAOJobSkillTest {
                 "Auto", new HashSet<>(), jobSkills, l1, new HashSet<>());
         new DAOInterpreter().create(i2);
 
-        Set<JobSkill> databaseJobSkills = jobSkillDAO.getJobSkillOfAnInterpreter(i1.getId());
+        databaseJobSkills = jobSkillDAO.getJobSkillOfAnInterpreter(i1.getId());
         assertEquals(1, databaseJobSkills.size(), "There is one object in the database for this interpreter.");
-        assertTrue(databaseJobSkills.contains(j2));
+        assertTrue(databaseJobSkills.contains(j1));
     }
 }
