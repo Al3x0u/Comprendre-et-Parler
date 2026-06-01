@@ -87,7 +87,7 @@ class DAOJobSkillTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             jobSkillDAO.delete(j2.getId());
@@ -115,4 +115,26 @@ class DAOJobSkillTest {
         assertTrue(jobSkills.contains(j2));
     }
 
+    @Test
+    @Order(5)
+    public void testGetAcademicSkillOfAnInterpreter() throws SQLException {
+        City c1 = new City(1, "Bruxelles", 1000);
+        new DAOCity().create(c1);
+        Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
+        new DAOLocation().create(l1);
+
+        Set<JobSkill> jobSkills = new HashSet<>();
+        jobSkills.add(j1);
+        Interpreter i1 = new Interpreter(1, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
+                "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
+                "Auto", new HashSet<>(), jobSkills, l1, new HashSet<>());
+        new DAOInterpreter().create(i1);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            jobSkillDAO.getJobSkillOfAnInterpreter(-1);
+        }, "ID cannot be less than 0.");
+
+        Set<JobSkill> databaseJobSkill = jobSkillDAO.getJobSkillOfAnInterpreter(i1.getId());
+        assertEquals(i1.getJobSkills(), databaseJobSkill);
+    }
 }
