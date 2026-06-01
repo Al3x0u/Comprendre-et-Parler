@@ -34,12 +34,15 @@ class DAOManagerTest {
         m1 = new Manager(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        m1.setUnavailability(new HashSet<>());
         m2 = new Manager(1, "r260001", "Tata", "Tata", LocalDate.now().minusYears(50),
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        m2.setUnavailability(new HashSet<>());
         m3 = new Manager(3, "b741985", "Alice", "Charpentier", LocalDate.now().minusYears(25),
                 "yth794t8rg", "alice@gmail.com", "4865/75.98.24", 20, 300,
                 "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        m3.setUnavailability(new HashSet<>());
     }
 
     @AfterAll

@@ -34,12 +34,15 @@ class DAOInterpreterTest {
         i1 = new Interpreter(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i1.setUnavailability(new HashSet<>());
         i2 = new Interpreter(1, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i2.setUnavailability(new HashSet<>());
         i3 = new Interpreter(3, "b741985", "Alice", "Charpentier", LocalDate.now().minusYears(25),
                 "yth794t8rg", "alice@gmail.com", "4865/75.98.24", 20, 300,
                 "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i3.setUnavailability(new HashSet<>());
     }
 
     @AfterAll
