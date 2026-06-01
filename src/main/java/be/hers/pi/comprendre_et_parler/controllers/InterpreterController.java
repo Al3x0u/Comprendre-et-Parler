@@ -135,7 +135,6 @@ public class InterpreterController {
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
                                            @RequestParam LocalDate birthdate,
                                            @RequestParam(required = false) String returnUrl) {
-        System.out.println(birthdate);
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
     }
 
