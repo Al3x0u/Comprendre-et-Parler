@@ -72,7 +72,7 @@ class DAOBeneficiaryTest {
             beneficiaryDAO.create(b1);
         }, "Create a object in the database.");
         assertEquals(2, b1.getId(), "The ID must have been changed.");
-        assertEquals("b260002", b1.getLogin(), "The login must have been changed.");
+        assertEquals("TT2601", b1.getLogin(), "The login must have been changed.");
 
         b1.setId(20);
         assertThrows(AlreadyExistsException.class, () -> {
@@ -83,7 +83,7 @@ class DAOBeneficiaryTest {
             beneficiaryDAO.create(b2);
         }, "Create another object in the database.");
         assertEquals(3, b2.getId(), "The ID must have been changed.");
-        assertEquals("b260003", b2.getLogin(), "The login must have been changed.");
+        assertEquals("TT2602", b2.getLogin(), "The login must have been changed.");
     }
 
     @Test

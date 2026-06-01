@@ -70,7 +70,7 @@ class DAOInterpreterTest {
             interpreterDAO.create(i1);
         }, "Create a object in the database.");
         assertEquals(1, i1.getId(), "The ID must have been changed.");
-        assertEquals("i260001", i1.getLogin(), "The login must have been changed.");
+        assertEquals("TT2601", i1.getLogin(), "The login must have been changed.");
 
         i1.setId(20);
         assertThrows(AlreadyExistsException.class, () -> {
@@ -81,7 +81,7 @@ class DAOInterpreterTest {
             interpreterDAO.create(i2);
         }, "Create another object in the database.");
         assertEquals(2, i2.getId(), "The ID must have been changed.");
-        assertEquals("i260002", i2.getLogin(), "The login must have been changed.");
+        assertEquals("TT2602", i2.getLogin(), "The login must have been changed.");
     }
 
     @Test
