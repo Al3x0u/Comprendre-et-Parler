@@ -77,10 +77,17 @@
                                pattern="[0-9]+\/[0-9]+\.[0-9]+\.[0-9]+" placeholder="xxxx/xx.xx.xx">
                     </div>
                 </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <label for="birthdate" class="form-label"><i class="bi bi-calendar me-2"></i>Date de naissance</label>
+                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:value="*{birthDate != null}? *{birthDate} : ''"
+                               th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
+                    </div>
 
-                <div class="col-12 col-md-6 mb-4">
-                    <label for="transportMode" class="form-label"><i class="bi bi-bus-front me-2"></i>Mobilité</label>
-                    <input id="transportMode" type="text" class="form-control" th:field="*{transportMode}">
+                    <div class="col-12 col-md-6">
+                        <label for="transportMode" class="form-label"><i class="bi bi-bus-front me-2"></i>Mobilité</label>
+                        <input id="transportMode" type="text" class="form-control" th:field="*{transportMode}">
+                    </div>
                 </div>
 
                 <h2 class="h5 text-primary mb-3">Localisation</h2>
@@ -108,14 +115,13 @@
                 </div>
 
                 <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-4">
-                        <label for="postalCode" class="form-label">Code postal</label>
-                        <input id="postalCode" type="number" min="1000" max="9999" class="form-control" th:field="*{location.city.postalCode}" required>
-                    </div>
-
-                    <div class="col-12 col-md-8">
-                        <label for="cityDesignation" class="form-label">Ville</label>
-                        <input id="cityDesignation" type="text" class="form-control" th:field="*{location.city.designation}" required>
+                    <div class="col-12 col-md-6">
+                        <label for="cityId" class="form-label">Ville</label>
+                        <select id="cityId" class="form-select" name="cityId" required>
+                            <option th:each="city : ${allCities}"
+                                    th:value="${city.id}"
+                                    th:text="${city.postalCode + ' - ' + city.designation}"></option>
+                        </select>
                     </div>
                 </div>
 

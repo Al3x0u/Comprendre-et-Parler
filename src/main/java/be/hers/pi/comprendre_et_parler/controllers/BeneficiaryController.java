@@ -20,7 +20,6 @@ import java.util.List;
 public class BeneficiaryController {
 
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-
     private final BeneficiaryService beneficiaryService;
 
     public BeneficiaryController(BeneficiaryService beneficiaryService) {
@@ -56,19 +55,29 @@ public class BeneficiaryController {
         }
     }
 
+    @PostMapping("/profil/{id}/modifier")
+    public String editBeneficiaryProfile(@PathVariable int id,
+                                         @ModelAttribute("beneficiaire") Beneficiary formBeneficiary,
+                                         @RequestParam LocalDate birthdate,
+                                         @RequestParam(required = false) String returnUrl) {
+            return "redirect:/beneficiaires";
+    }
+
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-        populateCreationModel(model);
+        populateCreationModel(model, 0, 0);
         return "beneficiaries/creation";
     }
 
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
+                                    @RequestParam LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                beneficiaryForm.setBirthDate(birthdate);
                 UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
@@ -79,19 +88,28 @@ public class BeneficiaryController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                populateCreationModel(model);
+                populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
                 return "beneficiaries/creation";
             }
         }
         return "redirect:" + returnUrl;
     }
 
-    private void populateCreationModel(Model model) {
+    private void populateCreationModel(Model model, int statusId, int interpreterRefId) {
         try {
             List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
-            allStatus.sort((s1, s2) -> s1.getDesignation().compareTo(s2.getDesignation()));
-            List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(new DAOInterpreter()::findAll));
-            allInterpreters.sort((i1, i2) -> i1.getFirstName().compareTo(i2.getFirstName()));
+            allStatus.sort(Status::compareTo);
+            if (statusId > 0 && allStatus.removeIf(s -> s.getId() == statusId)) {
+                Status status = SQLWrap.call(new DAOStatus()::find, statusId);
+                allStatus.addFirst(status);
+            }
+
+            List<Interpreter> allInterpreters = new InterpreterService().getAllInterpreters();
+            allInterpreters.sort(Interpreter::compareTo);
+            if (interpreterRefId > 0 && allInterpreters.removeIf(i -> i.getId() == interpreterRefId)) {
+                Interpreter interpreter = new InterpreterService().getOneInterpreter(interpreterRefId);
+                allInterpreters.addFirst(interpreter);
+            }
 
             model.addAttribute("allStatuses", allStatus);
             model.addAttribute("allInterpreters", allInterpreters);

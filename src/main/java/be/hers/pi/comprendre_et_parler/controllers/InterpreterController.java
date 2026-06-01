@@ -36,6 +36,7 @@ public class InterpreterController {
                                       Model model) {
         try {
             List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
+            allInterpreters.sort(Interpreter::compareTo);
             List<Interpreter> filtered = filterInterpreters(allInterpreters, keyword);
             int total = filtered.size();
             int totalPages = calculateTotalPages(total, 10);
@@ -111,6 +112,7 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
+            sortCity(model, interpreter.getLocation().getCity().getId());
             model.addAttribute("interprete", interpreter);
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -131,6 +133,7 @@ public class InterpreterController {
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
+                                           @RequestParam LocalDate birthdate,
                                            @RequestParam(required = false) String returnUrl) {
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
     }
@@ -157,7 +160,7 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        populateCreationModel(model);
+        populateCreationModel(model, 0);
         model.addAttribute("interpreterForm", new CreateInterpreterForm());
         return "interpreters/creation";
     }
@@ -165,16 +168,19 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter creation form.
      * @param interpreterForm the form containing the new interpreter's information
+     * @param birthdate the birthdate of the new interpreter
      * @param returnUrl the URL of the page the user wants to go to
      * @param model the Spring model to populate
      * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                                    @RequestParam LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                interpreterForm.setBirthDate(birthdate);
                 UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
@@ -185,7 +191,7 @@ public class InterpreterController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                populateCreationModel(model);
+                populateCreationModel(model, interpreterForm.getCityId());
                 return "interpreters/creation";
             }
         }
@@ -212,12 +218,26 @@ public class InterpreterController {
     /**
      * Get all the cities and skills from the database and sort them according to their compareTo()
      * @param model The model to which the list will be added
+     * @param cityId The ID of the city to send on first line
      */
-    private void populateCreationModel(Model model) {
+    private void populateCreationModel(Model model, int cityId) {
         sortSkills(model);
+        sortCity(model, cityId);
+    }
+
+    /**
+     * Get all the cities from the database and sort them according to their compareTo()
+     * @param model The model to which the list will be added
+     * @param cityId The ID of the city to send on first line
+     */
+    private void sortCity(Model model, int cityId) {
         try {
             List<City> allCities = new CityService().getAllCities();
-            allCities.sort((c1, c2) -> c1.compareTo(c2));
+            allCities.sort(City::compareTo);
+            if (cityId > 0 && allCities.removeIf(c -> c.getId() == cityId)) {
+                City city = new CityService().getOneCity(cityId);
+                allCities.addFirst(city);
+            }
 
             model.addAttribute("allCities", allCities);
         } catch (SQLException e) {
@@ -232,9 +252,9 @@ public class InterpreterController {
     private void sortSkills(Model model) {
         try {
             List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort((a1, a2) -> a1.compareTo(a2));
+            allAcademicSkills.sort(AcademicSkill::compareTo);
             List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort((j1, j2) -> j1.compareTo(j2));
+            allJobSkills.sort(JobSkill::compareTo);
 
             model.addAttribute("allAcademicSkills", allAcademicSkills);
             model.addAttribute("allJobSkills", allJobSkills);

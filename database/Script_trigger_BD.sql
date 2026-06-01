@@ -31,7 +31,7 @@ DECLARE
     initial VARCHAR2(2 CHAR);
     beginLogin VARCHAR2(4 CHAR);
 BEGIN
-    initial := CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1));
+    initial := UPPER(CONCAT(SUBSTR(:NEW.firstName, 0, 1), SUBSTR(:NEW.lastName, 0, 1)));
     SELECT to_char(SYSDATE, 'YY') INTO year FROM DUAL;
     beginLogin := CONCAT(initial, year);
     SELECT MAX(TO_NUMBER(REGEXP_SUBSTR(login, '\d+'))) INTO numeroMax
