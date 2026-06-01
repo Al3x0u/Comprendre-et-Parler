@@ -2,9 +2,14 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.AcademicSkill;
+import be.hers.pi.comprendre_et_parler.models.City;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
+import be.hers.pi.comprendre_et_parler.models.Location;
 import org.junit.jupiter.api.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -88,7 +93,7 @@ class DAOAcademicSkillTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             academicSkillDAO.delete(a2.getId());
@@ -114,5 +119,28 @@ class DAOAcademicSkillTest {
         assertEquals(2, academicSkills.size(), "There are two objects in the database.");
         assertTrue(academicSkills.contains(a1));
         assertTrue(academicSkills.contains(a2));
+    }
+
+    @Test
+    @Order(5)
+    public void testGetAcademicSkillOfAnInterpreter() throws SQLException {
+        City c1 = new City(1, "Bruxelles", 1000);
+        new DAOCity().create(c1);
+        Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
+        new DAOLocation().create(l1);
+
+        Set<AcademicSkill> academicSkills = new HashSet<>();
+        academicSkills.add(a1);
+        Interpreter i1 = new Interpreter(1, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
+                "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
+                "Auto", academicSkills, new HashSet<>(), l1, new HashSet<>());
+        new DAOInterpreter().create(i1);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            academicSkillDAO.getAcademicSkillOfAnInterpreter(-1);
+        }, "ID cannot be less than 0.");
+
+        Set<AcademicSkill> databaseAcademicSkills = academicSkillDAO.getAcademicSkillOfAnInterpreter(i1.getId());
+        assertEquals(i1.getAcademicSkills(), databaseAcademicSkills);
     }
 }
