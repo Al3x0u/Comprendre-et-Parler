@@ -350,8 +350,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
                     new DAOBaseTimeSlot().findAvailabilities(id)
             );
             ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
-            ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
-            ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
         }
         return ret;
     }
