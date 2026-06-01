@@ -23,22 +23,6 @@ public class InterpreterService {
     private final DAOMission daoMission = new DAOMission();
     private final MissionService missionService = new MissionService();
 
-
-
-    /**
-     * Returns an interpreter according to the given id.
-     * @param id the id of the interpreter which we want
-     * @return a interpreter matching the id
-     * @throws SQLException if the database could not be reached
-     * @throws ConnectionException  if the connection to the database could not be established
-     */
-    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
-        Interpreter interpreter = SQLWrap.call(
-                (Integer i) -> daoInterpreter.find(i),
-                id
-        );
-        return interpreter;
-    }
     /**
      * Creates a new interpreter in the system.
      * @throws AlreadyExistsException if the interpreter already exists in the database
@@ -47,7 +31,7 @@ public class InterpreterService {
     public UserCredentials createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         Location location = new Location(
                 form.getLocationDesignation(),
-                new City(form.getCityDesignation(), form.getPostalCode()),
+                new CityService().getOneCity(form.getCityId()),
                 form.getStreet(),
                 form.getStreetNumber(),
                 form.getBox() != null ? form.getBox() : 0
@@ -165,6 +149,7 @@ public class InterpreterService {
     }
 
     /**
+     * Search for an interpreter in the database.
      * @return one interpreter present in database
      * @param id the id of the interpreter to find
      * @throws ConnectionException if the database could not be reached

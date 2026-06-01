@@ -7,18 +7,19 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class CreateInterpreterForm {
-    private String lastName;
+
     private String firstName;
+    private String lastName;
+    private LocalDate birthDate;
     private String email;
     private String phoneNumber;
     private String password;
-    private LocalDate birthDate;
+
     private String transportMode;
 
-    private Integer postalCode;
+    private int cityId;
     private String street;
     private String streetNumber;
-    private String cityDesignation;
     private String locationDesignation;
     private Integer box;
 
@@ -84,12 +85,12 @@ public class CreateInterpreterForm {
         this.transportMode = transportMode;
     }
 
-    public Integer getPostalCode() {
-        return postalCode;
+    public int getCityId() {
+        return cityId;
     }
 
-    public void setPostalCode(Integer postalCode) {
-        this.postalCode = postalCode;
+    public void setCityId(int cityId) {
+        this.cityId = cityId;
     }
 
     public String getStreet() {
@@ -106,14 +107,6 @@ public class CreateInterpreterForm {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
-    }
-
-    public String getCityDesignation() {
-        return cityDesignation;
-    }
-
-    public void setCityDesignation(String city_designation) {
-        this.cityDesignation = city_designation;
     }
 
     public String getLocationDesignation() {
