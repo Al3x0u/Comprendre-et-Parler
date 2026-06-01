@@ -131,9 +131,10 @@ public class BeneficiaryController {
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         try {
-            model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
+            model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
             model.addAttribute("allStatuses", statusService.findAll());
             model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
+            model.addAttribute("submitState", null);
             return "beneficiaries/creation";
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -146,20 +147,21 @@ public class BeneficiaryController {
 
     /**
      * Handle the submission of the beneficiary creation form.
-     * @param form the form containing the new beneficiary's information
+     * @param beneficiaryForm the form containing the new beneficiary's information
      * @param model the Spring model to populate
      * @return the creation view with credentials on success, or a redirect on error
      */
     @PostMapping("/creer")
-    public String createBeneficiary(@ModelAttribute CreateBeneficiaryForm form, Model model) {
+    public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm, Model model) {
         try {
-            UserCredentials credentials = beneficiaryService.createBeneficiary(form);
+            UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
             populateCreationModel(model);
-            model.addAttribute("credentials", credentials);
+            model.addAttribute("newUser", newUser);
+            model.addAttribute("submitState", "success");
             return "beneficiaries/creation";
-
         } catch (AlreadyExistsException e) {
-            model.addAttribute("error", "Ce bénéficiaire existe déjà.");
+            populateCreationModel(model);
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
             return "beneficiaries/creation";
         } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
@@ -174,10 +176,16 @@ public class BeneficiaryController {
      * @throws ConnectionException if the database could not be reached
      * @post the model contains a blank CreateBeneficiaryForm, all statuses and all interpreters
      */
-    private void populateCreationModel(Model model) throws SQLException, ConnectionException {
-        model.addAttribute("beneficiaireToCreate", new CreateBeneficiaryForm());
-        model.addAttribute("allStatuses", statusService.findAll());
-        model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
+    private void populateCreationModel(Model model) {
+        try {
+            model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+            model.addAttribute("allStatuses", statusService.findAll());
+            model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
+        } catch (SQLException e ) {
+            e.printStackTrace();
+        } catch (ConnectionException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

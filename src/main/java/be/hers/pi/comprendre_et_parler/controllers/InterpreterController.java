@@ -157,9 +157,14 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        sortSkills(model);
-        model.addAttribute("interpreterForm", new CreateInterpreterForm());
-        model.addAttribute("submitState", null);
+        try {
+            sortSkills(model);
+            model.addAttribute("interpreterForm", new CreateInterpreterForm());
+            model.addAttribute("submitState", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "interpreters/creation";
+        }
         return "interpreters/creation";
     }
 
@@ -181,6 +186,7 @@ public class InterpreterController {
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
+                e.printStackTrace();
                 model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();

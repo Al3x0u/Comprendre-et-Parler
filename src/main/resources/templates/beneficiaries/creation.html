@@ -11,7 +11,7 @@
                 <div th:replace="~{common/modal-creation :: modal-success}"></div>
             </div>
             <div th:unless="${submitState} == 'success'">
-                <div th:replace="~{common/modal-creation :: modal-error}"></div>
+                <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
             </div>
         </div>
     </div>

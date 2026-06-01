@@ -111,7 +111,6 @@ public class BeneficiaryService {
             }
             new DAOBeneficiary().delete(userId);
         }, id);
-        SQLWrap.callTransaction((ConsumerWithSQLException<Integer>) new DAOBeneficiary()::delete, id);
     }
 
     /**
