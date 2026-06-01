@@ -111,7 +111,7 @@ public class Beneficiary extends AppliUser {
 
         Beneficiary other = (Beneficiary) o;
         return (super.equals(other) && Objects.equals(status, other.status)
-                && Objects.equals(interpreterRef, other.interpreterRef));
+                && Objects.equals(interpreterRef.getLogin(), other.interpreterRef.getLogin()));
     }
 
     /**
@@ -124,7 +124,7 @@ public class Beneficiary extends AppliUser {
         return Objects.hash(
                 super.hashCode(),
                 status,
-                interpreterRef
+                interpreterRef.getLogin()
         );
     }
 
