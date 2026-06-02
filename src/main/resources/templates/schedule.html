@@ -274,7 +274,6 @@
 
             <div class="modal-header border-0">
                 <h4 class="modal-title fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
             <div class="modal-body">
@@ -282,14 +281,12 @@
                     <label class="form-label fw-semibold d-block">Type*</label>
 
                     <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check" th:each="skill, skillStat : ${allJobSkills}">
+                        <div class="form-check" th:each="skill, iter : ${professionalSkills}">
                             <input class="form-check-input" type="radio" name="requestType"
-                                   th:id="${'requestType-' + skill.id}"
+                                   th:id="'requestType_' + ${iter.index}"
                                    th:value="${skill.designation}"
-                                   th:checked="${skillStat.first}">
-                            <label class="form-check-label"
-                                   th:for="${'requestType-' + skill.id}"
-                                   th:text="${skill.designation}"></label>
+                                   th:checked="${iter.first}">
+                            <label class="form-check-label" th:for="'requestType_' + ${iter.index}"  th:text="${skill.designation}"></label>
                         </div>
                     </div>
                 </div>
@@ -391,29 +388,47 @@
 
                     </div>
                     <div class="col-md-6">
-                        <label for="requestPostalCode" class="form-label fw-semibold">Code postal</label>
-                        <input type="text" class="form-control" id="requestPostalCode" placeholder="Ex: 6600">
+                        <label for="requestPostalCode" class="form-label fw-semibold">Code postal*</label>
+                        <input type="text" class="form-control" id="requestPostalCode" placeholder="Ex: 1090">
+                        <div id="requestPostalCodeError" class="invalid-feedback"></div>
                     </div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="requestStreet" class="form-label fw-semibold">Rue</label>
+                        <label for="requestStreet" class="form-label fw-semibold">Rue*</label>
                         <input type="text" class="form-control" id="requestStreet" placeholder="Ex: Rue des écoles">
+                        <div id="requestStreetError" class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-3">
                         <label for="requestStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="number" class="form-control" id="requestStreetNumber" placeholder="12">
+                        <input type="text" class="form-control" id="requestStreetNumber" placeholder="12a">
                     </div>
                     <div class="col-md-3">
                         <label for="requestBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="text" class="form-control" id="requestBox" placeholder="Optionnel">
+                        <input type="number" min="1" class="form-control" id="requestBox" placeholder="Optionnel">
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="requestProfessor" class="form-label fw-semibold">Professeur</label>
                     <input type="text" class="form-control" id="requestProfessor" placeholder="Entrez le nom du professeur">
+                </div>
+
+                <div class="mb-3">
+                    <label for="requestAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
+                    <select class="form-select" id="requestAcademicSkill">
+                        <option value="">Aucune</option>
+                        <option th:each="skill : ${academicSkills}"
+                                th:value="${skill.id}"
+                                th:text="${skill.designation}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="requestRoom" class="form-label fw-semibold">Local</label>
+                    <input type="text" class="form-control" id="requestRoom" placeholder="Ex: Salle B204">
                 </div>
 
                 <div class="mb-4">
@@ -469,7 +484,6 @@
 
             <div class="modal-header border-0">
                 <h4 class="modal-title fw-bold" id="newMissionModalTitle">Nouvelle mission</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
             <div class="modal-body">
@@ -477,14 +491,12 @@
                     <label class="form-label fw-semibold d-block">Type*</label>
 
                     <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check" th:each="skill, skillStat : ${allJobSkills}">
-                            <input class="form-check-input" type="radio" name="requestType"
-                                   th:id="${'requestType-' + skill.id}"
+                        <div class="form-check" th:each="skill, iter : ${professionalSkills}">
+                            <input class="form-check-input" type="radio" name="missionType"
+                                   th:id="'missionType_' + ${iter.index}"
                                    th:value="${skill.designation}"
-                                   th:checked="${skillStat.first}">
-                            <label class="form-check-label"
-                                   th:for="${'requestType-' + skill.id}"
-                                   th:text="${skill.designation}"></label>
+                                   th:checked="${iter.first}">
+                            <label class="form-check-label" th:for="'missionType_' + ${iter.index}" th:text="${skill.designation}"></label>
                         </div>
                     </div>
                 </div>
@@ -586,29 +598,48 @@
                         <div id="missionCityError" class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-6">
-                        <label for="missionPostalCode" class="form-label fw-semibold">Code postal</label>
+                        <label for="missionPostalCode" class="form-label fw-semibold">Code postal*</label>
                         <input type="text" class="form-control" id="missionPostalCode" placeholder="Ex: 6600">
+                        <div id="missionPostalCodeError" class="invalid-feedback"></div>
                     </div>
                 </div>
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label for="missionStreet" class="form-label fw-semibold">Rue</label>
+                        <label for="missionStreet" class="form-label fw-semibold">Rue*</label>
                         <input type="text" class="form-control" id="missionStreet" placeholder="Ex: Rue des écoles">
+                        <div id="missionStreetError" class="invalid-feedback"></div>
                     </div>
                     <div class="col-md-3">
                         <label for="missionStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="number" class="form-control" id="missionStreetNumber" placeholder="12">
+                        <input type="text" class="form-control" id="missionStreetNumber" placeholder="12a">
+
                     </div>
                     <div class="col-md-3">
                         <label for="missionBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="text" class="form-control" id="missionBox" placeholder="Optionnel">
+                        <input type="number" min="1" class="form-control" id="missionBox" placeholder="Optionnel">
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="missionProfessor" class="form-label fw-semibold">Professeur</label>
                     <input type="text" class="form-control" id="missionProfessor" placeholder="Entrez le nom du professeur">
+                </div>
+
+                <div class="mb-3">
+                    <label for="missionAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
+                    <select class="form-select" id="missionAcademicSkill">
+                        <option value="">Aucune</option>
+                        <option th:each="skill : ${academicSkills}"
+                                th:value="${skill.id}"
+                                th:text="${skill.designation}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="missionRoom" class="form-label fw-semibold">Local</label>
+                    <input type="text" class="form-control" id="missionRoom" placeholder="Ex: Salle B204">
                 </div>
 
                 <div class="mb-3">
@@ -624,7 +655,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="missionBeneficiary" class="form-label fw-semibold">Bénéficiaire*</label>
+                    <label for="missionBeneficiary" class="form-label fw-semibold">Bénéficiaire</label>
                     <select id="missionBeneficiary" class="form-select">
                         <option value="">Sélectionner un bénéficiaire</option>
                         <option th:each="beneficiary : ${beneficiaries}"
