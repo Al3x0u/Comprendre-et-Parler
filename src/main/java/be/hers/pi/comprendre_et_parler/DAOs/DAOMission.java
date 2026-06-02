@@ -58,6 +58,17 @@ public class DAOMission extends DAO<Mission> {
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
+        try {
+            if (objectToInsert.getTimeSlot() instanceof PunctualTimeSlot pts)
+                new DAOPunctualTimeSlot().create(pts);
+            else if (objectToInsert.getTimeSlot() instanceof BaseTimeSlot bts)
+                new DAOBaseTimeSlot().create(bts);
+        } catch (AlreadyExistsException e) {}
+
+        try {
+            new DAOLocation().create(objectToInsert.getLocation());
+        } catch (AlreadyExistsException e) {}
+
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
                 FIELD_LOCATION, FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
