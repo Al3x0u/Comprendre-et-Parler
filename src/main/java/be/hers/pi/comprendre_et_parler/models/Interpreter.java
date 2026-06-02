@@ -112,7 +112,7 @@ public class Interpreter extends AppliUser{
         if (other.unavailability != null)
             this.unavailability = new HashSet<>(other.unavailability);
     }
-
+    @Override
     public Interpreter clone() {
         return new Interpreter(this);
     }
