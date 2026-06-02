@@ -10,24 +10,18 @@ import be.hers.pi.comprendre_et_parler.services.wrappers.ConsumerWithSQLExceptio
 import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.*;
 
+@Service
 public class InterpreterService {
 
-    private final DAOInterpreter daoInterpreter;
-    private final DAOBeneficiary daoBeneficiary;
-    private final DAOMission daoMission;
-    private final MissionService missionService;
-
-
-    public InterpreterService() {
-        this.daoInterpreter = new DAOInterpreter();
-        this.daoBeneficiary = new DAOBeneficiary();
-        this.daoMission = new DAOMission();
-        this.missionService = new MissionService();
-    }
+    private final DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final DAOMission daoMission = new DAOMission();
+    private final MissionService missionService = new MissionService();
 
     /**
      * Creates a new interpreter in the system.
@@ -144,8 +138,9 @@ public class InterpreterService {
     }
 
     /**
-     * Get all interpreters from the database.
-     * @return all interpreters present in database
+     * Retrieve all Interpreters from the database.
+     * @return a list of all Interpreters
+     * @throws SQLException if any database error occurs
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
@@ -206,8 +201,6 @@ public class InterpreterService {
         if (!(timeSlot instanceof PunctualTimeSlot)){
             throw new IllegalArgumentException("getAvailableInterpreters requiert un PunctualTimeSlot");
         }
-
-
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
 
         Set<Interpreter> candidates = SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate().toLocalTime(), slot.getEndDate().toLocalTime(), slot.getStartDate().toLocalDate());
@@ -218,7 +211,6 @@ public class InterpreterService {
                 available.add(interpreter);
             }
         }
-
         return available;
     }
 
@@ -347,5 +339,4 @@ public class InterpreterService {
         interpreter.setHourQuotaYear(yearQuota);
         SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
-
 }

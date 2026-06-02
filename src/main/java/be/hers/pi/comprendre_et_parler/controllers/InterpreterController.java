@@ -36,12 +36,11 @@ public class InterpreterController {
                                       Model model) {
         try {
             List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
-            allInterpreters.sort(Interpreter::compareTo);
-            List<Interpreter> filtered = filterInterpreters(allInterpreters, keyword);
+            List<Interpreter> filtered = PaginationUtils.filter(allInterpreters, keyword);
             int total = filtered.size();
-            int totalPages = calculateTotalPages(total, 10);
+            int totalPages = PaginationUtils.calculateTotalPages(total, 10);
             page = Math.max(1, Math.min(page, totalPages));
-            List<Interpreter> page_ = getInterpretersForPage(filtered, page, 10);
+            List<Interpreter> page_ = PaginationUtils.getPage(filtered, page, 10);
             int startItem = total > 0 ? (page - 1) * 10 + 1 : 0;
             int endItem = total > 0 ? startItem + page_.size() - 1 : 0;
 
@@ -112,7 +111,6 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
-            sortCity(model, interpreter.getLocation().getCity().getId());
             model.addAttribute("interprete", interpreter);
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -133,7 +131,6 @@ public class InterpreterController {
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
-                                           @RequestParam LocalDate birthdate,
                                            @RequestParam(required = false) String returnUrl) {
         return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
     }
@@ -160,38 +157,42 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        populateCreationModel(model, 0);
-        model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        try {
+            sortSkills(model);
+            model.addAttribute("interpreterForm", new CreateInterpreterForm());
+            model.addAttribute("submitState", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "interpreters/creation";
+        }
         return "interpreters/creation";
     }
 
     /**
      * Handle the submission of the interpreter creation form.
      * @param interpreterForm the form containing the new interpreter's information
-     * @param birthdate the birthdate of the new interpreter
      * @param returnUrl the URL of the page the user wants to go to
      * @param model the Spring model to populate
      * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
-                                    @RequestParam LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
-                interpreterForm.setBirthDate(birthdate);
                 UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
+                e.printStackTrace();
                 model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                populateCreationModel(model, interpreterForm.getCityId());
+                sortSkills(model);
                 return "interpreters/creation";
             }
         }
@@ -216,87 +217,20 @@ public class InterpreterController {
     }
 
     /**
-     * Get all the cities and skills from the database and sort them according to their compareTo()
-     * @param model The model to which the list will be added
-     * @param cityId The ID of the city to send on first line
-     */
-    private void populateCreationModel(Model model, int cityId) {
-        sortSkills(model);
-        sortCity(model, cityId);
-    }
-
-    /**
-     * Get all the cities from the database and sort them according to their compareTo()
-     * @param model The model to which the list will be added
-     * @param cityId The ID of the city to send on first line
-     */
-    private void sortCity(Model model, int cityId) {
-        try {
-            List<City> allCities = new CityService().getAllCities();
-            allCities.sort(City::compareTo);
-            if (cityId > 0 && allCities.removeIf(c -> c.getId() == cityId)) {
-                City city = new CityService().getOneCity(cityId);
-                allCities.addFirst(city);
-            }
-
-            model.addAttribute("allCities", allCities);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Get all the skills from the database and sort them according to their compareTo()
      * @param model The model to which the skills will be added
      */
     private void sortSkills(Model model) {
         try {
             List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort(AcademicSkill::compareTo);
+            allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
             List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort(JobSkill::compareTo);
+            allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
 
             model.addAttribute("allAcademicSkills", allAcademicSkills);
             model.addAttribute("allJobSkills", allJobSkills);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private List<Interpreter> filterInterpreters(List<Interpreter> interpreters, String keyword) {
-        List<Interpreter> filteredInterpreters = new ArrayList<>();
-        String searchedText = keyword.trim().toLowerCase();
-
-        for (Interpreter interpreter : interpreters) {
-            String login = interpreter.getLogin().toLowerCase();
-            String firstName = interpreter.getFirstName().toLowerCase();
-            String lastName = interpreter.getLastName().toLowerCase();
-
-            boolean matchesLogin = login.contains(searchedText);
-            boolean matchesFirstName = firstName.contains(searchedText);
-            boolean matchesLastName = lastName.contains(searchedText);
-
-            if (searchedText.isEmpty() || matchesLogin || matchesFirstName || matchesLastName) {
-                filteredInterpreters.add(interpreter);
-            }
-        }
-        return filteredInterpreters;
-    }
-
-    private int calculateTotalPages(int totalItems, int itemsPerPage) {
-        if (totalItems == 0) return 1;
-        int totalPages = totalItems / itemsPerPage;
-        if (totalItems % itemsPerPage != 0) totalPages++;
-        return totalPages;
-    }
-
-    private List<Interpreter> getInterpretersForPage(List<Interpreter> interpreters, int page, int itemsPerPage) {
-        List<Interpreter> interpretersForPage = new ArrayList<>();
-        int startIndex = (page - 1) * itemsPerPage;
-        int endIndex = Math.min(startIndex + itemsPerPage, interpreters.size());
-        for (int i = startIndex; i < endIndex; i++) {
-            interpretersForPage.add(interpreters.get(i));
-        }
-        return interpretersForPage;
     }
 }
