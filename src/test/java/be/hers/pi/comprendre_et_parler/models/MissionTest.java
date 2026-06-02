@@ -82,7 +82,7 @@ class MissionTest {
             m1.setInterpreters(null);
         }, "The set is null.");
 
-        Interpreter i2 = new Interpreter(2, "2", "Tutu", "Test", LocalDate.now(), "1234",
+        Interpreter i2 = new Interpreter(1, "1", "Tutu", "Test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
                 "Velo", null, null, null, null);
         Set<Interpreter> interpreters = new HashSet<>();
@@ -129,6 +129,16 @@ class MissionTest {
 
     @Test
     public void testDeleteInterpreter() {
+        assertThrows(NoSuchElementException.class, () -> {
+            m1.deleteInterpreter(-1);
+        }, "There is no interpreter with this ID.");
 
+        assertDoesNotThrow(() -> {
+            m1.deleteInterpreter(1);
+        }, "Remove the interpreter.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            m1.deleteInterpreter(1);
+        }, "The interpreter was already removed.");
     }
 }
