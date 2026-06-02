@@ -259,7 +259,7 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     * @return this.punctualTime
+     * @return this.availability
      */
     public Set<BaseTimeSlot> getAvailability() {
         return availability;
