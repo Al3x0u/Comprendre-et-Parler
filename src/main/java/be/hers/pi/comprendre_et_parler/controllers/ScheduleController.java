@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.AcademicSkillService;
 import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
 import be.hers.pi.comprendre_et_parler.services.JobSkillService;
@@ -27,6 +28,7 @@ public class ScheduleController {
     private final InterpreterService interpreterService  = new InterpreterService();
     private final BeneficiaryService beneficiaryService  = new BeneficiaryService();
     private final JobSkillService jobSkillService = new JobSkillService();
+    private final AcademicSkillService academicSkillService = new AcademicSkillService();
 
 
     /**
@@ -61,6 +63,8 @@ public class ScheduleController {
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("interpreters", interpreters);
+            model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
+            model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
 
         }catch(Exception e){
             e.printStackTrace();
@@ -148,6 +152,25 @@ public class ScheduleController {
             mission.setImportance(importance);
             mission.setBeneficiary(beneficiary);
             mission.setInterpreters(Set.of());
+
+            String room = payload.get("room");
+            if (room != null && !room.isBlank()) {
+                mission.setRoom(room);
+            }
+
+            String academicSkillIdStr = payload.get("academicSkillId");
+            if (academicSkillIdStr != null && !academicSkillIdStr.isBlank()) {
+                try {
+                    int skillId = Integer.parseInt(academicSkillIdStr);
+                    mission.setAcademicSkill(academicSkillService.getAllAcademicSkills()
+                            .stream()
+                            .filter(s -> s.getId() == skillId)
+                            .findFirst()
+                            .orElse(null));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
             missionService.createRequest(mission);
 
@@ -511,6 +534,25 @@ public class ScheduleController {
         String professor = body.get("professor");
         if (professor != null && !professor.isBlank()) {
             mission.setRoom(professor);
+        }
+
+        String room = body.get("room");
+        if (room != null && !room.isBlank()) {
+            mission.setRoom(room);
+        }
+
+        String academicSkillIdStr = body.get("academicSkillId");
+        if (academicSkillIdStr != null && !academicSkillIdStr.isBlank()) {
+            try {
+                int skillId = Integer.parseInt(academicSkillIdStr);
+                mission.setAcademicSkill(academicSkillService.getAllAcademicSkills()
+                        .stream()
+                        .filter(s -> s.getId() == skillId)
+                        .findFirst()
+                        .orElse(null));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         LocalDate date = LocalDate.parse(body.get("date"));
