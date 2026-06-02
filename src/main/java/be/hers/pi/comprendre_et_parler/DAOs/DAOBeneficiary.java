@@ -295,6 +295,28 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     }
 
     /**
+     * Update the reference interpreter of a Beneficiary in the database.
+     * @param beneficiaryId the id of the Beneficiary to update
+     * @param interpreterId the id of the new reference interpreter
+     * @throws NoSuchElementException if no Beneficiary with this id exists in the database
+     * @throws SQLException if the database could not be reached
+     * @post the referenceInterpreter of the Beneficiary has been updated in the database
+     */
+    public void updateInterpreterRef(int beneficiaryId, int interpreterId) throws SQLException {
+        String query = "UPDATE " + TABLE +" SET " + FIELD_INTERPRETER_REFERENCE +" = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterId);
+            statement.setInt(2, beneficiaryId);
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + beneficiaryId);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
      * Return all Beneficiary having the given status
      * @param idStatus represent the id of the status
      * @throws SQLException if the database could not be reached
@@ -325,6 +347,28 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             closeStatement(statement);
         }
         return beneficiaries;
+    }
+
+    /**
+     * Update the status of a Beneficiary in the database.
+     * @param beneficiaryId the id of the Beneficiary to update
+     * @param statusId the id of the new status
+     * @throws NoSuchElementException if no Beneficiary with this id exists in the database
+     * @throws SQLException if the database could not be reached
+     * @post the status of the Beneficiary has been updated in the database
+     */
+    public void updateStatus(int beneficiaryId, int statusId) throws SQLException {
+        String query = "UPDATE " + TABLE + " SET " + FIELD_STATUS + " = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, statusId);
+            statement.setInt(2, beneficiaryId);
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + beneficiaryId);
+        } finally {
+            closeStatement(statement);
+        }
     }
 
     /**
@@ -368,5 +412,28 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             closeResultSet(result);
             closeStatement(statement);
         }
+    }
+
+    /**
+     * Counts beneficiaries
+     * @return the number of beneficiaries in database
+     * @throws SQLException if a database exception occurs
+     */
+    public int count() throws SQLException {
+        String query = "SELECT COUNT(*) AS cnt FROM " + TABLE;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            if (result.next()) {
+                return result.getInt("cnt");
+            }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return 0;
     }
 }

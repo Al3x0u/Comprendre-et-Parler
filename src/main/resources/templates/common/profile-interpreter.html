@@ -79,7 +79,7 @@
                                 <p class="text-secondary fw-bold small mb-1"><i class="bi bi-geo-alt-fill me-2"></i>Localisation</p>
                                 <div th:if="*{location != null}">
                                     <p class="mb-2" th:text="*{location.designation}"></p>
-                                    <p class="mb-2" th:text="*{location.street + ' ' + location.streetNumber + (location.box != null ? ' bte ' + location.box : '')}"></p>
+                                    <p class="mb-2" th:text="*{location.street + ' ' + (location.streetNumber != null ? location.streetNumber : '') + (location.box != 0 ? ' bte ' + location.box : '')}"></p>
                                     <p class="mb-0" th:text="*{location.city.postalCode + ' ' + location.city.designation}"></p>
                                 </div>
                                 <p th:unless="*{location != null}" class="text-muted mb-0">Aucune localisation renseignée</p>
@@ -534,7 +534,7 @@
     </script>
 
     <div th:replace="~{common/modal-delete :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
-    <div th:replace="~{common/modal-disable :: modal-disable}"></div>
+    <div th:replace="~{common/modal-disable :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
 </div>
 
 

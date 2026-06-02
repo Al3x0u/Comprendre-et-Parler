@@ -31,12 +31,24 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // ── AUTHENTICATION ────────────────────────────────────────────────────
 
+    /**
+     * Retrieve the authenticated user from the session.
+     * @param request the HTTP request containing the session
+     * @return the authenticated user, or null if no session or no user in session
+     */
     private AppliUser getUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if(session == null) return null;
         return (AppliUser) session.getAttribute("user");
     }
 
+    /**
+     * Check if the user is authenticated, and redirect to the login page if not.
+     * @param user the user to check, may be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user is authenticated, false if redirected to login
+     * @throws IOException if an error occurs during the redirect
+     */
     private boolean isAuthenticated(AppliUser user, HttpServletResponse response) throws IOException {
         if(user == null){
             response.sendRedirect("/login");
@@ -62,10 +74,24 @@ public class SessionInterceptor implements HandlerInterceptor {
         if(!hasBeneficiaryProfileAccess(user, path, response)) return false;
         return true;
     }
-
+    /**
+     * Check if the user has the required role to access manager-restricted resources.
+     * Beneficiaries are granted access to their own profile and profile modification pages.
+     * @param user the authenticated user, must not be null
+     * @param path the requested URI, must not be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user is authorized, false if redirected to the schedule page
+     * @throws IOException if an error occurs during the redirect
+     */
     private boolean hasManagerAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
-        if(path.startsWith("/dashboard") || path.startsWith("/interpretes") || path.startsWith("/beneficiaires")){
-            if(!(user instanceof Manager)){
+        if (path.startsWith("/dashboard") || path.startsWith("/interpretes") || path.startsWith("/beneficiaires")) {
+            if (!(user instanceof Manager)) {
+                if (user instanceof Beneficiary) {
+                    if (path.matches("/beneficiaires/profil/\\d+") ||
+                            path.matches("/beneficiaires/profil/\\d+/modifier")) {
+                        return true;
+                    }
+                }
                 response.sendRedirect("/horaire");
                 return false;
             }
@@ -73,6 +99,16 @@ public class SessionInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Check if the user is authorized to access an interpreter's profile.
+     * Managers have unrestricted access. Interpreters can only access their own profile.
+     * Beneficiaries can only access the profile of their reference interpreter.
+     * @param user the authenticated user, must not be null
+     * @param path the requested URI, must not be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user is authorized, false if redirected to the profile page
+     * @throws IOException if an error occurs during the redirect
+     */
     private boolean hasInterpreterProfileAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
         if(!path.matches("/interpretes/profil/\\d+.*") || user instanceof Manager) return true;
         int id = extractId(path);
@@ -88,6 +124,15 @@ public class SessionInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Check if the user is authorized to access a beneficiary's profile.
+     * Managers have unrestricted access. Beneficiaries can only access their own profile.
+     * @param user the authenticated user, must not be null
+     * @param path the requested URI, must not be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user is authorized, false if redirected to the profile page
+     * @throws IOException if an error occurs during the redirect
+     */
     private boolean hasBeneficiaryProfileAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
         if(!path.matches("/beneficiaires/profil/\\d+.*") || user instanceof Manager) return true;
         int id = extractId(path);
@@ -100,6 +145,12 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // ── MODEL INJECTION ───────────────────────────────────────────────────
 
+    /**
+     * Inject common attributes into the model for use in all views.
+     * @param modelAndView the model to populate, must not be null
+     * @param user the authenticated user, must not be null
+     * @param uri the requested URI used to determine the current page
+     */
     private void injectCommonAttributes(ModelAndView modelAndView, AppliUser user, String uri) {
         modelAndView.addObject("user", user);
         modelAndView.addObject("isManager", user instanceof Manager);
@@ -109,6 +160,11 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // ── UTILITIES ─────────────────────────────────────────────────────────
 
+    /**
+     * Extract the current page identifier from the requested URI.
+     * @param uri the requested URI, must not be null
+     * @return a string identifying the current page, or an empty string if no match
+     */
     private String extractCurrentPage(String uri) {
         if(uri.endsWith("/dashboard")) return "dashboard";
         if(uri.endsWith("/horaire")) return "schedule";
@@ -118,6 +174,12 @@ public class SessionInterceptor implements HandlerInterceptor {
         if(uri.contains("/profil")) return "profile";
         return "";
     }
+
+    /**
+     * Extract the numeric id from a path containing a profil segment.
+     * @param path the requested URI, must not be null
+     * @return the extracted id, or -1 if no valid id was found
+     */
 
     private int extractId(String path) {
         String[] parts = path.split("/");

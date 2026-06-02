@@ -53,7 +53,7 @@ public class ScheduleController {
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
-            Set<Beneficiary> beneficiaries= beneficiaryService.getAllBeneficiary();
+            Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
@@ -525,7 +525,7 @@ public class ScheduleController {
 
         String type = body.get("type");
         if (type != null && !type.isBlank()) {
-            Set<JobSkill> allJobSkills = jobSkillService.findAll();
+            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
 
             for (JobSkill jobSkill : allJobSkills) {
                 if (jobSkill.getDesignation() != null

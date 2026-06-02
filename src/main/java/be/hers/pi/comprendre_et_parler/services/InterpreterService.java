@@ -10,41 +10,19 @@ import be.hers.pi.comprendre_et_parler.services.wrappers.ConsumerWithSQLExceptio
 import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.*;
 
+@Service
 public class InterpreterService {
 
-    private final DAOInterpreter daoInterpreter;
-    private final DAOBeneficiary daoBeneficiary;
-    private final DAOMission daoMission;
-    private final MissionService missionService;
+    private final DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final DAOMission daoMission = new DAOMission();
+    private final MissionService missionService = new MissionService();
 
-
-    public InterpreterService() {
-        this.daoInterpreter = new DAOInterpreter();
-        this.daoBeneficiary = new DAOBeneficiary();
-        this.daoMission = new DAOMission();
-        this.missionService = new MissionService();
-    }
-
-
-
-    /**
-     * Returns an interpreter according to the given id.
-     * @param id the id of the interpreter which we want
-     * @return a interpreter matching the id
-     * @throws SQLException if the database could not be reached
-     * @throws ConnectionException  if the connection to the database could not be established
-     */
-    public Interpreter getInterpreterById(int id) throws SQLException, ConnectionException{
-        Interpreter interpreter = SQLWrap.call(
-                (Integer i) -> daoInterpreter.find(i),
-                id
-        );
-        return interpreter;
-    }
     /**
      * Creates a new interpreter in the system.
      * @throws AlreadyExistsException if the interpreter already exists in the database
@@ -53,7 +31,7 @@ public class InterpreterService {
     public UserCredentials createInterpreter(CreateInterpreterForm form) throws AlreadyExistsException, SQLException, ConnectionException {
         Location location = new Location(
                 form.getLocationDesignation(),
-                new City(form.getCityDesignation(), form.getPostalCode()),
+                new CityService().getOneCity(form.getCityId()),
                 form.getStreet(),
                 form.getStreetNumber(),
                 form.getBox() != null ? form.getBox() : 0
@@ -160,15 +138,19 @@ public class InterpreterService {
     }
 
     /**
-     * @return all interpreters present in database
+     * Retrieve all Interpreters from the database.
+     * @return every Interpreters present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
     public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+        List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+        allInterpreters.sort(Interpreter::compareTo);
+        return allInterpreters;
     }
 
     /**
+     * Search for an interpreter in the database.
      * @return one interpreter present in database
      * @param id the id of the interpreter to find
      * @throws ConnectionException if the database could not be reached
@@ -220,8 +202,6 @@ public class InterpreterService {
         if (!(timeSlot instanceof PunctualTimeSlot)){
             throw new IllegalArgumentException("getAvailableInterpreters requiert un PunctualTimeSlot");
         }
-
-
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
 
         Set<Interpreter> candidates = SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate().toLocalTime(), slot.getEndDate().toLocalTime(), slot.getStartDate().toLocalDate());
@@ -232,7 +212,6 @@ public class InterpreterService {
                 available.add(interpreter);
             }
         }
-
         return available;
     }
 
@@ -361,5 +340,4 @@ public class InterpreterService {
         interpreter.setHourQuotaYear(yearQuota);
         SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
     }
-
 }

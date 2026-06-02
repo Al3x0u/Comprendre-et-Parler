@@ -8,9 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Controller
 @RequestMapping("/gestion")
 public class ReferentialController {
@@ -26,9 +23,9 @@ public class ReferentialController {
     @GetMapping("")
     public String showGestion(Model model) {
         try {
-            model.addAttribute("academicSkills", academicSkillService.findAll());
-            model.addAttribute("jobSkills", jobSkillService.findAll());
-            model.addAttribute("statuts", statusService.findAll());
+            model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
+            model.addAttribute("jobSkills", jobSkillService.getAllJobSkills());
+            model.addAttribute("statuts", statusService.getAllStatus());
         } catch (Exception e) {
             e.printStackTrace();
         }

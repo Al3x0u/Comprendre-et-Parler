@@ -1,23 +1,38 @@
 package be.hers.pi.comprendre_et_parler.services;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOStatus;
-import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
-import be.hers.pi.comprendre_et_parler.models.Status;
-import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.exceptions.*;
+import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.wrappers.*;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Service
 public class StatusService {
 
-    /**
-     * Return all existing status
+    /***
+     * get a status by its id
+     * @param id the id of the status to get
+     * @return the status with the id
      */
-    public List<Status> findAll() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+    public Status getOneStatus(int id) throws SQLException{
+        return SQLWrap.call(new DAOStatus()::find, id);
+    }
+
+    /**
+     * Retrieve all Status from the database.
+     * @return every Status present in database, sorted by their compareTo()
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public List<Status> getAllStatus() throws ConnectionException, SQLException {
+        List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+        allStatus.sort(Status::compareTo);
+        return allStatus;
     }
 
     /**
