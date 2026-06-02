@@ -155,18 +155,14 @@ public class InterpreterController {
     /**
      * Display the creation form for a new interpreter
      * @param model the Spring model to populate
-     * @return the creation view, or a redirect to the list on error
+     * @return the creation view
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        try {
-            populateCreationModel(model, 0);
-            model.addAttribute("interpreterForm", new CreateInterpreterForm());
-            model.addAttribute("submitState", null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "interpreters/creation";
-        }
+        populateCreationModel(model, 0);
+        model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        model.addAttribute("submitState", null);
+
         return "interpreters/creation";
     }
 

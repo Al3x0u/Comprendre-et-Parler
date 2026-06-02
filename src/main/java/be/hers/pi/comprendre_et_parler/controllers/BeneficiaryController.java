@@ -127,23 +127,15 @@ public class BeneficiaryController {
     /**
      * Display the creation form for a new beneficiary.
      * @param model the Spring model to populate
-     * @return the creation view, or a redirect to the list on error
+     * @return the creation view
      */
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
-        try {
-            model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-            model.addAttribute("allStatuses", statusService.findAll());
-            model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
-            model.addAttribute("submitState", null);
-            return "beneficiaries/creation";
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
-        }
+        model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+        populateCreationModel(model);
+        model.addAttribute("submitState", null);
+
+        return "beneficiaries/creation";
     }
 
     /**
@@ -163,7 +155,7 @@ public class BeneficiaryController {
                 UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
-                model.addAttribute("interpreterForm", new CreateInterpreterForm());
+                model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
             } catch (AlreadyExistsException e) {
                 model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
@@ -180,18 +172,13 @@ public class BeneficiaryController {
     /**
      * Populate the model with the data needed for the beneficiary creation form.
      * @param model the Spring model to populate
-     * @throws SQLException if any database error occurs
-     * @throws ConnectionException if the database could not be reached
-     * @post the model contains a blank CreateBeneficiaryForm, all statuses and all interpreters
+     * @post the model contains all statuses and all interpreters
      */
     private void populateCreationModel(Model model) {
         try {
-            model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
             model.addAttribute("allStatuses", statusService.findAll());
             model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
         } catch (SQLException e ) {
-            e.printStackTrace();
-        } catch (ConnectionException e) {
             e.printStackTrace();
         }
     }
