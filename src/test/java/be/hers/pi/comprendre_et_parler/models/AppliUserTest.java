@@ -84,8 +84,8 @@ class AppliUserTest {
         assertTrue(a2.compareTo(a1) > 0, "The login of the first object lexicographically follows the second one.");
 
         a1.setLastName("The last test");
-        assertTrue(a1.compareTo(a2) > 0, "The last name of the first object lexicographically precedes the second one.");
-        assertTrue(a2.compareTo(a1) < 0, "The last name of the first object lexicographically follows the second one.");
+        assertTrue(a1.compareTo(a2) > 0, "The last name of the first object lexicographically follows the second one.");
+        assertTrue(a2.compareTo(a1) < 0, "The last name of the first object lexicographically precedes the second one.");
 
         a2.setFirstName("The last test");
         assertTrue(a1.compareTo(a2) < 0, "The first name of the first object lexicographically precedes the second one.");

@@ -64,5 +64,25 @@ class CityTest {
         c2.setDesignation("The last test");
         assertNotEquals(c2, c1, "The second object has one of its attributes other than its id changed.");
     }
+
+    @Test
+    public void testCompareTo() {
+        assertThrows(NullPointerException.class, () -> {
+            c1.compareTo(null);
+        }, "The second object is null.");
+
+        assertEquals(0, c1.compareTo(c1), "The second object is the same as the first one.");
+
+        City c2 = new City(c1);
+        assertEquals(0, c1.compareTo(c2), "The second object is a copy of the first one.");
+
+        c2.setDesignation("Molenbeek");
+        assertTrue(c1.compareTo(c2) < 0, "The designation of the first object lexicographically precedes the second one.");
+        assertTrue(c2.compareTo(c1) > 0, "The designation of the first object lexicographically follows the second one.");
+        
+        c2.setPostalCode(1080);
+        assertTrue(c1.compareTo(c2) > 0, "The postal code of the first object is greater than that of the second one.");
+        assertTrue(c2.compareTo(c1) < 0, "The postal code of the first object is less than that of the second one.");
+    }
 }
 
