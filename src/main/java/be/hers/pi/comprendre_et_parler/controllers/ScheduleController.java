@@ -525,7 +525,7 @@ public class ScheduleController {
 
         String type = body.get("type");
         if (type != null && !type.isBlank()) {
-            Set<JobSkill> allJobSkills = jobSkillService.findAll();
+            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
 
             for (JobSkill jobSkill : allJobSkills) {
                 if (jobSkill.getDesignation() != null

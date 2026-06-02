@@ -17,17 +17,22 @@ public class StatusService {
     /***
      * get a status by its id
      * @param id the id of the status to get
-     * @return the status with the id id
+     * @return the status with the id
      */
-    public Status getStatus(int id)throws SQLException{
+    public Status getOneStatus(int id) throws SQLException{
         return SQLWrap.call(new DAOStatus()::find, id);
     }
 
     /**
-     * Return all existing status
+     * Retrieve all Status from the database.
+     * @return every Status present in database, sorted by their compareTo()
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
      */
-    public List<Status> findAll() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+    public List<Status> getAllStatus() throws ConnectionException, SQLException {
+        List<Status> allStatus = new ArrayList<>(SQLWrap.call(new DAOStatus()::findAll));
+        allStatus.sort(Status::compareTo);
+        return allStatus;
     }
 
     /**

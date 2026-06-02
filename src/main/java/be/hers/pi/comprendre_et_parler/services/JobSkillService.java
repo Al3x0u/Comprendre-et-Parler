@@ -9,18 +9,19 @@ import be.hers.pi.comprendre_et_parler.models.JobSkill;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class JobSkillService {
     /**
-     * @return every JobSkill present in database
+     * Retrieve all JobSkill from the database.
+     * @return every JobSkill present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
-    public Set<JobSkill> findAll() throws ConnectionException, SQLException {
-        return SQLWrap.call(new DAOJobSkill()::findAll);
+    public List<JobSkill> getAllJobSkills() throws ConnectionException, SQLException {
+        List<JobSkill> allJobSkills = new ArrayList<>(SQLWrap.call(new DAOJobSkill()::findAll));
+        allJobSkills.sort(JobSkill::compareTo);
+        return allJobSkills;
     }
 
     /**

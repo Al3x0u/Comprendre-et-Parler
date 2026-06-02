@@ -9,18 +9,19 @@ import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class AcademicSkillService {
     /**
-     * @return every AcademicSkill present in database
+     * Retrieve all AcademicSkill from the database.
+     * @return every AcademicSkill present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
-    public Set<AcademicSkill> findAll() throws ConnectionException, SQLException {
-        return SQLWrap.call(new DAOAcademicSkill()::findAll);
+    public List<AcademicSkill> getAllAcademicSkills() throws ConnectionException, SQLException {
+        List<AcademicSkill> allAcademicSkills = new ArrayList<>(SQLWrap.call(new DAOAcademicSkill()::findAll));
+        allAcademicSkills.sort(AcademicSkill::compareTo);
+        return allAcademicSkills;
     }
 
     /**

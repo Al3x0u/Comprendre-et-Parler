@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -85,7 +86,7 @@ public class InterpreterController {
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
-            sortSkills(model);
+            getSkills(model);
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes";
@@ -111,6 +112,7 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
+            sortCities(model, interpreter.getLocation().getCity().getId());
             model.addAttribute("interprete", interpreter);
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -153,18 +155,14 @@ public class InterpreterController {
     /**
      * Display the creation form for a new interpreter
      * @param model the Spring model to populate
-     * @return the creation view, or a redirect to the list on error
+     * @return the creation view
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        try {
-            sortSkills(model);
-            model.addAttribute("interpreterForm", new CreateInterpreterForm());
-            model.addAttribute("submitState", null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "interpreters/creation";
-        }
+        populateCreationModel(model, 0);
+        model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        model.addAttribute("submitState", null);
+
         return "interpreters/creation";
     }
 
@@ -177,22 +175,23 @@ public class InterpreterController {
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                                    @ModelAttribute("birthdate") LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                interpreterForm.setBirthDate(birthdate);
                 UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                e.printStackTrace();
                 model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                sortSkills(model);
+                populateCreationModel(model, interpreterForm.getCityId());
                 return "interpreters/creation";
             }
         }
@@ -217,18 +216,40 @@ public class InterpreterController {
     }
 
     /**
-     * Get all the skills from the database and sort them according to their compareTo()
+     * Populate the model with the data needed for the interpreter creation form.
+     * @param model The Spring model to populate
+     * @param idCity The ID of the city to send to the front of the list
+     */
+    private void populateCreationModel(Model model, int idCity) {
+        getSkills(model);
+        sortCities(model, idCity);
+    }
+
+    /**
+     * Get all the skills from the database
      * @param model The model to which the skills will be added
      */
-    private void sortSkills(Model model) {
+    private void getSkills(Model model) {
         try {
-            List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
-            List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
+            model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
+            model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-            model.addAttribute("allAcademicSkills", allAcademicSkills);
-            model.addAttribute("allJobSkills", allJobSkills);
+    /**
+     * Get all the cities from the database and sort them according to their compareTo()
+     * @param model The model to which the skills will be added
+     * @param idCity The ID of the city to send to the front of the list
+     */
+    private void sortCities(Model model, int idCity) {
+        try {
+            List<City> allCities = new CityService().getAllCities();
+            if (idCity > 0 && allCities.removeIf(c -> c.getId() == idCity))
+                allCities.addFirst(new CityService().getOneCity(idCity));
+
+            model.addAttribute("allCities", allCities);
         } catch (SQLException e) {
             e.printStackTrace();
         }
