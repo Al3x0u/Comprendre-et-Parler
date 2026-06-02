@@ -87,7 +87,7 @@ public class BeneficiaryController {
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("interpreters", interpreterService.getAllInterpreters());
             model.addAttribute("age", beneficiaryService.calculateAge(beneficiary.getBirthDate()));
-            model.addAttribute("allStatuses", statusService.findAll());
+            model.addAttribute("allStatuses", statusService.getAllStatus());
         } catch (SQLException e) {
             return "redirect:/beneficiaires";
         }catch (ConnectionException e){
@@ -132,7 +132,7 @@ public class BeneficiaryController {
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-        populateCreationModel(model);
+        populateCreationModel(model, 0, 0);
         model.addAttribute("submitState", null);
 
         return "beneficiaries/creation";
@@ -162,7 +162,7 @@ public class BeneficiaryController {
                 e.printStackTrace();
                 model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
             } finally {
-                populateCreationModel(model);
+                populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
                 return "beneficiaries/creation";
             }
         }
@@ -173,13 +173,18 @@ public class BeneficiaryController {
      * Populate the model with the data needed for the beneficiary creation form.
      * @param model the Spring model to populate
      * @post the model contains all statuses and all interpreters sorted by their compareTo()
+     * @param idStatus The ID of the status to send to the front of the list
+     * @param idInterpreterRef The ID of the interpreter to send to the front of the list
      */
-    private void populateCreationModel(Model model) {
+    private void populateCreationModel(Model model, int idStatus, int idInterpreterRef) {
         try {
-            List<Status> allStatus = statusService.findAll();
-            allStatus.sort(Status::compareTo);
+            List<Status> allStatus = statusService.getAllStatus();
+            if (idStatus > 0 && allStatus.removeIf(s -> s.getId() == idStatus))
+                allStatus.addFirst(statusService.getOneStatus(idStatus));
+
             List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
-            allInterpreters.sort(Interpreter::compareTo);
+            if (idInterpreterRef > 0 && allInterpreters.removeIf(i -> i.getId() == idInterpreterRef))
+                allInterpreters.addFirst(interpreterService.getOneInterpreter(idInterpreterRef));
 
             model.addAttribute("allStatuses", allStatus);
             model.addAttribute("allInterpreters", allInterpreters);

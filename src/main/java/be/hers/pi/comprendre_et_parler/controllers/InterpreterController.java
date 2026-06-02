@@ -86,7 +86,7 @@ public class InterpreterController {
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
-            sortSkills(model);
+            getSkills(model);
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes";
@@ -221,23 +221,18 @@ public class InterpreterController {
      * @param idCity The ID of the city to send to the front of the list
      */
     private void populateCreationModel(Model model, int idCity) {
-        sortSkills(model);
+        getSkills(model);
         sortCities(model, idCity);
     }
 
     /**
-     * Get all the skills from the database and sort them according to their compareTo()
+     * Get all the skills from the database
      * @param model The model to which the skills will be added
      */
-    private void sortSkills(Model model) {
+    private void getSkills(Model model) {
         try {
-            List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort(AcademicSkill::compareTo);
-            List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort(JobSkill::compareTo);
-
-            model.addAttribute("allAcademicSkills", allAcademicSkills);
-            model.addAttribute("allJobSkills", allJobSkills);
+            model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
+            model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -251,7 +246,6 @@ public class InterpreterController {
     private void sortCities(Model model, int idCity) {
         try {
             List<City> allCities = new CityService().getAllCities();
-            allCities.sort(City::compareTo);
             if (idCity > 0 && allCities.removeIf(c -> c.getId() == idCity))
                 allCities.addFirst(new CityService().getOneCity(idCity));
 

@@ -139,13 +139,14 @@ public class InterpreterService {
 
     /**
      * Retrieve all Interpreters from the database.
-     * @return a list of all Interpreters
-     * @throws SQLException if any database error occurs
+     * @return every Interpreters present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
     public List<Interpreter> getAllInterpreters() throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+        List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+        allInterpreters.sort(Interpreter::compareTo);
+        return allInterpreters;
     }
 
     /**

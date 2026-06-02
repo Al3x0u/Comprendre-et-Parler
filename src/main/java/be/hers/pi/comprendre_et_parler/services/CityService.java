@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.services;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOCity;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.City;
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
@@ -30,12 +29,14 @@ public class CityService {
     }
 
     /**
-     * Get all cities from the database.
-     * @return all cities present in database
+     * Retrieve all City from the database.
+     * @return every City present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
     public List<City> getAllCities() throws ConnectionException, SQLException {
-        return new ArrayList<>(SQLWrap.call(daoCity::findAll));
+        List<City> allCities = new ArrayList<>(SQLWrap.call(daoCity::findAll));
+        allCities.sort(City::compareTo);
+        return allCities;
     }
 }
