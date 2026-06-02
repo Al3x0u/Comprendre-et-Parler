@@ -19,15 +19,15 @@ class MissionTest {
                 "Velo", null, null, null, null);
         Beneficiary b1 = new Beneficiary(2, "2", "Test", "Test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
         m1 = new Mission(1,
-                "test",
+                "Test",
                 MissionState.PENDING,
-                "test",
+                "Test",
                 new PunctualTimeSlot(1, LocalDateTime.now(), LocalDateTime.now().plusHours(2)),
                 b1,
-                new Location(1, "test", new City(1, "Libramont", 6800), "test", "test", 15),
-                new JobSkill(2, "test"),
-                new AcademicSkill(1, "test"),
-                "test",
+                new Location(1, "Test", new City(1, "Libramont", 6800), "Test", "Test", 15),
+                new JobSkill(2, "Test"),
+                new AcademicSkill(1, "Test"),
+                "Test",
                 0);
         Set<Interpreter> interpreters = new HashSet<>();
         interpreters.add(i1);

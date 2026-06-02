@@ -223,6 +223,8 @@ public abstract class AppliUser {
      * If the login are the same, return 0.
      */
     public int compareTo(AppliUser a) {
+        if (this == a) return 0;
+
         int res = firstName.compareTo(a.firstName);
         if (res == 0) {
             res = lastName.compareTo(a.lastName);
