@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.AcademicSkillService;
 import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
 import be.hers.pi.comprendre_et_parler.services.JobSkillService;
@@ -27,6 +28,7 @@ public class ScheduleController {
     private final InterpreterService interpreterService  = new InterpreterService();
     private final BeneficiaryService beneficiaryService  = new BeneficiaryService();
     private final JobSkillService jobSkillService = new JobSkillService();
+    private final AcademicSkillService academicSkillService = new AcademicSkillService();
 
 
     /**
@@ -51,8 +53,6 @@ public class ScheduleController {
             LocalDate today = LocalDate.now();
 
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
-            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
-            model.addAttribute("allJobSkills", allJobSkills);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -63,6 +63,8 @@ public class ScheduleController {
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("interpreters", interpreters);
+            model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
+            model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
 
         }catch(Exception e){
             e.printStackTrace();
@@ -94,24 +96,20 @@ public class ScheduleController {
             String locationDesignation = payload.get("locationDesignation");
             String cityName = payload.get("city");
             int postalCode = 0;
-            String postalCodeStr = payload.get("postalCode");
-            if (postalCodeStr != null && !postalCodeStr.isBlank()) {
-                try {
-                    postalCode = Integer.parseInt(postalCodeStr);
-                } catch (NumberFormatException e) {
-                    postalCode = 0;
-                }
+            try{
+                postalCode =  Integer.parseInt(payload.get("postalCode"));
+            }catch(Exception e){
+                e.printStackTrace();
+                postalCode = 0;
             }
             String street = payload.get("street");
             String streetNumber = payload.get("streetNumber");
             int box = 0;
-            String boxStr = payload.get("box");
-            if (boxStr != null && !boxStr.isBlank()) {
-                try {
-                    box = Integer.parseInt(boxStr);
-                } catch (NumberFormatException e) {
-                    box = 0;
-                }
+            try{
+                box = Integer.parseInt(payload.get("box"));
+            }catch(Exception e){
+                e.printStackTrace();
+                box = 0;
             }
 
             String professor = payload.get("professor");
@@ -155,13 +153,23 @@ public class ScheduleController {
             mission.setBeneficiary(beneficiary);
             mission.setInterpreters(Set.of());
 
-            if (type != null && !type.isBlank()) {
-                JobSkill jobSkill = jobSkillService.getAllJobSkills().stream()
-                        .filter(js -> js.getDesignation() != null
-                                && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
-                        .findFirst()
-                        .orElse(null);
-                mission.setJobSkill(jobSkill);
+            String room = payload.get("room");
+            if (room != null && !room.isBlank()) {
+                mission.setRoom(room);
+            }
+
+            String academicSkillIdStr = payload.get("academicSkillId");
+            if (academicSkillIdStr != null && !academicSkillIdStr.isBlank()) {
+                try {
+                    int skillId = Integer.parseInt(academicSkillIdStr);
+                    mission.setAcademicSkill(academicSkillService.getAllAcademicSkills()
+                            .stream()
+                            .filter(s -> s.getId() == skillId)
+                            .findFirst()
+                            .orElse(null));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             missionService.createRequest(mission);
@@ -368,7 +376,6 @@ public class ScheduleController {
             }
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
-            event.put("id", String.valueOf(mission.getId()));
             event.put("title", mission.getSubject());
 
             event.put("start", pts.getStartDate().toString());
@@ -529,6 +536,25 @@ public class ScheduleController {
             mission.setRoom(professor);
         }
 
+        String room = body.get("room");
+        if (room != null && !room.isBlank()) {
+            mission.setRoom(room);
+        }
+
+        String academicSkillIdStr = body.get("academicSkillId");
+        if (academicSkillIdStr != null && !academicSkillIdStr.isBlank()) {
+            try {
+                int skillId = Integer.parseInt(academicSkillIdStr);
+                mission.setAcademicSkill(academicSkillService.getAllAcademicSkills()
+                        .stream()
+                        .filter(s -> s.getId() == skillId)
+                        .findFirst()
+                        .orElse(null));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         LocalDate date = LocalDate.parse(body.get("date"));
         java.time.LocalTime start = java.time.LocalTime.parse(body.get("startTime"));
         java.time.LocalTime end = java.time.LocalTime.parse(body.get("endTime"));
@@ -567,6 +593,7 @@ public class ScheduleController {
                 mission.setBeneficiary(beneficiary);
             }
         }
+
         return mission;
     }
 
