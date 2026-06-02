@@ -551,7 +551,6 @@ public class ScheduleController {
                 mission.setBeneficiary(beneficiary);
             }
         }
-
         return mission;
     }
 
