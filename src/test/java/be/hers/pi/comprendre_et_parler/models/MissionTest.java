@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
@@ -13,10 +14,10 @@ class MissionTest {
 
     @BeforeAll
     public static void init() {
-        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
+        Interpreter i1 = new Interpreter(1, "1", "Test", "Test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
                 "Velo", null, null, null, null);
-        Beneficiary b1 = new Beneficiary(2, "2", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
+        Beneficiary b1 = new Beneficiary(2, "2", "Test", "Test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
         m1 = new Mission(1,
                 "test",
                 MissionState.PENDING,
@@ -28,6 +29,9 @@ class MissionTest {
                 new AcademicSkill(1, "test"),
                 "test",
                 0);
+        Set<Interpreter> interpreters = new HashSet<>();
+        interpreters.add(i1);
+        m1.setInterpreters(interpreters);
     }
 
     @Test
@@ -70,5 +74,39 @@ class MissionTest {
 
         m2.setCommentary("The last test");
         assertNotEquals(m2, m1, "The second object has one of its attributes other than its id changed.");
+    }
+
+    @Test
+    public void testSetInterpreters() {
+
+    }
+
+    @Test
+    public void testAddInterpreter() {
+        assertThrows(NullPointerException.class, () -> {
+            m1.addInterpreter(null);
+        }, "The set is null.");
+
+        Interpreter i2 = new Interpreter(3, "3", "Toto", "Test", LocalDate.now(), "1234",
+                "test@gmail.com", "123/45.67.89", 10, 120,
+                "Velo", null, null, null, null);
+        assertDoesNotThrow(() -> {
+            m1.addInterpreter(i2);
+        }, "Add the interpreter.");
+        assertTrue(m1.getInterpreters().contains(i2), "The interpreter was added.");
+
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.addInterpreter(i2);
+        }, "The interpreter already exist.");
+
+        i2.setFirstName("Tata");
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.addInterpreter(i2);
+        }, "An interpreter with this ID already exist.");
+    }
+
+    @Test
+    public void testDeleteInterpreter() {
+
     }
 }
