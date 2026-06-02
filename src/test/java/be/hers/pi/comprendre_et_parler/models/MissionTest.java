@@ -78,7 +78,29 @@ class MissionTest {
 
     @Test
     public void testSetInterpreters() {
+        assertThrows(NullPointerException.class, () -> {
+            m1.setInterpreters(null);
+        }, "The set is null.");
 
+        Interpreter i2 = new Interpreter(2, "2", "Tutu", "Test", LocalDate.now(), "1234",
+                "test@gmail.com", "123/45.67.89", 10, 120,
+                "Velo", null, null, null, null);
+        Set<Interpreter> interpreters = new HashSet<>();
+        interpreters.add(i2);
+        Interpreter i3 = new Interpreter(i2);
+        i3.setFirstName("Titi");
+        interpreters.add(i3);
+        assertThrows(AlreadyExistsException.class, () -> {
+            m1.setInterpreters(interpreters);
+        }, "Two interpreters have the same id.");
+
+        interpreters.remove(i3);
+        i3.setId(50);
+        interpreters.add(i3);
+        assertDoesNotThrow(() -> {
+            m1.setInterpreters(interpreters);
+        }, "Change the set.");
+        assertEquals(2, m1.getInterpreters().size(), "The set was changed.");
     }
 
     @Test
@@ -87,21 +109,21 @@ class MissionTest {
             m1.addInterpreter(null);
         }, "The set is null.");
 
-        Interpreter i2 = new Interpreter(3, "3", "Toto", "Test", LocalDate.now(), "1234",
+        Interpreter i4 = new Interpreter(3, "3", "Toto", "Test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
                 "Velo", null, null, null, null);
         assertDoesNotThrow(() -> {
-            m1.addInterpreter(i2);
+            m1.addInterpreter(i4);
         }, "Add the interpreter.");
-        assertTrue(m1.getInterpreters().contains(i2), "The interpreter was added.");
+        assertTrue(m1.getInterpreters().contains(i4), "The interpreter was added.");
 
         assertThrows(AlreadyExistsException.class, () -> {
-            m1.addInterpreter(i2);
+            m1.addInterpreter(i4);
         }, "The interpreter already exist.");
 
-        i2.setFirstName("Tata");
+        i4.setFirstName("Tata");
         assertThrows(AlreadyExistsException.class, () -> {
-            m1.addInterpreter(i2);
+            m1.addInterpreter(i4);
         }, "An interpreter with this ID already exist.");
     }
 
