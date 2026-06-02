@@ -170,7 +170,7 @@ if (userRole === 'BENEFICIARY') {
 
 if (userRole === 'INTERPRETER') {
     customButtons.newUnavailability = {
-        text: '+ Nouvelle indisponibilité',
+        text: '↗ Nouvelle indisponibilité',
         click: function() {
             window.location.href = '/interpretes/profil/' + userId;
         }
@@ -623,16 +623,21 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
+        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionPostalCode', 'missionInterpreter']);
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
             { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
-            { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
-            { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
+            { id: 'missionStreet',     errorId: 'missionStreetError',     msg: 'La rue est requise.' },
+            { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
+        if (!document.getElementById('missionInterpreter').value) {
+            document.getElementById('missionInterpreter').classList.add('is-invalid');
+            document.getElementById('missionInterpreterError').textContent = 'Veuillez sélectionner un interprète.';
+            return;
+        }
         const startTime = document.getElementById('missionStartTime').value;
         const endTime   = document.getElementById('missionEndTime').value;
         if (startTime >= endTime) {
@@ -654,7 +659,9 @@ document.addEventListener('DOMContentLoaded', function() {
             professor:           document.getElementById('missionProfessor').value,
             interpreterId:       document.getElementById('missionInterpreter').value,
             beneficiaryId:       document.getElementById('missionBeneficiary').value,
-            comment:             document.getElementById('missionComment').value
+            comment:             document.getElementById('missionComment').value,
+            room:            document.getElementById('missionRoom').value,
+            academicSkillId: document.getElementById('missionAcademicSkill').value,
         };
         try {
             const res = await fetch('/horaire/missions', {
@@ -680,12 +687,14 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity']);
+        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet', 'requestPostalCode']);
         const rules = [
             { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
             { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
+            { id: 'requestStreet',     errorId: 'requestStreetError',     msg: 'La rue est requise.' },
+            { id: 'requestPostalCode', errorId: 'requestPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
         const startTime = document.getElementById('requestStartTime').value;
@@ -703,6 +712,8 @@ document.addEventListener('DOMContentLoaded', function() {
             locationDesignation: document.getElementById('requestLocationDesignation').value,
             city:                document.getElementById('requestCity').value,
             postalCode:          document.getElementById('requestPostalCode').value,
+            room:             document.getElementById('requestRoom').value,
+            academicSkillId:  document.getElementById('requestAcademicSkill').value,
             street:              document.getElementById('requestStreet').value,
             streetNumber:        document.getElementById('requestStreetNumber').value,
             box:                 document.getElementById('requestBox').value,
