@@ -80,12 +80,7 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
-            btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
-            btn.classList.remove('editing', 'btn-outline-success');
-            btn.classList.add('btn-outline-primary');
-            btnCancel.classList.add('d-none');
-            view.classList.remove('d-none');
-            edit.classList.add('d-none');
+            document.getElementById('form-interpreter').submit();
         } else {
             btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
             btn.classList.add('editing', 'btn-outline-success');
@@ -104,12 +99,7 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
-            btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
-            btn.classList.remove('editing', 'btn-outline-success');
-            btn.classList.add('btn-outline-primary');
-            btnCancel.classList.add('d-none');
-            view.classList.remove('d-none');
-            edit.classList.add('d-none');
+            document.getElementById('form-status').submit();
         } else {
             btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
             btn.classList.add('editing', 'btn-outline-success');

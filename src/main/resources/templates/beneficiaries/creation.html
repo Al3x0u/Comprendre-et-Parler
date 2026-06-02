@@ -6,12 +6,12 @@
 <div th:replace="~{common/navbar :: navbar}"></div>
 <main class="container py-4">
     <div>
-        <div th:if="${submitState} != null">
-            <div th:if="${submitState} == 'success'">
+        <div th:if="${submitState != null}">
+            <div th:if="${submitState == 'success'}">
                 <div th:replace="~{common/modal-creation :: modal-success}"></div>
             </div>
-            <div th:unless="${submitState} == 'success'">
-                <div th:replace="~{common/modal-creation :: modal-error}"></div>
+            <div th:unless="${submitStat  == 'success'}">
+                <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
             </div>
         </div>
     </div>
@@ -58,7 +58,8 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <label for="birthdate" class="form-label"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<span class="text-danger">*</span></label>
-                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:field="*{birthDate}" required />
+                        <input id="birthdate" type="date" class="form-control" name="birthdate" th:value="*{birthDate != null}? *{birthDate} : ''"
+                               th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required />
                     </div>
                 </div>
 
@@ -69,7 +70,7 @@
                     <div class="col-12 col-md-6">
                         <label for="statusId" class="form-label">Statut&nbsp;<span class="text-danger">*</span></label>
                         <select id="statusId" class="form-select" name="statusId" required>
-                            <option value="" selected>-- Sélectionner --</option>
+                            <option th:if="*{statusId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="status : ${allStatuses}"
                                     th:value="${status.id}"
                                     th:text="${status.designation}"></option>
@@ -78,7 +79,7 @@
                     <div class="col-12 col-md-6">
                         <label for="interpreterRefId" class="form-label">Interprète de référence&nbsp;<span class="text-danger">*</span></label>
                         <select id="interpreterRefId" class="form-select" name="interpreterRefId" required>
-                            <option value="" selected>-- Sélectionner --</option>
+                            <option th:if="*{interpreterRefId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="interpreter : ${allInterpreters}"
                                     th:value="${interpreter.id}"
                                     th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
@@ -97,14 +98,6 @@
         </div>
     </div>
 </main>
-
-<script>
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    document.getElementById('birthdate').setAttribute('max', `${year}-${month}-${day}`);
-</script>
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>

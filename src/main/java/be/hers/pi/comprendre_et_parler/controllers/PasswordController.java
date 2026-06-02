@@ -19,7 +19,7 @@ public class PasswordController {
     }
 
     @PostMapping("/profil/modifier-mot-de-passe")
-    public String modifierMotDePasse(
+    public String changePassword(
             @RequestParam String newPassword,
             @RequestParam String confirmPassword,
             HttpSession session,

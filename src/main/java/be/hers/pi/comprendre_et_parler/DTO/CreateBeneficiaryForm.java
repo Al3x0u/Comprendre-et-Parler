@@ -23,7 +23,7 @@ public class CreateBeneficiaryForm {
      * Constructor of a CreateBeneficiaryForm
      * @param firstName the first name of the beneficiary
      * @param lastName the last name of the beneficiary
-     * @param birthDate the birth date of the beneficiary
+     * @param birthDate the birthdate of the beneficiary
      * @param email the email address of the beneficiary
      * @param phoneNumber the phone number of the beneficiary, may be null
      * @param password the plain text temporary password chosen by the manager
@@ -69,7 +69,7 @@ public class CreateBeneficiaryForm {
     public LocalDate getBirthDate() { return birthDate; }
 
     /**
-     * @param birthDate the new birth date
+     * @param birthDate the new birthdate
      */
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 

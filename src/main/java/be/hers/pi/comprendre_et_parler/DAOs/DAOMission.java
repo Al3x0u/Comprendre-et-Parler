@@ -419,4 +419,28 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
     }
+
+    /**
+     * Check if a Beneficiary has active missions.
+     * @param beneficiaryId the unique identifier of the beneficiary to retrieve
+     * @throws SQLException if a database access error occurs
+     * @return True if the beneficiary with the given ID has active missions false otherwise
+     */
+    public boolean hasActiveMissions(int beneficiaryId) throws SQLException {
+        String query = "SELECT 1 FROM " + TABLE +
+                " JOIN TimeSlot ts ON ts.id = " + TABLE + "." + FIELD_TIME_SLOT +
+                " WHERE " + FIELD_BENEFICIARY + " = ?" +
+                " AND TRUNC(ts.startDateTime, 'IW') = TRUNC(SYSDATE, 'IW')";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, beneficiaryId);
+            result = statement.executeQuery();
+            return result.next();
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
 }
