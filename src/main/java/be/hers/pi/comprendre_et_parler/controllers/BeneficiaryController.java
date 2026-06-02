@@ -172,12 +172,17 @@ public class BeneficiaryController {
     /**
      * Populate the model with the data needed for the beneficiary creation form.
      * @param model the Spring model to populate
-     * @post the model contains all statuses and all interpreters
+     * @post the model contains all statuses and all interpreters sorted by their compareTo()
      */
     private void populateCreationModel(Model model) {
         try {
-            model.addAttribute("allStatuses", statusService.findAll());
-            model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
+            List<Status> allStatus = statusService.findAll();
+            allStatus.sort(Status::compareTo);
+            List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
+            allInterpreters.sort(Interpreter::compareTo);
+
+            model.addAttribute("allStatuses", allStatus);
+            model.addAttribute("allInterpreters", allInterpreters);
         } catch (SQLException e ) {
             e.printStackTrace();
         }

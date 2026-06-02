@@ -232,9 +232,9 @@ public class InterpreterController {
     private void sortSkills(Model model) {
         try {
             List<AcademicSkill> allAcademicSkills = new ArrayList<>(new AcademicSkillService().findAll());
-            allAcademicSkills.sort((a1, a2) -> a1.getDesignation().compareTo(a2.getDesignation()));
+            allAcademicSkills.sort(AcademicSkill::compareTo);
             List<JobSkill> allJobSkills = new ArrayList<>(new JobSkillService().findAll());
-            allJobSkills.sort((j1, j2) -> j1.getDesignation().compareTo(j2.getDesignation()));
+            allJobSkills.sort(JobSkill::compareTo);
 
             model.addAttribute("allAcademicSkills", allAcademicSkills);
             model.addAttribute("allJobSkills", allJobSkills);
@@ -251,7 +251,7 @@ public class InterpreterController {
     private void sortCities(Model model, int idCity) {
         try {
             List<City> allCities = new CityService().getAllCities();
-            allCities.sort((c1, c2) -> c1.compareTo(c2));
+            allCities.sort(City::compareTo);
             if (idCity > 0 && allCities.removeIf(c -> c.getId() == idCity))
                 allCities.addFirst(new CityService().getOneCity(idCity));
 
