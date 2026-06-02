@@ -45,7 +45,7 @@ class AppliUserTest {
         int hash5 = a2.hashCode();
         assertEquals(hash3, hash5, "Logins are different but must not impact the hash.");
 
-        a2.setLastName("The last test");
+        a2.setFirstName("The last test");
         int hash6 = a2.hashCode();
         assertNotEquals(hash4, hash6, "One attribute other than the ID has changed.");
     }
