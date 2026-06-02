@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4">
+
+    <div class="mb-3">
+        <a th:href="@{/dashboard}" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-arrow-left me-2"></i>Retour
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+
+        <div class="card-header p-3 bg-primary text-white rounded-top-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <h1 class="h3 mb-2 mt-2">Liste des bénéficiaires</h1>
+                </div>
+                <div>
+                    <a th:href="@{/beneficiaires/creer}" class="btn btn-light text-primary fw-semibold">Ajouter un bénéficiaire</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-3 border-bottom">
+            <form method="get" th:action="@{/beneficiaires}" class="row g-2">
+                <div class="col-12 col-md">
+                    <label for="keyword" class="form-label">Recherche</label>
+                    <input id="keyword" type="text" name="keyword" class="form-control" placeholder="Rechercher par login, prénom ou nom" th:value="${keyword}">
+                </div>
+                <div class="col-12 col-md-auto d-grid align-self-end">
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </div>
+                <div class="col-12 col-md-auto d-grid align-self-end">
+                    <a th:href="@{/beneficiaires}" class="btn btn-outline-secondary">Réinitialiser</a>
+                </div>
+            </form>
+        </div>
+
+        <div th:if="${beneficiaires != null and !#lists.isEmpty(beneficiaires)}">
+            <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-3" th:each="beneficiaire : ${beneficiaires}">
+                    <div class="d-flex align-items-center gap-3">
+                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="text-decoration-none">
+                            <img th:src="@{/images/avatar_02.png}" alt="Avatar bénéficiaire" width="52" height="52" class="rounded-circle border">
+                        </a>
+                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="d-flex flex-column beneficiaire-id text-decoration-none">
+                            <div class="fw-bold text-primary" th:text="${beneficiaire.firstName + ' ' + beneficiaire.lastName}"></div>
+                            <div th:text="${beneficiaire.login}"></div>
+                        </a>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-danger btn-sm me-1"
+                                data-bs-toggle="modal" data-bs-target="#modalDelete"
+                                th:attr="data-id=${beneficiaire.id}, data-name=${beneficiaire.firstName + ' ' + beneficiaire.lastName}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="btn btn-primary btn-sm m-2">
+                            <i class="bi bi-eye-fill me-1"></i>Voir le profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body" th:if="${beneficiaires == null or #lists.isEmpty(beneficiaires)}">
+            <div class="alert alert-info mb-0">Aucun bénéficiaire trouvé.</div>
+        </div>
+
+        <div class="card-footer rounded-bottom-4 p-3 bg-white">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="text-body-secondary small">
+                    <span th:text="'Affichage de ' + ${startItem}"></span>
+                    <span th:text="' à ' + ${endItem}"></span>
+                    <span th:text="' sur ' + ${totalItems} + ' bénéficiaire(s)'"></span>
+                </div>
+                <nav th:if="${totalPages > 1}" aria-label="Pagination des bénéficiaires">
+                    <ul class="pagination pagination-sm mb-0 flex-wrap">
+                        <li class="page-item" th:classappend="${hasPrevious} ? '' : ' disabled'">
+                            <a class="page-link" th:href="@{/beneficiaires(page=${pageNumber - 1}, keyword=${keyword})}">Précédent</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == pageNumber} ? ' active' : ''">
+                            <a class="page-link" th:href="@{/beneficiaires(page=${i}, keyword=${keyword})}" th:text="${i}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${hasNext} ? '' : ' disabled'">
+                            <a class="page-link" th:href="@{/beneficiaires(page=${pageNumber + 1}, keyword=${keyword})}">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="~{common/modal-delete :: modal-delete('/beneficiaires', 'Supprimer un bénéficiaire', 'bénéficiaire')}"></div>
+<th:block th:if="${errorMessage != null}">
+    <div th:replace="~{common/modal-creation :: modal-error(${errorMessage})}"></div>
+</th:block>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

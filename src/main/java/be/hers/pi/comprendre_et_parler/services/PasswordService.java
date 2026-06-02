@@ -1,0 +1,48 @@
+package be.hers.pi.comprendre_et_parler.services;
+
+import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.exceptions.*;
+import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.wrappers.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.sql.SQLException;
+import java.util.NoSuchElementException;
+
+@Service
+public class PasswordService {
+
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    /**
+     * Hash the new password and update it in the database, then set passwordUpdated to true.
+     * @param user the authenticated user whose password to update, must not be null
+     * @param newPassword the new plain text password to hash and store, must not be null
+     * @throws ConnectionException if a connection error occurred
+     * @throws SQLException if any other database error occurred
+     * @throws NoSuchElementException if no user with this id exists in the database
+     * @post the user's hashed password has been updated in the database and passwordUpdated
+     *       has been set to true
+     */
+    public void changePassword(AppliUser user, String newPassword) throws SQLException, ConnectionException {
+        String hashedNewPassword = encoder.encode(newPassword);
+        user.setHashedPassword(hashedNewPassword);
+
+        if(user instanceof Manager){
+            DAOManager dao = new DAOManager();
+            SQLWrap.callTransaction(dao::update, (Manager) user);
+            SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
+        } else if(user instanceof Interpreter){
+            DAOInterpreter dao = new DAOInterpreter();
+            SQLWrap.callTransaction(dao::update, (Interpreter) user);
+            SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
+        } else if(user instanceof Beneficiary){
+            DAOBeneficiary dao = new DAOBeneficiary();
+            SQLWrap.callTransaction(dao::update, (Beneficiary) user);
+            SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
+        }
+
+        user.setPasswordUpdated(true);
+    }
+}

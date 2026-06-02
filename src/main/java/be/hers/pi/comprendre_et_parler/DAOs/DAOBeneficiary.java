@@ -13,7 +13,9 @@ import java.util.HashSet;
 
 public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String TABLE = "Beneficiary";
+    protected static final String TABLE_APPLIUSER = "AppliUser";
     protected static final String FIELD_ID = "id";
+    protected static final String FIELD_PASSWORD_UPDATED = "passwordUpdated";
     protected static final String FIELD_LOGIN = "login";
     protected static final String FIELD_FIRST_NAME = "firstName";
     protected static final String FIELD_LAST_NAME = "lastName";
@@ -77,11 +79,18 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void create(Beneficiary objectToInsert) throws AlreadyExistsException, SQLException {
-        if (find(objectToInsert.getLogin()) != null)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("Object already exists in database");
+        }
 
-        String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
-        PreparedStatement statement = null;
+        String query = String.format(
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                TABLE,
+                FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
+                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
+        );        PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToInsert.getFirstName());
@@ -106,10 +115,13 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     private void getNewAttributes(Beneficiary newObject) throws SQLException {
+        String phoneNumber = newObject.getPhoneNumber();
         String query = String.format(
-                "SELECT %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
+                "SELECT %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s",
                 FIELD_ID, FIELD_LOGIN, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME,FIELD_BIRTH_DATE,
-                FIELD_HASHED_PASSWORD, FIELD_EMAIL, FIELD_PHONE_NUMBER
+                FIELD_HASHED_PASSWORD, FIELD_EMAIL,
+                phoneNumber == null || phoneNumber.isEmpty() ? FIELD_PHONE_NUMBER + " IS NULL" : FIELD_PHONE_NUMBER + " = ?"
+
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -120,7 +132,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setDate(3, Date.valueOf(newObject.getBirthDate()));
             statement.setString(4, newObject.getHashedPassword());
             statement.setString(5, newObject.getEmail());
-            statement.setString(6, newObject.getPhoneNumber());
+            if (phoneNumber != null && !phoneNumber.isEmpty()) statement.setString(6, phoneNumber);
+
 
             result = statement.executeQuery();
             if (result.next()) {
@@ -135,7 +148,11 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     public void update(Beneficiary objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The beneficiary already exists in database.");
 
         String query = String.format(
@@ -156,8 +173,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setInt(8, objectToUpdate.getInterpreterRef().getId());
             statement.setInt(9, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -202,10 +218,12 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
 
     @Override
     protected int checkAlreadyExists(Beneficiary objectToCheck) throws SQLException {
+        String phoneNumber = objectToCheck.getPhoneNumber();
         String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_HASHED_PASSWORD,
-                FIELD_EMAIL, FIELD_PHONE_NUMBER, FIELD_STATUS, FIELD_INTERPRETER_REFERENCE
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s",
+                FIELD_ID, TABLE, FIELD_FIRST_NAME, FIELD_LAST_NAME, FIELD_BIRTH_DATE, FIELD_EMAIL,
+                phoneNumber == null || phoneNumber.isEmpty() ? FIELD_PHONE_NUMBER + " IS NULL" : FIELD_PHONE_NUMBER + " = ?"
+
         );
         ResultSet result = null;
         PreparedStatement statement = null;
@@ -214,11 +232,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             statement.setString(1, objectToCheck.getFirstName());
             statement.setString(2, objectToCheck.getLastName());
             statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
-            statement.setString(4, objectToCheck.getHashedPassword());
-            statement.setString(5, objectToCheck.getEmail());
-            statement.setString(6, objectToCheck.getPhoneNumber());
-            statement.setInt(7, objectToCheck.getStatus().getId());
-            statement.setInt(8, objectToCheck.getInterpreterRef().getId());
+            statement.setString(4, objectToCheck.getEmail());
+            if (phoneNumber != null && !phoneNumber.isEmpty()) statement.setString(5, objectToCheck.getPhoneNumber());
 
             result = statement.executeQuery();
             if(result.next())
@@ -280,6 +295,28 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     }
 
     /**
+     * Update the reference interpreter of a Beneficiary in the database.
+     * @param beneficiaryId the id of the Beneficiary to update
+     * @param interpreterId the id of the new reference interpreter
+     * @throws NoSuchElementException if no Beneficiary with this id exists in the database
+     * @throws SQLException if the database could not be reached
+     * @post the referenceInterpreter of the Beneficiary has been updated in the database
+     */
+    public void updateInterpreterRef(int beneficiaryId, int interpreterId) throws SQLException {
+        String query = "UPDATE " + TABLE +" SET " + FIELD_INTERPRETER_REFERENCE +" = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterId);
+            statement.setInt(2, beneficiaryId);
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + beneficiaryId);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
      * Return all Beneficiary having the given status
      * @param idStatus represent the id of the status
      * @throws SQLException if the database could not be reached
@@ -310,5 +347,93 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             closeStatement(statement);
         }
         return beneficiaries;
+    }
+
+    /**
+     * Update the status of a Beneficiary in the database.
+     * @param beneficiaryId the id of the Beneficiary to update
+     * @param statusId the id of the new status
+     * @throws NoSuchElementException if no Beneficiary with this id exists in the database
+     * @throws SQLException if the database could not be reached
+     * @post the status of the Beneficiary has been updated in the database
+     */
+    public void updateStatus(int beneficiaryId, int statusId) throws SQLException {
+        String query = "UPDATE " + TABLE + " SET " + FIELD_STATUS + " = ? WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, statusId);
+            statement.setInt(2, beneficiaryId);
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + beneficiaryId);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
+     */
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Retrieve the passwordUpdated flag of a user from the database
+     * @param id the id of the user
+     * @return true if the password has been updated, false otherwise
+     * @throws SQLException if the database could not be reached
+     */
+    public boolean getPasswordUpdated(int id) throws SQLException {
+        String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            if(!result.next())
+                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
+            return result.getInt(FIELD_PASSWORD_UPDATED) == 1;
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Counts beneficiaries
+     * @return the number of beneficiaries in database
+     * @throws SQLException if a database exception occurs
+     */
+    public int count() throws SQLException {
+        String query = "SELECT COUNT(*) AS cnt FROM " + TABLE;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            result = statement.executeQuery();
+            if (result.next()) {
+                return result.getInt("cnt");
+            }
+        }
+        finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return 0;
     }
 }

@@ -7,6 +7,11 @@ public class AcademicSkill {
     private String designation;
 
     /**
+     * Empty constructor of an AcademicSkill
+     */
+    public AcademicSkill() {}
+
+    /**
      * Constructor of a AcademicSkill
      * @param id represent the id
      * @param designation represent the designation
@@ -74,6 +79,17 @@ public class AcademicSkill {
 
         AcademicSkill other = (AcademicSkill) o;
         return Objects.equals(designation, other.designation);
+    }
+
+    /**
+     * Compares two AcademicSkill lexicographically according to their designations
+     * @param a The second academic skill to compare to this
+     * @return The result is a negative integer if this AcademicSkill.designation lexicographically precedes the other AcademicSkill.designation.
+     * The result is a positive integer if this AcademicSkill.designation lexicographically follows the other AcademicSkill.designation.
+     * The result is zero if the equals(Object) method would return true.
+     */
+    public int compareTo(AcademicSkill a) {
+        return designation.compareTo(a.designation);
     }
 
     /**

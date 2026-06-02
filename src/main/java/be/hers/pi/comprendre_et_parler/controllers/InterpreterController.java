@@ -1,0 +1,257 @@
+package be.hers.pi.comprendre_et_parler.controllers;
+
+import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DTO.*;
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
+import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.*;
+import be.hers.pi.comprendre_et_parler.services.wrappers.*;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
+@RequestMapping("interpretes")
+public class InterpreterController {
+
+    private final InterpreterService interpreterService = new InterpreterService();
+    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+
+    /**
+     * Display the paginated and filtered list of interpreters
+     * @param page the page number to display; defaults to 1
+     * @param keyword the search keyword to filter by login, firstName or lastName; defaults to empty
+     * @param model the Spring model to populate
+     * @return the interpreters list view, or a redirect to the list on error
+     */
+    @GetMapping("")
+    public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
+                                      @RequestParam(defaultValue = "") String keyword,
+                                      Model model) {
+        try {
+            List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
+            List<Interpreter> filtered = PaginationUtils.filter(allInterpreters, keyword);
+            int total = filtered.size();
+            int totalPages = PaginationUtils.calculateTotalPages(total, 10);
+            page = Math.max(1, Math.min(page, totalPages));
+            List<Interpreter> page_ = PaginationUtils.getPage(filtered, page, 10);
+            int startItem = total > 0 ? (page - 1) * 10 + 1 : 0;
+            int endItem = total > 0 ? startItem + page_.size() - 1 : 0;
+
+            model.addAttribute("interpretes", page_);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("pageNumber", page);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("totalItems", total);
+            model.addAttribute("startItem", startItem);
+            model.addAttribute("endItem", endItem);
+            model.addAttribute("hasPrevious", page > 1);
+            model.addAttribute("hasNext", page < totalPages);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "interpreters/list";
+    }
+
+    /**
+     * Display the profile of an interpreter
+     * @param id the ID of the interpreter to display
+     * @param referer the URL of the referring page, used for the back button
+     * @param session the current HTTP session, used to retrieve the connected user
+     * @param model the Spring model to populate
+     * @return the interpreter profile view, or a redirect to the list if not found
+     */
+    @GetMapping("/profil/{id}")
+    public String showInterpreterProfile(@PathVariable int id,
+                                         @RequestHeader(value = "Referer", required = false) String referer,
+                                         HttpSession session,
+                                         Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        try {
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            if (interpreter == null) return "redirect:/interpretes";
+
+            List<Beneficiary> beneficiaries = new ArrayList<>(
+                    SQLWrap.call(daoBeneficiary::findReferencedBeneficiaries, id));
+
+            model.addAttribute("interprete", interpreter);
+            model.addAttribute("beneficiaries", beneficiaries);
+            model.addAttribute("referer", referer);
+            model.addAttribute("isOwnProfile", user.getId() == id);
+            model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
+            getSkills(model);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/interpretes";
+        }
+        return "interpreters/profile";
+    }
+
+    /**
+     * Display the edit form for an interpreter's profile
+     * @param id the ID of the interpreter to edit
+     * @param referer the URL of the referring page, used for the back button
+     * @param session the current HTTP session, used to retrieve the connected user
+     * @param model the Spring model to populate
+     * @return the edit profile view, or a redirect to the list if not found
+     */
+    @GetMapping("/profil/{id}/modifier")
+    public String showEditInterpreterProfile(@PathVariable int id,
+                                             @RequestHeader(value = "Referer", required = false) String referer,
+                                             HttpSession session,
+                                             Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        try {
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            if (interpreter == null) return "redirect:/interpretes";
+
+            sortCities(model, interpreter.getLocation().getCity().getId());
+            model.addAttribute("interprete", interpreter);
+            model.addAttribute("referer", referer);
+            model.addAttribute("isOwnProfile", user.getId() == id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/interpretes";
+        }
+        return "interpreters/edit-profile";
+    }
+
+    /**
+     * Handle the submission of the interpreter profile edit form
+     * @param id the id of the interpreter to update
+     * @param returnUrl the URL of the page the user wants to go to
+     * @param formInterpreter the form containing the updated information
+     * @return the interpreter's profile views on success, or the list on error
+     */
+    @PostMapping("/profil/{id}/modifier")
+    public String updateInterpreterProfile(@PathVariable int id,
+                                           @ModelAttribute("interprete") Interpreter formInterpreter,
+                                           @RequestParam(required = false) String returnUrl) {
+        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the promotion of an interpreter into a manager
+     * @param id the id of the interpreter to promote
+     * @return the profile view shows the result of the promotion
+     */
+    @PostMapping("/profil/{id}/promouvoir")
+    public String promoteInterpreter(@PathVariable int id) {
+        try {
+            interpreterService.promoteInterpreter(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Display the creation form for a new interpreter
+     * @param model the Spring model to populate
+     * @return the creation view
+     */
+    @GetMapping("/creer")
+    public String showCreateInterpreter(Model model) {
+        populateCreationModel(model, 0);
+        model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        model.addAttribute("submitState", null);
+
+        return "interpreters/creation";
+    }
+
+    /**
+     * Handle the submission of the interpreter creation form.
+     * @param interpreterForm the form containing the new interpreter's information
+     * @param returnUrl the URL of the page the user wants to go to
+     * @param model the Spring model to populate
+     * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
+     */
+    @PostMapping("/creer")
+    public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                                    @ModelAttribute("birthdate") LocalDate birthdate,
+                                    @RequestParam(required = false) String returnUrl,
+                                    Model model) {
+        if (returnUrl == null) {
+            try {
+                interpreterForm.setBirthDate(birthdate);
+                UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
+                model.addAttribute("newUser", newUser);
+                model.addAttribute("submitState", "success");
+                model.addAttribute("interpreterForm", new CreateInterpreterForm());
+            } catch (AlreadyExistsException e) {
+                model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+            } finally {
+                populateCreationModel(model, interpreterForm.getCityId());
+                return "interpreters/creation";
+            }
+        }
+        return "redirect:" + returnUrl;
+    }
+
+    /**
+     * Email the new interpreter
+     * @param user the new interpreter's information
+     * @return redirect to the creation form
+     */
+    @PostMapping("/creer/notifier")
+    public String sendMailCreation(@ModelAttribute("newUser") UserCredentials user,
+                                   @RequestHeader(value = "Referer", required = false) String referer) {
+        new NotificationService().sendUserCredentials(user);
+
+        if (referer != null) {
+            referer = referer.replaceFirst(".*?[^\\/]\\/([^\\/])", "redirect:\\/$1");
+            return referer;
+        }
+        return "redirect:/dashboard";
+    }
+
+    /**
+     * Populate the model with the data needed for the interpreter creation form.
+     * @param model The Spring model to populate
+     * @param idCity The ID of the city to send to the front of the list
+     */
+    private void populateCreationModel(Model model, int idCity) {
+        getSkills(model);
+        sortCities(model, idCity);
+    }
+
+    /**
+     * Get all the skills from the database
+     * @param model The model to which the skills will be added
+     */
+    private void getSkills(Model model) {
+        try {
+            model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
+            model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get all the cities from the database and sort them according to their compareTo()
+     * @param model The model to which the skills will be added
+     * @param idCity The ID of the city to send to the front of the list
+     */
+    private void sortCities(Model model, int idCity) {
+        try {
+            List<City> allCities = new CityService().getAllCities();
+            if (idCity > 0 && allCities.removeIf(c -> c.getId() == idCity))
+                allCities.addFirst(new CityService().getOneCity(idCity));
+
+            model.addAttribute("allCities", allCities);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}

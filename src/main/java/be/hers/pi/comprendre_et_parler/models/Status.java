@@ -8,6 +8,11 @@ public class Status {
     private int hourQuota = 0;
 
     /**
+     * Empty constructor of a Status
+     */
+    public Status() {}
+
+    /**
      * Constructor of a Status
      * @param id represent the id
      * @param designation represent the designation
@@ -78,7 +83,6 @@ public class Status {
         if (hourQuota >= 0) this.hourQuota = hourQuota;
     }
 
-
     /**
      * Compare this Status with another Object for equality
      * @param o the Object to compare with
@@ -91,6 +95,17 @@ public class Status {
 
         Status other = (Status) o;
         return (Objects.equals(designation, other.designation) && Objects.equals(hourQuota, other.hourQuota));
+    }
+
+    /**
+     * Compares two Status lexicographically according to their designations
+     * @param s The second status to compare to this
+     * @return The result is a negative integer if this Status.designation lexicographically precedes the other Status.designation.
+     * The result is a positive integer if this Status.designation lexicographically follows the other Status.designation.
+     * The result is zero if the Status.designation.equals(other Status.designation) method would return true.
+     */
+    public int compareTo(Status s) {
+        return designation.compareTo(s.designation);
     }
 
     /**

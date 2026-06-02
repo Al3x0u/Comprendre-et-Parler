@@ -13,6 +13,11 @@ public class BaseTimeSlot extends TimeSlot {
     private DayOfWeek day;
 
     /**
+     * Empty constructor of a BaseTimeSlot
+     */
+    public BaseTimeSlot() {}
+
+    /**
      * Constructor of a BaseTimeSlot
      * @param id represent the id
      * @param startDate represent the startDate

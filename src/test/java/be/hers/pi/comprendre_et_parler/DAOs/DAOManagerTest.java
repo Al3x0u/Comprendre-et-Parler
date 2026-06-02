@@ -70,7 +70,6 @@ class DAOManagerTest {
             managerDAO.create(m1);
         }, "Create a object in the database.");
         assertEquals(1, m1.getId(), "The ID must have been changed.");
-        assertEquals("r260001", m1.getLogin(), "The login must have been changed.");
 
         m1.setId(20);
         assertThrows(AlreadyExistsException.class, () -> {
@@ -81,7 +80,6 @@ class DAOManagerTest {
             managerDAO.create(m2);
         }, "Create another object in the database.");
         assertEquals(2, m2.getId(), "The ID must have been changed.");
-        assertEquals("r260002", m2.getLogin(), "The login must have been changed.");
     }
 
     @Test

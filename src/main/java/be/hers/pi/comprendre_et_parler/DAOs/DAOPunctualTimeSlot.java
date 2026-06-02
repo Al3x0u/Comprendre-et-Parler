@@ -17,12 +17,13 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_START_TIME = "startDateTime";
     protected static final String FIELD_END_TIME = "endDateTime";
+    protected static final String FIELD_DAY = "day";
 
     @Override
     public PunctualTimeSlot find(int id) throws SQLException {
         String query = String.format(
-                "SELECT * FROM %s WHERE %s = ?",
-                TABLE,  FIELD_ID
+                "SELECT * FROM %s WHERE %s = ? AND %s IS NULL",
+                TABLE,  FIELD_ID, FIELD_DAY
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -43,10 +44,13 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public void create(PunctualTimeSlot objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("PunctualTimeSlot" + objectToInsert.getStartDate() + " to " + objectToInsert.getEndDate() +  " already exists");
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
+            throw new AlreadyExistsException("PunctualTimeSlot" + objectToInsert.getStartDate() + " to " + objectToInsert.getEndDate() + " already exists");
+        }
 
-        String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?)", TABLE);
+        String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, NULL)", TABLE);
         PreparedStatement statement = null;
         ResultSet generatedKeys = null;
         try {
@@ -66,12 +70,16 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public void update(PunctualTimeSlot objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no PunctualTimeSlot with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("PunctualTimeSlot" + objectToUpdate.getStartDate() + " to " + objectToUpdate.getEndDate() +  " already exists");
 
         String query = String.format(
-                "UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
-                TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID
+                "UPDATE %s SET %s = ?, %s = ? WHERE %s = ? AND %s IS NULL",
+                TABLE, FIELD_START_TIME, FIELD_END_TIME, FIELD_ID, FIELD_DAY
         );
         PreparedStatement statement = null;
         try {
@@ -80,8 +88,7 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
             statement.setTimestamp(2, Timestamp.valueOf(objectToUpdate.getEndDate()));
             statement.setInt(3, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no PunctualTimeSlot with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -90,8 +97,8 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
     @Override
     public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
         String query = String.format(
-                "DELETE FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID
+                "DELETE FROM %s WHERE %s = ? AND %s IS NULL",
+                TABLE, FIELD_ID, FIELD_DAY
         );
         PreparedStatement statement = null;
         try {
@@ -107,7 +114,9 @@ public class DAOPunctualTimeSlot extends DAO<PunctualTimeSlot> {
 
     @Override
     public Set<PunctualTimeSlot> findAll() throws SQLException {
-        String query = String.format("SELECT * FROM %s", TABLE);
+        String query = String.format("SELECT * FROM %s WHERE %s IS NULL",
+                TABLE, FIELD_DAY
+        );
         PreparedStatement statement = null;
         ResultSet result = null;
         Set<PunctualTimeSlot> ret = new HashSet<>();
