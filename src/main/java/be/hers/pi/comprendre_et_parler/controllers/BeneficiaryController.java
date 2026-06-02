@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -152,21 +153,28 @@ public class BeneficiaryController {
      * @return the creation view with credentials on success, or a redirect on error
      */
     @PostMapping("/creer")
-    public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm, Model model) {
-        try {
-            UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
-            populateCreationModel(model);
-            model.addAttribute("newUser", newUser);
-            model.addAttribute("submitState", "success");
-            return "beneficiaries/creation";
-        } catch (AlreadyExistsException e) {
-            populateCreationModel(model);
-            model.addAttribute("submitState", "Cet utilisateur existe déjà");
-            return "beneficiaries/creation";
-        } catch (ConnectionException | SQLException e) {
-            e.printStackTrace();
-            return "redirect:/beneficiaires";
+    public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
+                                    @ModelAttribute("birthdate") LocalDate birthdate,
+                                    @RequestParam(required = false) String returnUrl,
+                                    Model model) {
+        if (returnUrl == null) {
+            try {
+                beneficiaryForm.setBirthDate(birthdate);
+                UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
+                model.addAttribute("newUser", newUser);
+                model.addAttribute("submitState", "success");
+                model.addAttribute("interpreterForm", new CreateInterpreterForm());
+            } catch (AlreadyExistsException e) {
+                model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            } catch (Exception e) {
+                e.printStackTrace();
+                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+            } finally {
+                populateCreationModel(model);
+                return "beneficiaries/creation";
+            }
         }
+        return "redirect:" + returnUrl;
     }
 
     /**

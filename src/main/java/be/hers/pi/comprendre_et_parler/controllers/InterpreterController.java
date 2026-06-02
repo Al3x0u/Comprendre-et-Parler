@@ -179,16 +179,17 @@ public class InterpreterController {
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
+                                    @ModelAttribute("birthdate") LocalDate birthdate,
                                     @RequestParam(required = false) String returnUrl,
                                     Model model) {
         if (returnUrl == null) {
             try {
+                interpreterForm.setBirthDate(birthdate);
                 UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
                 model.addAttribute("newUser", newUser);
                 model.addAttribute("submitState", "success");
                 model.addAttribute("interpreterForm", new CreateInterpreterForm());
             } catch (AlreadyExistsException e) {
-                e.printStackTrace();
                 model.addAttribute("submitState", "Cet utilisateur existe déjà");
             } catch (Exception e) {
                 e.printStackTrace();
