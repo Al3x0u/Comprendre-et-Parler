@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="profile">
+
+    <!-- Profile Header -->
+    <div class="card border-0 shadow-sm mb-4 rounded-4" th:object="${interprete}">
+        <div class="card-body bg-primary text-white rounded-4 p-4">
+            <div class="row align-items-center g-4">
+
+                <div class="col-12 col-md-auto text-center">
+                    <img th:src="@{/images/avatar_01.png}" alt="Avatar" class="profile-avatar rounded-circle border border-4 border-white shadow">
+                </div>
+
+                <div class="col-12 col-md">
+                    <p class="text-white-50 mb-1" th:text="${isInterpreterAManager == true} ? 'Profil responsable' : 'Profil interprète'"></p>
+                    <h1 class="h2 mb-1" th:text="*{firstName + ' ' + lastName}"></h1>
+                    <p class="fw-semibold mb-3" th:text="*{login}"></p>
+                    <div>
+                        <a th:if="${isManager or isOwnProfile}" th:href="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}"
+                           class="btn btn-light btn-lg text-primary fw-semibold me-2 mb-1">
+                            <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
+                        </a>
+                        <a th:if="${isManager == true and isInterpreterAManager == false}"
+                           class="btn btn-light btn-lg text-warning fw-semibold mb-1 me-2"
+                           data-bs-toggle="modal" data-bs-target="#modalPromote">
+                            <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        </a>
+                        <a th:if="${isManager == true and isInterpreterAManager == true and interprete.id != session.user.id}"
+                           class="btn btn-light btn-lg text-danger fw-semibold mb-1 me-2"
+                           data-bs-toggle="modal" data-bs-target="#modalDemote">
+                            <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
+                        </a>
+                        <a th:if="${isManager and interprete.id != session.user.id}" class="btn btn-light btn-lg text-danger fw-semibold mb-1"
+                           data-bs-toggle="modal" data-bs-target="#modalDisable">
+                            <i class="bi bi-power me-2"></i>Désactiver
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" th:object="${interprete}">
+
+        <div class="col-12 col-lg-8">
+
+            <!-- Contact -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 text-primary mb-4">Informations de contact</h2>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-envelope-fill me-2"></i>Adresse mail</p>
+                                <p class="mb-0" th:text="*{email}"></p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-telephone-fill me-2"></i>Téléphone</p>
+                                <p th:if="*{phoneNumber != null}" class="mb-0" th:text="*{phoneNumber}"></p>
+                                <p th:unless="*{phoneNumber != null}" class="text-muted mb-0">Aucun numéro renseigné</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location & Mobility -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 text-primary mb-4">Localisation & Mobilité</h2>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-geo-alt-fill me-2"></i>Localisation</p>
+                                <div th:if="*{location != null}">
+                                    <p class="mb-2" th:text="*{location.designation}"></p>
+                                    <p class="mb-2" th:text="*{location.street + ' ' + (location.streetNumber != null ? location.streetNumber : '') + (location.box != 0 ? ' bte ' + location.box : '')}"></p>
+                                    <p class="mb-0" th:text="*{location.city.postalCode + ' ' + location.city.designation}"></p>
+                                </div>
+                                <p th:unless="*{location != null}" class="text-muted mb-0">Aucune localisation renseignée</p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3 h-100">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-bus-front-fill me-2"></i>Mobilité</p>
+                                <p class="mb-0" th:if="*{transportMode != null}" th:text="*{transportMode}"></p>
+                                <p class="text-muted mb-0" th:unless="*{transportMode != null}">Non renseigné</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unavailabilities -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                        <h2 class="h5 text-primary mb-0">Indisponibilités</h2>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-indispo" onclick="toggleEditIndispo()">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button th:if="${isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-indispo" onclick="toggleEditIndispo()">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
+                    </div>
+                    <div th:if="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="d-flex flex-column gap-3">
+                        <div th:each="u : *{unavailability}" class="bg-light rounded p-3 border d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="d-flex">
+                                    <i class="bi bi-calendar-event-fill me-2"></i>
+                                    <p class="fw-semibold mb-2" th:text="${u.reason}"></p>
+                                </div>
+                                <p class="mb-0 text-secondary">
+                                    <span th:text="${#temporals.format(u.timeSlot.startDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                    <span> - </span>
+                                    <span th:text="${#temporals.format(u.timeSlot.endDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                </p>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm indispo-modify d-none"
+                                        data-bs-toggle="modal" data-bs-target="#modalIndispoEdit"
+                                        th:attr="data-id=${u.timeSlot.id},
+                                                 data-reason=${u.reason},
+                                                 data-start=${#temporals.format(u.timeSlot.startDate, 'yyyy-MM-dd''T''HH:mm')},
+                                                 data-end=${#temporals.format(u.timeSlot.endDate, 'yyyy-MM-dd''T''HH:mm')}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm indispo-delete d-none"
+                                        data-bs-toggle="modal" data-bs-target="#modalDelete"
+                                        th:attr="data-id=${u.timeSlot.id}, data-name=${u.reason}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:unless="*{unavailability != null and !#sets.isEmpty(unavailability)}" class="text-muted">
+                        Aucune indisponibilité renseignée
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm mt-3 d-none"
+                            id="btn-add-indispo"
+                            data-bs-toggle="modal" data-bs-target="#modalIndispoAdd">
+                        <i class="bi bi-plus-lg me-1"></i>Ajouter une indisponibilité
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-4">
+
+            <!-- Job Skills -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                        <h2 class="h5 text-primary mb-0">Compétences métier</h2>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-job" onclick="toggleEditSkills('job')">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button th:if="${isManager or isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-job" onclick="toggleEditSkills('job')">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
+                    </div>
+                    <div th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="d-flex flex-wrap gap-2" id="job-skills">
+                        <span th:each="skill : *{jobSkills}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                            <span th:text="${skill.designation}"></span>
+                            <i class="bi bi-x skill-delete job-delete d-none" style="cursor:pointer"></i>
+                        </span>
+                    </div>
+                    <div th:unless="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="text-muted">
+                        Aucune compétence métier
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm mt-3 d-none" id="btn-add-job"
+                            data-bs-toggle="modal" data-bs-target="#modalAddJob">
+                        <i class="bi bi-plus-lg me-1"></i>Ajouter une compétence
+                    </button>
+                </div>
+            </div>
+
+            <!-- Academic Skills -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                        <h2 class="h5 text-primary mb-0">Compétences académiques</h2>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-academic" onclick="toggleEditSkills('academic')">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button th:if="${isManager or isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-academic" onclick="toggleEditSkills('academic')">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
+                    </div>
+                    <div th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="d-flex flex-wrap gap-2" id="academic-skills">
+                        <span th:each="skill : *{academicSkills}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
+                            <span th:text="${skill.designation}"></span>
+                            <i class="bi bi-x skill-delete academic-delete d-none" style="cursor:pointer"></i>
+                        </span>
+                    </div>
+                    <div th:unless="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="text-muted">
+                        Aucune compétence académique
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm mt-3 d-none" id="btn-add-academic"
+                            data-bs-toggle="modal" data-bs-target="#modalAddAcademic">
+                        <i class="bi bi-plus-lg me-1"></i>Ajouter une compétence
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quota -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                        <h2 class="h5 text-primary mb-0">Quota d'heures</h2>
+                        <div class="d-flex" th:if="${isManager}">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-quota" onclick="toggleEditQuota()">
+                                <i class="bi bi-x me-1"></i>Annuler
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-quota" onclick="toggleEditQuota()">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </button>
+                        </div>
+                    </div>
+                    <form id="quota-form" th:action="@{/interpretes/profil/{id}/quota(id=${interprete.id})}" method="post">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <p class="text-secondary fw-bold small mb-1"><i class="bi bi-calendar-week me-2"></i>Hebdomadaire</p>
+                                    <p class="mb-0 quota-view" th:text="*{hourQuotaWeek} + ' h'"></p>
+                                    <input type="number" class="form-control d-none quota-edit" name="hourQuotaWeek"
+                                           min="0" th:value="*{hourQuotaWeek}">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <p class="text-secondary fw-bold small mb-1"><i class="bi bi-calendar me-2"></i>Annuel</p>
+                                    <p class="mb-0 quota-view" th:text="*{hourQuotaYear} + ' h'"></p>
+                                    <input type="number" class="form-control d-none quota-edit" name="hourQuotaYear"
+                                           min="0" th:value="*{hourQuotaYear}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Referent Beneficiaries -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="h5 text-primary mb-0">Bénéficiaires assignés</h2>
+                    </div>
+                    <div class="d-flex flex-column gap-2">
+                        <div th:each="b : ${beneficiaries}" class="bg-light rounded p-3 d-flex justify-content-between align-items-center gap-3">
+                            <a th:href="@{/beneficiaires/profil/{id}(id=${b.id})}"
+                               class="d-flex align-items-center gap-3 text-decoration-none">
+                                <img th:src="@{/images/avatar.png}" alt="Avatar" width="40" height="40" class="rounded-circle border">
+                                <div>
+                                    <p class="fw-semibold mb-0 text-primary" th:text="${b.firstName + ' ' + b.lastName}"></p>
+                                    <p class="text-muted small mb-0" th:text="${b.login}"></p>
+                                </div>
+                            </a>
+                        </div>
+                        <p th:if="${#lists.isEmpty(beneficiaries)}" class="text-muted mb-0">Aucun bénéficiaire assigné</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal Promote -->
+    <div class="modal fade" id="modalPromote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-arrow-up-circle me-2"></i>Promouvoir en manager</h5>
+                </div>
+                <div class="modal-body rounded-4 py-5">
+                    Êtes-vous sûr de vouloir promouvoir <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Responsable ?
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/interpretes/profil/{id}/promouvoir(id=${interprete.id})}" method="post">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Demote -->
+    <div class="modal fade" id="modalDemote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-arrow-down-circle me-2"></i>Rétrograder en interprète</h5>
+                </div>
+                <div class="modal-body rounded-4 py-5">
+                    Êtes-vous sûr de vouloir rétrograder <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Interprète ?
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="@{/interpretes/profil/{id}/retrograder(id=${interprete.id})}" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal New Unavailability -->
+    <div class="modal fade" id="modalIndispoAdd" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Ajouter une indisponibilité</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="indispo-add-form"
+                          th:action="@{/interpretes/{id}/indisponibilites/ajouter(id=${interprete.id})}"
+                          method="post">
+                        <div class="mb-3">
+                            <label for="indispo-add-reason" class="form-label">Raison</label>
+                            <input id="indispo-add-reason" type="text" class="form-control" name="reason" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="indispo-add-start" class="form-label">Date de début</label>
+                            <input id="indispo-add-start" type="datetime-local" class="form-control" name="startDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="indispo-add-end" class="form-label">Date de fin</label>
+                            <input id="indispo-add-end" type="datetime-local" class="form-control" name="endDate" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="indispo-add-form" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Unavailability -->
+    <div class="modal fade" id="modalIndispoEdit" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Modifier une indisponibilité</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="indispo-edit-form" method="post">
+                        <div class="mb-3">
+                            <label for="indispo-reason" class="form-label">Raison</label>
+                            <input id="indispo-reason" type="text" class="form-control" name="reason" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="indispo-start" class="form-label">Date de début</label>
+                            <input id="indispo-start" type="datetime-local" class="form-control" name="startDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="indispo-end" class="form-label">Date de fin</label>
+                            <input id="indispo-end" type="datetime-local" class="form-control" name="endDate" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="indispo-edit-form" class="btn btn-primary">
+                        <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Academic Skill -->
+    <div class="modal fade" id="modalAddAcademic" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Ajouter une compétence académique</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="academic-add-form"
+                          th:action="@{/interpretes/{id}/competences/academiques/ajouter(id=${interprete.id})}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Choisir une compétence existante</label>
+                            <select class="form-select" name="existingSkillId" id="existing-academic">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="skill : ${allAcademicSkills}"
+                                        th:value="${skill.id}"
+                                        th:text="${skill.designation}"></option>
+                            </select>
+                        </div>
+
+                        <div class="text-center text-muted my-3">— ou —</div>
+
+                        <div class="mb-3">
+                            <label for="new-academic" class="form-label">Créer une nouvelle compétence</label>
+                            <input id="new-academic" type="text" class="form-control"
+                                   name="newSkillName" placeholder="Nom de la compétence">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="academic-add-form" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Job Skill -->
+    <div class="modal fade" id="modalAddJob" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Ajouter une compétence métier</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="job-add-form"
+                          th:action="@{/interpretes/{id}/competences/metier/ajouter(id=${interprete.id})}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Choisir une compétence existante</label>
+                            <select class="form-select" name="existingSkillId" id="existing-job">
+                                <option value="">-- Sélectionner --</option>
+                                <option th:each="skill : ${allJobSkills}"
+                                        th:value="${skill.id}"
+                                        th:text="${skill.designation}"></option>
+                            </select>
+                        </div>
+
+                        <div class="text-center text-muted my-3">— ou —</div>
+
+                        <div class="mb-3">
+                            <label for="new-job" class="form-label">Créer une nouvelle compétence</label>
+                            <input id="new-job" type="text" class="form-control"
+                                   name="newSkillName" placeholder="Nom de la compétence">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" form="job-add-form" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>Ajouter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('modalIndispoAdd').addEventListener('show.bs.modal', function() {
+            const now = new Date();
+            // Format: yyyy-MM-ddTHH:mm
+            const formatted = now.toISOString().slice(0, 16);
+            document.getElementById('indispo-add-start').min = formatted;
+            document.getElementById('indispo-add-end').min = formatted;
+        });
+
+        document.getElementById('indispo-add-start').addEventListener('change', function() {
+            document.getElementById('indispo-add-end').min = this.value;
+        });
+    </script>
+
+    <script>
+        document.getElementById('modalIndispoEdit').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const now = new Date().toISOString().slice(0, 16);
+
+            document.getElementById('indispo-reason').value = button.getAttribute('data-reason');
+            document.getElementById('indispo-start').value = button.getAttribute('data-start');
+            document.getElementById('indispo-end').value = button.getAttribute('data-end');
+            document.getElementById('indispo-start').min = now;
+            document.getElementById('indispo-end').min = button.getAttribute('data-start');
+            document.getElementById('indispo-edit-form').action = '/interpretes/' + button.getAttribute('data-id') + '/indisponibilites/modifier';
+        });
+
+        document.getElementById('indispo-start').addEventListener('change', function() {
+            document.getElementById('indispo-end').min = this.value;
+        });
+    </script>
+
+    <script>
+        function toggleEditQuota() {
+            const btn = document.getElementById('btn-edit-quota');
+            const btnCancel = document.getElementById('btn-cancel-quota');
+            const views = document.querySelectorAll('.quota-view');
+            const edits = document.querySelectorAll('.quota-edit');
+            const isEditing = btn.classList.contains('editing');
+
+            if (isEditing) {
+                btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
+                btn.classList.remove('editing', 'btn-outline-success', 'd-none');
+                btn.classList.add('btn-outline-primary');
+                btnCancel.classList.add('d-none');
+                views.forEach(v => v.classList.remove('d-none'));
+                edits.forEach(e => e.classList.add('d-none'));
+                //document.getElementById('quota-form').submit();
+            } else {
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
+                btn.classList.add('editing', 'btn-outline-success');
+                btn.classList.remove('btn-outline-primary');
+                btnCancel.classList.remove('d-none');
+                views.forEach(v => v.classList.add('d-none'));
+                edits.forEach(e => e.classList.remove('d-none'));
+            }
+        }
+    </script>
+
+    <div th:replace="~{common/modal-delete :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
+    <div th:replace="~{common/modal-disable :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
+</div>
+
+
+
+</body>
+</html>

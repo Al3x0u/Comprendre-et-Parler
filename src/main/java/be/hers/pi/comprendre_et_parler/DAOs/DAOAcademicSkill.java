@@ -38,8 +38,11 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
 
     @Override
     public void create(AcademicSkill objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("AcademicSkill " + objectToInsert.getDesignation() + " already exists" );
+        }
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?)", TABLE);
         PreparedStatement statement = null;
@@ -60,7 +63,11 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
 
     @Override
     public void update(AcademicSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("AcademicSkill " + objectToUpdate.getDesignation() + " already exists" );
 
         String query = String.format(
@@ -73,8 +80,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -151,12 +157,17 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
      * Return all AcademicSkill of An Interpreter
      * @param idInterpreter represent the id of the interpreter that we want the AcademicSkill
      * @return  a Set who represent the AcademicSkill of the interpreter
+     * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if the database could not be reached
      */
-    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws SQLException {
+    public Set<AcademicSkill> getAcademicSkillOfAnInterpreter(int idInterpreter) throws IllegalArgumentException, SQLException {
+        if (idInterpreter < 0)
+            throw new IllegalArgumentException("Invalid id : " + idInterpreter);
+
         String query = String.format(
-                "SELECT a.* FROM %s a JOIN AcademicSkillInterpreter asi ON a.%s = asi.skill WHERE asi.interpreter = ?",
-                TABLE, FIELD_ID
+                "SELECT a.* FROM %s a JOIN %s asi ON a.%s = asi.%s WHERE asi.%s = ?",
+                TABLE, DAOInterpreter.TABLE_ACADEMIC_SKILL_INTERPRETER, FIELD_ID, DAOInterpreter.ACADEMIC_SKILL_REF_SKILL,
+                DAOInterpreter.ACADEMIC_SKILL_REF_INTERPRETER
         );
         PreparedStatement statement = null;
         ResultSet result = null;

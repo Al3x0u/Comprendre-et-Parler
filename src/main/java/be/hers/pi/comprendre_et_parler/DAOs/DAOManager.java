@@ -1,10 +1,8 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.Manager;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,26 +10,24 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-public class DAOManager extends DAO<Manager> {
-    protected static final String TABLE = "Manager";
-    protected static final String FIELD_ID = "id";
-    protected static final String FIELD_LOGIN = "login";
-    protected static final String FIELD_FIRSTNAME = "firstName";
-    protected static final String FIELD_LASTNAME = "lastName";
-    protected static final String FIELD_BIRTHDATE = "birthDate";
-    protected static final String FIELD_PASSWORD = "hashedPassword";
-    protected static final String FIELD_EMAIL = "email";
-    protected static final String FIELD_PHONE = "phoneNumber";
-    protected static final String FIELD_HOURQUOTAWEEK = "weekHourlyQuota";
-    protected static final String FIELD_HOURQUOTAYEAR = "yearHourlyQuota";
-    protected static final String FIELD_TRANSPORTATION = "transportMode";
-    protected static final String FIELD_LOCATION = "location";
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.FIELD_PASSWORD_UPDATED;
+import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.TABLE_APPLIUSER;
 
+public class DAOManager extends DAO<Manager> {
+    protected static final String TABLE = "ManagerT";
+    protected static final String FIELD_ID = "id";
+
+    /**
+     * Search for a Manager in the database with the String parameter
+     * @param id the id of the Manager to find in database
+     * @return the Manager identified by login in database, or null if none was present
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public Manager find(int id) throws SQLException {
         String query = String.format(
-                "SELECT * FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID
+                "SELECT interpreter.* FROM %s interpreter, %s manager WHERE manager.%s = interpreter.%s AND manager.%s = ?",
+                DAOInterpreter.TABLE, TABLE, FIELD_ID, DAOInterpreter.FIELD_ID, FIELD_ID
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -39,10 +35,10 @@ public class DAOManager extends DAO<Manager> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, id);
-
             result = statement.executeQuery();
-            if (result.next())
+            if (result.next()){
                 ret = getResult(result);
+            }
         } finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -58,8 +54,8 @@ public class DAOManager extends DAO<Manager> {
      */
     public Manager find(String login) throws SQLException {
         String query = String.format(
-                "SELECT * FROM %s WHERE %s = ?",
-                TABLE, FIELD_LOGIN
+                "SELECT interpreter.* FROM %s interpreter, %s manager WHERE manager.%s = interpreter.%s AND interpreter.%s = ?",
+                DAOInterpreter.TABLE, TABLE, FIELD_ID, DAOInterpreter.FIELD_ID, DAOInterpreter.FIELD_LOGIN
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -67,7 +63,6 @@ public class DAOManager extends DAO<Manager> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, login);
-
             result = statement.executeQuery();
             if (result.next())
                 ret = getResult(result);
@@ -78,124 +73,106 @@ public class DAOManager extends DAO<Manager> {
         return ret;
     }
 
+    /**
+     * Insert a new Manager into the database.
+     * This first inserts the Interpreter data, then promotes it to a Manager.
+     * @param objectToInsert the Manager to insert
+     * @throws AlreadyExistsException if the Manager already exists in database
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public void create(Manager objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Manager with same data already exists");
-
-        String query = String.format("INSERT INTO %s VALUES (NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", TABLE);
+        new DAOInterpreter().create(objectToInsert);
+        String query = String.format("INSERT INTO %s VALUES (?)", TABLE);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, objectToInsert.getFirstName());
-            statement.setString(2, objectToInsert.getLastName());
-            statement.setDate(3, Date.valueOf(objectToInsert.getBirthDate()));
-            statement.setString(4, objectToInsert.getHashedPassword());
-            statement.setString(5, objectToInsert.getEmail());
-            statement.setString(6, objectToInsert.getPhoneNumber());
-            statement.setInt(7, objectToInsert.getHourQuotaWeek());
-            statement.setInt(8, objectToInsert.getHourQuotaYear());
-            statement.setString(9, objectToInsert.getTransportMode());
-            statement.setInt(10, objectToInsert.getLocation().getId());
-
+            statement.setInt(1, objectToInsert.getId());
             statement.executeUpdate();
-            getNewAttributes(objectToInsert);
         } finally {
             closeStatement(statement);
         }
     }
 
     /**
-     * Update the login and the id of the new object inserted in the database
-     * @param newObject the new object inserted in the database
+     * Promote an Interpreter to a Manager by inserting it into the Manager table.
+     * @param idInterpreter the id of the Interpreter to promote
+     * @throws AlreadyExistsException if a Manager with this id already exists in database
+     * @throws NoSuchElementException if no Interpreter with this id exists in database
      * @throws SQLException if the database could not be reached
      */
-    private void getNewAttributes(Manager newObject) throws SQLException {
-        String query = String.format(
-                "SELECT %s, %s FROM AppliUser WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, FIELD_LOGIN, FIELD_FIRSTNAME, FIELD_LASTNAME,
-                FIELD_BIRTHDATE, FIELD_PASSWORD, FIELD_EMAIL, FIELD_PHONE
-        );
+    public void create(int idInterpreter) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        if (find(idInterpreter) != null){
+            throw new AlreadyExistsException("[ERROR] Manager already exists");
+        }
+
+        if (new DAOInterpreter().find(idInterpreter) == null){
+            throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idInterpreter);
+        }
+
+        String query = String.format("INSERT INTO %s VALUES (?)", TABLE);
         PreparedStatement statement = null;
-        ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, newObject.getFirstName());
-            statement.setString(2, newObject.getLastName());
-            statement.setDate(3, Date.valueOf(newObject.getBirthDate()));
-            statement.setString(4, newObject.getHashedPassword());
-            statement.setString(5, newObject.getEmail());
-            statement.setString(6, newObject.getPhoneNumber());
-
-            result = statement.executeQuery();
-            if (result.next()) {
-                newObject.setId(result.getInt(FIELD_ID));
-                newObject.setLogin(result.getString(FIELD_LOGIN));
-            }
+            statement.setInt(1, idInterpreter);
+            statement.executeUpdate();
         } finally {
-            closeResultSet(result);
             closeStatement(statement);
         }
     }
 
+    /**
+     * Update a Manager in the database.
+     * This delegates the update of common fields to DAOInterpreter
+     *
+     * @param objectToUpdate the Manager to update
+     * @throws AlreadyExistsException if a constraint is violated during update
+     * @throws NoSuchElementException if the Manager does not exist in database
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
-            throw new AlreadyExistsException("Manager with same data already exists");
-
-        String query = String.format(
-                "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
-                TABLE, FIELD_FIRSTNAME, FIELD_LASTNAME, FIELD_BIRTHDATE, FIELD_PASSWORD, FIELD_EMAIL,
-                FIELD_PHONE, FIELD_HOURQUOTAWEEK, FIELD_HOURQUOTAYEAR, FIELD_TRANSPORTATION, FIELD_ID
-        );
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, objectToUpdate.getFirstName());
-            statement.setString(2, objectToUpdate.getLastName());
-            statement.setDate(3, Date.valueOf(objectToUpdate.getBirthDate()));
-            statement.setString(4, objectToUpdate.getHashedPassword());
-            statement.setString(5, objectToUpdate.getEmail());
-            statement.setString(6, objectToUpdate.getPhoneNumber());
-            statement.setInt(7, objectToUpdate.getHourQuotaWeek());
-            statement.setInt(8, objectToUpdate.getHourQuotaYear());
-            statement.setString(9, objectToUpdate.getTransportMode());
-            statement.setInt(10, objectToUpdate.getId());
-
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Manager with the id " + objectToUpdate.getId());
-        } finally {
-            closeStatement(statement);
-        }
+        new DAOInterpreter().update(objectToUpdate);
     }
 
+
+    /**
+     * Demote a Manager back to an Interpreter
+     * @param idObjectToDelete the id of the Manager to demote
+     * @throws NoSuchElementException if no Manager with this id exists in database
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public void delete(int idObjectToDelete) throws NoSuchElementException, SQLException {
-        String query = String.format(
-                "DELETE FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID
-        );
+        String query = String.format("DELETE FROM %s WHERE %s = ?", TABLE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, idObjectToDelete);
-
-            if (statement.executeUpdate() == 0)
+            if (statement.executeUpdate() == 0){
                 throw new NoSuchElementException("[ERROR] There is no Manager with the id " + idObjectToDelete);
+            }
         } finally {
             closeStatement(statement);
         }
     }
 
+    /**
+     * Return all Managers in the database.
+     * @return a Set containing all Managers
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     public Set<Manager> findAll() throws SQLException {
-        Set<Manager> managers = new HashSet<Manager>();
-        String query = String.format("SELECT * FROM %s", TABLE);
+        String query = String.format(
+                "SELECT interpreter.* FROM %s interpreter, %s manager WHERE manager.%s = interpreter.%s",
+                DAOInterpreter.TABLE, TABLE, FIELD_ID, DAOInterpreter.FIELD_ID
+        );
+        Set<Manager> managers = new HashSet<>();
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-
             result = statement.executeQuery();
             while (result.next())
                 managers.add(getResult(result));
@@ -206,33 +183,25 @@ public class DAOManager extends DAO<Manager> {
         return managers;
     }
 
+    /**
+     * Check if a Manager already exists in the database.
+     * @param objectToCheck the Manager to check
+     * @return the id of the existing Manager if found, -1 otherwise
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     protected int checkAlreadyExists(Manager objectToCheck) throws SQLException {
-        String query = String.format(
-                "SELECT %s FROM %s WHERE " +
-                        "%s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_FIRSTNAME, FIELD_LASTNAME, FIELD_BIRTHDATE, FIELD_PASSWORD, FIELD_EMAIL,
-                FIELD_PHONE, FIELD_HOURQUOTAWEEK, FIELD_HOURQUOTAYEAR, FIELD_TRANSPORTATION, FIELD_LOCATION
-        );
-
+        String query = String.format("SELECT %s FROM %s WHERE %s = ?", FIELD_ID, TABLE, FIELD_ID);
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, objectToCheck.getFirstName());
-            statement.setString(2, objectToCheck.getLastName());
-            statement.setDate(3, Date.valueOf(objectToCheck.getBirthDate()));
-            statement.setString(4, objectToCheck.getHashedPassword());
-            statement.setString(5, objectToCheck.getEmail());
-            statement.setString(6, objectToCheck.getPhoneNumber());
-            statement.setInt(7, objectToCheck.getHourQuotaWeek());
-            statement.setInt(8, objectToCheck.getHourQuotaYear());
-            statement.setString(9, objectToCheck.getTransportMode());
-            statement.setInt(10, objectToCheck.getLocation().getId());
-
+            statement.setInt(1, objectToCheck.getId());
             result = statement.executeQuery();
-            if(result.next())
+            if (result.next()){
                 return result.getInt(FIELD_ID);
+            }
+
         } finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -240,52 +209,77 @@ public class DAOManager extends DAO<Manager> {
         return -1;
     }
 
+    /**
+     * Convert a ResultSet row into a Manager
+     * @param result the ResultSet positioned at a valid row
+     * @return a fully constructed Manager object
+     * @throws SQLException if a database access error occurs
+     */
+    @Override
     protected Manager getResult(ResultSet result) throws SQLException {
-        return new Manager(
-                result.getInt(FIELD_ID),
-                result.getString(FIELD_LOGIN),
-                result.getString(FIELD_FIRSTNAME),
-                result.getString(FIELD_LASTNAME),
-                result.getDate(FIELD_BIRTHDATE).toLocalDate(),
-                result.getString(FIELD_PASSWORD),
-                result.getString(FIELD_EMAIL),
-                result.getString(FIELD_PHONE),
-                result.getInt(FIELD_HOURQUOTAWEEK),
-                result.getInt(FIELD_HOURQUOTAYEAR),
-                result.getString(FIELD_TRANSPORTATION),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(result.getInt(FIELD_ID)),
-                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findForInterpreter(result.getInt(FIELD_ID))
+        int id = result.getInt(DAOInterpreter.FIELD_ID);
+        Manager manager = new Manager(
+                id,
+                result.getString(DAOInterpreter.FIELD_LOGIN),
+                result.getString(DAOInterpreter.FIELD_FIRST_NAME),
+                result.getString(DAOInterpreter.FIELD_LAST_NAME),
+                result.getDate(DAOInterpreter.FIELD_BIRTH_DATE).toLocalDate(),
+                result.getString(DAOInterpreter.FIELD_HASHED_PASSWORD),
+                result.getString(DAOInterpreter.FIELD_EMAIL),
+                result.getString(DAOInterpreter.FIELD_PHONE_NUMBER),
+                result.getInt(DAOInterpreter.FIELD_WEEK_QUOTA),
+                result.getInt(DAOInterpreter.FIELD_YEAR_QUOTA),
+                result.getString(DAOInterpreter.FIELD_TRANSPORT_MODE),
+                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
+                new DAOJobSkill().getJobSkillOfAnInterpreter(id),
+                new DAOLocation().find(result.getInt(DAOInterpreter.FIELD_LOCATION)),
+                new DAOBaseTimeSlot().findAvailabilities(id)
         );
+        manager.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+        return manager;
     }
 
+
+
     /**
-     * Promote an Interpreter to a Manager by inserting it into the Manager table.
-     * @param idInterpreter the id of the Interpreter to promote
-     * @throws AlreadyExistsException if a Manager with this id already exists in database
-     * @throws NoSuchElementException if no Interpreter with this id exists in database
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
      * @throws SQLException if the database could not be reached
-     * @post the Interpreter has been added to the Manager table with the same id,
-     *       and the change was committed
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
      */
-    public void create(int idInterpreter) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (find(idInterpreter) != null)
-            throw new AlreadyExistsException("Manager already exists");
-
-        DAOInterpreter daoInterpreter = new DAOInterpreter();
-        Interpreter interpreter = daoInterpreter.find(idInterpreter);
-        if (interpreter == null)
-            throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idInterpreter);
-
-        String query = "INSERT INTO ManagerT (id) VALUES (?)";
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idInterpreter);
-
-            statement.executeUpdate();
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
         } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Retrieve the passwordUpdated flag of a user from the database
+     * @param id the id of the user
+     * @return true if the password has been updated, false otherwise
+     * @throws SQLException if the database could not be reached
+     */
+    public boolean getPasswordUpdated(int id) throws SQLException {
+        String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            if(!result.next())
+                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
+            return result.getInt(FIELD_PASSWORD_UPDATED) == 1;
+        } finally {
+            closeResultSet(result);
             closeStatement(statement);
         }
     }

@@ -40,8 +40,11 @@ public class DAOJobSkill extends DAO<JobSkill> {
 
     @Override
     public void create(JobSkill objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("JobSkill " + objectToInsert.getDesignation() + " already exists" );
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
+            throw new AlreadyExistsException("JobSkill " + objectToInsert.getDesignation() + " already exists");
+        }
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?)", TABLE);
         PreparedStatement statement = null;
@@ -62,7 +65,11 @@ public class DAOJobSkill extends DAO<JobSkill> {
 
     @Override
     public void update(JobSkill objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no JobSkill with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("JobSkill " + objectToUpdate.getDesignation() + " already exists" );
 
         String query = String.format(
@@ -75,8 +82,7 @@ public class DAOJobSkill extends DAO<JobSkill> {
             statement.setString(1, objectToUpdate.getDesignation());
             statement.setInt(2, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no JobSkill with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -157,8 +163,9 @@ public class DAOJobSkill extends DAO<JobSkill> {
      */
     public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws SQLException{
         String query = String.format(
-                "SELECT j.* FROM %s j JOIN JobSkillInterpreter jsi ON j.%s = jsi.skill WHERE jsi.interpreter = ?",
-                TABLE, FIELD_ID
+                "SELECT j.* FROM %s j JOIN %s jsi ON j.%s = jsi.%s WHERE jsi.%s = ?",
+                TABLE, DAOInterpreter.TABLE_JOB_SKILL_INTERPRETER, FIELD_ID, DAOInterpreter.JOB_SKILL_REF_SKILL,
+                DAOInterpreter.JOB_SKILL_REF_INTERPRETER
         );
         PreparedStatement statement = null;
         ResultSet result = null;

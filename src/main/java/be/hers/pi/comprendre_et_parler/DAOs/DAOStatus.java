@@ -41,8 +41,11 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void create(Status objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() +  " already exists");
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
+            throw new AlreadyExistsException("Status" + objectToInsert.getDesignation() + " already exists");
+        }
 
         String query = String.format("INSERT INTO %s VALUES (NULL, ?, ?)", TABLE);
         PreparedStatement statement = null;
@@ -64,7 +67,11 @@ public class DAOStatus extends DAO<Status> {
 
     @Override
     public void update(Status objectToUpdate) throws NoSuchElementException, AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Status with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Status " + objectToUpdate.getDesignation() + " already exists");
 
         String query = String.format(
@@ -78,8 +85,7 @@ public class DAOStatus extends DAO<Status> {
             statement.setInt(2, objectToUpdate.getHourQuota());
             statement.setInt(3, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Status with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }

@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 
@@ -44,8 +45,18 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void create(Location objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
+        int idInDB = checkAlreadyExists(objectToInsert);
+        if (idInDB >= 0) {
+            objectToInsert.setId(idInDB);
             throw new AlreadyExistsException("Location " + objectToInsert.getDesignation() + " already exists");
+        }
+
+        int cityRef = -1;
+        try {
+            new DAOCity().create(objectToInsert.getCity());
+        }
+        catch (AlreadyExistsException e) { }
+        cityRef = objectToInsert.getCity().getId();
 
         String query = String.format("INSERT INTO %s VALUES(NULL, ?, ?, ?, ?, ?)", TABLE);
         PreparedStatement statement = null;
@@ -53,7 +64,7 @@ public class DAOLocation extends DAO<Location> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query, new String[]{FIELD_ID});
             statement.setString(1, objectToInsert.getDesignation());
-            statement.setInt(2, objectToInsert.getCity().getId());
+            statement.setInt(2, cityRef);
             statement.setString(3, objectToInsert.getStreet());
             statement.setString(4, objectToInsert.getStreetNumber());
             statement.setInt(5, objectToInsert.getBox());
@@ -70,8 +81,27 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     public void update(Location objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        if (find(objectToUpdate.getId()) == null)
+            throw new NoSuchElementException("[ERROR] There is no Location with the id " + objectToUpdate.getId());
+
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Location " + objectToUpdate.getDesignation() + " already exists");
+
+        int cityRef = -1;
+        try {
+            new DAOCity().update(objectToUpdate.getCity());
+            cityRef = objectToUpdate.getCity().getId();
+        }
+        catch (NoSuchElementException e) {
+            try {
+                new DAOCity().create(objectToUpdate.getCity());
+                cityRef = objectToUpdate.getCity().getId();
+            }
+            catch (AlreadyExistsException f) {
+                cityRef = new DAOCity().checkAlreadyExists(objectToUpdate.getCity());
+            }
+        }
 
         String query = String.format(
                 "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?",
@@ -81,14 +111,13 @@ public class DAOLocation extends DAO<Location> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setString(1, objectToUpdate.getDesignation());
-            statement.setInt(2, objectToUpdate.getCity().getId());
+            statement.setInt(2, cityRef);
             statement.setString(3, objectToUpdate.getStreet());
             statement.setString(4, objectToUpdate.getStreetNumber());
             statement.setInt(5, objectToUpdate.getBox());
             statement.setInt(6, objectToUpdate.getId());
 
-            if (statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no Location with the id " + objectToUpdate.getId());
+            statement.executeUpdate();
         } finally {
             closeStatement(statement);
         }
@@ -133,19 +162,30 @@ public class DAOLocation extends DAO<Location> {
 
     @Override
     protected int checkAlreadyExists(Location location) throws SQLException {
+        City c1 = location.getCity();
+        c1.setId(new DAOCity().checkAlreadyExists(c1));
+        String designation = location.getDesignation();
+        String streetNumber = location.getStreetNumber();
+
         String query = String.format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ? AND %s = ?",
-                FIELD_ID, TABLE, FIELD_DESIGNATION, FIELD_CITY, FIELD_STREET, FIELD_STREET_NUMBER, FIELD_BOX
+                "SELECT %s FROM %s WHERE %s AND %s = ? AND %s = ? AND %s AND %s = ?",
+                FIELD_ID, TABLE,
+                designation == null || designation.isEmpty() ? FIELD_DESIGNATION + " IS NULL" : FIELD_DESIGNATION + " = ?",
+                FIELD_CITY,
+                FIELD_STREET,
+                streetNumber == null || streetNumber.isEmpty() ? FIELD_STREET_NUMBER + " IS NULL" : FIELD_STREET_NUMBER + " = ?",
+                FIELD_BOX
         );
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
+            int field = 1;
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setString(1, location.getDesignation());
-            statement.setInt(2, location.getCity().getId());
-            statement.setString(3, location.getStreet());
-            statement.setString(4, location.getStreetNumber());
-            statement.setInt(5, location.getBox());
+            if (designation != null && !designation.isEmpty()) statement.setString(field++, designation);
+            statement.setInt(field++, location.getCity().getId());
+            statement.setString(field++, location.getStreet());
+            if (streetNumber != null && !streetNumber.isEmpty()) statement.setString(field++, streetNumber);
+            statement.setInt(field, location.getBox());
 
             result = statement.executeQuery();
             if(result.next())

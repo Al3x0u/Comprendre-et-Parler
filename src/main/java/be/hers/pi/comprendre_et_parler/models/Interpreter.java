@@ -176,6 +176,16 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * @param skill a skill to add to this interpreter
+     */
+    public void addAcademicSkill(AcademicSkill skill) {this.academicSkills.add(skill);}
+
+    /**
+     * @param skill an AcademicSkill to remove from this interpreter
+     */
+    public void removeAcademicSkill(AcademicSkill skill) {this.academicSkills.remove(skill);}
+
+    /**
      * @return this.jobSkills
      */
     public Set<JobSkill> getJobSkills() {
@@ -188,6 +198,16 @@ public class Interpreter extends AppliUser{
     public void setJobSkills(Set<JobSkill> jobSkills) {
         this.jobSkills = jobSkills;
     }
+
+    /**
+     * @param skill a JobSkill to add to this interpreter
+     */
+    public void addJobSkill(JobSkill skill) {this.jobSkills.add(skill);}
+
+    /**
+     * @param skill a JobSkill to remove from this interpreter
+     */
+    public void removeJobSkill(JobSkill skill) {this.jobSkills.remove(skill);}
 
     /**
      * @return this.beneficiaries
@@ -215,6 +235,13 @@ public class Interpreter extends AppliUser{
      */
     public void setMissions(Set<Mission> missions) {
         this.missions = missions;
+    }
+
+    /**
+     * @param mission the mission to add to this interpreter's list of missions
+     */
+    public void addMission(Mission mission) {
+        this.missions.add(mission);
     }
 
     /**
@@ -260,11 +287,17 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * @param unavailability the exceptional unavailability to add to this interpreter's list of unavailabilities
+     */
+    public void addUnavailability(ExceptionalUnavailability unavailability) {
+        this.unavailability.add(unavailability);
+    }
+
+    /**
      * Compare this Interpreter with another Object for equality
      * @param o the Object to compare with
-     * @return true if both objects have identical super, hourQuotaWeek,
-     * hourQuotaYear, transportMode, academicSkills, jobSkills,
-     * location, availability and unavailability
+     * @return true if both objects have identical first name, last name, birthdate, hashed password, email, phone number,
+     * hourQuotaWeek, hourQuotaYear, transportMode and location
      */
     @Override
     public boolean equals(Object o) {
@@ -279,6 +312,25 @@ public class Interpreter extends AppliUser{
                 && Objects.equals(jobSkills, other.jobSkills) && Objects.equals(location, other.location)
                 && Objects.equals(availability, other.availability)
                 && Objects.equals(unavailability, other.unavailability);
+    }
+
+    /**
+     * Compares two Interpreter lexicographically according to their designations
+     * @param i The second interpreter to compare to this
+     * @return The result is a negative integer if this Interpreter.firstName lexicographically precedes the other Interpreter.firstName.
+     * The result is a positive integer if this Interpreter.firstName lexicographically follows the other Interpreter.firstName.
+     * If the firstName are the same, compare lastName.
+     * If the lastName are the same, compare login.
+     * If the login are the same, return 0.
+     */
+    public int compareTo(Interpreter i) {
+        int res = firstName.compareTo(i.firstName);
+        if (res == 0) {
+            res = lastName.compareTo(i.lastName);
+            if (res == 0)
+                res = login.compareTo(i.login);
+        }
+        return res;
     }
 
     /**
