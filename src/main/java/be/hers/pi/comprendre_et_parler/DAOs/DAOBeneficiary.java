@@ -324,7 +324,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @return a Set of Beneficiary who have the id having the given idStatus,
      * or an empty Set if no beneficiaries having this Status
      */
-    public Set<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
+    public Set<Beneficiary> findByStatus(int idStatus) throws SQLException, NoSuchElementException {
         if (new DAOInterpreter().find(idStatus) == null)
             throw new NoSuchElementException("[ERROR] There is no Status with the id " + idStatus);
 

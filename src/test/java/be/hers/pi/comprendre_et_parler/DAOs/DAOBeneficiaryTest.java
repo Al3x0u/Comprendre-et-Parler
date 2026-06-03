@@ -122,7 +122,7 @@ class DAOBeneficiaryTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.delete(b2.getId());
@@ -180,6 +180,19 @@ class DAOBeneficiaryTest {
 
     @Test
     @Order(8)
+    public void testFindByStatus() throws SQLException {
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.findReferencedBeneficiaries(50);
+        }, "There is no Status with this ID.");
+
+        Set<Beneficiary> beneficiaries = beneficiaryDAO.findByStatus(1);
+        assertEquals(2, beneficiaries.size(), "There are two beneficiaries in the database with this status.");
+        assertTrue(beneficiaries.contains(b2));
+        assertTrue(beneficiaries.contains(b3));
+    }
+
+    @Test
+    @Order(9)
     public void testUpdateStatus() {
         assertThrows(NoSuchElementException.class, () -> {
             beneficiaryDAO.updateStatus(50, 1);
