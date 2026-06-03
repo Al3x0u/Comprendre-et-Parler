@@ -348,7 +348,7 @@ public class Mission {
                 && stateOfMission.equals(other.stateOfMission)
                 && (Objects.equals(commentary, other.commentary))
                 && timeSlot.equals(other.timeSlot)
-                && (Objects.equals(beneficiary, other.beneficiary))
+                && (beneficiary == other.beneficiary || (Objects.equals(beneficiary.getLogin(), other.beneficiary.getLogin())))
                 && (Objects.equals(interpreters, other.interpreters))
                 && location.equals(other.location)
                 && (Objects.equals(jobSkill, other.jobSkill))
