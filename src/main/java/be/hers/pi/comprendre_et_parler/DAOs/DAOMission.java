@@ -348,6 +348,38 @@ public class DAOMission extends DAO<Mission> {
     }
 
     /**
+     * Return all missions assigned to the interpreter with the given id
+     * @param interpreterId the id of the interpreter
+     * @return a Set of Mission assigned to the interpreter, or an empty Set if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> findByInterpreter(int interpreterId) throws SQLException {
+        Set<Mission> missions = new HashSet<>();
+
+        String query = "SELECT m.id FROM " + TABLE + " m " +
+                "WHERE m.id IN " +
+                "(SELECT " + INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
+                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " = ?)";
+
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterId);
+            result = statement.executeQuery();
+            while (result.next()) {
+                Mission mission = find(result.getInt("id"));
+                if (mission != null)
+                    missions.add(mission);
+            }
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return missions;
+    }
+
+    /**
      * Add an interpreter to a mission in the InterpreterMission table
      * @param missionId : id of the mission
      * @param interpreterId : id of the interpreter

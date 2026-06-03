@@ -91,11 +91,9 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     public void deleteInterpreter(Interpreter interpreter) throws NoSuchElementException, SQLException {
-        for (Mission mission : SQLWrap.call(daoMission::findAll)) {
-            if (mission.getInterpreters() != null && mission.getInterpreters().contains(interpreter)) {
-                if (mission.getInterpreters().size() == 1){
-                    missionService.cancelMission(mission);
-                }
+        for (Mission mission : SQLWrap.call(daoMission::findByInterpreter, interpreter.getId())) {
+            if (mission.getInterpreters().size() == 1) {
+                missionService.cancelMission(mission);
             }
         }
         SQLWrap.callTransaction(daoInterpreter::delete, interpreter.getId());

@@ -32,6 +32,7 @@ public abstract class TimeSlot {
             this.id = id;
     }
 
+    @Override
     public abstract TimeSlot clone();
 
     @Override
