@@ -103,6 +103,7 @@ public class MissionService {
         }
 
         mission.setStateOfMission(MissionState.ACCEPTED);
+
         SQLWrap.callTransaction(daoMission::create, mission);
     }
 
