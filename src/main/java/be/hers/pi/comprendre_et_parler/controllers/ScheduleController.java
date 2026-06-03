@@ -51,6 +51,8 @@ public class ScheduleController {
             LocalDate today = LocalDate.now();
 
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
+            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
+            model.addAttribute("allJobSkills", allJobSkills);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -92,20 +94,24 @@ public class ScheduleController {
             String locationDesignation = payload.get("locationDesignation");
             String cityName = payload.get("city");
             int postalCode = 0;
-            try{
-                postalCode =  Integer.parseInt(payload.get("postalCode"));
-            }catch(Exception e){
-                e.printStackTrace();
-                postalCode = 0;
+            String postalCodeStr = payload.get("postalCode");
+            if (postalCodeStr != null && !postalCodeStr.isBlank()) {
+                try {
+                    postalCode = Integer.parseInt(postalCodeStr);
+                } catch (NumberFormatException e) {
+                    postalCode = 0;
+                }
             }
             String street = payload.get("street");
             String streetNumber = payload.get("streetNumber");
             int box = 0;
-            try{
-                box = Integer.parseInt(payload.get("box"));
-            }catch(Exception e){
-                e.printStackTrace();
-                box = 0;
+            String boxStr = payload.get("box");
+            if (boxStr != null && !boxStr.isBlank()) {
+                try {
+                    box = Integer.parseInt(boxStr);
+                } catch (NumberFormatException e) {
+                    box = 0;
+                }
             }
 
             String professor = payload.get("professor");
@@ -148,6 +154,15 @@ public class ScheduleController {
             mission.setImportance(importance);
             mission.setBeneficiary(beneficiary);
             mission.setInterpreters(Set.of());
+
+            if (type != null && !type.isBlank()) {
+                JobSkill jobSkill = jobSkillService.getAllJobSkills().stream()
+                        .filter(js -> js.getDesignation() != null
+                                && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
+                        .findFirst()
+                        .orElse(null);
+                mission.setJobSkill(jobSkill);
+            }
 
             missionService.createRequest(mission);
 
@@ -353,6 +368,7 @@ public class ScheduleController {
             }
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
+            event.put("id", String.valueOf(mission.getId()));
             event.put("title", mission.getSubject());
 
             event.put("start", pts.getStartDate().toString());
@@ -551,7 +567,6 @@ public class ScheduleController {
                 mission.setBeneficiary(beneficiary);
             }
         }
-
         return mission;
     }
 
