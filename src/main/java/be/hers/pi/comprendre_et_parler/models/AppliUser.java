@@ -194,6 +194,7 @@ public abstract class AppliUser {
         this.passwordUpdated = passwordUpdated;
     }
 
+    @Override
     public abstract AppliUser clone();
 
     /**
