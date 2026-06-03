@@ -35,9 +35,11 @@ class DAOBeneficiaryTest {
 
         Status s1 = new Status(1, "Test", 50);
         new DAOStatus().create(s1);
+        Status s2 = new Status(2, "Test2", 24);
+        new DAOStatus().create(s2);
 
         b1 = new Beneficiary(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(10),
-                "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
+                "1234", "toto@gmail.com", "123/45.67.89", s2, i1);
         b2 = new Beneficiary(2, "r260001", "Tata", "Tata", LocalDate.now().minusYears(15),
                 "9874", "tata@gmail.com", "987/65.41.32", s1, i1);
 
@@ -120,7 +122,7 @@ class DAOBeneficiaryTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.delete(b2.getId());
@@ -174,5 +176,21 @@ class DAOBeneficiaryTest {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.updateInterpreterRef(4, 4);
         }, "The beneficiary's reference interpreter has been changed.");
+    }
+
+    @Test
+    @Order(8)
+    public void testUpdateStatus() {
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.updateStatus(50, 1);
+        }, "There is no Beneficiary with this ID.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.updateStatus(3, 50);
+        }, "There is no Status with this ID.");
+
+        assertDoesNotThrow(() -> {
+            beneficiaryDAO.updateStatus(4, 2);
+        }, "The beneficiary's status has been changed.");
     }
 }
