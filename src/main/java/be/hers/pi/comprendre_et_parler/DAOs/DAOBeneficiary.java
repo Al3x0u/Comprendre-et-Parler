@@ -302,7 +302,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      * @post the referenceInterpreter of the Beneficiary has been updated in the database
      */
-    public void updateInterpreterRef(int beneficiaryId, int interpreterId) throws SQLException {
+    public void updateInterpreterRef(int beneficiaryId, int interpreterId) throws SQLException, NoSuchElementException {
         String query = "UPDATE " + TABLE +" SET " + FIELD_INTERPRETER_REFERENCE +" = ? WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         try {
@@ -357,7 +357,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      * @post the status of the Beneficiary has been updated in the database
      */
-    public void updateStatus(int beneficiaryId, int statusId) throws SQLException {
+    public void updateStatus(int beneficiaryId, int statusId) throws SQLException, NoSuchElementException {
         String query = "UPDATE " + TABLE + " SET " + FIELD_STATUS + " = ? WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         try {
@@ -378,7 +378,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws NoSuchElementException if no AppliUser with this id exists in the database
      * @post the passwordUpdated flag of the AppliUser has been set to true in the database
      */
-    public void updatePasswordUpdated(int id) throws SQLException {
+    public void updatePasswordUpdated(int id) throws SQLException, NoSuchElementException {
         String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         try {
@@ -397,7 +397,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @return true if the password has been updated, false otherwise
      * @throws SQLException if the database could not be reached
      */
-    public boolean getPasswordUpdated(int id) throws SQLException {
+    public boolean getPasswordUpdated(int id) throws SQLException, NoSuchElementException {
         String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
