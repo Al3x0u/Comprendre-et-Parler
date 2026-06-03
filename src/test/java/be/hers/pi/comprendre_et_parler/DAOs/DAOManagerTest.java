@@ -79,7 +79,7 @@ class DAOManagerTest {
 
     @Test
     @Order(1)
-    public void testCreate() {
+    public void testCreateManager() {
         assertDoesNotThrow(() -> {
             managerDAO.create(m1);
         }, "Create a object in the database.");
@@ -117,7 +117,7 @@ class DAOManagerTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             managerDAO.delete(m2.getId());
@@ -144,5 +144,29 @@ class DAOManagerTest {
         assertEquals(2, managers.size(), "There are two objects in the database.");
         assertTrue(managers.contains(m1));
         assertTrue(managers.contains(m2));
+    }
+
+    @Test
+    @Order(6)
+    public void testCreateId() throws SQLException {
+        assertThrows(AlreadyExistsException.class, () -> {
+            managerDAO.create(1);
+        }, "A manager with this ID already exists.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            managerDAO.create(50);
+        }, "There is no Interpreter with the ID.");
+
+        City c1 = new City(1, "Bruxelles", 1000);
+        Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
+        Interpreter i1 = new Interpreter(3, "b741985", "Jessice", "DuBuisson", LocalDate.now().minusYears(25),
+                "g4e65g4re", "jessica@gmail.com", null, 10, 350,
+                "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i1.setUnavailability(new HashSet<>());
+        new DAOInterpreter().create(i1);
+
+        assertDoesNotThrow(() -> {
+            managerDAO.create(4);
+        }, "Promote this interpreter.");
     }
 }
