@@ -40,8 +40,13 @@ class DAOBeneficiaryTest {
                 "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
         b2 = new Beneficiary(2, "r260001", "Tata", "Tata", LocalDate.now().minusYears(15),
                 "9874", "tata@gmail.com", "987/65.41.32", s1, i1);
-        b3 = new Beneficiary(4, "i412876", "Jessica", "DuBuisson", LocalDate.now().minusYears(7),
-                "greg54re1fe", "jessica@gmail.com", "754/69.24.18", s1, i1);
+
+        Interpreter i2 = new Interpreter("b741985", "Jessica", "DuBuisson", LocalDate.now().minusYears(56),
+                "rf894re6fe", "jessica@gmail.com", "4865/75.98.24", 10, 350,
+                "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        new DAOInterpreter().create(i2);
+        b3 = new Beneficiary(50, "i412876", "Jessica", "DuBuisson", LocalDate.now().minusYears(7),
+                "greg54re1fe", "jessica@gmail.com", "754/69.24.18", s1, i2);
     }
 
     @AfterAll
@@ -58,11 +63,11 @@ class DAOBeneficiaryTest {
     @Test
     @Order(4)
     public void testFindId() throws SQLException {
-        Beneficiary b4 = beneficiaryDAO.find(2);
+        Beneficiary b4 = beneficiaryDAO.find(3);
         assertEquals(b3, b4, "Find the updated object.");
         assertNotEquals(b3.getLogin(), b4.getLogin(), "The login must not have been updated.");
-        assertEquals(b2, beneficiaryDAO.find(3), "Find the unchanged object.");
-        assertNull(beneficiaryDAO.find(4), "There is no object with this ID.");
+        assertEquals(b2, beneficiaryDAO.find(4), "Find the unchanged object.");
+        assertNull(beneficiaryDAO.find(5), "There is no object with this ID.");
     }
 
     @Test
@@ -81,7 +86,7 @@ class DAOBeneficiaryTest {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.create(b1);
         }, "Create a object in the database.");
-        assertEquals(2, b1.getId(), "The ID must have been changed.");
+        assertEquals(3, b1.getId(), "The ID must have been changed.");
         assertEquals("TT2601", b1.getLogin(), "The login must have been changed.");
 
         b1.setId(20);
@@ -92,7 +97,7 @@ class DAOBeneficiaryTest {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.create(b2);
         }, "Create another object in the database.");
-        assertEquals(3, b2.getId(), "The ID must have been changed.");
+        assertEquals(4, b2.getId(), "The ID must have been changed.");
         assertEquals("TT2602", b2.getLogin(), "The login must have been changed.");
     }
 
@@ -103,19 +108,19 @@ class DAOBeneficiaryTest {
             beneficiaryDAO.update(b3);
         }, "There are no objects with this ID.");
 
-        b3.setId(2);
+        b3.setId(3);
         assertDoesNotThrow(() -> {
             beneficiaryDAO.update(b3);
         }, "The object has been updated.");
 
-        b3.setId(3);
+        b3.setId(4);
         assertThrows(AlreadyExistsException.class, () -> {
             beneficiaryDAO.update(b3);
         }, "This object already exists in the database with another ID.");
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.delete(b2.getId());
@@ -130,7 +135,7 @@ class DAOBeneficiaryTest {
         }, "There is no object with this ID.");
 
         assertDoesNotThrow(() -> {
-            beneficiaryDAO.delete(2);
+            beneficiaryDAO.delete(3);
         }, "The object has been removed from the database.");
     }
 
@@ -151,8 +156,23 @@ class DAOBeneficiaryTest {
         }, "There is no Interpreter with this ID.");
 
         Set<Beneficiary> beneficiaries = beneficiaryDAO.findReferencedBeneficiaries(1);
-        assertEquals(2, beneficiaries.size(), "There are two beneficiaries in the database with this interpreter.");
-        assertTrue(beneficiaries.contains(b3));
+        assertEquals(1, beneficiaries.size(), "There is one beneficiaries in the database with this interpreter.");
         assertTrue(beneficiaries.contains(b2));
+    }
+
+    @Test
+    @Order(7)
+    public void testUpdateInterpreterRef() {
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.updateInterpreterRef(50, 1);
+        }, "There is no Beneficiary with this ID.");
+
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.updateInterpreterRef(3, 50);
+        }, "There is no Interpreter with this ID.");
+
+        assertDoesNotThrow(() -> {
+            beneficiaryDAO.updateInterpreterRef(4, 4);
+        }, "The beneficiary's reference interpreter has been changed.");
     }
 }
