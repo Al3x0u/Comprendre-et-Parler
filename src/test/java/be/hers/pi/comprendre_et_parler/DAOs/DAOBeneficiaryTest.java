@@ -70,9 +70,9 @@ class DAOBeneficiaryTest {
     public void testFindLogin() throws SQLException {
         Beneficiary b4 = beneficiaryDAO.find("TT2601");
         assertEquals(b3, b4, "Find the updated object.");
-        assertNotEquals(b3.getId(), b4.getId(), "The login must not have been updated.");
+        assertNotEquals(b3.getId(), b4.getId(), "The ID must not have been updated.");
         assertEquals(b2, beneficiaryDAO.find("TT2602"), "Find the unchanged object.");
-        assertNull(beneficiaryDAO.find("TT2650"), "There is no object with this ID.");
+        assertNull(beneficiaryDAO.find("TT2650"), "There is no object with this login.");
     }
 
     @Test

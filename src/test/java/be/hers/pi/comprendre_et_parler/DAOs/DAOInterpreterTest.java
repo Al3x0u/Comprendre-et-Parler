@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.models.Beneficiary;
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.Location;
@@ -58,12 +59,22 @@ class DAOInterpreterTest {
 
     @Test
     @Order(4)
-    public void testFind() throws SQLException {
+    public void testFindId() throws SQLException {
         Interpreter i4 = interpreterDAO.find(1);
         assertEquals(i3, i4, "Find the updated object.");
         assertNotEquals(i3.getLogin(), i4.getLogin(), "The login must not have been updated.");
         assertEquals(i2, interpreterDAO.find(2), "Find the unchanged object.");
         assertNull(interpreterDAO.find(3), "There is no object with this ID.");
+    }
+
+    @Test
+    @Order(5)
+    public void testFindLogin() throws SQLException {
+        Interpreter i4 = interpreterDAO.find("TT2601");
+        assertEquals(i3, i4, "Find the updated object.");
+        assertNotEquals(i3.getId(), i4.getId(), "The ID must not have been updated.");
+        assertEquals(i2, interpreterDAO.find("TT2602"), "Find the unchanged object.");
+        assertNull(interpreterDAO.find("TT2650"), "There is no object with this login.");
     }
 
     @Test
@@ -106,7 +117,7 @@ class DAOInterpreterTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             interpreterDAO.delete(i2.getId());
