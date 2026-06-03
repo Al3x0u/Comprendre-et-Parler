@@ -57,12 +57,22 @@ class DAOBeneficiaryTest {
 
     @Test
     @Order(4)
-    public void testFind() throws SQLException {
+    public void testFindId() throws SQLException {
         Beneficiary b4 = beneficiaryDAO.find(2);
         assertEquals(b3, b4, "Find the updated object.");
         assertNotEquals(b3.getLogin(), b4.getLogin(), "The login must not have been updated.");
         assertEquals(b2, beneficiaryDAO.find(3), "Find the unchanged object.");
         assertNull(beneficiaryDAO.find(4), "There is no object with this ID.");
+    }
+
+    @Test
+    @Order(5)
+    public void testFindLogin() throws SQLException {
+        Beneficiary b4 = beneficiaryDAO.find("TT2601");
+        assertEquals(b3, b4, "Find the updated object.");
+        assertNotEquals(b3.getId(), b4.getId(), "The login must not have been updated.");
+        assertEquals(b2, beneficiaryDAO.find("TT2602"), "Find the unchanged object.");
+        assertNull(beneficiaryDAO.find("TT2650"), "There is no object with this ID.");
     }
 
     @Test
@@ -105,7 +115,7 @@ class DAOBeneficiaryTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.delete(b2.getId());
