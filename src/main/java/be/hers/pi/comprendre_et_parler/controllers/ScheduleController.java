@@ -51,6 +51,8 @@ public class ScheduleController {
             LocalDate today = LocalDate.now();
 
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
+            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
+            model.addAttribute("allJobSkills", allJobSkills);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -366,6 +368,7 @@ public class ScheduleController {
             }
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
+            event.put("id", String.valueOf(mission.getId()));
             event.put("title", mission.getSubject());
 
             event.put("start", pts.getStartDate().toString());

@@ -282,19 +282,14 @@
                     <label class="form-label fw-semibold d-block">Type*</label>
 
                     <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeTranscription" value="Transcription" checked>
-                            <label class="form-check-label" for="typeTranscription">Transcription</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeTransliteration" value="Transliteration">
-                            <label class="form-check-label" for="typeTransliteration">Translitération</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeLpc" value="LPC">
-                            <label class="form-check-label" for="typeLpc">LPC</label>
+                        <div class="form-check" th:each="skill, skillStat : ${allJobSkills}">
+                            <input class="form-check-input" type="radio" name="requestType"
+                                   th:id="${'requestType-' + skill.id}"
+                                   th:value="${skill.designation}"
+                                   th:checked="${skillStat.first}">
+                            <label class="form-check-label"
+                                   th:for="${'requestType-' + skill.id}"
+                                   th:text="${skill.designation}"></label>
                         </div>
                     </div>
                 </div>
@@ -482,19 +477,14 @@
                     <label class="form-label fw-semibold d-block">Type*</label>
 
                     <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeTranscription" value="Transcription" checked>
-                            <label class="form-check-label" for="missionTypeTranscription">Transcription</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeTransliteration" value="Transliteration">
-                            <label class="form-check-label" for="missionTypeTransliteration">Translitération</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeLpc" value="LPC">
-                            <label class="form-check-label" for="missionTypeLpc">LPC</label>
+                        <div class="form-check" th:each="skill, skillStat : ${allJobSkills}">
+                            <input class="form-check-input" type="radio" name="requestType"
+                                   th:id="${'requestType-' + skill.id}"
+                                   th:value="${skill.designation}"
+                                   th:checked="${skillStat.first}">
+                            <label class="form-check-label"
+                                   th:for="${'requestType-' + skill.id}"
+                                   th:text="${skill.designation}"></label>
                         </div>
                     </div>
                 </div>
