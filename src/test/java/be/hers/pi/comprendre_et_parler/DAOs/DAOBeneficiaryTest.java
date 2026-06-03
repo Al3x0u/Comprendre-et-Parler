@@ -122,7 +122,7 @@ class DAOBeneficiaryTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.delete(b2.getId());
@@ -205,5 +205,11 @@ class DAOBeneficiaryTest {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.updateStatus(4, 2);
         }, "The beneficiary's status has been changed.");
+    }
+
+    @Test
+    @Order(10)
+    public void testCount() throws SQLException {
+        assertEquals(2, beneficiaryDAO.count(), "There are two beneficiaries in the database.");
     }
 }
