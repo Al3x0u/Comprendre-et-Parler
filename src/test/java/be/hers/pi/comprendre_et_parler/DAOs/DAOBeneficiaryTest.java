@@ -115,7 +115,7 @@ class DAOBeneficiaryTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             beneficiaryDAO.delete(b2.getId());
@@ -140,6 +140,19 @@ class DAOBeneficiaryTest {
         Set<Beneficiary> beneficiaries = beneficiaryDAO.findAll();
         assertEquals(2, beneficiaries.size(), "There are two objects in the database.");
         assertTrue(beneficiaries.contains(b1));
+        assertTrue(beneficiaries.contains(b2));
+    }
+
+    @Test
+    @Order(6)
+    public void testFindReferencedBeneficiaries() throws SQLException {
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.findReferencedBeneficiaries(50);
+        }, "There is no Interpreter with this ID.");
+
+        Set<Beneficiary> beneficiaries = beneficiaryDAO.findReferencedBeneficiaries(1);
+        assertEquals(2, beneficiaries.size(), "There are two beneficiaries in the database with this interpreter.");
+        assertTrue(beneficiaries.contains(b3));
         assertTrue(beneficiaries.contains(b2));
     }
 }
