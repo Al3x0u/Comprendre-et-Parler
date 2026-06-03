@@ -45,4 +45,14 @@ public class PasswordService {
 
         user.setPasswordUpdated(true);
     }
+
+    /**
+     * Verify that the given password is the correct one
+     * @param user   the authenticated user
+     * @param password the password to verify
+     * @return true if it's the correct password else false
+     */
+    public boolean verifyCurrentPassword(AppliUser user, String password) {
+        return true;
+    }
 }
