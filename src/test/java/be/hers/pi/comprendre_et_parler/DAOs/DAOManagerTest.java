@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.City;
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.Manager;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import org.junit.jupiter.api.*;
@@ -58,12 +59,22 @@ class DAOManagerTest {
 
     @Test
     @Order(4)
-    public void testFind() throws SQLException {
+    public void testFindId() throws SQLException {
         Manager m4 = managerDAO.find(1);
         assertEquals(m3, m4, "Find the updated object.");
         assertNotEquals(m3.getLogin(), m4.getLogin(), "The login must not have been updated.");
         assertEquals(m2, managerDAO.find(2), "Find the unchanged object.");
         assertNull(managerDAO.find(3), "There is no object with this ID.");
+    }
+
+    @Test
+    @Order(5)
+    public void testFindLogin() throws SQLException {
+        Manager m4 = managerDAO.find("TT2601");
+        assertEquals(m3, m4, "Find the updated object.");
+        assertNotEquals(m3.getId(), m4.getId(), "The ID must not have been updated.");
+        assertEquals(m2, managerDAO.find("TT2602"), "Find the unchanged object.");
+        assertNull(managerDAO.find("TT2650"), "There is no object with this login.");
     }
 
     @Test
@@ -106,7 +117,7 @@ class DAOManagerTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             managerDAO.delete(m2.getId());
