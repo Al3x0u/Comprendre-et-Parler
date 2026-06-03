@@ -633,11 +633,14 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
-        if (!document.getElementById('missionInterpreter').value) {
-            document.getElementById('missionInterpreter').classList.add('is-invalid');
-            document.getElementById('missionInterpreterError').textContent = 'Veuillez sélectionner un interprète.';
+
+        const checkedInterpreters = Array.from(document.querySelectorAll('.mission-interpreter-check:checked'));
+        if (checkedInterpreters.length === 0) {
+            document.getElementById('missionInterpreterError').textContent = 'Veuillez sélectionner au moins un interprète.';
+            document.getElementById('missionInterpreterError').style.display = 'block';
             return;
         }
+
         const startTime = document.getElementById('missionStartTime').value;
         const endTime   = document.getElementById('missionEndTime').value;
         if (startTime >= endTime) {
@@ -656,12 +659,11 @@ document.addEventListener('DOMContentLoaded', function() {
             street:              document.getElementById('missionStreet').value,
             streetNumber:        document.getElementById('missionStreetNumber').value,
             box:                 document.getElementById('missionBox').value,
-            professor:           document.getElementById('missionProfessor').value,
-            interpreterId:       document.getElementById('missionInterpreter').value,
+            interpreterIds:      checkedInterpreters.map(cb => cb.value),
             beneficiaryId:       document.getElementById('missionBeneficiary').value,
             comment:             document.getElementById('missionComment').value,
-            room:            document.getElementById('missionRoom').value,
-            academicSkillId: document.getElementById('missionAcademicSkill').value,
+            room:                document.getElementById('missionRoom').value,
+            academicSkillId:     document.getElementById('missionAcademicSkill').value,
         };
         try {
             const res = await fetch('/horaire/missions', {
@@ -717,7 +719,6 @@ document.addEventListener('DOMContentLoaded', function() {
             street:              document.getElementById('requestStreet').value,
             streetNumber:        document.getElementById('requestStreetNumber').value,
             box:                 document.getElementById('requestBox').value,
-            professor:           document.getElementById('requestProfessor').value,
             comment:             document.getElementById('requestComment').value,
             importance:          document.querySelector('input[name="requestImportance"]:checked').value
         };
