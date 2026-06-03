@@ -90,7 +90,6 @@ class DAOMissionTest {
         Mission m4 = missionDAO.find(1);
         m4.setInterpreters(new DAOInterpreter().findAllByMissionId(m4.getId()));
         assertEquals(m3, m4, "Find the updated object.");
-        // Failed due to the interpreter set.
 
         Mission m5 = missionDAO.find(2);
         assertNotEquals(m2, m5, "Find the unchanged object but the interpreter set was not initialized.");
@@ -170,7 +169,6 @@ class DAOMissionTest {
         }
 
         assertTrue(missionsUpdated.contains(m1));
-        // Failed due to the interpreter set.
         assertFalse(missionsUpdated.contains(m2));
 
         m2.setInterpreters(new HashSet<>());
