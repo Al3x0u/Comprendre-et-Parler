@@ -8,10 +8,10 @@
     <div>
         <div th:if="${submitState != null}">
             <div th:if="${submitState == 'success'}">
-                <div th:replace="~{common/modal-creation :: modal-success}"></div>
+                <div th:replace="~{common/modals :: modal-success}"></div>
             </div>
             <div th:unless="${submitState  == 'success'}">
-                <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
+                <div th:replace="~{common/modals :: modal-error(${submitState})}"></div>
             </div>
         </div>
     </div>

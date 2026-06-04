@@ -278,50 +278,6 @@
 
     </div>
 
-    <!-- Modal Promote -->
-    <div class="modal fade" id="modalPromote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4">
-                <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-arrow-up-circle me-2"></i>Promouvoir en manager</h5>
-                </div>
-                <div class="modal-body rounded-4 py-5">
-                    Êtes-vous sûr de vouloir promouvoir <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Responsable ?
-                </div>
-                <div class="modal-footer rounded-bottom-4">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <form th:action="@{/interpretes/profil/{id}/promouvoir(id=${interprete.id})}" method="post">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Demote -->
-    <div class="modal fade" id="modalDemote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4">
-                <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-arrow-down-circle me-2"></i>Rétrograder en interprète</h5>
-                </div>
-                <div class="modal-body rounded-4 py-5">
-                    Êtes-vous sûr de vouloir rétrograder <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Interprète ?
-                </div>
-                <div class="modal-footer rounded-bottom-4">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <form th:action="@{/interpretes/profil/{id}/retrograder(id=${interprete.id})}" method="post">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal New Unavailability -->
     <div class="modal fade" id="modalIndispoAdd" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
@@ -533,11 +489,35 @@
         }
     </script>
 
-    <div th:replace="~{common/modal-delete :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
-    <div th:replace="~{common/modal-disable :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
+    <!-- Modal Promote -->
+    <div th:replace="~{common/modals :: modal-confirm(
+        'modalPromote',
+        'Promouvoir en manager',
+        'bi-arrow-up-circle',
+        'text-bg-primary',
+        'Êtes-vous sûr de vouloir promouvoir ' + interprete.firstName + ' ' + interprete.lastName + ' en Responsable ?',
+        @{/interpretes/profil/{id}/promouvoir(id=${interprete.id})},
+        'Promouvoir',
+        'btn-warning'
+    )}"></div>
+
+    <!-- Modal Demote -->
+    <div th:replace="~{common/modals :: modal-confirm(
+        'modalDemote',
+        'Rétrograder en interprète',
+        'bi-arrow-down-circle',
+        'text-bg-primary',
+        'Êtes-vous sûr de vouloir rétrograder ' + interprete.firstName + ' ' + interprete.lastName + ' en Interprète ?',
+        @{/interpretes/profil/{id}/retrograder(id=${interprete.id})},
+        'Rétrograder',
+        'btn-danger'
+    )}"></div>
+
+    <!-- Modal Delete -->
+    <div th:replace="~{common/modals :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
+
+    <!-- Modal Disable -->
+    <div th:replace="~{common/modals :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
 </div>
-
-
-
 </body>
 </html>
