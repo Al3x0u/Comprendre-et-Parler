@@ -465,7 +465,9 @@
         'Promouvoir en manager',
         'bi-arrow-up-circle',
         'text-bg-primary',
-        'Êtes-vous sûr de vouloir promouvoir ' + interprete.firstName + ' ' + interprete.lastName + ' en Responsable ?',
+        'promouvoir',
+        ${interprete.firstName},
+        ${interprete.lastName},
         @{/interpretes/profil/{id}/promouvoir(id=${interprete.id})},
         'Promouvoir',
         'btn-warning'
@@ -477,7 +479,9 @@
         'Rétrograder en interprète',
         'bi-arrow-down-circle',
         'text-bg-primary',
-        'Êtes-vous sûr de vouloir rétrograder ' + interprete.firstName + ' ' + interprete.lastName + ' en Interprète ?',
+        'rétrograder',
+        ${interprete.firstName},
+        ${interprete.lastName},
         @{/interpretes/profil/{id}/retrograder(id=${interprete.id})},
         'Rétrograder',
         'btn-danger'

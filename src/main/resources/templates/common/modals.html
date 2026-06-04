@@ -67,7 +67,7 @@
 
 <!-- ── CONFIRM ─────────────────────────────────────────────────────────── -->
 
-<th:block th:fragment="modal-confirm(id, title, icon, headerClass, message, actionUrl, btnLabel, btnClass)">
+<th:block th:fragment="modal-confirm(id, title, icon, headerClass, action, firstName, lastName, actionUrl, btnLabel, btnClass)">
     <div class="modal fade" th:id="${id}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
@@ -76,7 +76,10 @@
                         <i th:class="${'bi ' + icon + ' me-2'}"></i>[[${title}]]
                     </h5>
                 </div>
-                <div class="modal-body py-5" th:text="${message}"></div>
+                <div class="modal-body py-5">
+                    Êtes-vous sûr de vouloir <span th:text="${action}"></span>
+                    <strong th:text="${firstName + ' ' + lastName}"></strong> ?
+                </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                     <form th:action="${actionUrl}" method="post">
