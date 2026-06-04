@@ -27,7 +27,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h2 class="h5 text-primary mb-0"><i class="bi bi-mortarboard me-2"></i>Compétences académiques</h2>
                                 <button class="btn btn-outline-primary btn-sm rounded-4"
-                                        data-bs-toggle="modal" data-bs-target="#modalAddAcademicSkill">
+                                        data-bs-toggle="modal" data-bs-target="#modalAddSkill"
+                                        data-title="<i class='bi bi-mortarboard me-2'></i>Ajouter une compétence académique"
+                                        data-action="/gestion/competences/academiques/ajouter">
                                     <i class="bi bi-plus-lg me-1"></i>Ajouter
                                 </button>
                             </div>
@@ -37,9 +39,12 @@
                                     <span th:text="${skill.designation}"></span>
                                     <div class="d-flex gap-2">
                                         <button class="btn btn-outline-primary btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#modalEditAcademicSkill"
-                                                th:attr="data-id=${skill.id}, data-name=${skill.designation}">
-                                            <i class="bi bi-pencil"></i>
+                                                data-bs-toggle="modal" data-bs-target="#modalEditSkill"
+                                                th:attr="data-id=${skill.id},
+                                                data-name=${skill.designation},
+                                                data-title='<i class=\'bi bi-mortarboard me-2\'></i>Modifier une compétence académique',
+                                                data-action='/gestion/competences/academiques/' + ${skill.id} + '/modifier'">
+                                                <i class="bi bi-pencil"></i>
                                         </button>
                                         <button class="btn btn-outline-danger btn-sm"
                                                 data-bs-toggle="modal" data-bs-target="#modalDelete"
@@ -62,7 +67,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h2 class="h5 text-primary mb-0"><i class="bi bi-briefcase me-2"></i>Compétences métier</h2>
                                 <button class="btn btn-outline-primary btn-sm rounded-4"
-                                        data-bs-toggle="modal" data-bs-target="#modalAddJobSkill">
+                                        data-bs-toggle="modal" data-bs-target="#modalAddSkill"
+                                        data-title="<i class='bi bi-briefcase me-2'></i>Ajouter une compétence métier"
+                                        data-action="/gestion/competences/metier/ajouter">
                                     <i class="bi bi-plus-lg me-1"></i>Ajouter
                                 </button>
                             </div>
@@ -72,9 +79,12 @@
                                     <span th:text="${skill.designation}"></span>
                                     <div class="d-flex gap-2">
                                         <button class="btn btn-outline-primary btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#modalEditJobSkill"
-                                                th:attr="data-id=${skill.id}, data-name=${skill.designation}">
-                                            <i class="bi bi-pencil"></i>
+                                                data-bs-toggle="modal" data-bs-target="#modalEditSkill"
+                                                th:attr="data-id=${skill.id},
+                                                data-name=${skill.designation},
+                                                data-title='<i class=\'bi bi-briefcase me-2\'></i>Modifier une compétence métier',
+                                                data-action='/gestion/competences/metier/' + ${skill.id} + '/modifier'">
+                                                <i class="bi bi-pencil"></i>
                                         </button>
                                         <button class="btn btn-outline-danger btn-sm"
                                                 data-bs-toggle="modal" data-bs-target="#modalDelete"
@@ -134,24 +144,24 @@
 
 </main>
 
-<!-- Modal Ajouter compétence académique -->
-<div class="modal fade" id="modalAddAcademicSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<!-- Modal Ajouter compétence -->
+<div class="modal fade" id="modalAddSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
             <div class="modal-header text-bg-primary rounded-top-4">
-                <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Ajouter une compétence académique</h5>
+                <h5 class="modal-title" id="modalAddSkillTitle"></h5>
             </div>
             <div class="modal-body">
-                <form id="form-add-academic" th:action="@{/gestion/competences/academiques/ajouter}" method="post">
+                <form id="form-add-skill" method="post">
                     <div class="mb-3">
-                        <label for="academic-name" class="form-label">Désignation</label>
-                        <input id="academic-name" type="text" class="form-control" name="designation" required>
+                        <label for="skill-name" class="form-label">Désignation</label>
+                        <input id="skill-name" type="text" class="form-control" name="designation" required>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="form-add-academic" class="btn btn-primary">
+                <button type="submit" form="form-add-skill" class="btn btn-primary">
                     <i class="bi bi-plus-lg me-2"></i>Ajouter
                 </button>
             </div>
@@ -159,74 +169,24 @@
     </div>
 </div>
 
-<!-- Modal Modifier compétence académique -->
-<div class="modal fade" id="modalEditAcademicSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<!-- Modal Modifier compétence -->
+<div class="modal fade" id="modalEditSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4">
             <div class="modal-header text-bg-primary rounded-top-4">
-                <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Modifier une compétence académique</h5>
+                <h5 class="modal-title" id="modalEditSkillTitle"></h5>
             </div>
             <div class="modal-body">
-                <form id="form-edit-academic" method="post">
+                <form id="form-edit-skill" method="post">
                     <div class="mb-3">
-                        <label for="academic-edit-name" class="form-label">Désignation</label>
-                        <input id="academic-edit-name" type="text" class="form-control" name="designation" required>
+                        <label for="skill-edit-name" class="form-label">Désignation</label>
+                        <input id="skill-edit-name" type="text" class="form-control" name="designation" required>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="form-edit-academic" class="btn btn-primary">
-                    <i class="bi bi-floppy-fill me-2"></i>Enregistrer
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Ajouter compétence métier -->
-<div class="modal fade" id="modalAddJobSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4">
-            <div class="modal-header text-bg-primary rounded-top-4">
-                <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Ajouter une compétence métier</h5>
-            </div>
-            <div class="modal-body">
-                <form id="form-add-job" th:action="@{/gestion/competences/metier/ajouter}" method="post">
-                    <div class="mb-3">
-                        <label for="job-name" class="form-label">Désignation</label>
-                        <input id="job-name" type="text" class="form-control" name="designation" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="form-add-job" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-2"></i>Ajouter
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Modifier compétence métier -->
-<div class="modal fade" id="modalEditJobSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4">
-            <div class="modal-header text-bg-primary rounded-top-4">
-                <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Modifier une compétence métier</h5>
-            </div>
-            <div class="modal-body">
-                <form id="form-edit-job" method="post">
-                    <div class="mb-3">
-                        <label for="job-edit-name" class="form-label">Désignation</label>
-                        <input id="job-edit-name" type="text" class="form-control" name="designation" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                <button type="submit" form="form-edit-job" class="btn btn-primary">
+                <button type="submit" form="form-edit-skill" class="btn btn-primary">
                     <i class="bi bi-floppy-fill me-2"></i>Enregistrer
                 </button>
             </div>
@@ -297,16 +257,18 @@
 
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script>
-    document.getElementById('modalEditAcademicSkill').addEventListener('show.bs.modal', function(event) {
+    document.getElementById('modalAddSkill').addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
-        document.getElementById('academic-edit-name').value = button.getAttribute('data-name');
-        document.getElementById('form-edit-academic').action = '/gestion/competences/academiques/' + button.getAttribute('data-id') + '/modifier';
+        document.getElementById('modalAddSkillTitle').innerHTML = button.getAttribute('data-title');
+        document.getElementById('form-add-skill').action = button.getAttribute('data-action');
+        document.getElementById('skill-name').value = '';
     });
 
-    document.getElementById('modalEditJobSkill').addEventListener('show.bs.modal', function(event) {
+    document.getElementById('modalEditSkill').addEventListener('show.bs.modal', function(event) {
         const button = event.relatedTarget;
-        document.getElementById('job-edit-name').value = button.getAttribute('data-name');
-        document.getElementById('form-edit-job').action = '/gestion/competences/metier/' + button.getAttribute('data-id') + '/modifier';
+        document.getElementById('modalEditSkillTitle').innerHTML = button.getAttribute('data-title');
+        document.getElementById('skill-edit-name').value = button.getAttribute('data-name');
+        document.getElementById('form-edit-skill').action = button.getAttribute('data-action');
     });
 
     document.getElementById('modalEditStatus').addEventListener('show.bs.modal', function(event) {
