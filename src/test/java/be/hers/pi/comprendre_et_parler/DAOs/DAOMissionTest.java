@@ -138,7 +138,7 @@ class DAOMissionTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             missionDAO.delete(m2.getId());
@@ -195,16 +195,16 @@ class DAOMissionTest {
         LocalDate today = LocalDate.now();
         int todayYear = today.getYear();
         int todayWeek = today.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
-        Set<Mission> missions = missionDAO.getScheduleForWeek(todayYear, todayWeek - 1, 3);
+        Set<Mission> missions = missionDAO.getScheduleForWeek(3, todayYear, todayWeek - 1);
         assertTrue(missions.isEmpty(), "There are no missions for this week.");
 
-        missions = missionDAO.getScheduleForWeek(todayYear, todayWeek, 3);
+        missions = missionDAO.getScheduleForWeek(3, todayYear, todayWeek);
         assertEquals(1, missions.size(), "There is one mission for this week and this beneficiary.");
 
-        missions = missionDAO.getScheduleForWeek(todayYear, todayWeek, 1);
+        missions = missionDAO.getScheduleForWeek(1, todayYear, todayWeek);
         assertTrue(missions.isEmpty(), "There are no missions for this week and this interpreter.");
 
-        missions = missionDAO.getScheduleForWeek(todayYear, todayWeek, 2);
+        missions = missionDAO.getScheduleForWeek(2, todayYear, todayWeek);
         assertEquals(1, missions.size(), "There is one mission for this week and this interpreter.");
     }
 }
