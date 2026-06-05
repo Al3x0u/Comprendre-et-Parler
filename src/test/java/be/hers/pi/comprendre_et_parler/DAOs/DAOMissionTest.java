@@ -20,10 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOMissionTest {
-    public static Mission m1;
-    public static Mission m2;
-    public static Mission m3;
-    public final static DAOMission missionDAO = new DAOMission();
+    private static Mission m1;
+    private static Mission m2;
+    private static Mission m3;
+    private final static DAOMission missionDAO = new DAOMission();
+    private final static LocalDate today = LocalDate.now();
 
 
     @BeforeAll
@@ -39,17 +40,17 @@ class DAOMissionTest {
         new DAOJobSkill().create(js1);
         new DAOJobSkill().create(js2);
 
-        Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
+        Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", today.minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
-        Interpreter i2 = new Interpreter(1, "i260001", "Tata", "Tata", LocalDate.now().minusYears(50),
+        Interpreter i2 = new Interpreter(1, "i260001", "Tata", "Tata", today.minusYears(50),
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
         new DAOInterpreter().create(i1);
         new DAOInterpreter().create(i2);
 
         PunctualTimeSlot t1 = new PunctualTimeSlot(1, LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(2));
-        BaseTimeSlot t2 = new BaseTimeSlot(2, LocalDate.now(), LocalDate.now(), LocalTime.NOON,
+        BaseTimeSlot t2 = new BaseTimeSlot(2, today, today, LocalTime.NOON,
                 LocalTime.NOON.plusHours(1), DayOfWeek.MONDAY);
         new DAOPunctualTimeSlot().create(t1);
         new DAOBaseTimeSlot().create(t2);
@@ -60,7 +61,7 @@ class DAOMissionTest {
 
         Status s1 = new Status(1, "Test", 50);
         new DAOStatus().create(s1);
-        Beneficiary b1 = new Beneficiary(2, "test1", "Toto", "Toto", LocalDate.now().minusYears(10),
+        Beneficiary b1 = new Beneficiary(2, "test1", "Toto", "Toto", today.minusYears(10),
                 "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
         new DAOBeneficiary().create(b1);
 
@@ -179,7 +180,6 @@ class DAOMissionTest {
     @Test
     @Order(5)
     public void testGetAllMissionsForWeek() throws SQLException {
-        LocalDate today = LocalDate.now();
         int todayYear = today.getYear();
         int todayWeek = today.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
         Set<Mission> missions = missionDAO.getAllMissionsForWeek(todayYear, todayWeek - 1);
@@ -192,7 +192,6 @@ class DAOMissionTest {
     @Test
     @Order(6)
     public void testGetScheduleForWeek() throws SQLException {
-        LocalDate today = LocalDate.now();
         int todayYear = today.getYear();
         int todayWeek = today.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
         Set<Mission> missions = missionDAO.getScheduleForWeek(3, todayYear, todayWeek - 1);
@@ -202,9 +201,25 @@ class DAOMissionTest {
         assertEquals(1, missions.size(), "There is one mission for this week and this beneficiary.");
 
         missions = missionDAO.getScheduleForWeek(1, todayYear, todayWeek);
-        assertTrue(missions.isEmpty(), "There are no missions for this week and this interpreter.");
+        assertTrue(missions.isEmpty(), "There are no missions for this interpreter.");
 
         missions = missionDAO.getScheduleForWeek(2, todayYear, todayWeek);
         assertEquals(1, missions.size(), "There is one mission for this week and this interpreter.");
+    }
+
+    @Test
+    @Order(7)
+    public void testGetScheduleForDay() throws SQLException {
+        Set<Mission> missions = missionDAO.getScheduleForDay(3, today.minusDays(1));
+        assertTrue(missions.isEmpty(), "There are no missions for this day.");
+
+        missions = missionDAO.getScheduleForDay(3, today);
+        assertEquals(1, missions.size(), "There is one mission for this day and this beneficiary.");
+
+        missions = missionDAO.getScheduleForDay(1, today);
+        assertTrue(missions.isEmpty(), "There are no missions for this interpreter.");
+
+        missions = missionDAO.getScheduleForDay(2, today);
+        assertEquals(1, missions.size(), "There is one mission for this day and this interpreter.");
     }
 }
