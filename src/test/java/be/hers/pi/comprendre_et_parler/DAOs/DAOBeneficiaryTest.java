@@ -164,22 +164,6 @@ class DAOBeneficiaryTest {
 
     @Test
     @Order(7)
-    public void testUpdateInterpreterRef() {
-        assertThrows(NoSuchElementException.class, () -> {
-            beneficiaryDAO.updateInterpreterRef(50, 1);
-        }, "There is no Beneficiary with this ID.");
-
-        assertThrows(NoSuchElementException.class, () -> {
-            beneficiaryDAO.updateInterpreterRef(3, 50);
-        }, "There is no Interpreter with this ID.");
-
-        assertDoesNotThrow(() -> {
-            beneficiaryDAO.updateInterpreterRef(4, 4);
-        }, "The beneficiary's reference interpreter has been changed.");
-    }
-
-    @Test
-    @Order(8)
     public void testFindByStatus() throws SQLException {
         assertThrows(NoSuchElementException.class, () -> {
             beneficiaryDAO.findReferencedBeneficiaries(50);
@@ -192,13 +176,29 @@ class DAOBeneficiaryTest {
     }
 
     @Test
+    @Order(8)
+    public void testUpdateInterpreterRef() {
+        assertThrows(NoSuchElementException.class, () -> {
+            beneficiaryDAO.updateInterpreterRef(50, 1);
+        }, "There is no Beneficiary with this ID.");
+
+        assertThrows(SQLException.class, () -> {
+            beneficiaryDAO.updateInterpreterRef(3, 50);
+        }, "There is no Interpreter with this ID.");
+
+        assertDoesNotThrow(() -> {
+            beneficiaryDAO.updateInterpreterRef(4, 2);
+        }, "The beneficiary's reference interpreter has been changed.");
+    }
+
+    @Test
     @Order(9)
     public void testUpdateStatus() {
         assertThrows(NoSuchElementException.class, () -> {
             beneficiaryDAO.updateStatus(50, 1);
         }, "There is no Beneficiary with this ID.");
 
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(SQLException.class, () -> {
             beneficiaryDAO.updateStatus(3, 50);
         }, "There is no Status with this ID.");
 
