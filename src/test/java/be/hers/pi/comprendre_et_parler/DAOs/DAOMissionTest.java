@@ -40,6 +40,9 @@ class DAOMissionTest {
         new DAOJobSkill().create(js1);
         new DAOJobSkill().create(js2);
 
+        AcademicSkill as1 = new AcademicSkill("Math");
+        new DAOAcademicSkill().create(as1);
+
         Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", today.minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
@@ -65,13 +68,13 @@ class DAOMissionTest {
                 "1234", "toto@gmail.com", "123/45.67.89", s1, i1);
         new DAOBeneficiary().create(b1);
 
-        m1 = new Mission(75, "Regular mission", MissionState.PENDING, "regular", t2,
+        m1 = new Mission(75, "Pending mission", MissionState.PENDING, "pending", t1,
                 l1, new HashSet<>(), null, null, "B7", 2);
         m1.addInterpreter(i1);
-        m2 = new Mission(2, "Pending mission", MissionState.PENDING, "pending", t1,
-                b1, l1, js1, null, "ABC", 0);
-        m3 = new Mission(4, "Accepted mission", MissionState.ACCEPTED, "accepted", t1,
-                l1, new HashSet<>(), null, null, "A34", 3);
+        m2 = new Mission(2, "Regular mission", MissionState.REGULAR, "regular", t2,
+                b1, l1, js1, as1, "ABC", 0);
+        m3 = new Mission(4, "DEneid mission", MissionState.DENIED, "denied", t1,
+                b1, l1, js2, as1, "A34", 3);
         m3.addInterpreter(i2);
     }
 
@@ -139,7 +142,7 @@ class DAOMissionTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             missionDAO.delete(m2.getId());
@@ -198,7 +201,7 @@ class DAOMissionTest {
         assertTrue(missions.isEmpty(), "There are no missions for this week.");
 
         missions = missionDAO.getScheduleForWeek(3, todayYear, todayWeek);
-        assertEquals(1, missions.size(), "There is one mission for this week and this beneficiary.");
+        assertEquals(2, missions.size(), "There are two missions for this week and this beneficiary.");
 
         missions = missionDAO.getScheduleForWeek(1, todayYear, todayWeek);
         assertTrue(missions.isEmpty(), "There are no missions for this interpreter.");
@@ -214,7 +217,7 @@ class DAOMissionTest {
         assertTrue(missions.isEmpty(), "There are no missions for this day.");
 
         missions = missionDAO.getScheduleForDay(3, today);
-        assertEquals(1, missions.size(), "There is one mission for this day and this beneficiary.");
+        assertEquals(2, missions.size(), "There are two missions for this day and this beneficiary.");
 
         missions = missionDAO.getScheduleForDay(1, today);
         assertTrue(missions.isEmpty(), "There are no missions for this interpreter.");
