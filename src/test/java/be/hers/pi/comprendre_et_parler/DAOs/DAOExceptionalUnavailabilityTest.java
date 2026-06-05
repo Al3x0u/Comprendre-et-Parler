@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOExceptionalUnavailabilityTest {
-    public static ExceptionalUnavailability u1;
-    public static ExceptionalUnavailability u2;
-    public static ExceptionalUnavailability u3;
-    public static Interpreter i1;
-    public static Interpreter i2;
-    public final static DAOExceptionalUnavailability unavailabilityDAO = new DAOExceptionalUnavailability();
-    public final static LocalDateTime today = LocalDateTime.now();
+    private static ExceptionalUnavailability u1;
+    private static ExceptionalUnavailability u2;
+    private static ExceptionalUnavailability u3;
+    private static Interpreter i1;
+    private static Interpreter i2;
+    private final static DAOExceptionalUnavailability unavailabilityDAO = new DAOExceptionalUnavailability();
+    private final static LocalDateTime today = LocalDateTime.now();
 
     @BeforeAll
     public static void init() throws SQLException {

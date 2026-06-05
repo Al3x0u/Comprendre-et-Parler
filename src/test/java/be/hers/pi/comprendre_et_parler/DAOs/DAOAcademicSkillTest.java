@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOAcademicSkillTest {
-    public static AcademicSkill a1;
-    public static AcademicSkill a2;
-    public static AcademicSkill a3;
-    public final static DAOAcademicSkill academicSkillDAO = new DAOAcademicSkill();
+    private static AcademicSkill a1;
+    private static AcademicSkill a2;
+    private static AcademicSkill a3;
+    private final static DAOAcademicSkill academicSkillDAO = new DAOAcademicSkill();
 
     @BeforeAll
     public static void init() {

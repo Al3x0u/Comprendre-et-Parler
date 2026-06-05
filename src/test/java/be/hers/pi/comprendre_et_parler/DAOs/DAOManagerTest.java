@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOManagerTest {
-    public static Manager m1;
-    public static Manager m2;
-    public static Manager m3;
-    public final static DAOManager managerDAO = new DAOManager();
+    private static Manager m1;
+    private static Manager m2;
+    private static Manager m3;
+    private final static DAOManager managerDAO = new DAOManager();
 
     @BeforeAll
     public static void init() throws SQLException {

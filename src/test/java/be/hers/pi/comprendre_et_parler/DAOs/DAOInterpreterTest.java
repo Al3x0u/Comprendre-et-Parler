@@ -19,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOInterpreterTest {
-    public static Interpreter i1;
-    public static Interpreter i2;
-    public static Interpreter i3;
-    public final static DAOInterpreter interpreterDAO = new DAOInterpreter();
+    private static Interpreter i1;
+    private static Interpreter i2;
+    private static Interpreter i3;
+    private final static DAOInterpreter interpreterDAO = new DAOInterpreter();
 
     @BeforeAll
     public static void init() throws SQLException {

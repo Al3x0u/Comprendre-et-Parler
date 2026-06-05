@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOJobSkillTest {
-    public static JobSkill j1;
-    public static JobSkill j2;
-    public static JobSkill j3;
-    public final static DAOJobSkill jobSkillDAO = new DAOJobSkill();
+    private static JobSkill j1;
+    private static JobSkill j2;
+    private static JobSkill j3;
+    private final static DAOJobSkill jobSkillDAO = new DAOJobSkill();
 
 
     @BeforeAll

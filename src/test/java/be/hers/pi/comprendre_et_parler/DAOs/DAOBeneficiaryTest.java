@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOBeneficiaryTest {
-    public static Beneficiary b1;
-    public static Beneficiary b2;
-    public static Beneficiary b3;
-    public final static DAOBeneficiary beneficiaryDAO = new DAOBeneficiary();
+    private static Beneficiary b1;
+    private static Beneficiary b2;
+    private static Beneficiary b3;
+    private final static DAOBeneficiary beneficiaryDAO = new DAOBeneficiary();
 
     @BeforeAll
     public static void init() throws SQLException {
