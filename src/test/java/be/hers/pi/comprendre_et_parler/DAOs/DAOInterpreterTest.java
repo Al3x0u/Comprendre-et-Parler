@@ -117,7 +117,7 @@ class DAOInterpreterTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             interpreterDAO.delete(i2.getId());
@@ -143,5 +143,11 @@ class DAOInterpreterTest {
         assertEquals(2, interpreters.size(), "There are two objects in the database.");
         assertTrue(interpreters.contains(i1));
         assertTrue(interpreters.contains(i2));
+    }
+
+    @Test
+    @Order(6)
+    public void testCount() throws SQLException {
+        assertEquals(2, interpreterDAO.count(), "There are two interpreters in the database.");
     }
 }
