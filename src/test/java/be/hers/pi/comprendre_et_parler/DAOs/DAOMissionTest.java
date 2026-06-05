@@ -11,6 +11,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -47,7 +48,7 @@ class DAOMissionTest {
         new DAOInterpreter().create(i1);
         new DAOInterpreter().create(i2);
 
-        PunctualTimeSlot t1 = new PunctualTimeSlot(1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(10));
+        PunctualTimeSlot t1 = new PunctualTimeSlot(1, LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(2));
         BaseTimeSlot t2 = new BaseTimeSlot(2, LocalDate.now(), LocalDate.now(), LocalTime.NOON,
                 LocalTime.NOON.plusHours(1), DayOfWeek.MONDAY);
         new DAOPunctualTimeSlot().create(t1);
@@ -137,7 +138,7 @@ class DAOMissionTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             missionDAO.delete(m2.getId());
@@ -169,9 +170,22 @@ class DAOMissionTest {
         }
 
         assertTrue(missionsUpdated.contains(m1));
-        assertFalse(missionsUpdated.contains(m2));
+        assertFalse(missionsUpdated.contains(m2), "The interpreter set was not initialized.");
 
         m2.setInterpreters(new HashSet<>());
         assertTrue(missionsUpdated.contains(m2));
+    }
+
+    @Test
+    @Order(5)
+    public void testGetAllMissionsForWeek() throws SQLException {
+        LocalDate today = LocalDate.now();
+        int todayYear = today.getYear();
+        int todayWeek = today.get(ChronoField.ALIGNED_WEEK_OF_YEAR);
+        Set<Mission> missions = missionDAO.getAllMissionsForWeek(todayYear, todayWeek - 1);
+        assertTrue(missions.isEmpty(), "There are no missions for this week.");
+
+        missions = missionDAO.getAllMissionsForWeek(todayYear, todayWeek);
+        assertEquals(2, missions.size(), "There are two missions for this week.");
     }
 }
