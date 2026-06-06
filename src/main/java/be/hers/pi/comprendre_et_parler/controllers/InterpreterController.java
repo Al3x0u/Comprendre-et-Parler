@@ -122,15 +122,15 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter profile edit form
      * @param id the id of the interpreter to update
-     * @param returnUrl the URL of the page the user wants to go to
      * @param formInterpreter the form containing the updated information
+     * @param birthdate the birthdate of the interpreter
      * @return the interpreter's profile views on success, or the list on error
      */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute("interprete") Interpreter formInterpreter,
-                                           @RequestParam(required = false) String returnUrl) {
-        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
+                                           @ModelAttribute("birthdate") LocalDate birthdate) {
+        return "redirect:/interpretes/profil/" + id;
     }
 
     /**
@@ -165,33 +165,29 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter creation form.
      * @param interpreterForm the form containing the new interpreter's information
-     * @param returnUrl the URL of the page the user wants to go to
+     * @param birthdate the birthdate of the interpreter
      * @param model the Spring model to populate
      * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
                                     @ModelAttribute("birthdate") LocalDate birthdate,
-                                    @RequestParam(required = false) String returnUrl,
                                     Model model) {
-        if (returnUrl == null) {
-            try {
-                interpreterForm.setBirthDate(birthdate);
-                UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
-                model.addAttribute("newUser", newUser);
-                model.addAttribute("submitState", "success");
-                model.addAttribute("interpreterForm", new CreateInterpreterForm());
-            } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "Cet utilisateur existe déjà");
-            } catch (Exception e) {
-                e.printStackTrace();
-                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-            } finally {
-                populateCreationModel(model, interpreterForm.getCityId());
-                return "interpreters/creation";
-            }
+        try {
+            interpreterForm.setBirthDate(birthdate);
+            UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
+            model.addAttribute("newUser", newUser);
+            model.addAttribute("submitState", "success");
+            model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+        } finally {
+            populateCreationModel(model, interpreterForm.getCityId());
+            return "interpreters/creation";
         }
-        return "redirect:" + returnUrl;
     }
 
     /**

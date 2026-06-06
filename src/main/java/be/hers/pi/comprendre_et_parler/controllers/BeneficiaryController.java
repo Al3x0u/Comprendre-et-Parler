@@ -141,32 +141,29 @@ public class BeneficiaryController {
     /**
      * Handle the submission of the beneficiary creation form.
      * @param beneficiaryForm the form containing the new beneficiary's information
+     * @param birthdate the birthdate of the beneficiary
      * @param model the Spring model to populate
      * @return the creation view with credentials on success, or a redirect on error
      */
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
                                     @ModelAttribute("birthdate") LocalDate birthdate,
-                                    @RequestParam(required = false) String returnUrl,
                                     Model model) {
-        if (returnUrl == null) {
-            try {
-                beneficiaryForm.setBirthDate(birthdate);
-                UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
-                model.addAttribute("newUser", newUser);
-                model.addAttribute("submitState", "success");
-                model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-            } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "Cet utilisateur existe déjà");
-            } catch (Exception e) {
-                e.printStackTrace();
-                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-            } finally {
-                populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
-                return "beneficiaries/creation";
-            }
+        try {
+            beneficiaryForm.setBirthDate(birthdate);
+            UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
+            model.addAttribute("newUser", newUser);
+            model.addAttribute("submitState", "success");
+            model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+        } finally {
+            populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
+            return "beneficiaries/creation";
         }
-        return "redirect:" + returnUrl;
     }
 
     /**
@@ -214,11 +211,15 @@ public class BeneficiaryController {
      * Handle the submission of the beneficiary profile edit form.
      * @param id the id of the beneficiary to update
      * @param form the form containing the updated information
+     * @param birthdate the birthdate of the beneficiary
      * @return a redirect to the beneficiary's profile on success, or to the list on error
      */
     @PostMapping("/profil/{id}/modifier")
-    public String updateBeneficiary(@PathVariable int id, @ModelAttribute UpdateBeneficiaryForm form){
+    public String updateBeneficiary(@PathVariable int id,
+                                    @ModelAttribute UpdateBeneficiaryForm form,
+                                    @ModelAttribute("birthdate") LocalDate birthdate){
         try{
+            form.setBirthDate(birthdate);
             beneficiaryService.updateBeneficiary(id, form);
         } catch (SQLException e) {
             return "redirect:/beneficiaires";
