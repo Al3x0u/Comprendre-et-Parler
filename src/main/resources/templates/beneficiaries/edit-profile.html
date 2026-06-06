@@ -6,6 +6,9 @@
 <div th:replace="~{common/navbar :: navbar}"></div>
 
 <main class="container py-4 md-5">
+    <div th:if="${submitState != null}">
+        <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
+    </div>
 
     <div class="card border-0 rounded-4 shadow-sm">
 

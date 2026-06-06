@@ -5,14 +5,12 @@
 <body>
 <div th:replace="~{common/navbar :: navbar}"></div>
 <main class="container py-4">
-    <div>
-        <div th:if="${submitState != null}">
-            <div th:if="${submitState == 'success'}">
-                <div th:replace="~{common/modal-creation :: modal-success}"></div>
-            </div>
-            <div th:unless="${submitState  == 'success'}">
-                <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
-            </div>
+    <div th:if="${submitState != null}">
+        <div th:if="${submitState == 'success'}">
+            <div th:replace="~{common/modal-creation :: modal-success}"></div>
+        </div>
+        <div th:unless="${submitState  == 'success'}">
+            <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
         </div>
     </div>
 

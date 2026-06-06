@@ -116,9 +116,7 @@ public class BeneficiaryController {
             model.addAttribute("updateBeneficiaryForm", new UpdateBeneficiaryForm(beneficiary));
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == beneficiary.getId());
-        } catch (SQLException e) {
-            return "redirect:/beneficiaires";
-        } catch (ConnectionException e) {
+        } catch (SQLException | ConnectionException e) {
             return "redirect:/beneficiaires";
         }
         return "beneficiaries/edit-profile";
@@ -212,15 +210,20 @@ public class BeneficiaryController {
      * @param id the id of the beneficiary to update
      * @param form the form containing the updated information
      * @param birthdate the birthdate of the beneficiary
+     * @param model the Spring model to populate
      * @return a redirect to the beneficiary's profile on success, or to the list on error
      */
     @PostMapping("/profil/{id}/modifier")
     public String updateBeneficiary(@PathVariable int id,
                                     @ModelAttribute UpdateBeneficiaryForm form,
-                                    @ModelAttribute("birthdate") LocalDate birthdate){
+                                    @ModelAttribute("birthdate") LocalDate birthdate,
+                                    Model model){
         try{
             form.setBirthDate(birthdate);
             beneficiaryService.updateBeneficiary(id, form);
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            return "beneficiaries/edit-profile";
         } catch (SQLException e) {
             return "redirect:/beneficiaires";
         }
