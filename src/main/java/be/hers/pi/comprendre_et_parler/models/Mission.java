@@ -344,20 +344,12 @@ public class Mission {
         if (!(o instanceof Mission)) return false;
 
         Mission other = (Mission) o;
-        boolean isInterpretersEquals = interpreters != null && other.interpreters != null;
-        if (isInterpretersEquals) {
-            isInterpretersEquals = interpreters.size() == other.interpreters.size()
-                    && (Objects.equals(interpreters.stream().map(i -> i.getLogin()).toList(),
-                    other.interpreters.stream().map(i -> i.getLogin()).toList()));
-        } else {
-            isInterpretersEquals = interpreters == null && other.interpreters == null;
-        }
-
-        return isInterpretersEquals && subject.equals(other.subject)
+        return subject.equals(other.subject)
                 && stateOfMission.equals(other.stateOfMission)
                 && (Objects.equals(commentary, other.commentary))
                 && timeSlot.equals(other.timeSlot)
-                && (beneficiary == other.beneficiary || (Objects.equals(beneficiary.getLogin(), other.beneficiary.getLogin())))
+                && (Objects.equals(beneficiary, other.beneficiary))
+                && (Objects.equals(interpreters, other.interpreters))
                 && location.equals(other.location)
                 && (Objects.equals(jobSkill, other.jobSkill))
                 && (Objects.equals(academicSkill, other.academicSkill))

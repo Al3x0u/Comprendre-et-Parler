@@ -315,6 +315,25 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * Compares two Interpreter lexicographically according to their designations
+     * @param i The second interpreter to compare to this
+     * @return The result is a negative integer if this Interpreter.firstName lexicographically precedes the other Interpreter.firstName.
+     * The result is a positive integer if this Interpreter.firstName lexicographically follows the other Interpreter.firstName.
+     * If the firstName are the same, compare lastName.
+     * If the lastName are the same, compare login.
+     * If the login are the same, return 0.
+     */
+    public int compareTo(Interpreter i) {
+        int res = firstName.compareTo(i.firstName);
+        if (res == 0) {
+            res = lastName.compareTo(i.lastName);
+            if (res == 0)
+                res = login.compareTo(i.login);
+        }
+        return res;
+    }
+
+    /**
      * Computes the hash code of this Interpreter
      * two Interpreter objects that are equal according to equals() will have the same hash code
      * @return an integer hash code representing this Interpreter

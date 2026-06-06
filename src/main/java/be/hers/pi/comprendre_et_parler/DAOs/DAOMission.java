@@ -124,9 +124,9 @@ public class DAOMission extends DAO<Mission> {
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
-        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
+        String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
-                FIELD_ROOM, FIELD_BENEFICIARY, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID);
+                FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID);
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
@@ -137,21 +137,17 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(5, objectToUpdate.getLocation().getId());
             statement.setString(6, objectToUpdate.getRoom());
 
-            if(objectToUpdate.getBeneficiary() == null)
+            if(objectToUpdate.getJobSkill() == null)
                 statement.setNull(7, Types.INTEGER);
             else
-                statement.setInt(7, objectToUpdate.getBeneficiary().getId());
-            if(objectToUpdate.getJobSkill() == null)
+                statement.setInt(7, objectToUpdate.getJobSkill().getId());
+            if (objectToUpdate.getAcademicSkill() == null)
                 statement.setNull(8, Types.INTEGER);
             else
-                statement.setInt(8, objectToUpdate.getJobSkill().getId());
-            if (objectToUpdate.getAcademicSkill() == null)
-                statement.setNull(9, Types.INTEGER);
-            else
-                statement.setInt(9, objectToUpdate.getAcademicSkill().getId());
+                statement.setInt(8, objectToUpdate.getAcademicSkill().getId());
 
-            statement.setInt(10, objectToUpdate.getImportance());
-            statement.setInt(11, objectToUpdate.getId());
+            statement.setInt(9, objectToUpdate.getImportance());
+            statement.setInt(10, objectToUpdate.getId());
 
             statement.executeUpdate();
 
@@ -206,20 +202,20 @@ public class DAOMission extends DAO<Mission> {
                 "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
                 " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
                 "WHERE " +
-                    // status is the same
-                    "m." + FIELD_STATE + " = ? " +
-                    // timeslots overlap
-                    "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
-                    " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
-                    //
-                    " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
-                        "OR m." + FIELD_ID + " IN " +
-                            "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
-                                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
-                                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
-                                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
-                            ")" +
-                    ")";
+                // status is the same
+                "m." + FIELD_STATE + " = ? " +
+                // timeslots overlap
+                "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
+                " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
+                //
+                " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
+                "OR m." + FIELD_ID + " IN " +
+                "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
+                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
+                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
+                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
+                ")" +
+                ")";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
@@ -331,14 +327,14 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT m.id FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE (" +
-                    "ts.day = ? " + // timeslot is base and happens on the correct day
-                    "OR (ts.day IS NULL AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?)" + // timeslot is punctual and happens on the correct date
+                "ts.day = ? " + // timeslot is base and happens on the correct day
+                "OR (ts.day IS NULL AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?)" + // timeslot is punctual and happens on the correct date
                 ") " +
                 "AND (" +
-                    "m.id IN " +
-                        "(SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
-                        " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // mission is assigned to idUser (idUser is an Interpreter)
-                    "OR m." + FIELD_BENEFICIARY + " = ?" + // mission is assigned to idUser (idUser is a Beneficiary)
+                "m.id IN " +
+                "(SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
+                " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // mission is assigned to idUser (idUser is an Interpreter)
+                "OR m." + FIELD_BENEFICIARY + " = ?" + // mission is assigned to idUser (idUser is a Beneficiary)
                 ")";
         PreparedStatement statement = null;
         ResultSet result = null;
