@@ -44,9 +44,11 @@ class DAOMissionTest {
         Interpreter i1 = new Interpreter(75, "test1", "Toto", "Toto", today.minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i1.setUnavailability(new HashSet<>());
         Interpreter i2 = new Interpreter(1, "i260001", "Tata", "Tata", today.minusYears(50),
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i2.setUnavailability(new HashSet<>());
         new DAOInterpreter().create(i1);
         new DAOInterpreter().create(i2);
 

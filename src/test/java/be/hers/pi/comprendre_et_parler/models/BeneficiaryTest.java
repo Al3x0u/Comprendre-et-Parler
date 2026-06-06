@@ -1,9 +1,11 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOCity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,9 +14,12 @@ class BeneficiaryTest {
 
     @BeforeAll
     public static void init() {
+        City c1 = new City("Bruxelles", 1000);
+        Location l1 = new Location("Ici", c1, "Test", "a3", 1);
         Interpreter i1 = new Interpreter(1, "1", "Test", "Test", LocalDate.now(),
                 "1234", "test@gmail.com", "123/45.67.89", 10, 120,
-                "Auto", null, null, null, null);
+                "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i1.setUnavailability(new HashSet<>());
         b1 = new Beneficiary(1, "1", "Test", "Test", LocalDate.now(),
                 "1234", "test@gmail.com", "123/45.67.89",
                 new Status(1, "Test", 10), i1);

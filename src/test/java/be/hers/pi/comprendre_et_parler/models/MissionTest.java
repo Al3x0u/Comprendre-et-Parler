@@ -16,7 +16,8 @@ class MissionTest {
     public static void init() {
         Interpreter i1 = new Interpreter(1, "1", "Test", "Test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
-                "Velo", null, null, null, null);
+                "Velo", new HashSet<>(), new HashSet<>(), null, new HashSet<>());
+        i1.setUnavailability(new HashSet<>());
         Beneficiary b1 = new Beneficiary(2, "2", "Test", "Test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
         m1 = new Mission(1,
                 "Test",

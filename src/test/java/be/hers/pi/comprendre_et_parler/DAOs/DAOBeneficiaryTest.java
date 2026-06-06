@@ -31,6 +31,7 @@ class DAOBeneficiaryTest {
         Interpreter i1 = new Interpreter(1, "b741985", "Alice", "Charpentier", LocalDate.now().minusYears(25),
                 "yth794t8rg", "alice@gmail.com", "4865/75.98.24", 20, 300,
                 "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
+        i1.setUnavailability(new HashSet<>());
         new DAOInterpreter().create(i1);
 
         Status s1 = new Status(1, "Test", 50);
