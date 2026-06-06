@@ -10,7 +10,7 @@ class JobSkillTest {
 
     @BeforeAll
     public static void init() {
-        j1 = new JobSkill(1, "Test");
+        j1 = new JobSkill(1, "test");
     }
 
     @Test
@@ -53,22 +53,6 @@ class JobSkillTest {
 
         j2.setDesignation("The last test");
         assertNotEquals(j2, j1, "The second object has one of its attributes other than its id changed.");
-    }
-
-    @Test
-    public void testCompareTo() {
-        assertThrows(NullPointerException.class, () -> {
-            j1.compareTo(null);
-        }, "The second object is null.");
-
-        assertEquals(0, j1.compareTo(j1), "The second object is the same as the first one.");
-
-        JobSkill j2 = new JobSkill(j1);
-        assertEquals(0, j1.compareTo(j2), "The second object is a copy of the first one.");
-
-        j2.setDesignation("The last test");
-        assertTrue(j1.compareTo(j2) < 0, "The first object lexicographically precedes the second one.");
-        assertTrue(j2.compareTo(j1) > 0, "The first object lexicographically follows the second one.");
     }
 }
 

@@ -18,12 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOBaseTimeSlotTest {
-    private static BaseTimeSlot b1;
-    private static BaseTimeSlot b2;
-    private static BaseTimeSlot b3;
-    private final static DAOBaseTimeSlot baseTimeSlotDAO = new DAOBaseTimeSlot();
-    private final static LocalDate today = LocalDate.now();
-    private final static LocalTime noon = LocalTime.NOON;
+    public static BaseTimeSlot b1;
+    public static BaseTimeSlot b2;
+    public static BaseTimeSlot b3;
+    public final static DAOBaseTimeSlot baseTimeSlotDAO = new DAOBaseTimeSlot();
+    public final static LocalDate today = LocalDate.now();
+    public final static LocalTime noon = LocalTime.NOON;
 
     @BeforeAll
     public static void init() throws SQLException {

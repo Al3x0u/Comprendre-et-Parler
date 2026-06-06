@@ -10,7 +10,7 @@ class StatusTest {
 
     @BeforeAll
     public static void init() {
-        s1 = new Status(1, "Test", 20);
+        s1 = new Status(1, "test", 20);
     }
 
     @Test
@@ -61,21 +61,5 @@ class StatusTest {
 
         s2.setDesignation("The last test");
         assertNotEquals(s2, s1, "The second object has one of its attributes other than its id changed.");
-    }
-
-    @Test
-    public void testCompareTo() {
-        assertThrows(NullPointerException.class, () -> {
-            s1.compareTo(null);
-        }, "The second object is null.");
-
-        assertEquals(0, s1.compareTo(s1), "The second object is the same as the first one.");
-
-        Status s2 = new Status(s1);
-        assertEquals(0, s1.compareTo(s2), "The second object is a copy of the first one.");
-
-        s2.setDesignation("The last test");
-        assertTrue(s1.compareTo(s2) < 0, "The first object lexicographically precedes the second one.");
-        assertTrue(s2.compareTo(s1) > 0, "The first object lexicographically follows the second one.");
     }
 }

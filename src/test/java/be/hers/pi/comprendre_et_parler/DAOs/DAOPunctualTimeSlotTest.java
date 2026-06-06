@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOPunctualTimeSlotTest {
-    private static PunctualTimeSlot p1;
-    private static PunctualTimeSlot p2;
-    private static PunctualTimeSlot p3;
-    private final static DAOPunctualTimeSlot punctualTimeSlotDAO = new DAOPunctualTimeSlot();
-    private final static LocalDateTime today = LocalDateTime.now();
+    public static PunctualTimeSlot p1;
+    public static PunctualTimeSlot p2;
+    public static PunctualTimeSlot p3;
+    public final static DAOPunctualTimeSlot punctualTimeSlotDAO = new DAOPunctualTimeSlot();
+    public final static LocalDateTime today = LocalDateTime.now();
 
     @BeforeAll
     public static void init() throws SQLException {

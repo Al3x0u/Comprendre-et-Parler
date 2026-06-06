@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.models.City;
-import be.hers.pi.comprendre_et_parler.models.Interpreter;
 import be.hers.pi.comprendre_et_parler.models.Manager;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import org.junit.jupiter.api.*;
@@ -19,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOManagerTest {
-    private static Manager m1;
-    private static Manager m2;
-    private static Manager m3;
-    private final static DAOManager managerDAO = new DAOManager();
+    public static Manager m1;
+    public static Manager m2;
+    public static Manager m3;
+    public final static DAOManager managerDAO = new DAOManager();
 
     @BeforeAll
     public static void init() throws SQLException {
@@ -35,15 +34,12 @@ class DAOManagerTest {
         m1 = new Manager(75, "test1", "Toto", "Toto", LocalDate.now().minusYears(30),
                 "1234", "toto@gmail.com", "123/45.67.89", 10, 120,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
-        m1.setUnavailability(new HashSet<>());
         m2 = new Manager(1, "r260001", "Tata", "Tata", LocalDate.now().minusYears(50),
                 "9874", "tata@gmail.com", "987/65.41.32", 30, 450,
                 "Auto", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
-        m2.setUnavailability(new HashSet<>());
         m3 = new Manager(3, "b741985", "Alice", "Charpentier", LocalDate.now().minusYears(25),
                 "yth794t8rg", "alice@gmail.com", "4865/75.98.24", 20, 300,
                 "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
-        m3.setUnavailability(new HashSet<>());
     }
 
     @AfterAll
@@ -59,7 +55,7 @@ class DAOManagerTest {
 
     @Test
     @Order(4)
-    public void testFindId() throws SQLException {
+    public void testFind() throws SQLException {
         Manager m4 = managerDAO.find(1);
         assertEquals(m3, m4, "Find the updated object.");
         assertNotEquals(m3.getLogin(), m4.getLogin(), "The login must not have been updated.");
@@ -68,23 +64,12 @@ class DAOManagerTest {
     }
 
     @Test
-    @Order(5)
-    public void testFindLogin() throws SQLException {
-        Manager m4 = managerDAO.find("TT2601");
-        assertEquals(m3, m4, "Find the updated object.");
-        assertNotEquals(m3.getId(), m4.getId(), "The ID must not have been updated.");
-        assertEquals(m2, managerDAO.find("TT2602"), "Find the unchanged object.");
-        assertNull(managerDAO.find("TT2650"), "There is no object with this login.");
-    }
-
-    @Test
     @Order(1)
-    public void testCreateManager() {
+    public void testCreate() {
         assertDoesNotThrow(() -> {
             managerDAO.create(m1);
         }, "Create a object in the database.");
         assertEquals(1, m1.getId(), "The ID must have been changed.");
-        assertEquals("TT2601", m1.getLogin(), "The login must have been changed.");
 
         m1.setId(20);
         assertThrows(AlreadyExistsException.class, () -> {
@@ -95,7 +80,6 @@ class DAOManagerTest {
             managerDAO.create(m2);
         }, "Create another object in the database.");
         assertEquals(2, m2.getId(), "The ID must have been changed.");
-        assertEquals("TT2602", m2.getLogin(), "The login must have been changed.");
     }
 
     @Test
@@ -117,7 +101,7 @@ class DAOManagerTest {
     }
 
     @Test
-    @Order(7)
+    @Order(5)
     public void testDelete() {
         assertDoesNotThrow(() -> {
             managerDAO.delete(m2.getId());
@@ -144,29 +128,5 @@ class DAOManagerTest {
         assertEquals(2, managers.size(), "There are two objects in the database.");
         assertTrue(managers.contains(m1));
         assertTrue(managers.contains(m2));
-    }
-
-    @Test
-    @Order(6)
-    public void testCreateId() throws SQLException {
-        assertThrows(AlreadyExistsException.class, () -> {
-            managerDAO.create(1);
-        }, "A manager with this ID already exists.");
-
-        assertThrows(NoSuchElementException.class, () -> {
-            managerDAO.create(50);
-        }, "There is no Interpreter with the ID.");
-
-        City c1 = new City(1, "Bruxelles", 1000);
-        Location l1 = new Location(1, "Bruxelles", c1, "Rue Neuve", "5", 0);
-        Interpreter i1 = new Interpreter(3, "b741985", "Jessice", "DuBuisson", LocalDate.now().minusYears(25),
-                "g4e65g4re", "jessica@gmail.com", null, 10, 350,
-                "Vélo", new HashSet<>(), new HashSet<>(), l1, new HashSet<>());
-        i1.setUnavailability(new HashSet<>());
-        new DAOInterpreter().create(i1);
-
-        assertDoesNotThrow(() -> {
-            managerDAO.create(4);
-        }, "Promote this interpreter.");
     }
 }

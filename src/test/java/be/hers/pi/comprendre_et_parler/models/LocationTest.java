@@ -12,7 +12,7 @@ class LocationTest {
     @BeforeAll
     public static void init() {
         c1 = new City(1, "Libramont", 6800);
-        l1 = new Location(1, "Test", c1, "Test", "Test", 1);
+        l1 = new Location(1, "test", c1, "test", "test", 1);
     }
 
     @Test
