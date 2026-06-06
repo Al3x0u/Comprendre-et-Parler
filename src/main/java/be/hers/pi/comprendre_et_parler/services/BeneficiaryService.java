@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class BeneficiaryService {
@@ -74,8 +75,24 @@ public class BeneficiaryService {
      * @throws SQLException if any other database error occurs
      */
     public List<Beneficiary> getAllBeneficiaries()throws ConnectionException, SQLException {
-        return new ArrayList<>(SQLWrap.call(new DAOBeneficiary()::findAll));
+        return new ArrayList<>(SQLWrap.call(daoBeneficiary::findAll));
     }
+
+    /**
+     * @return all beneficiaries referenced by the interpreter with the given id present in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public Set<Beneficiary> getBeneficiariesOf(int idInterpreter)throws ConnectionException, SQLException {
+        return SQLWrap.call(daoBeneficiary::findReferencedBeneficiaries, idInterpreter);
+    }
+
+    /**
+    private void sortBeneficiaries(List<Beneficiary> allBeneficiaries) {
+        allBeneficiaries.sort(Beneficiary::compareTo);
+        return allBeneficiaries;
+    }
+     */
 
     /**
      * Calculate the age of a person based on their birthdate.

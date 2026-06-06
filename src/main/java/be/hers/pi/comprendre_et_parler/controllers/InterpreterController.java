@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -22,7 +20,7 @@ import java.util.List;
 public class InterpreterController {
 
     private final InterpreterService interpreterService = new InterpreterService();
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     /**
      * Display the paginated and filtered list of interpreters
@@ -78,11 +76,9 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
-            List<Beneficiary> beneficiaries = new ArrayList<>(
-                    SQLWrap.call(daoBeneficiary::findReferencedBeneficiaries, id));
+            interpreter.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(id));
 
             model.addAttribute("interprete", interpreter);
-            model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
