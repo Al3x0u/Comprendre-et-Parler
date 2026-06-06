@@ -28,19 +28,7 @@ public class PasswordService {
     public void changePassword(AppliUser user, String newPassword) throws SQLException, ConnectionException {
         String hashedNewPassword = encoder.encode(newPassword);
         user.setHashedPassword(hashedNewPassword);
-
-        if(user instanceof Manager){
-            DAOManager dao = new DAOManager();
-            SQLWrap.callTransaction(dao::update, (Manager) user);
-        } else if(user instanceof Interpreter){
-            DAOInterpreter dao = new DAOInterpreter();
-            SQLWrap.callTransaction(dao::update, (Interpreter) user);
-        } else if(user instanceof Beneficiary){
-            DAOBeneficiary dao = new DAOBeneficiary();
-            SQLWrap.callTransaction(dao::update, (Beneficiary) user);
-        }
-        SQLWrap.callTransaction(new DAOAppliUser()::updatePasswordUpdated, user.getId());
-
+        SQLWrap.callTransaction(new DAOAppliUser()::updatePasswordUpdated, user);
         user.setPasswordUpdated(true);
     }
 
