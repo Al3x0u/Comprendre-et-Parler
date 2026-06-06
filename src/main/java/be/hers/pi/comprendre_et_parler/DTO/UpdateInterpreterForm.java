@@ -1,8 +1,13 @@
 package be.hers.pi.comprendre_et_parler.DTO;
 
+import be.hers.pi.comprendre_et_parler.models.Interpreter;
+import be.hers.pi.comprendre_et_parler.models.Location;
+
 import java.time.LocalDate;
 
 public class UpdateInterpreterForm {
+    private int id;
+    private String login;
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
@@ -16,6 +21,33 @@ public class UpdateInterpreterForm {
     private String streetNumber;
     private String locationDesignation;
     private Integer box;
+
+    public UpdateInterpreterForm() {}
+
+    public UpdateInterpreterForm(Interpreter interpreter) {
+        id = interpreter.getId();
+        login = interpreter.getLogin();
+        firstName = interpreter.getFirstName();
+        lastName = interpreter.getLastName();
+        birthDate = interpreter.getBirthDate();
+        email = interpreter.getEmail();
+        phoneNumber = interpreter.getPhoneNumber();
+        transportMode = interpreter.getTransportMode();
+        Location location = interpreter.getLocation();
+        cityId = location.getCity().getId();
+        street = location.getStreet();
+        streetNumber = location.getStreetNumber();
+        locationDesignation = location.getDesignation();
+        box = location.getBox();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
 
     public String getFirstName() {
         return firstName;

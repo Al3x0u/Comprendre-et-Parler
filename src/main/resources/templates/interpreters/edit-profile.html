@@ -21,7 +21,7 @@
 
         <!-- Modifications Form -->
         <div class="card-body p-5">
-            <form th:action="@{/interpretes/profil/{id}/modifier(id=${interprete.id})}" th:object="${interprete}" method="post">
+            <form th:action="@{/interpretes/profil/{id}/modifier(id=${updateInterpreterForm.id})}" th:object="${updateInterpreterForm}" method="post">
 
                 <div class="row align-items-center g-4 mb-4">
 
@@ -98,28 +98,28 @@
                 <div class="row g-3 mb-4">
                     <div class="col-12">
                         <label for="designation" class="form-label">Désignation</label>
-                        <input id="designation" type="text" class="form-control" th:field="*{location.designation}">
+                        <input id="designation" type="text" class="form-control" th:field="*{locationDesignation}">
                     </div>
 
                     <div class="col-12 col-md-8">
                         <label for="street" class="form-label">Rue</label>
-                        <input id="street" type="text" class="form-control" th:field="*{location.street}" required>
+                        <input id="street" type="text" class="form-control" th:field="*{street}" required>
                     </div>
 
                     <div class="col-12 col-md-2">
                         <label for="streetNumber" class="form-label">Numéro</label>
-                        <input id="streetNumber" type="text" class="form-control" th:field="*{location.streetNumber}">
+                        <input id="streetNumber" type="text" class="form-control" th:field="*{streetNumber}">
                     </div>
 
                     <div class="col-12 col-md-2">
                         <label for="box" class="form-label">Boîte</label>
-                        <input id="box" type="number" min="0" class="form-control" th:field="*{location.box}">
+                        <input id="box" type="number" min="0" class="form-control" th:field="*{box}">
                     </div>
                 </div>
 
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
-                        <label for="cityId" class="form-label">Ville</label>
+                        <label for="cityId" class="form-label">Ville&nbsp;<span class="text-danger">*</span></label>
                         <select id="cityId" class="form-select" name="cityId" required>
                             <option th:each="city : ${allCities}"
                                     th:value="${city.id}"

@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -109,10 +110,10 @@ public class InterpreterController {
             if (interpreter == null) return "redirect:/interpretes";
 
             sortCities(model, interpreter.getLocation().getCity().getId());
-            model.addAttribute("interprete", interpreter);
+            model.addAttribute("updateInterpreterForm", new UpdateInterpreterForm(interpreter));
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
-        } catch (Exception e) {
+        } catch (SQLException | ConnectionException e) {
             e.printStackTrace();
             return "redirect:/interpretes";
         }
@@ -122,14 +123,26 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter profile edit form
      * @param id the id of the interpreter to update
-     * @param formInterpreter the form containing the updated information
+     * @param form the form containing the updated information
      * @param birthdate the birthdate of the interpreter
+     * @param model the Spring model to populate
      * @return the interpreter's profile views on success, or the list on error
      */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
-                                           @ModelAttribute("interprete") Interpreter formInterpreter,
-                                           @ModelAttribute("birthdate") LocalDate birthdate) {
+                                           @ModelAttribute("interprete") UpdateInterpreterForm form,
+                                           @ModelAttribute("birthdate") LocalDate birthdate,
+                                           Model model) {
+        try {
+            form.setBirthDate(birthdate);
+            interpreterService.updateInterpreter(id, form);
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            return "interpreters/edit-profile";
+        } catch (SQLException | ConnectionException e) {
+            e.printStackTrace();
+            return "redirect:/interpretes";
+        }
         return "redirect:/interpretes/profil/" + id;
     }
 

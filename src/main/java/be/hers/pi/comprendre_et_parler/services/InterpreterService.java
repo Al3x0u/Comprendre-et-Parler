@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.CreateInterpreterForm;
+import be.hers.pi.comprendre_et_parler.DTO.UpdateInterpreterForm;
 import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
@@ -101,27 +102,30 @@ public class InterpreterService {
 
     /**
      * Updates an interpreter's information.
-     * @param interpreter the interpreter to update
-     * @param newInterpreter the new information to apply
+     * @param id the id of the Interpreter to update
+     * @param interpreterForm the new information to apply
      * @throws AlreadyExistsException if the updated interpreter already exists in the database
      * @throws NoSuchElementException if the interpreter does not exist in the database
      * @throws SQLException if the database could not be reached
      */
-    public void updateInterpreter(Interpreter interpreter, Interpreter newInterpreter) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        interpreter.setFirstName(newInterpreter.getFirstName());
-        interpreter.setLastName(newInterpreter.getLastName());
-        interpreter.setBirthDate(newInterpreter.getBirthDate());
-        interpreter.setEmail(newInterpreter.getEmail());
-        interpreter.setPhoneNumber(newInterpreter.getPhoneNumber());
-        interpreter.setHourQuotaWeek(newInterpreter.getHourQuotaWeek());
-        interpreter.setHourQuotaYear(newInterpreter.getHourQuotaYear());
-        interpreter.setTransportMode(newInterpreter.getTransportMode());
-        interpreter.setLocation(newInterpreter.getLocation());
-        interpreter.setAcademicSkills(newInterpreter.getAcademicSkills());
-        interpreter.setJobSkills(newInterpreter.getJobSkills());
-        interpreter.setAvailability(newInterpreter.getAvailability());
+    public void updateInterpreter(int id, UpdateInterpreterForm interpreterForm) throws AlreadyExistsException, NoSuchElementException, SQLException {
+        Interpreter interpreter = getOneInterpreter(id);
+        interpreter.setFirstName(interpreterForm.getFirstName());
+        interpreter.setLastName(interpreterForm.getLastName());
+        interpreter.setEmail(interpreterForm.getEmail());
+        interpreter.setBirthDate(interpreterForm.getBirthDate());
+        interpreter.setPhoneNumber(interpreterForm.getPhoneNumber());
+        interpreter.setTransportMode(interpreterForm.getTransportMode());
+        Location location = new Location(
+                interpreterForm.getLocationDesignation(),
+                new CityService().getOneCity(interpreterForm.getCityId()),
+                interpreterForm.getStreet(),
+                interpreterForm.getStreetNumber(),
+                interpreterForm.getBox() != null ? interpreterForm.getBox() : 0
+        );
+        interpreter.setLocation(location);
 
-        SQLWrap.callTransaction(daoInterpreter::update, interpreter);
+        SQLWrap.callTransaction((ConsumerWithSQLException<Interpreter>) daoInterpreter::update, interpreter);
     }
 
     /**
