@@ -654,13 +654,13 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime,
             endTime,
             locationDesignation: document.getElementById('missionLocationDesignation').value,
-            city:                document.getElementById('missionCity').value,
-            postalCode:          document.getElementById('missionPostalCode').value,
+            city:     document.getElementById('missionCityName').value,
+            postalCode: document.getElementById('missionCity').value,
             street:              document.getElementById('missionStreet').value,
             streetNumber:        document.getElementById('missionStreetNumber').value,
             box:                 document.getElementById('missionBox').value,
             interpreterIds:      checkedInterpreters.map(cb => cb.value),
-            beneficiaryId:       document.getElementById('missionBeneficiary').value,
+            beneficiaryId:      document.getElementById('missionBeneficiary').value,
             comment:             document.getElementById('missionComment').value,
             room:                document.getElementById('missionRoom').value,
             academicSkillId:     document.getElementById('missionAcademicSkill').value,
@@ -712,8 +712,8 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime,
             endTime,
             locationDesignation: document.getElementById('requestLocationDesignation').value,
-            city:                document.getElementById('requestCity').value,
-            postalCode:          document.getElementById('requestPostalCode').value,
+            city:           document.getElementById('requestCityName').value,
+            postalCode:         document.getElementById('requestCity').value,
             room:             document.getElementById('requestRoom').value,
             academicSkillId:  document.getElementById('requestAcademicSkill').value,
             street:              document.getElementById('requestStreet').value,
@@ -737,6 +737,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.getElementById('requestCity').addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        document.getElementById('requestCityName').value = opt.dataset.name || '';
+    });
+    document.getElementById('missionCity').addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        document.getElementById('missionCityName').value = opt.dataset.name || '';
+    });
     setupFilter('.filter-status', 'status');
     setupFilter('.filter-interpreter', 'interpreter');
     calendar.render();
