@@ -135,7 +135,8 @@
         </div>
     </div>
 
-    <div th:replace="~{common/modal-password :: modal-password(@{/profil/modifier-mot-de-passe}, false)}"></div>
+    <!-- Modal Password -->
+    <div th:replace="~{common/modals :: modal-password(@{/profil/modifier-mot-de-passe}, false)}"></div>
 
 </main>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>

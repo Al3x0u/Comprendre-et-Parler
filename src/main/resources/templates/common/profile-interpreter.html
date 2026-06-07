@@ -179,7 +179,10 @@
                         Aucune compétence métier
                     </div>
                     <button class="btn btn-outline-primary btn-sm mt-3 d-none" id="btn-add-job"
-                            data-bs-toggle="modal" data-bs-target="#modalAddJob">
+                            data-bs-toggle="modal" data-bs-target="#modalAddSkill"
+                            data-type="job"
+                            data-title="<i class='bi bi-briefcase me-2'></i>Ajouter une compétence métier"
+                            data-action="/interpretes/[[${interprete.id}]]/competences/metier/ajouter">
                         <i class="bi bi-plus-lg me-1"></i>Ajouter une compétence
                     </button>
                 </div>
@@ -209,7 +212,10 @@
                         Aucune compétence académique
                     </div>
                     <button class="btn btn-outline-primary btn-sm mt-3 d-none" id="btn-add-academic"
-                            data-bs-toggle="modal" data-bs-target="#modalAddAcademic">
+                            data-bs-toggle="modal" data-bs-target="#modalAddSkill"
+                            data-type="academic"
+                            data-title="<i class='bi bi-mortarboard me-2'></i>Ajouter une compétence académique"
+                            data-action="/interpretes/[[${interprete.id}]]/competences/academiques/ajouter">
                         <i class="bi bi-plus-lg me-1"></i>Ajouter une compétence
                     </button>
                 </div>
@@ -276,50 +282,6 @@
 
         </div>
 
-    </div>
-
-    <!-- Modal Promote -->
-    <div class="modal fade" id="modalPromote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4">
-                <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-arrow-up-circle me-2"></i>Promouvoir en manager</h5>
-                </div>
-                <div class="modal-body rounded-4 py-5">
-                    Êtes-vous sûr de vouloir promouvoir <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Responsable ?
-                </div>
-                <div class="modal-footer rounded-bottom-4">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <form th:action="@{/interpretes/profil/{id}/promouvoir(id=${interprete.id})}" method="post">
-                        <button type="submit" class="btn btn-warning">
-                            <i class="bi bi-arrow-up-circle me-2"></i>Promouvoir
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Demote -->
-    <div class="modal fade" id="modalDemote" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4">
-                <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-arrow-down-circle me-2"></i>Rétrograder en interprète</h5>
-                </div>
-                <div class="modal-body rounded-4 py-5">
-                    Êtes-vous sûr de vouloir rétrograder <strong th:text="${interprete.firstName + ' ' + interprete.lastName}"></strong> en Interprète ?
-                </div>
-                <div class="modal-footer rounded-bottom-4">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <form th:action="@{/interpretes/profil/{id}/retrograder(id=${interprete.id})}" method="post">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Modal New Unavailability -->
@@ -390,83 +352,41 @@
         </div>
     </div>
 
-    <!-- Modal Add Academic Skill -->
-    <div class="modal fade" id="modalAddAcademic" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <!-- Modal Add Skill -->
+    <div class="modal fade" id="modalAddSkill" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-mortarboard me-2"></i>Ajouter une compétence académique</h5>
+                    <h5 class="modal-title" id="modalAddSkillTitle"></h5>
                 </div>
                 <div class="modal-body">
-                    <form id="academic-add-form"
-                          th:action="@{/interpretes/{id}/competences/academiques/ajouter(id=${interprete.id})}"
-                          method="post">
-
+                    <form id="skill-add-form" method="post">
                         <div class="mb-3">
                             <label class="form-label">Choisir une compétence existante</label>
-                            <select class="form-select" name="existingSkillId" id="existing-academic">
+                            <select class="form-select" name="existingSkillId" id="existing-academic-select">
                                 <option value="">-- Sélectionner --</option>
                                 <option th:each="skill : ${allAcademicSkills}"
                                         th:value="${skill.id}"
                                         th:text="${skill.designation}"></option>
                             </select>
-                        </div>
-
-                        <div class="text-center text-muted my-3">— ou —</div>
-
-                        <div class="mb-3">
-                            <label for="new-academic" class="form-label">Créer une nouvelle compétence</label>
-                            <input id="new-academic" type="text" class="form-control"
-                                   name="newSkillName" placeholder="Nom de la compétence">
-                        </div>
-
-                    </form>
-                </div>
-                <div class="modal-footer rounded-bottom-4">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" form="academic-add-form" class="btn btn-primary">
-                        <i class="bi bi-plus-lg me-2"></i>Ajouter
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Add Job Skill -->
-    <div class="modal fade" id="modalAddJob" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4">
-                <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-briefcase me-2"></i>Ajouter une compétence métier</h5>
-                </div>
-                <div class="modal-body">
-                    <form id="job-add-form"
-                          th:action="@{/interpretes/{id}/competences/metier/ajouter(id=${interprete.id})}"
-                          method="post">
-
-                        <div class="mb-3">
-                            <label class="form-label">Choisir une compétence existante</label>
-                            <select class="form-select" name="existingSkillId" id="existing-job">
+                            <select class="form-select d-none" name="existingSkillId" id="existing-job-select">
                                 <option value="">-- Sélectionner --</option>
                                 <option th:each="skill : ${allJobSkills}"
                                         th:value="${skill.id}"
                                         th:text="${skill.designation}"></option>
                             </select>
                         </div>
-
                         <div class="text-center text-muted my-3">— ou —</div>
-
                         <div class="mb-3">
-                            <label for="new-job" class="form-label">Créer une nouvelle compétence</label>
-                            <input id="new-job" type="text" class="form-control"
+                            <label for="new-skill-name" class="form-label">Créer une nouvelle compétence</label>
+                            <input id="new-skill-name" type="text" class="form-control"
                                    name="newSkillName" placeholder="Nom de la compétence">
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" form="job-add-form" class="btn btn-primary">
+                    <button type="submit" form="skill-add-form" class="btn btn-primary">
                         <i class="bi bi-plus-lg me-2"></i>Ajouter
                     </button>
                 </div>
@@ -476,23 +396,18 @@
 
     <script>
         document.getElementById('modalIndispoAdd').addEventListener('show.bs.modal', function() {
-            const now = new Date();
-            // Format: yyyy-MM-ddTHH:mm
-            const formatted = now.toISOString().slice(0, 16);
-            document.getElementById('indispo-add-start').min = formatted;
-            document.getElementById('indispo-add-end').min = formatted;
+            const now = new Date().toISOString().slice(0, 16);
+            document.getElementById('indispo-add-start').min = now;
+            document.getElementById('indispo-add-end').min = now;
         });
 
         document.getElementById('indispo-add-start').addEventListener('change', function() {
             document.getElementById('indispo-add-end').min = this.value;
         });
-    </script>
 
-    <script>
         document.getElementById('modalIndispoEdit').addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const now = new Date().toISOString().slice(0, 16);
-
             document.getElementById('indispo-reason').value = button.getAttribute('data-reason');
             document.getElementById('indispo-start').value = button.getAttribute('data-start');
             document.getElementById('indispo-end').value = button.getAttribute('data-end');
@@ -504,9 +419,21 @@
         document.getElementById('indispo-start').addEventListener('change', function() {
             document.getElementById('indispo-end').min = this.value;
         });
-    </script>
 
-    <script>
+        document.getElementById('modalAddSkill').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const type = button.getAttribute('data-type');
+            document.getElementById('modalAddSkillTitle').innerHTML = button.getAttribute('data-title');
+            document.getElementById('skill-add-form').action = button.getAttribute('data-action');
+            document.getElementById('new-skill-name').value = '';
+            const academicSelect = document.getElementById('existing-academic-select');
+            const jobSelect = document.getElementById('existing-job-select');
+            academicSelect.classList.toggle('d-none', type !== 'academic');
+            jobSelect.classList.toggle('d-none', type !== 'job');
+            academicSelect.disabled = type !== 'academic';
+            jobSelect.disabled = type !== 'job';
+        });
+
         function toggleEditQuota() {
             const btn = document.getElementById('btn-edit-quota');
             const btnCancel = document.getElementById('btn-cancel-quota');
@@ -521,7 +448,6 @@
                 btnCancel.classList.add('d-none');
                 views.forEach(v => v.classList.remove('d-none'));
                 edits.forEach(e => e.classList.add('d-none'));
-                //document.getElementById('quota-form').submit();
             } else {
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
                 btn.classList.add('editing', 'btn-outline-success');
@@ -533,11 +459,39 @@
         }
     </script>
 
-    <div th:replace="~{common/modal-delete :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
-    <div th:replace="~{common/modal-disable :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
+    <!-- Modal Promote -->
+    <div th:replace="~{common/modals :: modal-confirm(
+        'modalPromote',
+        'Promouvoir en manager',
+        'bi-arrow-up-circle',
+        'text-bg-primary',
+        'promouvoir',
+        ${interprete.firstName},
+        ${interprete.lastName},
+        @{/interpretes/profil/{id}/promouvoir(id=${interprete.id})},
+        'Promouvoir',
+        'btn-warning'
+    )}"></div>
+
+    <!-- Modal Demote -->
+    <div th:replace="~{common/modals :: modal-confirm(
+        'modalDemote',
+        'Rétrograder en interprète',
+        'bi-arrow-down-circle',
+        'text-bg-primary',
+        'rétrograder',
+        ${interprete.firstName},
+        ${interprete.lastName},
+        @{/interpretes/profil/{id}/retrograder(id=${interprete.id})},
+        'Rétrograder',
+        'btn-danger'
+    )}"></div>
+
+    <!-- Modal Delete -->
+    <div th:replace="~{common/modals :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
+
+    <!-- Modal Disable -->
+    <div th:replace="~{common/modals :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
 </div>
-
-
-
 </body>
 </html>
