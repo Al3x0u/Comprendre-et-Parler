@@ -33,15 +33,8 @@ public class LoginService {
             if (user == null || !checkUserLogin(user, login, password)) {
                 return null;
             }
-            boolean passwordUpdated;
-            if (user instanceof Manager) {
-                passwordUpdated = new DAOManager().getPasswordUpdated(user.getId());
-            } else if (user instanceof Interpreter) {
-                passwordUpdated = new DAOInterpreter().getPasswordUpdated(user.getId());
-            } else {
-                passwordUpdated = new DAOBeneficiary().getPasswordUpdated(user.getId());
-            }
-            user.setPasswordUpdated(passwordUpdated);
+
+            user.setPasswordUpdated(new DAOAppliUser().getPasswordUpdated(user.getId()));
 
             return user;
         } catch (ConnectionException | SQLException e) {

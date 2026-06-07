@@ -171,7 +171,7 @@ class DAOBeneficiaryTest {
             beneficiaryDAO.findReferencedBeneficiaries(50);
         }, "There is no Status with this ID.");
 
-        Set<Beneficiary> beneficiaries = beneficiaryDAO.getByStatus(1);
+        Set<Beneficiary> beneficiaries = beneficiaryDAO.findByStatus(1);
         assertEquals(2, beneficiaries.size(), "There are two beneficiaries in the database with this status.");
         assertTrue(beneficiaries.contains(b2));
         assertTrue(beneficiaries.contains(b3));
