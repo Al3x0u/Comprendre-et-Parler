@@ -23,9 +23,9 @@ class DAOMissionTest {
     private static Mission m1;
     private static Mission m2;
     private static Mission m3;
+    private static Mission m4;
     private final static DAOMission missionDAO = new DAOMission();
     private final static LocalDate today = LocalDate.now();
-
 
     @BeforeAll
     public static void init() throws SQLException {
@@ -52,15 +52,13 @@ class DAOMissionTest {
         new DAOInterpreter().create(i1);
         new DAOInterpreter().create(i2);
 
-        PunctualTimeSlot t1 = new PunctualTimeSlot(1, LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(2));
-        BaseTimeSlot t2 = new BaseTimeSlot(2, today, today, LocalTime.NOON,
+        PunctualTimeSlot t1 = new PunctualTimeSlot(1, LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        PunctualTimeSlot t2 = new PunctualTimeSlot(1, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2));
+        BaseTimeSlot t3 = new BaseTimeSlot(2, today, today, LocalTime.NOON,
                 LocalTime.NOON.plusHours(1), DayOfWeek.MONDAY);
         new DAOPunctualTimeSlot().create(t1);
-        new DAOBaseTimeSlot().create(t2);
-        Set<TimeSlot> t3 = new HashSet<>();
-        t3.add(t1);
-        Set<TimeSlot> t4 = new HashSet<>();
-        t4.add(t2);
+        new DAOPunctualTimeSlot().create(t2);
+        new DAOBaseTimeSlot().create(t3);
 
         Status s1 = new Status(1, "Test", 50);
         new DAOStatus().create(s1);
@@ -71,11 +69,14 @@ class DAOMissionTest {
         m1 = new Mission(75, "Pending mission", MissionState.PENDING, "pending", t1,
                 l1, new HashSet<>(), null, null, "B7", 2);
         m1.addInterpreter(i1);
-        m2 = new Mission(2, "Regular mission", MissionState.REGULAR, "regular", t2,
+        m2 = new Mission(2, "Regular mission", MissionState.REGULAR, "regular", t3,
                 l1, new HashSet<Interpreter>(), null, null, "ABC", 0);
-        m3 = new Mission(4, "DEneid mission", MissionState.DENIED, "denied", t1,
+        m3 = new Mission(4, "Accepted mission", MissionState.ACCEPTED, null, t1,
                 b1, l1, js1, as1, "A34", 3);
         m3.addInterpreter(i2);
+        m4 = new Mission(4, "Denied mission", MissionState.DENIED, "denied", t2,
+                b1, l1, js1, as1, "A34", 3);
+        m4.addInterpreter(i2);
     }
 
     @AfterAll
