@@ -41,9 +41,9 @@ class DAOCityTest {
     @Test
     @Order(4)
     public void testFind() throws SQLException {
-            assertEquals(c3, cityDAO.find(1), "Find the updated object.");
-            assertEquals(c2, cityDAO.find(2), "Find the unchanged object.");
-            assertNull(cityDAO.find(3), "There is no object with this ID.");
+        assertEquals(c3, cityDAO.find(1), "Find the updated object.");
+        assertEquals(c2, cityDAO.find(2), "Find the unchanged object.");
+        assertNull(cityDAO.find(3), "There is no object with this ID.");
     }
 
     @Test

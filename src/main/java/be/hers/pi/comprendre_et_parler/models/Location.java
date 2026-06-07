@@ -166,7 +166,7 @@ public class Location {
 
     /**
      * Compare 2 locations based on the city
-     * @param l
+     * @param l the Location to compare with
      * @post l is unchanged
      * @return 0 if this == l based on city,
      *         1 if this > l based on city,
