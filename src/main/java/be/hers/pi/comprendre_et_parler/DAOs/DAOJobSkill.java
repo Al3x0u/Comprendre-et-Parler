@@ -158,11 +158,11 @@ public class DAOJobSkill extends DAO<JobSkill> {
     /**
      * Return all Job Skill of An Interpreter
      * @param idInterpreter represent the id of the interpreter that we want the Job Skill
-     * @return  a Set who represent the Job Skill of the interpreter
+     * @return a Set who represent the Job Skill of the interpreter
      * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if the database could not be reached
      */
-    public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws IllegalArgumentException, SQLException {
+    public Set<JobSkill> getJobSkillOfAnInterpreter(int idInterpreter) throws IllegalArgumentException, SQLException{
         if (idInterpreter < 0)
             throw new IllegalArgumentException("Invalid id : " + idInterpreter);
 

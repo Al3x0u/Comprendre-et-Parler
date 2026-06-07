@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.models;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOCity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
