@@ -215,10 +215,10 @@ public abstract class AppliUser {
     }
 
     /**
-     * Compares two Interpreter lexicographically according to their designations
-     * @param i The second interpreter to compare to this
-     * @return The result is a negative integer if this Interpreter.firstName lexicographically precedes the other Interpreter.firstName.
-     * The result is a positive integer if this Interpreter.firstName lexicographically follows the other Interpreter.firstName.
+     * Compares two AppliUser lexicographically according to their designations
+     * @param a The second user to compare to this
+     * @return The result is a negative integer if this AppliUser.firstName lexicographically precedes the other AppliUser.firstName.
+     * The result is a positive integer if this AppliUser.firstName lexicographically follows the other AppliUser.firstName.
      * If the firstName are the same, compare lastName.
      * If the lastName are the same, compare login.
      * If the login are the same, return 0.
