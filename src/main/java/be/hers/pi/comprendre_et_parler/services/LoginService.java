@@ -33,8 +33,8 @@ public class LoginService {
             if (user == null || !checkUserLogin(user, login, password)) {
                 return null;
             }
-
-            user.setPasswordUpdated(new DAOAppliUser().getPasswordUpdated(user.getId()));
+            boolean passwordUpdated = new DAOAppliUser().getPasswordUpdated(user.getId());
+            user.setPasswordUpdated(passwordUpdated);
 
             return user;
         } catch (ConnectionException | SQLException e) {
