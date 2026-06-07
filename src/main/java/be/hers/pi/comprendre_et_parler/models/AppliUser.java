@@ -215,6 +215,27 @@ public abstract class AppliUser {
     }
 
     /**
+     * Compares two AppliUser lexicographically according to their designations
+     * @param a The second interpreter to compare to this
+     * @return The result is a negative integer if this AppliUser.firstName lexicographically precedes the other AppliUser.firstName.
+     * The result is a positive integer if this AppliUser.firstName lexicographically follows the other AppliUser.firstName.
+     * If the firstName are the same, compare lastName.
+     * If the lastName are the same, compare login.
+     * If the login are the same, return 0.
+     */
+    public int compareTo(AppliUser a) {
+        if (this == a) return 0;
+
+        int res = firstName.compareTo(a.firstName);
+        if (res == 0) {
+            res = lastName.compareTo(a.lastName);
+            if (res == 0)
+                res = login.compareTo(a.login);
+        }
+        return res;
+    }
+
+    /**
      * Computes the hash code of this AppliUser
      * two AppliUser objects that are equal according to equals() will have the same hash code.
      * @return an integer hash code representing this AppliUser (id is not taken into account)
