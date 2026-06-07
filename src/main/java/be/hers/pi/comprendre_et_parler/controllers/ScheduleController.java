@@ -1,11 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
-import be.hers.pi.comprendre_et_parler.services.AcademicSkillService;
-import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
-import be.hers.pi.comprendre_et_parler.services.InterpreterService;
-import be.hers.pi.comprendre_et_parler.services.JobSkillService;
-import be.hers.pi.comprendre_et_parler.services.MissionService;
+import be.hers.pi.comprendre_et_parler.services.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +25,7 @@ public class ScheduleController {
     private final BeneficiaryService beneficiaryService  = new BeneficiaryService();
     private final JobSkillService jobSkillService = new JobSkillService();
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final CityService cityService = new CityService();
 
 
     /**
@@ -72,6 +69,10 @@ public class ScheduleController {
                 if (h < 22) timeSlots.add(String.format("%02d:30", h));
             }
             model.addAttribute("timeSlots", timeSlots);
+
+            List<City> allCities = new ArrayList<>(cityService.getAllCities());
+            allCities.sort(City::compareTo);
+            model.addAttribute("allCities", allCities);
 
         }catch(Exception e){
             e.printStackTrace();
