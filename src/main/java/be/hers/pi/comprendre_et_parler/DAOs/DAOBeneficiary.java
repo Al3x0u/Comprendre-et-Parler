@@ -13,7 +13,9 @@ import java.util.HashSet;
 
 public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String TABLE = "Beneficiary";
+    protected static final String TABLE_APPLIUSER = "AppliUser";
     protected static final String FIELD_ID = "id";
+    protected static final String FIELD_PASSWORD_UPDATED = "passwordUpdated";
     protected static final String FIELD_LOGIN = "login";
     protected static final String FIELD_FIRST_NAME = "firstName";
     protected static final String FIELD_LAST_NAME = "lastName";
@@ -184,15 +186,15 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 TABLE, FIELD_ID
         );
         PreparedStatement statement = null;
-         try {
-             statement = DatabaseConnector.getInstance().prepareStatement(query);
-             statement.setInt(1, idObjectToDelete);
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idObjectToDelete);
 
-             if (statement.executeUpdate()  == 0)
-                 throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + idObjectToDelete);
-         } finally {
-             closeStatement(statement);
-         }
+            if (statement.executeUpdate()  == 0)
+                throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + idObjectToDelete);
+        } finally {
+            closeStatement(statement);
+        }
     }
 
     @Override
@@ -300,7 +302,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      * @post the referenceInterpreter of the Beneficiary has been updated in the database
      */
-    public void updateInterpreterRef(int beneficiaryId, int interpreterId) throws SQLException, NoSuchElementException {
+    public void updateInterpreterRef(int beneficiaryId, int interpreterId) throws SQLException {
         String query = "UPDATE " + TABLE +" SET " + FIELD_INTERPRETER_REFERENCE +" = ? WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         try {
@@ -322,8 +324,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @return a Set of Beneficiary who have the id having the given idStatus,
      * or an empty Set if no beneficiaries having this Status
      */
-    public Set<Beneficiary> findByStatus(int idStatus) throws SQLException, NoSuchElementException {
-        if (new DAOInterpreter().find(idStatus) == null)
+    public Set<Beneficiary> getByStatus(int idStatus) throws SQLException, NoSuchElementException {
+        if (new DAOStatus().find(idStatus) == null)
             throw new NoSuchElementException("[ERROR] There is no Status with the id " + idStatus);
 
         String query = String.format(
@@ -355,7 +357,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      * @post the status of the Beneficiary has been updated in the database
      */
-    public void updateStatus(int beneficiaryId, int statusId) throws SQLException, NoSuchElementException {
+    public void updateStatus(int beneficiaryId, int statusId) throws SQLException {
         String query = "UPDATE " + TABLE + " SET " + FIELD_STATUS + " = ? WHERE " + FIELD_ID + " = ?";
         PreparedStatement statement = null;
         try {
@@ -365,6 +367,49 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("[ERROR] There is no Beneficiary with the id " + beneficiaryId);
         } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Update the passwordUpdated flag of an AppliUser in the database
+     * @param id the id of the AppliUser to update
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
+     */
+    public void updatePasswordUpdated(int id) throws SQLException {
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if(statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Retrieve the passwordUpdated flag of a user from the database
+     * @param id the id of the user
+     * @return true if the password has been updated, false otherwise
+     * @throws SQLException if the database could not be reached
+     */
+    public boolean getPasswordUpdated(int id) throws SQLException {
+        String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            if(!result.next())
+                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
+            return result.getInt(FIELD_PASSWORD_UPDATED) == 1;
+        } finally {
+            closeResultSet(result);
             closeStatement(statement);
         }
     }

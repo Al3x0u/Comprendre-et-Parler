@@ -15,7 +15,7 @@ public class AcademicSkill {
      * Constructor of a AcademicSkill
      * @param id represent the id
      * @param designation represent the designation
-    */
+     */
     public AcademicSkill(int id, String designation) {
         if (id >= 0)
             this.id = id;
@@ -27,7 +27,7 @@ public class AcademicSkill {
      * @param designation represent the designation
      */
     public AcademicSkill(String designation) {
-       this(-1, designation);
+        this(-1, designation);
     }
 
     /**
@@ -89,7 +89,6 @@ public class AcademicSkill {
      * The result is zero if the equals(Object) method would return true.
      */
     public int compareTo(AcademicSkill a) {
-        if (this == a) return 0;
         return designation.compareTo(a.designation);
     }
 

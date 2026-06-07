@@ -124,7 +124,7 @@ public class Beneficiary extends AppliUser {
         return Objects.hash(
                 super.hashCode(),
                 status,
-                interpreterRef.getLogin()
+                interpreterRef
         );
     }
 

@@ -89,7 +89,6 @@ public class JobSkill {
      * The result is zero if the equals(Object) method would return true.
      */
     public int compareTo(JobSkill j) {
-        if (this == j) return 0;
         return designation.compareTo(j.designation);
     }
 

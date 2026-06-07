@@ -105,7 +105,6 @@ public class Status {
      * The result is zero if the Status.designation.equals(other Status.designation) method would return true.
      */
     public int compareTo(Status s) {
-        if (this == s) return 0;
         return designation.compareTo(s.designation);
     }
 

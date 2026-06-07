@@ -156,7 +156,7 @@ public class DAOAcademicSkill extends DAO<AcademicSkill> {
     /**
      * Return all AcademicSkill of An Interpreter
      * @param idInterpreter represent the id of the interpreter that we want the AcademicSkill
-     * @return a Set who represent the AcademicSkill of the interpreter
+     * @return  a Set who represent the AcademicSkill of the interpreter
      * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if the database could not be reached
      */
