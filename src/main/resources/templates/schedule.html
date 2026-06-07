@@ -326,18 +326,18 @@
 
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="requestCity" class="form-label fw-semibold">Ville*</label>
-                        <input type="text" class="form-control" id="requestCity" placeholder="Ex: Bruxelles">
-                        <div id="requestCityError" class="invalid-feedback"></div>
-
-                    </div>
-                    <div class="col-md-6">
-                        <label for="requestPostalCode" class="form-label fw-semibold">Code postal*</label>
-                        <input type="text" class="form-control" id="requestPostalCode" placeholder="Ex: 1090">
-                        <div id="requestPostalCodeError" class="invalid-feedback"></div>
-                    </div>
+                <div class="mb-3">
+                    <label for="requestCity" class="form-label fw-semibold">Ville*</label>
+                    <select class="form-select" id="requestCity">
+                        <option value="">Sélectionner une ville</option>
+                        <option th:each="city : ${allCities}"
+                                th:value="${city.postalCode}"
+                                th:data-name="${city.designation}"
+                                th:text="${city.postalCode + ' - ' + city.designation}">
+                        </option>
+                    </select>
+                    <input type="hidden" id="requestCityName">
+                    <div id="requestCityError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="row g-3 mb-3">
@@ -480,17 +480,18 @@
 
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="missionCity" class="form-label fw-semibold">Ville*</label>
-                        <input type="text" class="form-control" id="missionCity" placeholder="Ex: Bruxelles">
-                        <div id="missionCityError" class="invalid-feedback"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="missionPostalCode" class="form-label fw-semibold">Code postal*</label>
-                        <input type="text" class="form-control" id="missionPostalCode" placeholder="Ex: 6600">
-                        <div id="missionPostalCodeError" class="invalid-feedback"></div>
-                    </div>
+                <div class="mb-3">
+                    <label for="missionCity" class="form-label fw-semibold">Ville*</label>
+                    <select class="form-select" id="missionCity">
+                        <option value="">Sélectionner une ville</option>
+                        <option th:each="city : ${allCities}"
+                                th:value="${city.postalCode}"
+                                th:data-name="${city.designation}"
+                                th:text="${city.postalCode + ' - ' + city.designation}">
+                        </option>
+                    </select>
+                    <input type="hidden" id="missionCityName">
+                    <div id="missionCityError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="row g-3 mb-3">
