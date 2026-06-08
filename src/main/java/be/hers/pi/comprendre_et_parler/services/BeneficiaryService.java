@@ -70,12 +70,15 @@ public class BeneficiaryService {
     }
 
     /**
-     * @return all beneficiaries present in database
+     * Retrieve all Beneficiaries from the database.
+     * @return every Beneficiaries present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
     public List<Beneficiary> getAllBeneficiaries()throws ConnectionException, SQLException {
-        return new ArrayList<>(SQLWrap.call(daoBeneficiary::findAll));
+        List<Beneficiary> allBeneficiaries = new ArrayList<>(SQLWrap.call(daoBeneficiary::findAll));
+        allBeneficiaries.sort(Beneficiary::compareTo);
+        return allBeneficiaries;
     }
 
     /**
@@ -86,13 +89,6 @@ public class BeneficiaryService {
     public Set<Beneficiary> getBeneficiariesOf(int idInterpreter)throws ConnectionException, SQLException {
         return SQLWrap.call(daoBeneficiary::findReferencedBeneficiaries, idInterpreter);
     }
-
-    /**
-    private void sortBeneficiaries(List<Beneficiary> allBeneficiaries) {
-        allBeneficiaries.sort(Beneficiary::compareTo);
-        return allBeneficiaries;
-    }
-     */
 
     /**
      * Calculate the age of a person based on their birthdate.
