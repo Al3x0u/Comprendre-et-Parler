@@ -1,7 +1,5 @@
 package be.hers.pi.comprendre_et_parler.models;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DatabaseConnector;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

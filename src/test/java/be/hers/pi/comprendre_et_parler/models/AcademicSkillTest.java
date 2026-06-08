@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.models;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class AcademicSkillTest {
@@ -11,7 +10,7 @@ class AcademicSkillTest {
 
     @BeforeAll
     public static void init() {
-        a1 = new AcademicSkill(1, "test");
+        a1 = new AcademicSkill(1, "Test");
     }
 
     @Test
@@ -54,5 +53,21 @@ class AcademicSkillTest {
 
         a2.setDesignation("The last test");
         assertNotEquals(a2, a1, "The second object has one of its attributes other than its id changed.");
+    }
+
+    @Test
+    public void testCompareTo() {
+        assertThrows(NullPointerException.class, () -> {
+            a1.compareTo(null);
+        }, "The second object is null.");
+
+        assertEquals(0, a1.compareTo(a1), "The second object is the same as the first one.");
+
+        AcademicSkill a2 = new AcademicSkill(a1);
+        assertEquals(0, a1.compareTo(a2), "The second object is a copy of the first one.");
+
+        a2.setDesignation("The last test");
+        assertTrue(a1.compareTo(a2) < 0, "The first object lexicographically precedes the second one.");
+        assertTrue(a2.compareTo(a1) > 0, "The first object lexicographically follows the second one.");
     }
 }

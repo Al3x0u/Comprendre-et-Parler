@@ -60,7 +60,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
             result = statement.executeQuery();
             if(result.next())
-               interpreter = getResult(result);
+                interpreter = getResult(result);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -347,6 +347,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
                     new DAOBaseTimeSlot().findAvailabilities(id)
             );
             ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+            ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
+            ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
         }
         return ret;
     }

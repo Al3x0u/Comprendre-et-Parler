@@ -1,10 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.models.*;
-import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
-import be.hers.pi.comprendre_et_parler.services.InterpreterService;
-import be.hers.pi.comprendre_et_parler.services.JobSkillService;
-import be.hers.pi.comprendre_et_parler.services.MissionService;
+import be.hers.pi.comprendre_et_parler.services.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +24,8 @@ public class ScheduleController {
     private final InterpreterService interpreterService  = new InterpreterService();
     private final BeneficiaryService beneficiaryService  = new BeneficiaryService();
     private final JobSkillService jobSkillService = new JobSkillService();
+    private final AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final CityService cityService = new CityService();
 
 
     /**
@@ -51,8 +50,6 @@ public class ScheduleController {
             LocalDate today = LocalDate.now();
 
             List<Mission> missions = missionService.getMissionsForWeek(user, today);
-            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
-            model.addAttribute("allJobSkills", allJobSkills);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -63,6 +60,19 @@ public class ScheduleController {
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("interpreters", interpreters);
+            model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
+            model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
+
+            List<String> timeSlots = new ArrayList<>();
+            for (int h = 8; h <= 22; h++) {
+                timeSlots.add(String.format("%02d:00", h));
+                if (h < 22) timeSlots.add(String.format("%02d:30", h));
+            }
+            model.addAttribute("timeSlots", timeSlots);
+
+            List<City> allCities = new ArrayList<>(cityService.getAllCities());
+            allCities.sort(City::compareTo);
+            model.addAttribute("allCities", allCities);
 
         }catch(Exception e){
             e.printStackTrace();
@@ -94,27 +104,22 @@ public class ScheduleController {
             String locationDesignation = payload.get("locationDesignation");
             String cityName = payload.get("city");
             int postalCode = 0;
-            String postalCodeStr = payload.get("postalCode");
-            if (postalCodeStr != null && !postalCodeStr.isBlank()) {
-                try {
-                    postalCode = Integer.parseInt(postalCodeStr);
-                } catch (NumberFormatException e) {
-                    postalCode = 0;
-                }
+            try{
+                postalCode =  Integer.parseInt(payload.get("postalCode"));
+            }catch(Exception e){
+                e.printStackTrace();
+                postalCode = 0;
             }
             String street = payload.get("street");
             String streetNumber = payload.get("streetNumber");
             int box = 0;
-            String boxStr = payload.get("box");
-            if (boxStr != null && !boxStr.isBlank()) {
-                try {
-                    box = Integer.parseInt(boxStr);
-                } catch (NumberFormatException e) {
-                    box = 0;
-                }
+            try{
+                box = Integer.parseInt(payload.get("box"));
+            }catch(Exception e){
+                e.printStackTrace();
+                box = 0;
             }
 
-            String professor = payload.get("professor");
             String comment = payload.get("comment");
             String importanceRaw = payload.get("importance");
 
@@ -150,18 +155,27 @@ public class ScheduleController {
             mission.setCommentary(comment);
             mission.setTimeSlot(slot);
             mission.setLocation(location);
-            mission.setRoom(professor);
             mission.setImportance(importance);
             mission.setBeneficiary(beneficiary);
             mission.setInterpreters(Set.of());
 
-            if (type != null && !type.isBlank()) {
-                JobSkill jobSkill = jobSkillService.getAllJobSkills().stream()
-                        .filter(js -> js.getDesignation() != null
-                                && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
-                        .findFirst()
-                        .orElse(null);
-                mission.setJobSkill(jobSkill);
+            String room = payload.get("room");
+            if (room != null && !room.isBlank()) {
+                mission.setRoom(room);
+            }
+
+            String academicSkillIdStr = payload.get("academicSkillId");
+            if (academicSkillIdStr != null && !academicSkillIdStr.isBlank()) {
+                try {
+                    int skillId = Integer.parseInt(academicSkillIdStr);
+                    mission.setAcademicSkill(academicSkillService.getAllAcademicSkills()
+                            .stream()
+                            .filter(s -> s.getId() == skillId)
+                            .findFirst()
+                            .orElse(null));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             missionService.createRequest(mission);
@@ -241,14 +255,14 @@ public class ScheduleController {
      */
     @PostMapping("/missions")
     @ResponseBody
-    public ResponseEntity<?> createMission(@RequestBody Map<String, String> body, HttpSession session) {
+    public ResponseEntity<?> createMission(@RequestBody Map<String, Object> body, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
             if (!(user instanceof Manager)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
 
-            Mission mission = buildMissionFromBody(body, true);
+            Mission mission = buildMissionFromBody(body);
             missionService.createMission(mission);
 
             return ResponseEntity.ok().build();
@@ -368,7 +382,6 @@ public class ScheduleController {
             }
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
-            event.put("id", String.valueOf(mission.getId()));
             event.put("title", mission.getSubject());
 
             event.put("start", pts.getStartDate().toString());
@@ -469,104 +482,88 @@ public class ScheduleController {
     /**
      * Build a Mission object from a request body map
      * @param body the request body map containing all mission fields
-     * @param withInterpreter whether to also assign an interpreter and beneficiary from the body
      * @return the constructed Mission object
      * @throws Exception if date/time parsing fails or a required field is missing
      */
-    private Mission buildMissionFromBody(Map<String, String> body, boolean withInterpreter) throws Exception {
+    private Mission buildMissionFromBody(Map<String, Object> body) throws Exception {
         Mission mission = new Mission();
 
-        mission.setSubject(body.get("title"));
-        mission.setCommentary(body.get("comment"));
-        mission.setImportance(Integer.parseInt(body.getOrDefault("importance", "0")));
+        mission.setSubject((String) body.get("title"));
+        mission.setCommentary((String) body.get("comment"));
 
-        String designation = body.get("locationDesignation");
-        String cityName = body.get("city");
-        String postalCode = body.get("postalCode");
-        String street = body.get("street");
-        String streetNumber = body.get("streetNumber");
+        String importanceStr = body.getOrDefault("importance", "0").toString();
+        mission.setImportance(Integer.parseInt(importanceStr));
+
+        String designation  = (String) body.get("locationDesignation");
+        String cityName     = (String) body.get("city");
+        String postalCode   = (String) body.get("postalCode");
+        String street       = (String) body.get("street");
+        String streetNumber = (String) body.get("streetNumber");
 
         int box = 0;
-        String boxStr = body.get("box");
-        if (boxStr != null && !boxStr.isBlank()) {
-            try{
-                box = Integer.parseInt(boxStr);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
+        Object boxObj = body.get("box");
+        if (boxObj != null && !boxObj.toString().isBlank()) {
+            try { box = Integer.parseInt(boxObj.toString()); } catch (Exception ignored) {}
         }
 
         boolean hasLocation =
                 (designation != null && !designation.isBlank()) ||
-                        (cityName != null && !cityName.isBlank()) ||
-                        (postalCode != null && !postalCode.isBlank()) ||
-                        (street != null && !street.isBlank()) ||
-                        (streetNumber != null && !streetNumber.isBlank()) ||
+                        (cityName    != null && !cityName.isBlank())    ||
+                        (postalCode  != null && !postalCode.isBlank())  ||
+                        (street      != null && !street.isBlank())      ||
+                        (streetNumber!= null && !streetNumber.isBlank())||
                         box > 0;
 
         if (hasLocation) {
             int parsedPostalCode = 0;
+            try { parsedPostalCode = Integer.parseInt(postalCode); } catch (Exception ignored) {}
+            mission.setLocation(new Location(designation, new City(cityName, parsedPostalCode), street, streetNumber, box));
+        }
+
+        String room = (String) body.get("room");
+        if (room != null && !room.isBlank()) {
+            mission.setRoom(room);
+        }
+
+        Object academicSkillIdObj = body.get("academicSkillId");
+        if (academicSkillIdObj != null && !academicSkillIdObj.toString().isBlank()) {
             try {
-                parsedPostalCode = Integer.parseInt(postalCode);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            City city = new City(cityName, parsedPostalCode);
-
-            Location location = new Location(
-                    designation,
-                    city,
-                    street,
-                    streetNumber,
-                    box
-            );
-            mission.setLocation(location);
+                int skillId = Integer.parseInt(academicSkillIdObj.toString());
+                mission.setAcademicSkill(academicSkillService.getAllAcademicSkills()
+                        .stream()
+                        .filter(s -> s.getId() == skillId)
+                        .findFirst()
+                        .orElse(null));
+            } catch (Exception ignored) {}
         }
 
+        LocalDate date = LocalDate.parse((String) body.get("date"));
+        LocalTime start = LocalTime.parse((String) body.get("startTime"));
+        LocalTime end   = LocalTime.parse((String) body.get("endTime"));
+        mission.setTimeSlot(new PunctualTimeSlot(LocalDateTime.of(date, start), LocalDateTime.of(date, end)));
 
-        String professor = body.get("professor");
-        if (professor != null && !professor.isBlank()) {
-            mission.setRoom(professor);
-        }
-
-        LocalDate date = LocalDate.parse(body.get("date"));
-        java.time.LocalTime start = java.time.LocalTime.parse(body.get("startTime"));
-        java.time.LocalTime end = java.time.LocalTime.parse(body.get("endTime"));
-
-        PunctualTimeSlot slot = new PunctualTimeSlot(
-                java.time.LocalDateTime.of(date, start),
-                java.time.LocalDateTime.of(date, end)
-        );
-        mission.setTimeSlot(slot);
-
-        String type = body.get("type");
+        String type = (String) body.get("type");
         if (type != null && !type.isBlank()) {
-            List<JobSkill> allJobSkills = jobSkillService.getAllJobSkills();
-
-            for (JobSkill jobSkill : allJobSkills) {
-                if (jobSkill.getDesignation() != null
-                        && jobSkill.getDesignation().trim().equalsIgnoreCase(type.trim())) {
-                    mission.setJobSkill(jobSkill);
-                    break;
-                }
-            }
+            jobSkillService.getAllJobSkills().stream()
+                    .filter(js -> js.getDesignation() != null && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
+                    .findFirst()
+                    .ifPresent(mission::setJobSkill);
         }
 
-        if (withInterpreter) {
-            String interpreterId = body.get("interpreterId");
-            if (interpreterId != null && !interpreterId.isBlank()) {
-                Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterId));
-                Set<Interpreter> interpreters = new HashSet<>();
-                interpreters.add(interpreter);
-                mission.setInterpreters(interpreters);
+        Object interpreterIdsObj = body.get("interpreterIds");
+        if (interpreterIdsObj instanceof List<?> interpreterIdsList && !interpreterIdsList.isEmpty()) {
+            Set<Interpreter> interpreters = new HashSet<>();
+            for (Object idObj : interpreterIdsList) {
+                interpreters.add(interpreterService.getOneInterpreter(Integer.parseInt(idObj.toString())));
             }
-
-            String beneficiaryId = body.get("beneficiaryId");
-            if (beneficiaryId != null && !beneficiaryId.isBlank()) {
-                Beneficiary beneficiary = beneficiaryService.getOneBeneficiary(Integer.parseInt(beneficiaryId));
-                mission.setBeneficiary(beneficiary);
-            }
+            mission.setInterpreters(interpreters);
         }
+
+        Object beneficiaryIdObj = body.get("beneficiaryId");
+        if (beneficiaryIdObj != null && !beneficiaryIdObj.toString().isBlank()) {
+            mission.setBeneficiary(beneficiaryService.getOneBeneficiary(Integer.parseInt(beneficiaryIdObj.toString())));
+        }
+
         return mission;
     }
 

@@ -12,7 +12,7 @@ class ExceptionalUnavailabilityTest {
     @BeforeAll
     public static void init() {
         PunctualTimeSlot p1 = new PunctualTimeSlot(1, LocalDateTime.now(), LocalDateTime.now().plusDays(1));
-        e1 = new ExceptionalUnavailability("test", p1);
+        e1 = new ExceptionalUnavailability("Test", p1);
     }
 
     @Test
