@@ -247,6 +247,20 @@ public class ScheduleController {
 
     }
 
+    @PostMapping("/missions/{id}/annuler")
+    @ResponseBody
+    public ResponseEntity<?> cancelMission(@PathVariable int id, HttpSession session) {
+        try {
+            Mission mission = missionService.getOneMission(id);
+            missionService.cancelMission(mission);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'annulation de la mission. Veuillez réessayer.");
+        }
+    }
+
     /**
      * Create a new mission directly (manager only)
      * @param body the request body containing mission details (title, date, times, location, interpreter, beneficiary, etc.)
@@ -382,6 +396,7 @@ public class ScheduleController {
             }
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
+            event.put("id", String.valueOf(mission.getId()));
             event.put("title", mission.getSubject());
 
             event.put("start", pts.getStartDate().toString());
