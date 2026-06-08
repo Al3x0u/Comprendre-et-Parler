@@ -170,7 +170,7 @@ if (userRole === 'BENEFICIARY') {
 
 if (userRole === 'INTERPRETER') {
     customButtons.newUnavailability = {
-        text: '+ Nouvelle indisponibilité',
+        text: '↗ Nouvelle indisponibilité',
         click: function() {
             window.location.href = '/interpretes/profil/' + userId;
         }
@@ -623,16 +623,24 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
+        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionPostalCode', 'missionInterpreter']);
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
             { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
-            { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
-            { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
+            { id: 'missionStreet',     errorId: 'missionStreetError',     msg: 'La rue est requise.' },
+            { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
+
+        const checkedInterpreters = Array.from(document.querySelectorAll('.mission-interpreter-check:checked'));
+        if (checkedInterpreters.length === 0) {
+            document.getElementById('missionInterpreterError').textContent = 'Veuillez sélectionner au moins un interprète.';
+            document.getElementById('missionInterpreterError').style.display = 'block';
+            return;
+        }
+
         const startTime = document.getElementById('missionStartTime').value;
         const endTime   = document.getElementById('missionEndTime').value;
         if (startTime >= endTime) {
@@ -646,15 +654,16 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime,
             endTime,
             locationDesignation: document.getElementById('missionLocationDesignation').value,
-            city:                document.getElementById('missionCity').value,
-            postalCode:          document.getElementById('missionPostalCode').value,
+            city:     document.getElementById('missionCityName').value,
+            postalCode: document.getElementById('missionCity').value,
             street:              document.getElementById('missionStreet').value,
             streetNumber:        document.getElementById('missionStreetNumber').value,
             box:                 document.getElementById('missionBox').value,
-            professor:           document.getElementById('missionProfessor').value,
-            interpreterId:       document.getElementById('missionInterpreter').value,
-            beneficiaryId:       document.getElementById('missionBeneficiary').value,
-            comment:             document.getElementById('missionComment').value
+            interpreterIds:      checkedInterpreters.map(cb => cb.value),
+            beneficiaryId:      document.getElementById('missionBeneficiary').value,
+            comment:             document.getElementById('missionComment').value,
+            room:                document.getElementById('missionRoom').value,
+            academicSkillId:     document.getElementById('missionAcademicSkill').value,
         };
         try {
             const res = await fetch('/horaire/missions', {
@@ -680,12 +689,14 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity']);
+        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet', 'requestPostalCode']);
         const rules = [
             { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
             { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
+            { id: 'requestStreet',     errorId: 'requestStreetError',     msg: 'La rue est requise.' },
+            { id: 'requestPostalCode', errorId: 'requestPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
         const startTime = document.getElementById('requestStartTime').value;
@@ -701,12 +712,13 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime,
             endTime,
             locationDesignation: document.getElementById('requestLocationDesignation').value,
-            city:                document.getElementById('requestCity').value,
-            postalCode:          document.getElementById('requestPostalCode').value,
+            city:           document.getElementById('requestCityName').value,
+            postalCode:         document.getElementById('requestCity').value,
+            room:             document.getElementById('requestRoom').value,
+            academicSkillId:  document.getElementById('requestAcademicSkill').value,
             street:              document.getElementById('requestStreet').value,
             streetNumber:        document.getElementById('requestStreetNumber').value,
             box:                 document.getElementById('requestBox').value,
-            professor:           document.getElementById('requestProfessor').value,
             comment:             document.getElementById('requestComment').value,
             importance:          document.querySelector('input[name="requestImportance"]:checked').value
         };
@@ -725,6 +737,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.getElementById('requestCity').addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        document.getElementById('requestCityName').value = opt.dataset.name || '';
+    });
+    document.getElementById('missionCity').addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        document.getElementById('missionCityName').value = opt.dataset.name || '';
+    });
     setupFilter('.filter-status', 'status');
     setupFilter('.filter-interpreter', 'interpreter');
     calendar.render();
