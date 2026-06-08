@@ -248,7 +248,7 @@ public class DAOMission extends DAO<Mission> {
         PunctualTimeSlot punctualTimeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
         TimeSlot timeSlot = (baseTimeSlot != null) ? baseTimeSlot : punctualTimeSlot;
 
-        return new Mission(
+        Mission mission = new Mission(
                 result.getInt(FIELD_ID),
                 result.getString(FIELD_SUBJECT),
                 MissionState.fromValue(result.getInt(FIELD_STATE)),
@@ -261,7 +261,12 @@ public class DAOMission extends DAO<Mission> {
                 result.getString(FIELD_ROOM),
                 result.getInt(FIELD_IMPORTANCE)
         );
+        mission.setInterpreters(new DAOInterpreter().findByMission(mission.getId()));
+
+        return mission;
     }
+
+
 
     /**
      * Return the schedule for a specific week
