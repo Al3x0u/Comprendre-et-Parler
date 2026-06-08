@@ -11,7 +11,6 @@
 
 <!-- Filters : just visual -->
 <div id="dropdown-filtre" class="dropdown-menu">
-    <!-- By user (only for Manager) -->
     <th:block th:if="${userRole == 'MANAGER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
         <div class="px-3 pb-2">
@@ -24,13 +23,12 @@
                th:each="interpreter : ${interpreters}"
                th:data-value="${interpreter.firstName + ' ' + interpreter.lastName}">
                 <i class="bi bi-person me-2"></i>
-                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName}"></span>
+                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></span>
             </a>
         </div>
         <hr class="dropdown-divider">
     </th:block>
 
-    <!-- By status -->
     <h6 class="dropdown-header">Par statut</h6>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Acceptée">
         <div style="width:12px;height:12px;background:#40c057;border-radius:3px"></div>Acceptée
@@ -46,7 +44,7 @@
     </a>
 </div>
 
-<!-- Calendar-->
+<!-- Calendar -->
 <div id="calendar-container" class="px-4 mt-4 mb-1">
     <div id="calendar"></div>
 </div>
@@ -71,87 +69,62 @@
     </div>
 </div>
 
-
+<!-- EVENT MODAL -->
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content custom-modal">
-
-            <!-- Header -->
             <div class="modal-header border-0">
                 <h4 class="modal-title fw-bold" id="modalTitle"></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-
-            <!-- Body -->
             <div class="modal-body">
-
                 <div class="mb-2">
                     <i class="bi bi-calendar"></i>
                     <span id="modalDate"></span>
                     <i class="bi bi-clock ms-2"></i>
                     <span id="modalTime"></span>
                 </div>
-
                 <div class="mb-2">
                     <i class="bi bi-geo-alt"></i>
                     <span id="modalLocation"></span>
                 </div>
-
                 <div class="mb-2">
                     <strong>Bénéficiaire - </strong>
                     <span id="modalBeneficiary" class="fst-italic text-muted"></span>
                 </div>
-
                 <div class="mb-2" id="modalType"></div>
-
                 <div class="mb-2">
                     <strong>Commentaire :</strong>
                     <span id="modalComment" class="fst-italic text-muted"></span>
                 </div>
-
                 <div class="mb-2">
                     <strong>Statut :</strong>
                     <span id="modalStatus"></span>
                 </div>
-
                 <div class="mb-2">
                     <strong>Interprète :</strong>
                     <span id="modalInterpreter" class="fst-italic text-muted"></span>
                 </div>
                 <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
-
-
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- CONFIRMATION ANNULATION -->
-
 <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">
-                    Annulation
-                </h5>
+                <h5 class="modal-title fw-bold text-danger" id="confirmCancelTitle">Annulation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-
             <div class="modal-body">
-                <p class="mb-0">
-                    Voulez-vous vraiment annuler cette demande ?
-                </p>
+                <p class="mb-0">Voulez-vous vraiment annuler cette demande ?</p>
             </div>
-
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" id="cancelConfirmBackBtn">
-                    Non
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
-                    Oui, annuler
-                </button>
+                <button type="button" class="btn btn-light" id="cancelConfirmBackBtn">Non</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">Oui, annuler</button>
             </div>
         </div>
     </div>
@@ -161,14 +134,10 @@
 <div class="modal fade" id="delayModal" tabindex="-1" aria-labelledby="delayModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="delayModalTitle">
-                    Signaler un retard
-                </h5>
+                <h5 class="modal-title fw-bold" id="delayModalTitle">Signaler un retard</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-
             <div class="modal-body">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <select id="delayMinutes" class="form-select w-auto">
@@ -182,25 +151,17 @@
                     </select>
                     <span>minute(s)</span>
                 </div>
-
                 <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
                     <span>Je ne pourrai pas être présent</span>
-
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input" type="checkbox" role="switch" id="delayAbsent">
                     </div>
                 </div>
             </div>
-
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-primary" id="cancelDelayModalBtn">
-                    Annuler
-                </button>
-                <button type="button" class="btn btn-danger" id="sendDelayBtn">
-                    Envoyer
-                </button>
+                <button type="button" class="btn btn-outline-primary" id="cancelDelayModalBtn">Annuler</button>
+                <button type="button" class="btn btn-danger" id="sendDelayBtn">Envoyer</button>
             </div>
-
         </div>
     </div>
 </div>
@@ -209,12 +170,10 @@
 <div class="modal fade" id="managerPendingModal" tabindex="-1" aria-labelledby="managerPendingTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content border-0 shadow">
-
             <div class="modal-header border-0">
                 <h4 class="modal-title fw-bold" id="managerPendingTitle"></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-
             <div class="modal-body">
                 <div class="mb-2">
                     <i class="bi bi-calendar"></i>
@@ -223,70 +182,63 @@
                     <span id="managerPendingTime"></span>
                     <span class="ms-3" id="managerPendingImportance"></span>
                 </div>
-
                 <div class="mb-2">
                     <i class="bi bi-geo-alt"></i>
                     <span id="managerPendingLocation"></span>
                 </div>
-
                 <div class="mb-2">
                     <strong>Bénéficiaire - </strong>
                     <span id="managerPendingBeneficiary" class="fst-italic text-muted"></span>
                 </div>
-
                 <div class="mb-2" id="managerPendingType"></div>
-
                 <div class="mb-2">
                     <strong>Commentaire :</strong>
                     <span id="managerPendingComment" class="fst-italic text-muted"></span>
                 </div>
-
                 <div class="mb-3">
                     <strong>Statut :</strong>
                     <span id="managerPendingStatus"></span>
                 </div>
-
                 <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
                     <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète*</label>
                     <select id="managerPendingInterpreter" class="form-select w-auto">
                         <option value="">Sélectionner</option>
                         <option th:each="interpreter : ${interpreters}"
                                 th:value="${interpreter.id}"
-                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                                th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}">
                         </option>
                     </select>
                 </div>
             </div>
-
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
                 <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<!-- AJOUT NOUVELLE DEMANDE-->
+<!-- AJOUT NOUVELLE DEMANDE -->
 <div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
-
             <div class="modal-header border-0">
                 <h4 class="modal-title fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold d-block">Type*</label>
-
+                    <label class="form-label fw-semibold d-block">Type</label>
                     <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check" th:each="skill, iter : ${professionalSkills}">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requestType" id="requestTypeNone" value="" checked>
+                            <label class="form-check-label" for="requestTypeNone">Aucun</label>
+                        </div>
+                        <div class="form-check" th:each="skill, iter : ${allJobSkills}">
                             <input class="form-check-input" type="radio" name="requestType"
                                    th:id="'requestType_' + ${iter.index}"
-                                   th:value="${skill.designation}"
-                                   th:checked="${iter.first}">
-                            <label class="form-check-label" th:for="'requestType_' + ${iter.index}"  th:text="${skill.designation}"></label>
+                                   th:value="${skill.designation}">
+                            <label class="form-check-label" th:for="'requestType_' + ${iter.index}" th:text="${skill.designation}"></label>
                         </div>
                     </div>
                 </div>
@@ -303,14 +255,12 @@
                         <input type="date" class="form-control" id="requestDate">
                         <div id="requestDateError" class="invalid-feedback"></div>
                     </div>
-
                     <div class="col-6">
                         <label for="requestStartTime" class="form-label fw-semibold">Heure début*</label>
                         <select class="form-select" id="requestStartTime">
                             <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
-
                     <div class="col-6">
                         <label for="requestEndTime" class="form-label fw-semibold">Heure fin*</label>
                         <select class="form-select" id="requestEndTime">
@@ -323,7 +273,6 @@
                     <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu*</label>
                     <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Ex: Athénée Royal">
                     <div id="requestLocationDesignationError" class="invalid-feedback"></div>
-
                 </div>
 
                 <div class="mb-3">
@@ -336,7 +285,6 @@
                                 th:text="${city.postalCode + ' - ' + city.designation}">
                         </option>
                     </select>
-                    <input type="hidden" id="requestCityName">
                     <div id="requestCityError" class="invalid-feedback"></div>
                 </div>
 
@@ -365,14 +313,12 @@
                     <label for="requestAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
                     <select class="form-select" id="requestAcademicSkill">
                         <option value="">Aucune</option>
-                        <option th:each="skill : ${academicSkills}"
+                        <option th:each="skill : ${allAcademicSkills}"
                                 th:value="${skill.id}"
                                 th:text="${skill.designation}">
                         </option>
                     </select>
                 </div>
-
-
 
                 <div class="mb-4">
                     <label for="requestComment" class="form-label fw-semibold">Commentaire</label>
@@ -381,23 +327,19 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold d-block">Importance</label>
-
                     <div class="d-flex flex-wrap gap-4">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="requestImportance" id="importance0" value="0" checked>
                             <label class="form-check-label" for="importance0">Aucune étoile</label>
                         </div>
-
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="requestImportance" id="importance1" value="1">
                             <label class="form-check-label" for="importance1">★</label>
                         </div>
-
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="requestImportance" id="importance2" value="2">
                             <label class="form-check-label" for="importance2">★★</label>
                         </div>
-
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="requestImportance" id="importance3" value="3">
                             <label class="form-check-label" for="importance3">★★★</label>
@@ -405,17 +347,10 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
-                    Annuler
-                </button>
-                <button type="button" class="btn btn-outline-primary" id="sendRequestBtn">
-                    Envoyer
-                </button>
+                <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-outline-primary" id="sendRequestBtn">Envoyer</button>
             </div>
-
         </div>
     </div>
 </div>
@@ -424,21 +359,22 @@
 <div class="modal fade" id="newMissionModal" tabindex="-1" aria-labelledby="newMissionModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
-
             <div class="modal-header border-0">
                 <h4 class="modal-title fw-bold" id="newMissionModalTitle">Nouvelle mission</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold d-block">Type*</label>
-
+                    <label class="form-label fw-semibold d-block">Type</label>
                     <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check" th:each="skill, iter : ${professionalSkills}">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeNone" value="" checked>
+                            <label class="form-check-label" for="missionTypeNone">Aucun</label>
+                        </div>
+                        <div class="form-check" th:each="skill, iter : ${allJobSkills}">
                             <input class="form-check-input" type="radio" name="missionType"
                                    th:id="'missionType_' + ${iter.index}"
-                                   th:value="${skill.designation}"
-                                   th:checked="${iter.first}">
+                                   th:value="${skill.designation}">
                             <label class="form-check-label" th:for="'missionType_' + ${iter.index}" th:text="${skill.designation}"></label>
                         </div>
                     </div>
@@ -448,7 +384,6 @@
                     <label for="missionTitle" class="form-label fw-semibold">Titre*</label>
                     <input type="text" class="form-control" id="missionTitle" placeholder="Entrez le titre">
                     <div id="missionTitleError" class="invalid-feedback"></div>
-
                 </div>
 
                 <div class="row g-3 mb-3">
@@ -457,14 +392,12 @@
                         <input type="date" class="form-control" id="missionDate">
                         <div id="missionDateError" class="invalid-feedback"></div>
                     </div>
-
                     <div class="col-6">
                         <label for="missionStartTime" class="form-label fw-semibold">Heure début*</label>
                         <select class="form-select" id="missionStartTime">
                             <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
-
                     <div class="col-6">
                         <label for="missionEndTime" class="form-label fw-semibold">Heure fin*</label>
                         <select class="form-select" id="missionEndTime">
@@ -477,7 +410,6 @@
                     <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu*</label>
                     <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Ex: Athénée Royal">
                     <div id="missionLocationDesignationError" class="invalid-feedback"></div>
-
                 </div>
 
                 <div class="mb-3">
@@ -490,7 +422,6 @@
                                 th:text="${city.postalCode + ' - ' + city.designation}">
                         </option>
                     </select>
-                    <input type="hidden" id="missionCityName">
                     <div id="missionCityError" class="invalid-feedback"></div>
                 </div>
 
@@ -503,7 +434,6 @@
                     <div class="col-md-3">
                         <label for="missionStreetNumber" class="form-label fw-semibold">Numéro</label>
                         <input type="text" class="form-control" id="missionStreetNumber" placeholder="12a">
-
                     </div>
                     <div class="col-md-3">
                         <label for="missionBox" class="form-label fw-semibold">Boîte</label>
@@ -520,14 +450,12 @@
                     <label for="missionAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
                     <select class="form-select" id="missionAcademicSkill">
                         <option value="">Aucune</option>
-                        <option th:each="skill : ${academicSkills}"
+                        <option th:each="skill : ${allAcademicSkills}"
                                 th:value="${skill.id}"
                                 th:text="${skill.designation}">
                         </option>
                     </select>
                 </div>
-
-
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Interprètes*</label>
@@ -538,7 +466,7 @@
                                    th:value="${interpreter.id}">
                             <label class="form-check-label"
                                    th:for="'missionInterp_' + ${interpreter.id}"
-                                   th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                                   th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}">
                             </label>
                         </div>
                     </div>
@@ -551,7 +479,7 @@
                         <option value="">Sélectionner un bénéficiaire</option>
                         <option th:each="beneficiary : ${beneficiaries}"
                                 th:value="${beneficiary.id}"
-                                th:text="${beneficiary.firstName + ' ' + beneficiary.lastName}">
+                                th:text="${beneficiary.firstName + ' ' + beneficiary.lastName + ' (' + beneficiary.login + ')'}">
                         </option>
                     </select>
                     <div id="missionBeneficiaryError" class="invalid-feedback"></div>
@@ -562,16 +490,10 @@
                     <textarea class="form-control" id="missionComment" rows="3" placeholder="Entrez votre commentaire/remarque"></textarea>
                 </div>
             </div>
-
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
-                    Annuler
-                </button>
-                <button type="button" class="btn btn-outline-primary" id="sendMissionBtn">
-                    Envoyer
-                </button>
+                <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-outline-primary" id="sendMissionBtn">Envoyer</button>
             </div>
-
         </div>
     </div>
 </div>
