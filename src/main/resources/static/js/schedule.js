@@ -575,6 +575,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     /**
+     * Sends a POST request to cancel the selected mission, then refreshes the calendar.
+     * Triggered by the "Oui, annuler" button of the cancellation confirmation modal.
+     *
+     * @listens click
+     * @returns {Promise<void>}
+     */
+    document.getElementById('confirmCancelBtn').addEventListener('click', async function () {
+        if (!currentMissionId) return;
+        try {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/annuler', {
+                method: 'POST'
+            });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
+            calendar.refetchEvents();
+            showToast("Mission annulée.", 'info');
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+
+    /**
      * Handles a click on "Cancel" in the delay report modal.
      * Closes the delay modal and re-opens the event modal.
      *

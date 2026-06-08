@@ -247,11 +247,33 @@ public class ScheduleController {
 
     }
 
+    /**
+     * Cancel a mission. A manager can cancel any mission; a beneficiary can only cancel
+     * their own request while it is still pending. Concerned parties are notified.
+     * @param id the mission ID
+     * @param session the current HTTP session
+     * @return 200 if cancelled, 403 if not allowed, 500 on error
+     */
     @PostMapping("/missions/{id}/annuler")
     @ResponseBody
     public ResponseEntity<?> cancelMission(@PathVariable int id, HttpSession session) {
         try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager) && !(user instanceof Beneficiary)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+
             Mission mission = missionService.getOneMission(id);
+
+            if (user instanceof Beneficiary) {
+                boolean isOwner = mission.getBeneficiary() != null
+                        && mission.getBeneficiary().getId() == user.getId();
+                boolean isPending = mission.getStateOfMission() == MissionState.PENDING;
+                if (!isOwner || !isPending) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+                }
+            }
+
             missionService.cancelMission(mission);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
