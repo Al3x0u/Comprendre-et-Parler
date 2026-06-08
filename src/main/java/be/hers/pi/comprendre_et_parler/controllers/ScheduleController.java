@@ -430,7 +430,25 @@ public class ScheduleController {
             }
 
             if (mission.getLocation() != null) {
-                event.put("address", mission.getLocation().toString());
+                Location loc = mission.getLocation();
+                StringBuilder address = new StringBuilder();
+                if (loc.getStreet() != null && !loc.getStreet().isBlank()) {
+                    address.append(loc.getStreet());
+                    if (loc.getStreetNumber() != null && !loc.getStreetNumber().isBlank())
+                        address.append(" ").append(loc.getStreetNumber());
+                    if (loc.getBox() > 0)
+                        address.append(", bte ").append(loc.getBox());
+                }
+                if (loc.getCity() != null) {
+                    if (!address.isEmpty()) address.append(", ");
+                    address.append(loc.getCity().getPostalCode())
+                            .append(" ")
+                            .append(loc.getCity().getDesignation());
+                }
+                if (loc.getDesignation() != null && !loc.getDesignation().isBlank()) {
+                    address.insert(0, loc.getDesignation() + " — ");
+                }
+                event.put("address", address.toString());
             } else {
                 event.put("address", "");
             }
