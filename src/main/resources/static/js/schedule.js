@@ -101,6 +101,21 @@ function clearFormErrors(fieldIds) {
 }
 
 /**
+ * Extracts the city name and postal code from a city select element.
+ *
+ * @param {string} selectId - ID of the select element
+ * @returns {{ city: string, postalCode: string }}
+ */
+function getCityFromSelect(selectId) {
+    const select = document.getElementById(selectId);
+    const opt = select.options[select.selectedIndex];
+    return {
+        city: opt.dataset.name || '',
+        postalCode: select.value || ''
+    };
+}
+
+/**
  * Sets up a toggle filter on a group of elements.
  * Clicking an item activates or deactivates the filter,
  * updates the bold style, refreshes the calendar and closes the dropdown.
@@ -147,9 +162,7 @@ const customButtons = {
             const btn = document.querySelector('.fc-filterBtn-button');
             const rect = btn.getBoundingClientRect();
             const dropdown = document.getElementById('dropdown-filtre');
-
-            dropdown.style.cssText = ` position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
-
+            dropdown.style.cssText = `position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
             dropdown.classList.toggle('show');
             btn.classList.toggle('active');
         }
@@ -160,10 +173,7 @@ if (userRole === 'BENEFICIARY') {
     customButtons.newRequest = {
         text: '+ Nouvelle demande',
         click: function() {
-            const newRequestModal = bootstrap.Modal.getOrCreateInstance(
-                document.getElementById('newRequestModal')
-            );
-            newRequestModal.show();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).show();
         }
     };
 }
@@ -186,11 +196,8 @@ if (userRole === 'MANAGER') {
     };
     customButtons.newMission = {
         text: isMobile ? '+ Mission' : '+ Nouvelle mission',
-        click: function () {
-            const newMissionModal = bootstrap.Modal.getOrCreateInstance(
-                document.getElementById('newMissionModal')
-            );
-            newMissionModal.show();
+        click: function() {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).show();
         }
     };
 }
@@ -211,13 +218,8 @@ if (userRole === 'MANAGER') {
 async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     const params = new URLSearchParams();
     params.append('weekDate', fetchInfo.startStr.substring(0, 10));
-
-    if (activeFilters.status !== null){
-        params.append('status', activeFilters.status);
-    }
-    if (activeFilters.interpreter !== null){
-        params.append('interpreter', activeFilters.interpreter);
-    }
+    if (activeFilters.status !== null) params.append('status', activeFilters.status);
+    if (activeFilters.interpreter !== null) params.append('interpreter', activeFilters.interpreter);
 
     try {
         const r = await fetch('/horaire/evenements?' + params.toString());
@@ -228,7 +230,7 @@ async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     }
 }
 
-document.addEventListener('input', function (e) {
+document.addEventListener('input', function(e) {
     if (e.target.classList.contains('is-invalid')) {
         e.target.classList.remove('is-invalid');
         const errorEl = document.getElementById(e.target.id + 'Error');
@@ -245,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
         weekends: true,
         allDaySlot: false,
         businessHours: {
-            daysOfWeek: [ 1, 2, 3, 4, 5 ],
+            daysOfWeek: [1, 2, 3, 4, 5],
             startTime: '00:00',
             endTime: '23:59',
         },
@@ -296,14 +298,11 @@ document.addEventListener('DOMContentLoaded', function() {
          */
         eventContent: function(arg) {
             const props = arg.event.extendedProps;
-            const importance = parseInt(props.importance);
-            const stars = buildStars(importance);
+            const stars = buildStars(parseInt(props.importance));
             return {
                 html: `
                     <div class="fc-event-content-inner p-1">
-                        <div class="position-absolute top-0 end-0 pe-1 text-white fw-bold">
-                            ${stars}
-                        </div>
+                        <div class="position-absolute top-0 end-0 pe-1 text-white fw-bold">${stars}</div>
                         <div class="fw-bold">${arg.event.title}</div>
                         <div>${arg.timeText}</div>
                         <div>${props.type || ''}</div>
@@ -328,13 +327,11 @@ document.addEventListener('DOMContentLoaded', function() {
             endHour.setMinutes(endHour.getMinutes() + 60);
 
             const formatDate = (date) => date.toLocaleDateString('en-CA');
-            const formatTime = (date) => date.toLocaleTimeString('fr-BE', {
-                hour: '2-digit',
-                minute: '2-digit',
-            });
-            const dateValue = formatDate(clickedDate);
+            const formatTime = (date) => date.toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
+
+            const dateValue      = formatDate(clickedDate);
             const startHourValue = formatTime(clickedDate);
-            const endHourValue = formatTime(endHour);
+            const endHourValue   = formatTime(endHour);
 
             if (userRole === 'MANAGER') {
                 document.getElementById('missionDate').value = dateValue;
@@ -368,12 +365,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
 
             const beforeStart = start && now < start;
-            const isManager = userRole === 'MANAGER';
-            const isPending = status.includes('en attente');
-            const isAccepted = status.includes('accept');
-            const interpreterSelect = document.getElementById('managerPendingInterpreter');
-            interpreterSelect.value = props.interpreter || '';
-            interpreterSelect.disabled = !(isPending && beforeStart);
+            const isPending   = status.includes('en attente');
+            const isAccepted  = status.includes('accept');
 
             const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
             let timeText = '';
@@ -382,46 +375,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (end) timeText += ' - ' + timeFormatter.format(end);
             }
 
-            if (isManager && (isPending || isAccepted)) {
-                const importance = parseInt(props.importance || '0', 10);
-                document.getElementById('managerPendingImportance').innerHTML = buildStars(importance, 5);
-                document.getElementById('managerPendingTitle').innerText = event.title || '';
-                document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
-                document.getElementById('managerPendingTime').innerText = timeText || '';
-                document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
+            if (userRole === 'MANAGER' && (isPending || isAccepted)) {
+                const interpreterSelect = document.getElementById('managerPendingInterpreter');
+                interpreterSelect.disabled = !(isPending && beforeStart);
+
+                document.getElementById('managerPendingImportance').innerHTML = buildStars(parseInt(props.importance || '0'), 5);
+                document.getElementById('managerPendingTitle').innerText      = event.title || '';
+                document.getElementById('managerPendingDate').innerText       = start ? start.toLocaleDateString('fr-BE') : '';
+                document.getElementById('managerPendingTime').innerText       = timeText;
+                document.getElementById('managerPendingLocation').innerText   = props.address || props.room || '';
                 document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || '';
-                document.getElementById('managerPendingType').innerText = props.type || '';
-                document.getElementById('managerPendingComment').innerText = props.comment || '';
-                document.getElementById('managerPendingStatus').innerText = props.status || '';
-                document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
+                document.getElementById('managerPendingType').innerText       = props.type || '';
+                document.getElementById('managerPendingComment').innerText    = props.comment || '';
+                document.getElementById('managerPendingStatus').innerText     = props.status || '';
+                interpreterSelect.value = props.interpreter || '';
 
                 const footer = document.querySelector('#managerPendingModal .modal-footer');
-                footer.innerHTML = '';
+                footer.innerHTML = isPending && beforeStart
+                    ? `<button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
+                       <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>`
+                    : `<button type="button" class="btn btn-danger" id="btnCancelAcceptedMission">Annuler la mission</button>`;
 
-                if (isPending && beforeStart) {
-                    footer.innerHTML = `
-                        <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
-                        <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
-                    `;
-                } else {
-                    footer.innerHTML = `
-                        <button type="button" class="btn btn-danger" id="btnCancelAcceptedMission">Annuler la mission</button>
-                    `;
-                }
-
-                const acceptBtn = document.getElementById('btnAcceptMission');
-                const refuseBtn = document.getElementById('btnRefuseMission');
-                const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
+                const acceptBtn          = document.getElementById('btnAcceptMission');
+                const refuseBtn          = document.getElementById('btnRefuseMission');
+                const cancelAcceptedBtn  = document.getElementById('btnCancelAcceptedMission');
 
                 if (acceptBtn) {
                     /**
                      * Sends a POST request to accept the selected mission with the chosen interpreter.
-                     * Displays a success toast and refreshes the calendar events.
-                     *
                      * @listens click
                      * @returns {Promise<void>}
                      */
-                    acceptBtn.addEventListener('click', async function () {
+                    acceptBtn.addEventListener('click', async function() {
                         const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
                         if (!selectedInterpreter) {
                             showToast("Veuillez sélectionner un interprète.", 'error');
@@ -446,12 +431,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (refuseBtn) {
                     /**
                      * Sends a POST request to refuse the selected mission.
-                     * Displays an info toast and refreshes the calendar events.
-                     *
                      * @listens click
                      * @returns {Promise<void>}
                      */
-                    refuseBtn.addEventListener('click', async function () {
+                    refuseBtn.addEventListener('click', async function() {
                         try {
                             const res = await fetch('/horaire/missions/' + event.id + '/refuser', {
                                 method: 'POST'
@@ -469,32 +452,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (cancelAcceptedBtn) {
                     /**
                      * Closes the manager modal and opens the cancellation confirmation modal.
-                     *
                      * @listens click
                      */
                     cancelAcceptedBtn.addEventListener('click', function() {
                         bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
                         bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
-                    });
+                    }, { once: true });
                 }
 
                 bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
                 return;
             }
 
-            document.getElementById('modalTitle').innerText = event.title || '';
-            document.getElementById('modalTime').innerText = timeText || '';
-            document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
-            document.getElementById('modalType').innerText = props.type || '';
-            document.getElementById('modalLocation').innerText = props.address || '';
+            document.getElementById('modalTitle').innerText      = event.title || '';
+            document.getElementById('modalTime').innerText       = timeText;
+            document.getElementById('modalDate').innerText       = start ? start.toLocaleDateString('fr-BE') : '';
+            document.getElementById('modalType').innerText       = props.type || '';
+            document.getElementById('modalLocation').innerText   = props.address || '';
             document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
-            document.getElementById('modalComment').innerText = props.comment || '';
-            document.getElementById('modalStatus').innerText = props.status || '';
+            document.getElementById('modalComment').innerText    = props.comment || '';
+            document.getElementById('modalStatus').innerText     = props.status || '';
+            document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
+
             const actions = document.getElementById('modalActions');
             actions.innerHTML = '';
 
-            const isSameDay = now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
-            const isBeforeEnd = now < end;
+            const isSameDay  = start && now.toDateString() === start.toDateString();
+            const isBeforeEnd = end && now < end;
 
             if (isPending) {
                 actions.innerHTML = `
@@ -508,12 +492,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const cancelBtn = document.getElementById('btnCancelRequest');
-            const delayBtn = document.getElementById('btnDelayReport');
+            const delayBtn  = document.getElementById('btnDelayReport');
 
             if (delayBtn) {
                 /**
                  * Closes the event modal and opens the delay report modal.
-                 *
                  * @listens click
                  */
                 delayBtn.addEventListener('click', function() {
@@ -525,7 +508,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (cancelBtn) {
                 /**
                  * Closes the event modal and opens the cancellation confirmation modal.
-                 *
                  * @listens click
                  */
                 cancelBtn.addEventListener('click', function() {
@@ -534,7 +516,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
             bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
         }
     });
@@ -542,15 +523,14 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.fc-filterBtn-button') && !e.target.closest('#dropdown-filtre')) {
             document.getElementById('dropdown-filtre').classList.remove('show');
-            document.querySelector('.fc-filterBtn-button').classList.remove('active');
+            document.querySelector('.fc-filterBtn-button')?.classList.remove('active');
         }
     });
 
     document.getElementById('search-interpreter')?.addEventListener('input', function() {
         const query = this.value.toLowerCase();
         document.querySelectorAll('#interpreter-list .filter-interpreter').forEach(item => {
-            const name = item.dataset.value.toLowerCase();
-            item.style.display = name.includes(query) ? '' : 'none';
+            item.style.display = item.dataset.value.toLowerCase().includes(query) ? '' : 'none';
         });
     });
 
@@ -560,9 +540,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Handles a click on the "No" button in the cancellation confirmation modal.
-     * Closes the confirmation modal and re-opens the previous modal
-     * based on the user's role.
-     *
      * @listens click
      */
     document.getElementById('cancelConfirmBackBtn').addEventListener('click', function() {
@@ -575,9 +552,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     /**
-     * Handles a click on "Cancel" in the delay report modal.
-     * Closes the delay modal and re-opens the event modal.
+     * Sends a POST request to cancel the selected mission.
+     * Displays a confirmation toast and refreshes the calendar events.
      *
+     * @listens click
+     * @returns {Promise<void>}
+     */
+    document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
+        if (!currentMissionId) return;
+        try {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/refuser', {
+                method: 'POST'
+            });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
+            calendar.refetchEvents();
+            showToast("Demande annulée.", 'info');
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+
+    /**
+     * Handles a click on "Cancel" in the delay report modal.
      * @listens click
      */
     document.getElementById('cancelDelayModalBtn').addEventListener('click', function() {
@@ -587,19 +584,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Sends a POST request to report a delay for the selected mission.
-     * Includes the number of delay minutes and the absence indicator.
-     * Displays a confirmation or error toast.
      *
      * @listens click
      * @returns {Promise<void>}
      */
-    document.getElementById('sendDelayBtn').addEventListener('click', async function () {
+    document.getElementById('sendDelayBtn').addEventListener('click', async function() {
         if (!currentMissionId) {
-            alert("Aucune mission sélectionnée.");
+            showToast("Aucune mission sélectionnée.", 'error');
             return;
         }
         const minutes = document.getElementById('delayMinutes').value;
-        const absent = document.getElementById('delayAbsent').checked;
+        const absent  = document.getElementById('delayAbsent').checked;
         try {
             const res = await fetch('/horaire/missions/' + currentMissionId + '/retard', {
                 method: 'POST',
@@ -616,28 +611,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Validates and submits the new mission creation form (MANAGER role).
-     * Checks required fields and time consistency, then sends
-     * the data via POST to `/horaire/missions`. Refreshes the calendar on success.
      *
      * @listens click
      * @returns {Promise<void>}
      */
-    document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionPostalCode', 'missionInterpreter']);
+    document.getElementById('sendMissionBtn').addEventListener('click', async function() {
+        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionInterpreter']);
+
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
             { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
-            { id: 'missionStreet',     errorId: 'missionStreetError',     msg: 'La rue est requise.' },
-            { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
+            { id: 'missionStreet',              errorId: 'missionStreetError',              msg: 'La rue est requise.' },
         ];
         if (!validateFields(rules)) return;
 
         const checkedInterpreters = Array.from(document.querySelectorAll('.mission-interpreter-check:checked'));
         if (checkedInterpreters.length === 0) {
-            document.getElementById('missionInterpreterError').textContent = 'Veuillez sélectionner au moins un interprète.';
-            document.getElementById('missionInterpreterError').style.display = 'block';
+            const errEl = document.getElementById('missionInterpreterError');
+            errEl.textContent = 'Veuillez sélectionner au moins un interprète.';
+            errEl.classList.add('is-invalid');
             return;
         }
 
@@ -647,6 +641,9 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast("L'heure de fin doit être après l'heure de début.", 'error');
             return;
         }
+
+        const { city, postalCode } = getCityFromSelect('missionCity');
+
         const payload = {
             type:                document.querySelector('input[name="missionType"]:checked').value,
             title:               document.getElementById('missionTitle').value,
@@ -654,17 +651,18 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime,
             endTime,
             locationDesignation: document.getElementById('missionLocationDesignation').value,
-            city:     document.getElementById('missionCityName').value,
-            postalCode: document.getElementById('missionCity').value,
+            city,
+            postalCode,
             street:              document.getElementById('missionStreet').value,
             streetNumber:        document.getElementById('missionStreetNumber').value,
             box:                 document.getElementById('missionBox').value,
-            interpreterIds:      checkedInterpreters.map(cb => cb.value),
-            beneficiaryId:      document.getElementById('missionBeneficiary').value,
-            comment:             document.getElementById('missionComment').value,
             room:                document.getElementById('missionRoom').value,
             academicSkillId:     document.getElementById('missionAcademicSkill').value,
+            interpreterIds:      checkedInterpreters.map(cb => cb.value),
+            beneficiaryId:       document.getElementById('missionBeneficiary').value,
+            comment:             document.getElementById('missionComment').value,
         };
+
         try {
             const res = await fetch('/horaire/missions', {
                 method: 'POST',
@@ -682,29 +680,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Validates and submits the new request creation form (BENEFICIARY role).
-     * Checks required fields and time consistency, then sends
-     * the data via POST to `/horaire/requetes`. Refreshes the calendar on success.
      *
      * @listens click
      * @returns {Promise<void>}
      */
-    document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet', 'requestPostalCode']);
+    document.getElementById('sendRequestBtn').addEventListener('click', async function() {
+        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet']);
+
         const rules = [
             { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
             { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
-            { id: 'requestStreet',     errorId: 'requestStreetError',     msg: 'La rue est requise.' },
-            { id: 'requestPostalCode', errorId: 'requestPostalCodeError', msg: 'Le code postal est requis.' },
+            { id: 'requestStreet',              errorId: 'requestStreetError',              msg: 'La rue est requise.' },
         ];
         if (!validateFields(rules)) return;
+
         const startTime = document.getElementById('requestStartTime').value;
         const endTime   = document.getElementById('requestEndTime').value;
         if (startTime >= endTime) {
             showToast("L'heure de fin doit être après l'heure de début.", 'error');
             return;
         }
+
+        const { city, postalCode } = getCityFromSelect('requestCity');
+
         const payload = {
             type:                document.querySelector('input[name="requestType"]:checked').value,
             title:               document.getElementById('requestTitle').value,
@@ -712,16 +712,17 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime,
             endTime,
             locationDesignation: document.getElementById('requestLocationDesignation').value,
-            city:           document.getElementById('requestCityName').value,
-            postalCode:         document.getElementById('requestCity').value,
-            room:             document.getElementById('requestRoom').value,
-            academicSkillId:  document.getElementById('requestAcademicSkill').value,
+            city,
+            postalCode,
             street:              document.getElementById('requestStreet').value,
             streetNumber:        document.getElementById('requestStreetNumber').value,
             box:                 document.getElementById('requestBox').value,
+            room:                document.getElementById('requestRoom').value,
+            academicSkillId:     document.getElementById('requestAcademicSkill').value,
             comment:             document.getElementById('requestComment').value,
-            importance:          document.querySelector('input[name="requestImportance"]:checked').value
+            importance:          document.querySelector('input[name="requestImportance"]:checked').value,
         };
+
         try {
             const res = await fetch('/horaire/requetes', {
                 method: 'POST',
@@ -737,14 +738,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('requestCity').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        document.getElementById('requestCityName').value = opt.dataset.name || '';
-    });
-    document.getElementById('missionCity').addEventListener('change', function() {
-        const opt = this.options[this.selectedIndex];
-        document.getElementById('missionCityName').value = opt.dataset.name || '';
-    });
     setupFilter('.filter-status', 'status');
     setupFilter('.filter-interpreter', 'interpreter');
     calendar.render();
