@@ -372,8 +372,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const isPending = status.includes('en attente');
             const isAccepted = status.includes('accept');
             const interpreterSelect = document.getElementById('managerPendingInterpreter');
-            interpreterSelect.value = props.interpreter || '';
             interpreterSelect.disabled = !(isPending && beforeStart);
+
+            if (isAccepted) {
+                interpreterSelect.style.display = 'none';
+
+                let nameSpan = document.getElementById('managerPendingInterpreterName');
+                if (!nameSpan) {
+                    nameSpan = document.createElement('span');
+                    nameSpan.id = 'managerPendingInterpreterName';
+                    nameSpan.className = 'fst-italic text-muted';
+                    interpreterSelect.parentNode.appendChild(nameSpan);
+                }
+
+                nameSpan.style.display = '';
+                const interpreterNames = (props.interpreter || '')
+                    .split(',')
+                    .map(name => name.trim())
+                    .filter(name => name !== '');
+                if (interpreterNames.length > 0) {
+                    nameSpan.textContent = interpreterNames.join(' • ');
+                } else {
+                    nameSpan.textContent = 'Aucun interprète';
+                }
+            } else {
+                interpreterSelect.style.display = '';
+                const nameSpan = document.getElementById('managerPendingInterpreterName');
+                if (nameSpan) {
+                    nameSpan.style.display = 'none';
+                }
+                interpreterSelect.value = '';
+            }
 
             const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
             let timeText = '';
@@ -389,11 +418,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
                 document.getElementById('managerPendingTime').innerText = timeText || '';
                 document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
-                document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || '';
-                document.getElementById('managerPendingType').innerText = props.type || '';
+                document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || 'Aucun bénéficiaire';
+                document.getElementById('managerPendingType').innerText = props.type ? 'Type : ' + props.type : '';
                 document.getElementById('managerPendingComment').innerText = props.comment || '';
                 document.getElementById('managerPendingStatus').innerText = props.status || '';
-                document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
+
 
                 const footer = document.querySelector('#managerPendingModal .modal-footer');
                 footer.innerHTML = '';
@@ -630,7 +659,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
             { id: 'missionStreet',     errorId: 'missionStreetError',     msg: 'La rue est requise.' },
-            { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
 
@@ -696,7 +724,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
             { id: 'requestStreet',     errorId: 'requestStreetError',     msg: 'La rue est requise.' },
-            { id: 'requestPostalCode', errorId: 'requestPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
         const startTime = document.getElementById('requestStartTime').value;
