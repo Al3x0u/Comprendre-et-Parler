@@ -206,20 +206,20 @@ public class DAOMission extends DAO<Mission> {
                 "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
                 " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
                 "WHERE " +
-                    // status is the same
-                    "m." + FIELD_STATE + " = ? " +
-                    // timeslots overlap
-                    "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
-                    " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
-                    //
-                    " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
-                        "OR m." + FIELD_ID + " IN " +
-                            "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
-                                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
-                                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
-                                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
-                            ")" +
-                    ")";
+                // status is the same
+                "m." + FIELD_STATE + " = ? " +
+                // timeslots overlap
+                "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
+                " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
+                //
+                " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
+                "OR m." + FIELD_ID + " IN " +
+                "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
+                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
+                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
+                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
+                ")" +
+                ")";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
@@ -331,14 +331,14 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT m.id FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE (" +
-                    "ts.day = ? " + // timeslot is base and happens on the correct day
-                    "OR (ts.day IS NULL AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?)" + // timeslot is punctual and happens on the correct date
+                "ts.day = ? " + // timeslot is base and happens on the correct day
+                "OR (ts.day IS NULL AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?)" + // timeslot is punctual and happens on the correct date
                 ") " +
                 "AND (" +
-                    "m.id IN " +
-                        "(SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
-                        " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // mission is assigned to idUser (idUser is an Interpreter)
-                    "OR m." + FIELD_BENEFICIARY + " = ?" + // mission is assigned to idUser (idUser is a Beneficiary)
+                "m.id IN " +
+                "(SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
+                " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // mission is assigned to idUser (idUser is an Interpreter)
+                "OR m." + FIELD_BENEFICIARY + " = ?" + // mission is assigned to idUser (idUser is a Beneficiary)
                 ")";
         PreparedStatement statement = null;
         ResultSet result = null;
