@@ -811,4 +811,31 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
         return interpreters;
     }
+
+    /**
+     * Load all interpreters linked to a mission from the InterpreterMission table
+     * @param missionId the id of the mission
+     * @return a Set of Interpreter linked to this mission
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Interpreter> findByMission(int missionId) throws SQLException {
+        String query = "SELECT interpreter FROM InterpreterMission WHERE mission = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<Interpreter> interpreters = new HashSet<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            result = statement.executeQuery();
+            while (result.next()) {
+                Interpreter interpreter = find(result.getInt("interpreter"));
+                if (interpreter != null)
+                    interpreters.add(interpreter);
+            }
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return interpreters;
+    }
 }
