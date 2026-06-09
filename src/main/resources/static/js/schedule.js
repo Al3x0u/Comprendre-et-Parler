@@ -645,14 +645,13 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionPostalCode', 'missionInterpreter']);
+        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionInterpreter']);
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
             { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
             { id: 'missionStreet',     errorId: 'missionStreetError',     msg: 'La rue est requise.' },
-            { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
 
@@ -711,14 +710,13 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet', 'requestPostalCode']);
+        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet']);
         const rules = [
             { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
             { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
             { id: 'requestStreet',     errorId: 'requestStreetError',     msg: 'La rue est requise.' },
-            { id: 'requestPostalCode', errorId: 'requestPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
         const startTime = document.getElementById('requestStartTime').value;
