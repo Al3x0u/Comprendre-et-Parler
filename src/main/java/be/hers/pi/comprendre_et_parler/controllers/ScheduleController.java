@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
+import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import jakarta.servlet.http.HttpSession;
@@ -112,12 +114,10 @@ public class ScheduleController {
             }
             String street = payload.get("street");
             String streetNumber = payload.get("streetNumber");
+            String boxStr = payload.get("box");
             int box = 0;
-            try{
-                box = Integer.parseInt(payload.get("box"));
-            }catch(Exception e){
-                e.printStackTrace();
-                box = 0;
+            if (boxStr != null && !boxStr.isBlank()) {
+                try { box = Integer.parseInt(boxStr); } catch (Exception ignored) {}
             }
 
             String comment = payload.get("comment");
@@ -187,6 +187,55 @@ public class ScheduleController {
         }
     }
 
+    @PostMapping("/missions/{id}/verifier-quota")
+    @ResponseBody
+    public ResponseEntity<?> checkQuota(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+        try {
+            String interpreterIdStr = body.get("interpreterId");
+            if (interpreterIdStr == null || interpreterIdStr.isBlank())
+                return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
+
+            Mission mission = missionService.getOneMission(id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterIdStr));
+            Set<Interpreter> interpreters = new HashSet<>();
+            interpreters.add(interpreter);
+            mission.setInterpreters(interpreters);
+
+            String warning = missionService.checkQuotaWarning(mission);
+            return ResponseEntity.ok().body(warning); // "" si ok, message si dépassement
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur");
+        }
+    }
+
+    @GetMapping("/missions/{id}/interpretes-disponibles")
+    @ResponseBody
+    public ResponseEntity<?> getAvailableInterpreters(@PathVariable int id, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager))
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+
+            Mission mission = missionService.getOneMission(id);
+            List<Interpreter> available = interpreterService.getAvailableInterpreters(mission.getTimeSlot());
+
+            List<Map<String, String>> result = new ArrayList<>();
+            for (Interpreter i : available) {
+                Map<String, String> map = new HashMap<>();
+                map.put("id", String.valueOf(i.getId()));
+                map.put("name", i.getFirstName() + " " + i.getLastName());
+                result.add(map);
+            }
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur");
+        }
+    }
+
     /**
      * Accept a pending mission and assign an interpreter to it
      * @param id the mission ID
@@ -197,6 +246,7 @@ public class ScheduleController {
     @PostMapping("/missions/{id}/accepter")
     @ResponseBody
     public ResponseEntity<?> acceptMission(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+        Mission mission = null;
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
             if (!(user instanceof Manager)) {
@@ -208,7 +258,7 @@ public class ScheduleController {
                 return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
             }
 
-            Mission mission = missionService.getOneMission(id);
+            mission = missionService.getOneMission(id);
             Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterIdStr));
 
             Set<Interpreter> interpreters = new HashSet<>();
@@ -216,11 +266,21 @@ public class ScheduleController {
             mission.setInterpreters(interpreters);
 
             missionService.acceptRequest(mission);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("ok");
 
+        } catch (QuotaExceededException e) {
+            try {
+                missionService.acceptRequestDespiteQuota(mission);
+                return ResponseEntity.ok().body("warning:" + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation malgré le quota.");
+            }
+        }catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("conflict:" + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation de la mission. Veuillez réessayer.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation de la mission.");
         }
     }
 
@@ -380,9 +440,15 @@ public class ScheduleController {
             if (!(mission.getTimeSlot() instanceof PunctualTimeSlot)) {
                 continue;
             }
+
+
+            interpreterService.loadInterpreters(mission);
+
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
             event.put("title", mission.getSubject());
+            event.put("id", String.valueOf(mission.getId()));
+
 
             event.put("start", pts.getStartDate().toString());
             event.put("end", pts.getEndDate().toString());
