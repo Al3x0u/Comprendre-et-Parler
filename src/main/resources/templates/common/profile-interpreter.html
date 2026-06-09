@@ -265,7 +265,7 @@
                         <h2 class="h5 text-primary mb-0">Bénéficiaires assignés</h2>
                     </div>
                     <div class="d-flex flex-column gap-2">
-                        <div th:each="b : ${beneficiaries}" class="bg-light rounded p-3 d-flex justify-content-between align-items-center gap-3">
+                        <div th:each="b : *{assignedBeneficiaries}" class="bg-light rounded p-3 d-flex justify-content-between align-items-center gap-3">
                             <a th:href="@{/beneficiaires/profil/{id}(id=${b.id})}"
                                class="d-flex align-items-center gap-3 text-decoration-none">
                                 <img th:src="@{/images/avatar.png}" alt="Avatar" width="40" height="40" class="rounded-circle border">
@@ -275,7 +275,7 @@
                                 </div>
                             </a>
                         </div>
-                        <p th:if="${#lists.isEmpty(beneficiaries)}" class="text-muted mb-0">Aucun bénéficiaire assigné</p>
+                        <p th:if="*{#lists.isEmpty(assignedBeneficiaries)}" class="text-muted mb-0">Aucun bénéficiaire assigné</p>
                     </div>
                 </div>
             </div>
