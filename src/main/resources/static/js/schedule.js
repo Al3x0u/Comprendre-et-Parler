@@ -362,6 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const event = info.event;
             currentMissionId = event.id;
             const props = event.extendedProps;
+
             const start = event.start;
             const end = event.end;
             const status = (props.status || '').toLowerCase();
@@ -402,6 +403,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     nameSpan.style.display = 'none';
                 }
                 interpreterSelect.value = '';
+
+                interpreterSelect.innerHTML = '<option value="">Chargement...</option>';
+                fetch('/horaire/missions/' + currentMissionId + '/interpretes-disponibles')
+                    .then(res => res.json())
+                    .then(interpreters => {
+                        interpreterSelect.innerHTML = '<option value="">Sélectionner</option>';
+                        if (interpreters.length === 0) {
+                            interpreterSelect.innerHTML = '<option value="">Aucun interprète disponible</option>';
+                        } else {
+                            interpreters.forEach(i => {
+                                const opt = document.createElement('option');
+                                opt.value = i.id;
+                                opt.textContent = i.name;
+                                interpreterSelect.appendChild(opt);
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        interpreterSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                    });
             }
 
             const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
@@ -456,16 +477,55 @@ document.addEventListener('DOMContentLoaded', function() {
                             showToast("Veuillez sélectionner un interprète.", 'error');
                             return;
                         }
+
+                        const doAccept = async () => {
+                            try {
+                                const res = await fetch('/horaire/missions/' + currentMissionId + '/accepter', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ interpreterId: selectedInterpreter })
+                                });
+                                if (!res.ok) throw new Error(await res.text());
+                                bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal')).hide();
+                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                                calendar.refetchEvents();
+                                showToast("Mission acceptée.", 'success');
+                            } catch (err) {
+                                showToast("Erreur : " + err.message, 'error');
+                            }
+                        };
+
                         try {
-                            const res = await fetch('/horaire/missions/' + event.id + '/accepter', {
+                            const checkRes = await fetch('/horaire/missions/' + currentMissionId + '/verifier-quota', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ interpreterId: selectedInterpreter })
                             });
-                            if (!res.ok) throw new Error(await res.text());
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                            calendar.refetchEvents();
-                            showToast("Mission acceptée.", 'success');
+                            if (!checkRes.ok) throw new Error(await checkRes.text());
+                            const warning = await checkRes.text();
+
+                            if (warning && warning.trim() !== '') {
+                                document.getElementById('quotaWarningMessage').innerText = warning;
+                                const quotaModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal'));
+                                const managerModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
+
+                                document.getElementById('quotaWarningConfirm').onclick = async () => {
+                                    await doAccept();
+                                };
+                                document.getElementById('quotaWarningCancel').onclick = () => {
+                                    quotaModal.hide();
+                                    managerModal.show();
+                                };
+
+                                document.getElementById('managerPendingModal').addEventListener('hidden.bs.modal', () => {
+                                    quotaModal.show();
+                                }, { once: true });
+
+                                managerModal.hide();
+                            } else {
+                                await doAccept();
+                            }
+
                         } catch (err) {
                             showToast("Erreur : " + err.message, 'error');
                         }
