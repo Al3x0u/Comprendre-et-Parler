@@ -651,4 +651,27 @@ public class ScheduleController {
         return mission;
     }
 
+    /**
+     * Cancel an accepted or pending mission
+     * @param id the mission ID
+     * @param session the current HTTP session
+     * @return 200 if cancelled, 403 if not a manager, 500 on error
+     */
+    @PostMapping("/missions/{id}/annuler")
+    @ResponseBody
+    public ResponseEntity<?> cancelMission(@PathVariable int id, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+            Mission mission = missionService.getOneMission(id);
+            missionService.cancelMission(mission);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'annulation.");
+        }
+    }
+
 }
