@@ -664,6 +664,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     /**
+     * Handles a click on the "Yes, cancel" button in the cancellation confirmation modal.
+     * Sends a POST request to cancel the currently selected mission.
+     * Closes the confirmation modal, refreshes the calendar and displays a toast on success.
+     *
+     * @listens click
+     * @returns {Promise<void>}
+     */
+    document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
+        try {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/annuler', {
+                method: 'POST'
+            });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
+            calendar.refetchEvents();
+            showToast("Mission annulée.", 'info');
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+
+    /**
      * Handles a click on "Cancel" in the delay report modal.
      * Closes the delay modal and re-opens the event modal.
      *
