@@ -673,7 +673,8 @@ document.addEventListener('DOMContentLoaded', function() {
      * @listens click
      * @returns {Promise<void>}
      */
-    document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
+    document.getElementById('confirmCancelBtn').addEventListener('click', async function () {
+        if (!currentMissionId) return;
         try {
             const res = await fetch('/horaire/missions/' + currentMissionId + '/annuler', {
                 method: 'POST'
@@ -736,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionPostalCode', 'missionInterpreter']);
+        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionInterpreter']);
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
@@ -801,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet', 'requestPostalCode']);
+        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet']);
         const rules = [
             { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
             { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },

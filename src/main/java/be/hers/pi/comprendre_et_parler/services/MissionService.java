@@ -304,11 +304,11 @@ public class MissionService {
     private double calculateHours(TimeSlot ts) {
         if (ts instanceof PunctualTimeSlot) {
             PunctualTimeSlot pts = (PunctualTimeSlot) ts;
-            return java.time.Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes();
+            return java.time.Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes() /60.0;
         }
         if (ts instanceof BaseTimeSlot) {
             BaseTimeSlot bts = (BaseTimeSlot) ts;
-            return java.time.Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes();
+            return java.time.Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes() / 60.0;
         }
         throw new IllegalArgumentException("Unknown TimeSlot subtype : " + ts.getClass().getSimpleName());
     }
