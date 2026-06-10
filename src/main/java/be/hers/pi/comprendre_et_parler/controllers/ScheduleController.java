@@ -537,11 +537,11 @@ public class ScheduleController {
             return "";
         }
         return switch (state) {
-            case ACCEPTED -> "Accepte";
-            case PENDING -> "En attente";
-            case DENIED -> "Refuse";
-            case CANCELED -> "Refuse";
-            default -> "";
+            case ACCEPTED -> "Acceptée";
+            case PENDING  -> "En attente";
+            case DENIED   -> "Refusée";
+            case CANCELED -> "Refusée";
+            default       -> "";
         };
     }
 
