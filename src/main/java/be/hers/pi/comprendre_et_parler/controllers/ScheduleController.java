@@ -187,6 +187,13 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Checks whether accepting a mission would exceed the interpreter's hour quota.
+     * @param id the mission ID
+     * @param body the request body containing the interpreter ID
+     * @param session the current HTTP session
+     * @return 200 with a warning message if quota exceeded, empty string if ok, 400 if no interpreter, 500 on error
+     */
     @PostMapping("/missions/{id}/verifier-quota")
     @ResponseBody
     public ResponseEntity<?> checkQuota(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
@@ -210,6 +217,12 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Returns the list of interpreters available for a given mission's time slot.
+     * @param id the mission ID
+     * @param session the current HTTP session
+     * @return 200 with the list of available interpreters, 403 if not a manager, 500 on error
+     */
     @GetMapping("/missions/{id}/interpretes-disponibles")
     @ResponseBody
     public ResponseEntity<?> getAvailableInterpreters(@PathVariable int id, HttpSession session) {
