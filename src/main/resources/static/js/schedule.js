@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalAcademicSkill').innerText = props.academicSkill || '';
             document.getElementById('modalLocation').innerText = props.address || '';
             document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
-            document.getElementById('modalComment').innerText = props.comment || '';
+            document.getElementById('modalComment').innerText = props.comment || 'Aucun commentaire';
             document.getElementById('modalStatus').innerText = props.status || '';
             const actions = document.getElementById('modalActions');
             actions.innerHTML = '';
