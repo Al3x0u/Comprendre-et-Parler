@@ -44,6 +44,8 @@ public class ProfileController {
                 i.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(i.getId()));
                 model.addAttribute("interprete", i);
                 model.addAttribute("userRole", "INTERPRETER");
+                model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
+                model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
             } else if (user instanceof Beneficiary b) {
                 model.addAttribute("beneficiaire", b);
                 model.addAttribute("age", Period.between(b.getBirthDate(), LocalDate.now()).getYears());
