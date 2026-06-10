@@ -211,7 +211,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
         if (objectInDB == null)
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
 
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
 
         int locationRef = -1;
