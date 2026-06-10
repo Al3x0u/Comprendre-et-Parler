@@ -299,6 +299,28 @@ public class InterpreterService {
     }
 
     /**
+     * Adds a job skill to an interpreter.
+     * If the skill does not exist in the database, it is created first.
+     * @param interpreter the interpreter to whom to add the skill
+     * @param skill the job skill to add
+     * @throws SQLException if the database could not be reached
+     */
+    public void addJobSkill(Interpreter interpreter, JobSkill skill) throws SQLException {
+        SQLWrap.callTransaction(daoInterpreter::createJobSkillLink, interpreter, skill);
+    }
+
+    /**
+     * Adds a job skill to an interpreter.
+     * If the skill does not exist in the database, it is created first.
+     * @param interpreter the interpreter to whom to add the skill
+     * @param skill the Academic skill to add
+     * @throws SQLException if the database could not be reached
+     */
+    public void addAcademicSkill(Interpreter interpreter, AcademicSkill skill) throws SQLException {
+        SQLWrap.callTransaction(daoInterpreter::createAcademicSkillLink, interpreter, skill);
+    }
+
+    /**
      * Modifies an interpreter's weekly and yearly quotas
      * @param interpreter the interpreter to modify
      * @param weekQuota the new weekly quota

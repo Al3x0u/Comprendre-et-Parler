@@ -66,11 +66,13 @@ public class BeneficiaryController {
 
     /**
      * Display the profile of a beneficiary.
+     * An interpreter can only display the profile of a beneficiary who references them.
      * @param id the id of the beneficiary to display
      * @param referer the URL of the referring page, used for the back button
      * @param session the current HTTP session, used to retrieve the connected user
      * @param model the Spring model to populate
-     * @return the beneficiary profile view, or a redirect to the list if not found
+     * @return the beneficiary profile view, a redirect to the list if not found,
+     * or a redirect to the user's profile if an interpreter is not referenced by the beneficiary
      */
     @GetMapping("/profil/{id}")
     public String showBeneficiaryProfile(@PathVariable int id,
@@ -81,6 +83,12 @@ public class BeneficiaryController {
             AppliUser user = (AppliUser) session.getAttribute("user");
             Beneficiary beneficiary = beneficiaryService.getOneBeneficiary(id);
             if (beneficiary == null) return "redirect:/beneficiaires";
+
+            if (user instanceof Interpreter && !(user instanceof Manager)
+                    && (beneficiary.getInterpreterRef() == null
+                    || beneficiary.getInterpreterRef().getId() != user.getId())) {
+                return "redirect:/profil";
+            }
 
             model.addAttribute("beneficiaire", beneficiary);
             model.addAttribute("referer", referer);

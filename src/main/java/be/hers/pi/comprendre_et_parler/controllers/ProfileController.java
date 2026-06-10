@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -39,6 +40,8 @@ public class ProfileController {
                 model.addAttribute("beneficiaries", beneficiaries);
                 model.addAttribute("isInterpreterAManager", true);
                 model.addAttribute("userRole", "MANAGER");
+                model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
+                model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
             } else if (user instanceof Interpreter i) {
                 Set<Beneficiary> beneficiaries = SQLWrap.call(
                         daoBeneficiary::findReferencedBeneficiaries, i.getId());

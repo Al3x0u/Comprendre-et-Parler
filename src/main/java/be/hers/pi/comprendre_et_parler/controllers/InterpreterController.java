@@ -173,6 +173,76 @@ public class InterpreterController {
     }
 
     /**
+     * Handle the addition of a job skill to an interpreter, either an existing one or a new one
+     * @param id the id of the interpreter
+     * @param existingSkillId the id of an existing skill to link, empty if a new skill is created
+     * @param newSkillName the designation of a new skill to create and link, empty if an existing skill is chosen
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/{id}/competences/metier/ajouter")
+    public String addJobSkill(@PathVariable int id,
+                              @RequestParam(required = false) Integer existingSkillId,
+                              @RequestParam(required = false) String newSkillName,
+                              HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager) && user.getId() != id)
+                return "redirect:/interpretes/profil/" + id;
+
+            JobSkill skill = null;
+            if (existingSkillId != null) {
+                skill = new JobSkillService().getAllJobSkills().stream()
+                        .filter(s -> s.getId() == existingSkillId)
+                        .findFirst().orElse(null);
+            } else if (newSkillName != null && !newSkillName.isBlank()) {
+                skill = new JobSkill(newSkillName.trim());
+            }
+
+            if (skill != null)
+                interpreterService.addJobSkill(interpreterService.getOneInterpreter(id), skill);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the addition of a academic skill to an interpreter, either an existing one or a new one
+     * @param id the id of the interpreter
+     * @param existingSkillId the id of an existing skill to link, empty if a new skill is created
+     * @param newSkillName the designation of a new skill to create and link, empty if an existing skill is chosen
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/{id}/competences/academiques/ajouter")
+    public String addAcademicSkill(@PathVariable int id,
+                              @RequestParam(required = false) Integer existingSkillId,
+                              @RequestParam(required = false) String newSkillName,
+                              HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager) && user.getId() != id)
+                return "redirect:/interpretes/profil/" + id;
+
+            AcademicSkill skill = null;
+            if (existingSkillId != null) {
+                skill = new AcademicSkillService().getAllAcademicSkills().stream()
+                        .filter(s -> s.getId() == existingSkillId)
+                        .findFirst().orElse(null);
+            } else if (newSkillName != null && !newSkillName.isBlank()) {
+                skill = new AcademicSkill(newSkillName.trim());
+            }
+
+            if (skill != null)
+                interpreterService.addAcademicSkill(interpreterService.getOneInterpreter(id), skill);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
      * Display the creation form for a new interpreter
      * @param model the Spring model to populate
      * @return the creation view
