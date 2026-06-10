@@ -201,7 +201,7 @@ public class InterpreterService {
         }
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
 
-        List<Interpreter> allInterpreters = new ArrayList<>(SQLWrap.call(daoInterpreter::findAll));
+        List<Interpreter> allInterpreters = getAllInterpreters();
 
         List<Interpreter> available = new ArrayList<>();
         for (Interpreter interpreter : allInterpreters) {
@@ -343,14 +343,16 @@ public class InterpreterService {
      * Call this explicitly only when interpreters are needed,
      * to avoid unnecessary cascade loading on every getResult() call.
      * @param mission the mission to load interpreters for, must not be null
-     * @throws SQLException if the database could not be reached
-     * @post mission.getInterpreters() is populated with the interpreters linked to this mission
+     * @post mission.getInterpreters() is populated with the interpreters linked to this mission, can be null if SQLException
      */
     public void loadInterpreters(Mission mission) {
-        try{
-            mission.setInterpreters(new DAOInterpreter().findByMission(mission.getId()));
+        try {
+            SQLWrap.callTransaction(
+                    (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(new DAOInterpreter().findByMission(m.getId())),
+                    mission
+            );
         }catch(SQLException e){
-            mission.setInterpreters(null);
+            mission.setInterpreters((null));
         }
 
     }
