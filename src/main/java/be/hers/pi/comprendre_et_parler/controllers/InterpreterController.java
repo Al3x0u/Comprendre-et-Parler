@@ -153,6 +153,26 @@ public class InterpreterController {
     }
 
     /**
+     * Handle the update of an interpreter's weekly and yearly hour quotas
+     * @param id the id of the interpreter to update
+     * @param hourQuotaWeek the new weekly hour quota
+     * @param hourQuotaYear the new yearly hour quota
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/{id}/quota")
+    public String updateQuota(@PathVariable int id,
+                              @RequestParam int hourQuotaWeek,
+                              @RequestParam int hourQuotaYear) {
+        try {
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            interpreterService.updateQuota(interpreter, hourQuotaWeek, hourQuotaYear);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
      * Display the creation form for a new interpreter
      * @param model the Spring model to populate
      * @return the creation view

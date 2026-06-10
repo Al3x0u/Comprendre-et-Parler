@@ -227,7 +227,7 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Quota d'heures</h2>
                         <div class="d-flex" th:if="${isManager}">
-                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-quota" onclick="toggleEditQuota()">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-quota" onclick="location.reload()">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
                             <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-quota" onclick="toggleEditQuota()">
@@ -442,12 +442,8 @@
             const isEditing = btn.classList.contains('editing');
 
             if (isEditing) {
-                btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
-                btn.classList.remove('editing', 'btn-outline-success', 'd-none');
-                btn.classList.add('btn-outline-primary');
-                btnCancel.classList.add('d-none');
-                views.forEach(v => v.classList.remove('d-none'));
-                edits.forEach(e => e.classList.add('d-none'));
+                document.getElementById('quota-form').submit();
+                return;
             } else {
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
                 btn.classList.add('editing', 'btn-outline-success');
