@@ -575,6 +575,28 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     /**
+     * Sends a POST request to cancel the selected mission, then refreshes the calendar.
+     * Triggered by the "Oui, annuler" button of the cancellation confirmation modal.
+     *
+     * @listens click
+     * @returns {Promise<void>}
+     */
+    document.getElementById('confirmCancelBtn').addEventListener('click', async function () {
+        if (!currentMissionId) return;
+        try {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/annuler', {
+                method: 'POST'
+            });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
+            calendar.refetchEvents();
+            showToast("Mission annulée.", 'info');
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+
+    /**
      * Handles a click on "Cancel" in the delay report modal.
      * Closes the delay modal and re-opens the event modal.
      *
@@ -623,14 +645,13 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionPostalCode', 'missionInterpreter']);
+        clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet', 'missionInterpreter']);
         const rules = [
             { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
             { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
             { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
             { id: 'missionStreet',     errorId: 'missionStreetError',     msg: 'La rue est requise.' },
-            { id: 'missionPostalCode', errorId: 'missionPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
 
@@ -689,14 +710,13 @@ document.addEventListener('DOMContentLoaded', function() {
      * @returns {Promise<void>}
      */
     document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet', 'requestPostalCode']);
+        clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet']);
         const rules = [
             { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
             { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
             { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
             { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
             { id: 'requestStreet',     errorId: 'requestStreetError',     msg: 'La rue est requise.' },
-            { id: 'requestPostalCode', errorId: 'requestPostalCodeError', msg: 'Le code postal est requis.' },
         ];
         if (!validateFields(rules)) return;
         const startTime = document.getElementById('requestStartTime').value;
