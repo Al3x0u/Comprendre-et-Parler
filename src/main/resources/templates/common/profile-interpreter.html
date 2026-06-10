@@ -473,6 +473,11 @@
         'btn-warning'
     )}"></div>
 
+    <!-- Modal Error Promote -->
+    <div th:if="${error == 'promote'}">s
+        <div th:replace="~{common/modals :: modal-error('Une erreur est survenue lors de la promotion de l\'interprète.')}"></div>
+    </div>
+
     <!-- Modal Demote -->
     <div th:replace="~{common/modals :: modal-confirm(
         'modalDemote',
@@ -489,7 +494,7 @@
 
     <!-- Modal Error Demote -->
     <div th:if="${error == 'demote'}">
-        <div th:replace="~{common/modals :: modal-error('Une erreur est survenue lors de la rétrogradation.')}"></div>
+        <div th:replace="~{common/modals :: modal-error('Une erreur est survenue lors de la rétrogradation du responsable.')}"></div>
     </div>
 
     <!-- Modal Delete -->

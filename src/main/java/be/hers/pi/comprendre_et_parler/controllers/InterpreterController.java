@@ -159,6 +159,7 @@ public class InterpreterController {
             interpreterService.promoteInterpreter(id);
         } catch (Exception e) {
             e.printStackTrace();
+            return "redirect:/interpretes/profil/" + id + "?error=promote";
         }
         return "redirect:/interpretes/profil/" + id;
     }
