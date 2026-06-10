@@ -487,6 +487,11 @@
         'btn-danger'
     )}"></div>
 
+    <!-- Modal Error Demote -->
+    <div th:if="${error == 'demote'}">
+        <div th:replace="~{common/modals :: modal-error('Une erreur est survenue lors de la rétrogradation.')}"></div>
+    </div>
+
     <!-- Modal Delete -->
     <div th:replace="~{common/modals :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
 
