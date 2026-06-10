@@ -36,6 +36,8 @@ let currentMissionId = null;
 /** @type {boolean} Whether this is the first calendar load */
 let premierChargement = true;
 
+/** The calendar */
+let calendar;
 
 // ── UTILS ─────────────────────────────────────────────────────────────────
 
@@ -237,7 +239,7 @@ document.addEventListener('input', function (e) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
         initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
         height: isMobile ? '75vh' : '83vh',
         locale: 'fr',
