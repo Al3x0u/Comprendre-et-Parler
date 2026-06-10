@@ -486,6 +486,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalTime').innerText = timeText || '';
             document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
             document.getElementById('modalType').innerText = props.type || '';
+            document.getElementById('modalAcademicSkill').innerText = props.academicSkill || '';
             document.getElementById('modalLocation').innerText = props.address || '';
             document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
             document.getElementById('modalComment').innerText = props.comment || '';

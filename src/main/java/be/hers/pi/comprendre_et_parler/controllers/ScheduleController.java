@@ -440,6 +440,11 @@ public class ScheduleController {
                 event.put("type", "");
             }
 
+            if (mission.getAcademicSkill() != null) {
+                event.put("academicSkill", mission.getAcademicSkill().getDesignation());
+            } else {
+                event.put("academicSkill", "");
+            }
 
             if (mission.getRoom() != null) {
                 event.put("room", mission.getRoom());
