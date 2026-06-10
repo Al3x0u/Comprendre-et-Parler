@@ -753,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const startTime = document.getElementById('missionStartTime').value;
         const endTime   = document.getElementById('missionEndTime').value;
-        if (timeToMinutes(startTime) >= timeToMinutes(endTime)){
+        if (startTime >= endTime){
             showToast("L'heure de fin doit être après l'heure de début.", 'error');
             return;
         }
