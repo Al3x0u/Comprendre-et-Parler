@@ -178,6 +178,14 @@ public class ScheduleController {
                 }
             }
 
+            if (type != null && !type.isBlank()) {
+                jobSkillService.getAllJobSkills().stream()
+                        .filter(js -> js.getDesignation() != null && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
+                        .findFirst()
+                        .ifPresent(mission::setJobSkill);
+            }
+
+
             missionService.createRequest(mission);
 
             return ResponseEntity.ok("Demande créée.");
@@ -431,6 +439,8 @@ public class ScheduleController {
             } else {
                 event.put("type", "");
             }
+
+
             if (mission.getRoom() != null) {
                 event.put("room", mission.getRoom());
             } else {
