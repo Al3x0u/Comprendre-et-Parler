@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -22,7 +21,7 @@ import java.util.List;
 public class InterpreterController {
 
     private final InterpreterService interpreterService = new InterpreterService();
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     /**
      * Display the paginated and filtered list of interpreters
@@ -78,11 +77,9 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
-            List<Beneficiary> beneficiaries = new ArrayList<>(
-                    SQLWrap.call(daoBeneficiary::findReferencedBeneficiaries, id));
+            interpreter.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(id));
 
             model.addAttribute("interprete", interpreter);
-            model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
@@ -113,10 +110,10 @@ public class InterpreterController {
             if (interpreter == null) return "redirect:/interpretes";
 
             sortCities(model, interpreter.getLocation().getCity().getId());
-            model.addAttribute("interprete", interpreter);
+            model.addAttribute("updateInterpreterForm", new UpdateInterpreterForm(interpreter));
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
-        } catch (Exception e) {
+        } catch (SQLException | ConnectionException e) {
             e.printStackTrace();
             return "redirect:/interpretes";
         }
@@ -126,15 +123,27 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter profile edit form
      * @param id the id of the interpreter to update
-     * @param returnUrl the URL of the page the user wants to go to
-     * @param formInterpreter the form containing the updated information
+     * @param form the form containing the updated information
+     * @param birthdate the birthdate of the interpreter
+     * @param model the Spring model to populate
      * @return the interpreter's profile views on success, or the list on error
      */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
-                                           @ModelAttribute("interprete") Interpreter formInterpreter,
-                                           @RequestParam(required = false) String returnUrl) {
-        return returnUrl != null ? "redirect:" + returnUrl : "redirect:/interpretes/profil/" + id;
+                                           @ModelAttribute("interprete") UpdateInterpreterForm form,
+                                           @ModelAttribute("birthdate") LocalDate birthdate,
+                                           Model model) {
+        try {
+            form.setBirthDate(birthdate);
+            interpreterService.updateInterpreter(id, form);
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            return "interpreters/edit-profile";
+        } catch (SQLException | ConnectionException e) {
+            e.printStackTrace();
+            return "redirect:/interpretes";
+        }
+        return "redirect:/interpretes/profil/" + id;
     }
 
     /**
@@ -259,33 +268,29 @@ public class InterpreterController {
     /**
      * Handle the submission of the interpreter creation form.
      * @param interpreterForm the form containing the new interpreter's information
-     * @param returnUrl the URL of the page the user wants to go to
+     * @param birthdate the birthdate of the interpreter
      * @param model the Spring model to populate
      * @return the creation view shows the result of the creation or a redirection if the user wants to change the page
      */
     @PostMapping("/creer")
     public String createInterpreter(@ModelAttribute("interpreterForm") CreateInterpreterForm interpreterForm,
                                     @ModelAttribute("birthdate") LocalDate birthdate,
-                                    @RequestParam(required = false) String returnUrl,
                                     Model model) {
-        if (returnUrl == null) {
-            try {
-                interpreterForm.setBirthDate(birthdate);
-                UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
-                model.addAttribute("newUser", newUser);
-                model.addAttribute("submitState", "success");
-                model.addAttribute("interpreterForm", new CreateInterpreterForm());
-            } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "Cet utilisateur existe déjà");
-            } catch (Exception e) {
-                e.printStackTrace();
-                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-            } finally {
-                populateCreationModel(model, interpreterForm.getCityId());
-                return "interpreters/creation";
-            }
+        try {
+            interpreterForm.setBirthDate(birthdate);
+            UserCredentials newUser = interpreterService.createInterpreter(interpreterForm);
+            model.addAttribute("newUser", newUser);
+            model.addAttribute("submitState", "success");
+            model.addAttribute("interpreterForm", new CreateInterpreterForm());
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+        } finally {
+            populateCreationModel(model, interpreterForm.getCityId());
+            return "interpreters/creation";
         }
-        return "redirect:" + returnUrl;
     }
 
     /**

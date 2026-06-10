@@ -20,7 +20,7 @@ import java.util.Set;
 @Controller
 public class ProfileController {
 
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     /**
      * Display the profile of the connected user
@@ -34,19 +34,15 @@ public class ProfileController {
 
         try {
             if (user instanceof Manager m) {
-                Set<Beneficiary> beneficiaries = SQLWrap.call(
-                        daoBeneficiary::findReferencedBeneficiaries, m.getId());
+                m.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(m.getId()));
                 model.addAttribute("interprete", m);
-                model.addAttribute("beneficiaries", beneficiaries);
                 model.addAttribute("isInterpreterAManager", true);
                 model.addAttribute("userRole", "MANAGER");
                 model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
                 model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
             } else if (user instanceof Interpreter i) {
-                Set<Beneficiary> beneficiaries = SQLWrap.call(
-                        daoBeneficiary::findReferencedBeneficiaries, i.getId());
+                i.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(i.getId()));
                 model.addAttribute("interprete", i);
-                model.addAttribute("beneficiaries", beneficiaries);
                 model.addAttribute("userRole", "INTERPRETER");
             } else if (user instanceof Beneficiary b) {
                 model.addAttribute("beneficiaire", b);

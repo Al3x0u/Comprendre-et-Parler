@@ -109,27 +109,86 @@ public class BeneficiaryController {
      * Display the edit form for a beneficiary's profile.
      * @param id the id of the beneficiary to edit
      * @param referer the URL of the referring page, used for the cancel button
+     * @param session the current HTTP session, used to retrieve the connected user
      * @param model the Spring model to populate
      * @return the edit profile view, or a redirect to the list if not found
      */
     @GetMapping("/profil/{id}/modifier")
-    public String showEditBeneficiaryProfile(HttpSession session, @PathVariable int id,
+    public String showEditBeneficiaryProfile(@PathVariable int id,
                                              @RequestHeader(value = "Referer", required = false) String referer,
+                                             HttpSession session,
                                              Model model) {
+        AppliUser user = (AppliUser) session.getAttribute("user");
         try {
-            AppliUser user = (AppliUser) session.getAttribute("user");
             Beneficiary beneficiary = beneficiaryService.getOneBeneficiary(id);
             if (beneficiary == null) return "redirect:/beneficiaires";
 
             model.addAttribute("updateBeneficiaryForm", new UpdateBeneficiaryForm(beneficiary));
             model.addAttribute("referer", referer);
-            model.addAttribute("isOwnProfile", user.getId() == beneficiary.getId());
-        } catch (SQLException e) {
-            return "redirect:/beneficiaires";
-        } catch (ConnectionException e) {
+            model.addAttribute("isOwnProfile", user.getId() == id);
+        } catch (SQLException | ConnectionException e) {
+            e.printStackTrace();
             return "redirect:/beneficiaires";
         }
         return "beneficiaries/edit-profile";
+    }
+
+    /**
+     * Handle the submission of the beneficiary profile edit form.
+     * @param id the id of the beneficiary to update
+     * @param form the form containing the updated information
+     * @param birthdate the birthdate of the beneficiary
+     * @param model the Spring model to populate
+     * @return a redirect to the beneficiary's profile on success, or to the list on error
+     */
+    @PostMapping("/profil/{id}/modifier")
+    public String updateBeneficiary(@PathVariable int id,
+                                    @ModelAttribute UpdateBeneficiaryForm form,
+                                    @ModelAttribute("birthdate") LocalDate birthdate,
+                                    Model model) {
+        try {
+            form.setBirthDate(birthdate);
+            beneficiaryService.updateBeneficiary(id, form);
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            return "beneficiaries/edit-profile";
+        } catch (SQLException | ConnectionException e) {
+            e.printStackTrace();
+            return "redirect:/beneficiaires";
+        }
+        return "redirect:/beneficiaires/profil/" + id;
+    }
+
+    /**
+     * Handle the submission of the interpreter reference modification form.
+     * @param id the id of the beneficiary to update
+     * @param interpreterRefId the id of the new reference interpreter
+     * @return a redirect to the beneficiary's profile on success, or to the list on error
+     */
+    @PostMapping("/profil/{id}/modifier-interprete")
+    public String updateInterpreterRef(@PathVariable int id, @RequestParam int interpreterRefId) {
+        try {
+            beneficiaryService.updateInterpreterRef(id, interpreterRefId);
+        } catch (SQLException e) {
+            return "redirect:/beneficiaires";
+        }
+        return "redirect:/beneficiaires/profil/" + id;
+    }
+
+    /**
+     * Handle the submission of the status modification form.
+     * @param id the id of the beneficiary to update
+     * @param statusId the id of the new status
+     * @return a redirect to the beneficiary's profile on success, or to the list on error
+     */
+    @PostMapping("/profil/{id}/modifier-statut")
+    public String updateStatus(@PathVariable int id, @RequestParam int statusId) {
+        try {
+            beneficiaryService.updateStatus(id, statusId);
+        } catch (SQLException e) {
+            return "redirect:/beneficiaires";
+        }
+        return "redirect:/beneficiaires/profil/" + id;
     }
 
     /**
@@ -149,32 +208,29 @@ public class BeneficiaryController {
     /**
      * Handle the submission of the beneficiary creation form.
      * @param beneficiaryForm the form containing the new beneficiary's information
+     * @param birthdate the birthdate of the beneficiary
      * @param model the Spring model to populate
      * @return the creation view with credentials on success, or a redirect on error
      */
     @PostMapping("/creer")
     public String createBeneficiary(@ModelAttribute("beneficiaryForm") CreateBeneficiaryForm beneficiaryForm,
                                     @ModelAttribute("birthdate") LocalDate birthdate,
-                                    @RequestParam(required = false) String returnUrl,
                                     Model model) {
-        if (returnUrl == null) {
-            try {
-                beneficiaryForm.setBirthDate(birthdate);
-                UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
-                model.addAttribute("newUser", newUser);
-                model.addAttribute("submitState", "success");
-                model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-            } catch (AlreadyExistsException e) {
-                model.addAttribute("submitState", "Cet utilisateur existe déjà");
-            } catch (Exception e) {
-                e.printStackTrace();
-                model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-            } finally {
-                populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
-                return "beneficiaries/creation";
-            }
+        try {
+            beneficiaryForm.setBirthDate(birthdate);
+            UserCredentials newUser = beneficiaryService.createBeneficiary(beneficiaryForm);
+            model.addAttribute("newUser", newUser);
+            model.addAttribute("submitState", "success");
+            model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
+        } catch (AlreadyExistsException e) {
+            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
+        } finally {
+            populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
+            return "beneficiaries/creation";
         }
-        return "redirect:" + returnUrl;
     }
 
     /**
@@ -216,53 +272,5 @@ public class BeneficiaryController {
             return "redirect:/beneficiaires";
         }
         return "redirect:/beneficiaires";
-    }
-
-    /**
-     * Handle the submission of the beneficiary profile edit form.
-     * @param id the id of the beneficiary to update
-     * @param form the form containing the updated information
-     * @return a redirect to the beneficiary's profile on success, or to the list on error
-     */
-    @PostMapping("/profil/{id}/modifier")
-    public String updateBeneficiary(@PathVariable int id, @ModelAttribute UpdateBeneficiaryForm form){
-        try{
-            beneficiaryService.updateBeneficiary(id, form);
-        } catch (SQLException e) {
-            return "redirect:/beneficiaires";
-        }
-        return "redirect:/beneficiaires/profil/"+ id;
-    }
-
-    /**
-     * Handle the submission of the interpreter reference modification form.
-     * @param id the id of the beneficiary to update
-     * @param interpreterRefId the id of the new reference interpreter
-     * @return a redirect to the beneficiary's profile on success, or to the list on error
-     */
-    @PostMapping("/profil/{id}/modifier-interprete")
-    public String updateInterpreterRef(@PathVariable int id, @RequestParam int interpreterRefId){
-        try{
-            beneficiaryService.updateInterpreterRef(id, interpreterRefId);
-        } catch (SQLException e) {
-            return "redirect:/beneficiaires";
-        }
-        return "redirect:/beneficiaires/profil/" + id;
-    }
-
-    /**
-     * Handle the submission of the status modification form.
-     * @param id the id of the beneficiary to update
-     * @param statusId the id of the new status
-     * @return a redirect to the beneficiary's profile on success, or to the list on error
-     */
-    @PostMapping("/profil/{id}/modifier-statut")
-    public String updateStatus(@PathVariable int id, @RequestParam int statusId){
-        try{
-            beneficiaryService.updateStatus(id, statusId);
-        } catch (SQLException e) {
-            return "redirect:/beneficiaires";
-        }
-        return "redirect:/beneficiaires/profil/" + id;
     }
 }
