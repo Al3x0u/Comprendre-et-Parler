@@ -385,7 +385,7 @@ public class MissionService {
      * @pre mission.getInterpreters() is not null and not empty
      * @post mission.getStateOfMission() == MissionState.ACCEPTED
      */
-    public void acceptRequestDespiteQuota(Mission mission) throws AlreadyExistsException, SQLException {
+    public void acceptRequestDespiteQuota(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
         for (Interpreter interpreter : mission.getInterpreters()) {
             checkInterpreterConflict(interpreter, mission.getTimeSlot());
         }
@@ -395,7 +395,9 @@ public class MissionService {
 
     /**
      * Checks quota for all interpreters of a mission without throwing.
+     * @param mission the mission to check
      * @return a warning message if quota is exceeded, empty string otherwise
+     * @throws SQLException if the database could not be reached
      */
     public String checkQuotaWarning(Mission mission) throws SQLException {
         if (mission.getInterpreters() == null) return "";
