@@ -194,7 +194,6 @@ public class InterpreterService {
      * An interpreter is considered available if:
      * - they have no mission during that time slot
      * - they have no exceptional unavailability overlapping that time slot
-     * - they have a base availability covering that time slot
      * @param timeSlot the time slot to check availability for, must be a PunctualTimeSlot
      * @return a List of available Interpreter for the given time slot
      * @throws SQLException if the database could not be reached
@@ -206,10 +205,10 @@ public class InterpreterService {
         }
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
 
-        Set<Interpreter> candidates = SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate().toLocalTime(), slot.getEndDate().toLocalTime(), slot.getStartDate().toLocalDate());
+        List<Interpreter> allInterpreters = getAllInterpreters();
 
         List<Interpreter> available = new ArrayList<>();
-        for (Interpreter interpreter : candidates) {
+        for (Interpreter interpreter : allInterpreters) {
             if (!hasUnavailabilityConflict(interpreter, slot) && !hasMissionConflict(interpreter, slot)){
                 available.add(interpreter);
             }
@@ -341,5 +340,24 @@ public class InterpreterService {
     public void updateYearlyQuota(Interpreter interpreter, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
         interpreter.setHourQuotaYear(yearQuota);
         SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
+    }
+
+    /**
+     * Loads and sets the interpreters for a given mission.
+     * Call this explicitly only when interpreters are needed,
+     * to avoid unnecessary cascade loading on every getResult() call.
+     * @param mission the mission to load interpreters for, must not be null
+     * @post mission.getInterpreters() is populated with the interpreters linked to this mission, can be null if SQLException
+     */
+    public void loadInterpreters(Mission mission) {
+        try {
+            SQLWrap.callTransaction(
+                    (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(new DAOInterpreter().findByMission(m.getId())),
+                    mission
+            );
+        }catch(SQLException e){
+            mission.setInterpreters((null));
+        }
+
     }
 }

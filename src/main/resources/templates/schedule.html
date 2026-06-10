@@ -127,6 +127,24 @@
     </div>
 </div>
 
+<!-- CONFIRMATION DEPASSEMENT QUOTA -->
+<div class="modal fade" id="quotaWarningModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Dépassement de quota
+                </h5>
+            </div>
+            <div class="modal-body" id="quotaWarningMessage"></div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" id="quotaWarningCancel">Annuler</button>
+                <button type="button" class="btn btn-warning" id="quotaWarningConfirm">Accepter quand même</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- CONFIRMATION ANNULATION -->
 
 <div class="modal fade" id="confirmCancelModal" tabindex="-1" aria-labelledby="confirmCancelTitle" aria-hidden="true">
@@ -234,7 +252,7 @@
                     <span id="managerPendingBeneficiary" class="fst-italic text-muted"></span>
                 </div>
 
-                <div class="mb-2" id="managerPendingType"></div>
+                <div class="mb-2"><strong id="managerPendingType"></strong></div>
 
                 <div class="mb-2">
                     <strong>Commentaire :</strong>
@@ -247,7 +265,7 @@
                 </div>
 
                 <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
-                    <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète*</label>
+                    <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète :</label>
                     <select id="managerPendingInterpreter" class="form-select w-auto">
                         <option value="">Sélectionner</option>
                         <option th:each="interpreter : ${interpreters}"
