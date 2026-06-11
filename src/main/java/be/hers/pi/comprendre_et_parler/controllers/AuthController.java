@@ -54,7 +54,6 @@ public class AuthController {
             model.addAttribute("error", "Identifiant ou mot de passe incorrect");
             return "login";
         }
-        request.changeSessionId();
         session.setAttribute("user", user);
 
         if (user instanceof Manager) {
