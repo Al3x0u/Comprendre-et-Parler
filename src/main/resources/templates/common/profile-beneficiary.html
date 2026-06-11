@@ -153,7 +153,9 @@
                             <select name="statusId" class="form-select">
                                 <option th:each="s : ${allStatuses}"
                                         th:value="${s.id}"
-                                        th:text="${s.designation}"></option>
+                                        th:text="${s.designation}"
+                                        th:selected="${s.id == beneficiaire.status.id}">
+                                </option>
                             </select>
                         </div>
                     </form>
