@@ -69,6 +69,7 @@ public class BeneficiaryController {
      * An interpreter can only display the profile of a beneficiary who references them.
      * @param id the id of the beneficiary to display
      * @param referer the URL of the referring page, used for the back button
+     * @param error optional error parameter, triggers an error modal if set
      * @param session the current HTTP session, used to retrieve the connected user
      * @param model the Spring model to populate
      * @return the beneficiary profile view, a redirect to the list if not found,
@@ -77,6 +78,7 @@ public class BeneficiaryController {
     @GetMapping("/profil/{id}")
     public String showBeneficiaryProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
+                                         @RequestParam(required = false) String error,
                                          HttpSession session,
                                          Model model) {
         try {
@@ -92,6 +94,7 @@ public class BeneficiaryController {
 
             model.addAttribute("beneficiaire", beneficiary);
             model.addAttribute("referer", referer);
+            model.addAttribute("error", error);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("interpreters", interpreterService.getAllInterpreters());
             model.addAttribute("age", beneficiaryService.calculateAge(beneficiary.getBirthDate()));
@@ -255,6 +258,22 @@ public class BeneficiaryController {
         } catch (SQLException e ) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Handle the deactivation of a beneficiary account
+     * @param id the id of the beneficiary to deactivate
+     * @return redirect to the beneficiary list on success, or back to the profile with an error parameter on failure
+     */
+    @PostMapping("/profil/{id}/desactiver")
+    public String deactivateBeneficiary(@PathVariable int id) {
+        try {
+            beneficiaryService.disableBeneficiary(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/beneficiaires/profil/" + id + "?error=disable";
+        }
+        return "redirect:/beneficiaires";
     }
 
     /**

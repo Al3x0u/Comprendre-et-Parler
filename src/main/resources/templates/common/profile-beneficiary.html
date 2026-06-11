@@ -169,7 +169,13 @@
 
     </div>
 
+    <!-- Modal Disable -->
     <div th:replace="~{common/modals :: modal-disable(${beneficiaire}, @{/beneficiaires/profil/{id}/desactiver(id=${beneficiaire.id})})}"></div>
+
+    <!-- Modal Error Disable -->
+    <div th:if="${error == 'disable'}">
+        <div th:replace="~{common/modals :: modal-error('Une erreur est survenue lors de la désactivation.')}"></div>
+    </div>
 </div>
 
 </body>

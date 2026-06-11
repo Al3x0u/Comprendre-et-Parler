@@ -36,6 +36,8 @@ let currentMissionId = null;
 /** @type {boolean} Whether this is the first calendar load */
 let premierChargement = true;
 
+/** The calendar */
+let calendar;
 
 // ── UTILS ─────────────────────────────────────────────────────────────────
 
@@ -237,7 +239,7 @@ document.addEventListener('input', function (e) {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
         initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
         height: isMobile ? '75vh' : '83vh',
         locale: 'fr',
@@ -362,6 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const event = info.event;
             currentMissionId = event.id;
             const props = event.extendedProps;
+
             const start = event.start;
             const end = event.end;
             const status = (props.status || '').toLowerCase();
@@ -372,8 +375,57 @@ document.addEventListener('DOMContentLoaded', function() {
             const isPending = status.includes('en attente');
             const isAccepted = status.includes('accept');
             const interpreterSelect = document.getElementById('managerPendingInterpreter');
-            interpreterSelect.value = props.interpreter || '';
             interpreterSelect.disabled = !(isPending && beforeStart);
+
+            if (isAccepted) {
+                interpreterSelect.style.display = 'none';
+
+                let nameSpan = document.getElementById('managerPendingInterpreterName');
+                if (!nameSpan) {
+                    nameSpan = document.createElement('span');
+                    nameSpan.id = 'managerPendingInterpreterName';
+                    nameSpan.className = 'fst-italic text-muted';
+                    interpreterSelect.parentNode.appendChild(nameSpan);
+                }
+
+                nameSpan.style.display = '';
+                const interpreterNames = (props.interpreter || '')
+                    .split(',')
+                    .map(name => name.trim())
+                    .filter(name => name !== '');
+                if (interpreterNames.length > 0) {
+                    nameSpan.textContent = interpreterNames.join(' • ');
+                } else {
+                    nameSpan.textContent = 'Aucun interprète';
+                }
+            } else {
+                interpreterSelect.style.display = '';
+                const nameSpan = document.getElementById('managerPendingInterpreterName');
+                if (nameSpan) {
+                    nameSpan.style.display = 'none';
+                }
+                interpreterSelect.value = '';
+
+                interpreterSelect.innerHTML = '<option value="">Chargement...</option>';
+                fetch('/horaire/missions/' + currentMissionId + '/interpretes-disponibles')
+                    .then(res => res.json())
+                    .then(interpreters => {
+                        interpreterSelect.innerHTML = '<option value="">Sélectionner</option>';
+                        if (interpreters.length === 0) {
+                            interpreterSelect.innerHTML = '<option value="">Aucun interprète disponible</option>';
+                        } else {
+                            interpreters.forEach(i => {
+                                const opt = document.createElement('option');
+                                opt.value = i.id;
+                                opt.textContent = i.name;
+                                interpreterSelect.appendChild(opt);
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        interpreterSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                    });
+            }
 
             const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
             let timeText = '';
@@ -389,11 +441,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
                 document.getElementById('managerPendingTime').innerText = timeText || '';
                 document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
-                document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || '';
-                document.getElementById('managerPendingType').innerText = props.type || '';
+                document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || 'Aucun bénéficiaire';
+                document.getElementById('managerPendingType').innerText = props.type ? 'Type : ' + props.type : '';
                 document.getElementById('managerPendingComment').innerText = props.comment || '';
                 document.getElementById('managerPendingStatus').innerText = props.status || '';
-                document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
+
 
                 const footer = document.querySelector('#managerPendingModal .modal-footer');
                 footer.innerHTML = '';
@@ -427,16 +479,55 @@ document.addEventListener('DOMContentLoaded', function() {
                             showToast("Veuillez sélectionner un interprète.", 'error');
                             return;
                         }
+
+                        const doAccept = async () => {
+                            try {
+                                const res = await fetch('/horaire/missions/' + currentMissionId + '/accepter', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ interpreterId: selectedInterpreter })
+                                });
+                                if (!res.ok) throw new Error(await res.text());
+                                bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal')).hide();
+                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                                calendar.refetchEvents();
+                                showToast("Mission acceptée.", 'success');
+                            } catch (err) {
+                                showToast("Erreur : " + err.message, 'error');
+                            }
+                        };
+
                         try {
-                            const res = await fetch('/horaire/missions/' + event.id + '/accepter', {
+                            const checkRes = await fetch('/horaire/missions/' + currentMissionId + '/verifier-quota', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ interpreterId: selectedInterpreter })
                             });
-                            if (!res.ok) throw new Error(await res.text());
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                            calendar.refetchEvents();
-                            showToast("Mission acceptée.", 'success');
+                            if (!checkRes.ok) throw new Error(await checkRes.text());
+                            const warning = await checkRes.text();
+
+                            if (warning && warning.trim() !== '') {
+                                document.getElementById('quotaWarningMessage').innerText = warning;
+                                const quotaModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal'));
+                                const managerModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
+
+                                document.getElementById('quotaWarningConfirm').onclick = async () => {
+                                    await doAccept();
+                                };
+                                document.getElementById('quotaWarningCancel').onclick = () => {
+                                    quotaModal.hide();
+                                    managerModal.show();
+                                };
+
+                                document.getElementById('managerPendingModal').addEventListener('hidden.bs.modal', () => {
+                                    quotaModal.show();
+                                }, { once: true });
+
+                                managerModal.hide();
+                            } else {
+                                await doAccept();
+                            }
+
                         } catch (err) {
                             showToast("Erreur : " + err.message, 'error');
                         }
@@ -486,9 +577,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalTime').innerText = timeText || '';
             document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
             document.getElementById('modalType').innerText = props.type || '';
+            document.getElementById('modalAcademicSkill').innerText = props.academicSkill || '';
             document.getElementById('modalLocation').innerText = props.address || '';
             document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
-            document.getElementById('modalComment').innerText = props.comment || '';
+            document.getElementById('modalComment').innerText = props.comment || 'Aucun commentaire';
             document.getElementById('modalStatus').innerText = props.status || '';
             const actions = document.getElementById('modalActions');
             actions.innerHTML = '';
@@ -575,8 +667,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     /**
-     * Sends a POST request to cancel the selected mission, then refreshes the calendar.
-     * Triggered by the "Oui, annuler" button of the cancellation confirmation modal.
+     * Handles a click on the "Yes, cancel" button in the cancellation confirmation modal.
+     * Sends a POST request to cancel the currently selected mission.
+     * Closes the confirmation modal, refreshes the calendar and displays a toast on success.
      *
      * @listens click
      * @returns {Promise<void>}
@@ -664,7 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const startTime = document.getElementById('missionStartTime').value;
         const endTime   = document.getElementById('missionEndTime').value;
-        if (startTime >= endTime) {
+        if (startTime >= endTime){
             showToast("L'heure de fin doit être après l'heure de début.", 'error');
             return;
         }

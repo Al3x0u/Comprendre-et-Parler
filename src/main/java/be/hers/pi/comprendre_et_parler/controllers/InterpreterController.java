@@ -63,6 +63,7 @@ public class InterpreterController {
      * Display the profile of an interpreter
      * @param id the ID of the interpreter to display
      * @param referer the URL of the referring page, used for the back button
+     * @param error optional error parameter, triggers an error modal if set
      * @param session the current HTTP session, used to retrieve the connected user
      * @param model the Spring model to populate
      * @return the interpreter profile view, or a redirect to the list if not found
@@ -70,6 +71,7 @@ public class InterpreterController {
     @GetMapping("/profil/{id}")
     public String showInterpreterProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
+                                         @RequestParam(required = false) String error,
                                          HttpSession session,
                                          Model model) {
         AppliUser user = (AppliUser) session.getAttribute("user");
@@ -81,6 +83,7 @@ public class InterpreterController {
 
             model.addAttribute("interprete", interpreter);
             model.addAttribute("referer", referer);
+            model.addAttribute("error", error);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
             getSkills(model);
@@ -157,6 +160,7 @@ public class InterpreterController {
             interpreterService.promoteInterpreter(id);
         } catch (Exception e) {
             e.printStackTrace();
+            return "redirect:/interpretes/profil/" + id + "?error=promote";
         }
         return "redirect:/interpretes/profil/" + id;
     }
@@ -249,6 +253,41 @@ public class InterpreterController {
             e.printStackTrace();
         }
         return "redirect:/interpretes/profil/" + id;
+    }
+    
+     /**
+     * Handle the demotion of a manager into an interpreter
+     * @param id the id of the manager to demote
+     * @return redirect to the interpreter profile
+     */
+    @PostMapping("/profil/{id}/retrograder")
+    public String demoteInterpreter(@PathVariable int id, Model model,
+                                    @RequestHeader(value = "Referer", required = false) String referer) {
+        try {
+            interpreterService.demoteManager(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/interpretes/profil/" + id + "?error=demote";
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the deactivation of an interpreter account
+     * @param id the id of the interpreter to deactivate
+     * @return redirect to the interpreter list on success, or back to the profile with an error parameter on failure
+     */
+    @PostMapping("/profil/{id}/desactiver")
+    public String desactivateInterpreter(@PathVariable int id) {
+        try {
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            if (interpreter != null)
+                interpreterService.deleteInterpreter(interpreter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/interpretes/profil/" + id + "?error=disable";
+        }
+        return "redirect:/interpretes";
     }
 
     /**

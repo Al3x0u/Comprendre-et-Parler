@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
+import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import jakarta.servlet.http.HttpSession;
@@ -112,12 +114,10 @@ public class ScheduleController {
             }
             String street = payload.get("street");
             String streetNumber = payload.get("streetNumber");
+            String boxStr = payload.get("box");
             int box = 0;
-            try{
-                box = Integer.parseInt(payload.get("box"));
-            }catch(Exception e){
-                e.printStackTrace();
-                box = 0;
+            if (boxStr != null && !boxStr.isBlank()) {
+                try { box = Integer.parseInt(boxStr); } catch (Exception ignored) {}
             }
 
             String comment = payload.get("comment");
@@ -178,12 +178,82 @@ public class ScheduleController {
                 }
             }
 
+            if (type != null && !type.isBlank()) {
+                jobSkillService.getAllJobSkills().stream()
+                        .filter(js -> js.getDesignation() != null && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
+                        .findFirst()
+                        .ifPresent(mission::setJobSkill);
+            }
+
+
             missionService.createRequest(mission);
 
             return ResponseEntity.ok("Demande créée.");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Erreur lors de la création de la demande. Veuillez réessayer.");
+        }
+    }
+
+    /**
+     * Checks whether accepting a mission would exceed the interpreter's hour quota.
+     * @param id the mission ID
+     * @param body the request body containing the interpreter ID
+     * @param session the current HTTP session
+     * @return 200 with a warning message if quota exceeded, empty string if ok, 400 if no interpreter, 500 on error
+     */
+    @PostMapping("/missions/{id}/verifier-quota")
+    @ResponseBody
+    public ResponseEntity<?> checkQuota(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+        try {
+            String interpreterIdStr = body.get("interpreterId");
+            if (interpreterIdStr == null || interpreterIdStr.isBlank())
+                return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
+
+            Mission mission = missionService.getOneMission(id);
+            Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterIdStr));
+            Set<Interpreter> interpreters = new HashSet<>();
+            interpreters.add(interpreter);
+            mission.setInterpreters(interpreters);
+
+            String warning = missionService.checkQuotaWarning(mission);
+            return ResponseEntity.ok().body(warning); // "" si ok, message si dépassement
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur");
+        }
+    }
+
+    /**
+     * Returns the list of interpreters available for a given mission's time slot.
+     * @param id the mission ID
+     * @param session the current HTTP session
+     * @return 200 with the list of available interpreters, 403 if not a manager, 500 on error
+     */
+    @GetMapping("/missions/{id}/interpretes-disponibles")
+    @ResponseBody
+    public ResponseEntity<?> getAvailableInterpreters(@PathVariable int id, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager))
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+
+            Mission mission = missionService.getOneMission(id);
+            List<Interpreter> available = interpreterService.getAvailableInterpreters(mission.getTimeSlot());
+
+            List<Map<String, String>> result = new ArrayList<>();
+            for (Interpreter i : available) {
+                Map<String, String> map = new HashMap<>();
+                map.put("id", String.valueOf(i.getId()));
+                map.put("name", i.getFirstName() + " " + i.getLastName());
+                result.add(map);
+            }
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur");
         }
     }
 
@@ -197,6 +267,7 @@ public class ScheduleController {
     @PostMapping("/missions/{id}/accepter")
     @ResponseBody
     public ResponseEntity<?> acceptMission(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+        Mission mission = null;
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
             if (!(user instanceof Manager)) {
@@ -208,7 +279,7 @@ public class ScheduleController {
                 return ResponseEntity.badRequest().body("Aucun interprète sélectionné");
             }
 
-            Mission mission = missionService.getOneMission(id);
+            mission = missionService.getOneMission(id);
             Interpreter interpreter = interpreterService.getOneInterpreter(Integer.parseInt(interpreterIdStr));
 
             Set<Interpreter> interpreters = new HashSet<>();
@@ -216,11 +287,21 @@ public class ScheduleController {
             mission.setInterpreters(interpreters);
 
             missionService.acceptRequest(mission);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("ok");
 
+        } catch (QuotaExceededException e) {
+            try {
+                missionService.acceptRequestDespiteQuota(mission);
+                return ResponseEntity.ok().body("warning:" + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation malgré le quota.");
+            }
+        }catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("conflict:" + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation de la mission. Veuillez réessayer.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'acceptation de la mission.");
         }
     }
 
@@ -416,10 +497,16 @@ public class ScheduleController {
             if (!(mission.getTimeSlot() instanceof PunctualTimeSlot)) {
                 continue;
             }
+
+
+            interpreterService.loadInterpreters(mission);
+
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
             event.put("id", String.valueOf(mission.getId()));
             event.put("title", mission.getSubject());
+            event.put("id", String.valueOf(mission.getId()));
+
 
             event.put("start", pts.getStartDate().toString());
             event.put("end", pts.getEndDate().toString());
@@ -431,6 +518,13 @@ public class ScheduleController {
             } else {
                 event.put("type", "");
             }
+
+            if (mission.getAcademicSkill() != null) {
+                event.put("academicSkill", mission.getAcademicSkill().getDesignation());
+            } else {
+                event.put("academicSkill", "");
+            }
+
             if (mission.getRoom() != null) {
                 event.put("room", mission.getRoom());
             } else {
@@ -467,7 +561,25 @@ public class ScheduleController {
             }
 
             if (mission.getLocation() != null) {
-                event.put("address", mission.getLocation().toString());
+                Location loc = mission.getLocation();
+                StringBuilder address = new StringBuilder();
+                if (loc.getStreet() != null && !loc.getStreet().isBlank()) {
+                    address.append(loc.getStreet());
+                    if (loc.getStreetNumber() != null && !loc.getStreetNumber().isBlank())
+                        address.append(" ").append(loc.getStreetNumber());
+                    if (loc.getBox() > 0)
+                        address.append(", bte ").append(loc.getBox());
+                }
+                if (loc.getCity() != null) {
+                    if (!address.isEmpty()) address.append(", ");
+                    address.append(loc.getCity().getPostalCode())
+                            .append(" ")
+                            .append(loc.getCity().getDesignation());
+                }
+                if (loc.getDesignation() != null && !loc.getDesignation().isBlank()) {
+                    address.insert(0, loc.getDesignation() + " — ");
+                }
+                event.put("address", address.toString());
             } else {
                 event.put("address", "");
             }
@@ -490,11 +602,11 @@ public class ScheduleController {
             return "";
         }
         return switch (state) {
-            case ACCEPTED -> "Accepte";
-            case PENDING -> "En attente";
-            case DENIED -> "Refuse";
-            case CANCELED -> "Refuse";
-            default -> "";
+            case ACCEPTED -> "Acceptée";
+            case PENDING  -> "En attente";
+            case DENIED   -> "Refusée";
+            case CANCELED -> "Refusée";
+            default       -> "";
         };
     }
 
@@ -603,5 +715,7 @@ public class ScheduleController {
 
         return mission;
     }
+
+
 
 }
