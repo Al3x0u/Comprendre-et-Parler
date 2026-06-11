@@ -141,6 +141,7 @@ public class InterpreterController {
             interpreterService.updateInterpreter(id, form);
         } catch (AlreadyExistsException e) {
             model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            sortCities(model, form.getCityId());
             return "interpreters/edit-profile";
         } catch (SQLException | ConnectionException e) {
             e.printStackTrace();
