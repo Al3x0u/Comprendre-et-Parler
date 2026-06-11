@@ -76,7 +76,11 @@ public class SessionInterceptor implements HandlerInterceptor {
     }
     /**
      * Check if the user has the required role to access manager-restricted resources.
-     * Beneficiaries are granted access to their own profile and profile modification pages.
+     * Beneficiaries are granted access to their own profile and profile modification pages,
+     * and to the read-only view of an interpreter's profile.
+     * Interpreters are granted access to the interpreter profile pages
+     * and to the read-only view of a beneficiary's profile.
+     * Ownership of the accessed profile is enforced by the profile-specific access checks.
      * @param user the authenticated user, must not be null
      * @param path the requested URI, must not be null
      * @param response the HTTP response used to send a redirect if needed
@@ -88,7 +92,13 @@ public class SessionInterceptor implements HandlerInterceptor {
             if (!(user instanceof Manager)) {
                 if (user instanceof Beneficiary) {
                     if (path.matches("/beneficiaires/profil/\\d+") ||
-                            path.matches("/beneficiaires/profil/\\d+/modifier")) {
+                            path.matches("/beneficiaires/profil/\\d+/modifier") ||
+                            path.matches("/interpretes/profil/\\d+")) {
+                        return true;
+                    }
+                } else if (user instanceof Interpreter) {
+                    if (path.matches("/interpretes/profil/\\d+.*") ||
+                            path.matches("/beneficiaires/profil/\\d+")) {
                         return true;
                     }
                 }
@@ -100,9 +110,10 @@ public class SessionInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * Check if the user is authorized to access an interpreter's profile.
-     * Managers have unrestricted access. Interpreters can only access their own profile.
-     * Beneficiaries can only access the profile of their reference interpreter.
+     * Check if the user is authorized to access a beneficiary's profile.
+     * Managers have unrestricted access. Beneficiaries can only access their own profile.
+     * Interpreters are let through: the check that the beneficiary references them
+     * is performed in the BeneficiaryController, as it requires data from the database.
      * @param user the authenticated user, must not be null
      * @param path the requested URI, must not be null
      * @param response the HTTP response used to send a redirect if needed
@@ -135,6 +146,7 @@ public class SessionInterceptor implements HandlerInterceptor {
      */
     private boolean hasBeneficiaryProfileAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
         if(!path.matches("/beneficiaires/profil/\\d+.*") || user instanceof Manager) return true;
+        if(user instanceof Interpreter) return true;
         int id = extractId(path);
         if(user.getId() != id){
             response.sendRedirect("/profil");
