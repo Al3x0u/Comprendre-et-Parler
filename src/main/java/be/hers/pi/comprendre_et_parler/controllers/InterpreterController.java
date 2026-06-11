@@ -172,15 +172,14 @@ public class InterpreterController {
     @PostMapping("/profil/{id}/desactiver")
     public String deactivateInterpreter(@PathVariable int id) {
         try {
-            throw new RuntimeException("test");
-            //Interpreter interpreter = interpreterService.getOneInterpreter(id);
-            //if (interpreter != null)
-              //  interpreterService.deleteInterpreter(interpreter);
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            if (interpreter != null)
+                interpreterService.deleteInterpreter(interpreter);
         } catch (Exception e) {
             e.printStackTrace();
             return "redirect:/interpretes/profil/" + id + "?error=disable";
         }
-        //return "redirect:/interpretes";
+        return "redirect:/interpretes";
     }
 
     /**

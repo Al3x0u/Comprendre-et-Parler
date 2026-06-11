@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Service
@@ -108,6 +109,17 @@ public class BeneficiaryService {
     public Beneficiary getOneBeneficiary(int id)throws SQLException{
         return SQLWrap.call(
                 (FunctionWithSQLException<Integer, Beneficiary>) daoBeneficiary::find, id);
+    }
+
+    /**
+     * Disables a beneficiary account by setting its end date to today.
+     * The account remains in the database but the user can no longer log in.
+     * @param id the id of the beneficiary to disable
+     * @throws NoSuchElementException if the beneficiary does not exist in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void disableBeneficiary(int id) throws SQLException, NoSuchElementException {
+        SQLWrap.callTransaction(new DAOAppliUser()::disableAccount, id);
     }
 
     /**
