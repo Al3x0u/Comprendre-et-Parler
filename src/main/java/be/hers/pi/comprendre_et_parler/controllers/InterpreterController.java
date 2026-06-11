@@ -133,7 +133,7 @@ public class InterpreterController {
      */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
-                                           @ModelAttribute("interprete") UpdateInterpreterForm form,
+                                           @ModelAttribute UpdateInterpreterForm form,
                                            @ModelAttribute("birthdate") LocalDate birthdate,
                                            Model model) {
         try {
