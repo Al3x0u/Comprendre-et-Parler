@@ -59,6 +59,18 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // ── ACCESS CONTROL ────────────────────────────────────────────────────
 
+    /**
+     * Check that the user has already updated their initial password before allowing navigation.
+     * Users still on their temporary password may only access the profile page and the
+     * password change endpoint; any other request is redirected to the profile page,
+     * where the password change modal is forced open.
+     * @param user the authenticated user, must not be null
+     * @param path the requested URI, must not be null
+     * @param response the HTTP response used to send a redirect if needed
+     * @return true if the user has already updated their password, or if the requested path is
+     * exactly /profil or /profil/modifier-mot-de-passe; false if the user was redirected to /profil
+     * @throws IOException if an error occurs during the redirect
+     */
     private boolean hasUpdatedPassword(AppliUser user, String path, HttpServletResponse response) throws IOException {
         if (user.isPasswordUpdated()) return true;
         if (path.equals("/profil") || path.equals("/profil/modifier-mot-de-passe")) return true;
