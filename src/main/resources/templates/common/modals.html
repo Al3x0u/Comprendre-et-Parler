@@ -189,9 +189,9 @@
                 <div class="modal-header text-bg-success rounded-top-4">
                     <h3 class="modal-title"><i class="bi bi-check-circle me-2"></i>Utilisateur créé avec succès</h3>
                 </div>
-                <div class="modal-body p-3">
-                    <h4>L'utilisateur <span th:text="*{firstName}"></span> a été créé avec le login <span th:text="*{login}"></span> !</h4>
-                    <h5>Un mail va être envoyé à l'adresse <span th:text="*{email}"></span></h5>
+                <div class="modal-body py-4">
+                    <p>L'utilisateur <span th:text="*{firstName}"></span> a été créé avec le login <span th:text="*{login}"></span> !</p>
+                    <p>Un mail va être envoyé à l'adresse <span th:text="*{email}"></span></p>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler l'envoi</button>
@@ -217,8 +217,8 @@
                 <div class="modal-header text-bg-danger rounded-top-4">
                     <h5 class="modal-title"><i class="bi bi-x-octagon me-2"></i>Erreur</h5>
                 </div>
-                <div class="modal-body p-3">
-                    <h4 class="text-center" th:text="${message}"></h4>
+                <div class="modal-body py-4">
+                    <p class="text-center" th:text="${message}"></p>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
