@@ -69,6 +69,7 @@ public class BeneficiaryController {
      * An interpreter can only display the profile of a beneficiary who references them.
      * @param id the id of the beneficiary to display
      * @param referer the URL of the referring page, used for the back button
+     * @param error optional error parameter, triggers an error modal if set
      * @param session the current HTTP session, used to retrieve the connected user
      * @param model the Spring model to populate
      * @return the beneficiary profile view, a redirect to the list if not found,
@@ -77,6 +78,7 @@ public class BeneficiaryController {
     @GetMapping("/profil/{id}")
     public String showBeneficiaryProfile(@PathVariable int id,
                                          @RequestHeader(value = "Referer", required = false) String referer,
+                                         @RequestParam(required = false) String error,
                                          HttpSession session,
                                          Model model) {
         try {
@@ -92,6 +94,7 @@ public class BeneficiaryController {
 
             model.addAttribute("beneficiaire", beneficiary);
             model.addAttribute("referer", referer);
+            model.addAttribute("error", error);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("interpreters", interpreterService.getAllInterpreters());
             model.addAttribute("age", beneficiaryService.calculateAge(beneficiary.getBirthDate()));
@@ -145,12 +148,17 @@ public class BeneficiaryController {
     public String updateBeneficiary(@PathVariable int id,
                                     @ModelAttribute UpdateBeneficiaryForm form,
                                     @ModelAttribute("birthdate") LocalDate birthdate,
+                                    @RequestHeader(value = "Referer", required = false) String referer,
+                                    HttpSession session,
                                     Model model) {
         try {
             form.setBirthDate(birthdate);
             beneficiaryService.updateBeneficiary(id, form);
         } catch (AlreadyExistsException e) {
             model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            model.addAttribute("referer", referer);
+            model.addAttribute("isOwnProfile", user.getId() == id);
             return "beneficiaries/edit-profile";
         } catch (SQLException | ConnectionException e) {
             e.printStackTrace();
@@ -199,7 +207,7 @@ public class BeneficiaryController {
     @GetMapping("/creer")
     public String showCreateBeneficiaryForm(Model model) {
         model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
-        populateCreationModel(model, 0, 0);
+        populateCreationModel(model);
         model.addAttribute("submitState", null);
 
         return "beneficiaries/creation";
@@ -228,7 +236,7 @@ public class BeneficiaryController {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
         } finally {
-            populateCreationModel(model, beneficiaryForm.getStatusId(), beneficiaryForm.getInterpreterRefId());
+            populateCreationModel(model);
             return "beneficiaries/creation";
         }
     }
@@ -237,24 +245,30 @@ public class BeneficiaryController {
      * Populate the model with the data needed for the beneficiary creation form.
      * @param model the Spring model to populate
      * @post the model contains all statuses and all interpreters sorted by their compareTo()
-     * @param idStatus The ID of the status to send to the front of the list
-     * @param idInterpreterRef The ID of the interpreter to send to the front of the list
      */
-    private void populateCreationModel(Model model, int idStatus, int idInterpreterRef) {
+    private void populateCreationModel(Model model) {
         try {
-            List<Status> allStatus = statusService.getAllStatus();
-            if (idStatus > 0 && allStatus.removeIf(s -> s.getId() == idStatus))
-                allStatus.addFirst(statusService.getOneStatus(idStatus));
-
-            List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
-            if (idInterpreterRef > 0 && allInterpreters.removeIf(i -> i.getId() == idInterpreterRef))
-                allInterpreters.addFirst(interpreterService.getOneInterpreter(idInterpreterRef));
-
-            model.addAttribute("allStatuses", allStatus);
-            model.addAttribute("allInterpreters", allInterpreters);
+            model.addAttribute("allStatuses", statusService.getAllStatus());
+            model.addAttribute("allInterpreters", interpreterService.getAllInterpreters());
         } catch (SQLException e ) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Handle the deactivation of a beneficiary account
+     * @param id the id of the beneficiary to deactivate
+     * @return redirect to the beneficiary list on success, or back to the profile with an error parameter on failure
+     */
+    @PostMapping("/profil/{id}/desactiver")
+    public String deactivateBeneficiary(@PathVariable int id) {
+        try {
+            beneficiaryService.disableBeneficiary(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/beneficiaires/profil/" + id + "?error=disable";
+        }
+        return "redirect:/beneficiaires";
     }
 
     /**

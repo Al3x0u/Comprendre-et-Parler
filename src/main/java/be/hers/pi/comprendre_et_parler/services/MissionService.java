@@ -373,4 +373,50 @@ public class MissionService {
         return total;
     }
 
+    /**
+     * Accepts a pending request by setting its status to ACCEPTED,
+     * bypassing the hour quota check but still verifying schedule conflicts.
+     * Use this when the interpreter's quota is exceeded but the manager
+     * explicitly chooses to accept the mission anyway.
+     * @param mission the mission to accept, with interpreters already set
+     * @throws ConflictException if an assigned interpreter has a schedule conflict
+     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws SQLException if the database could not be reached
+     * @pre mission.getInterpreters() is not null and not empty
+     * @post mission.getStateOfMission() == MissionState.ACCEPTED
+     */
+    public void acceptRequestDespiteQuota(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
+        for (Interpreter interpreter : mission.getInterpreters()) {
+            checkInterpreterConflict(interpreter, mission.getTimeSlot());
+        }
+        mission.setStateOfMission(MissionState.ACCEPTED);
+        SQLWrap.callTransaction(daoMission::update, mission);
+    }
+
+    /**
+     * Checks quota for all interpreters of a mission without throwing.
+     * @param mission the mission to check
+     * @return a warning message if quota is exceeded, empty string otherwise
+     * @throws SQLException if the database could not be reached
+     */
+    public String checkQuotaWarning(Mission mission) throws SQLException {
+        if (mission.getInterpreters() == null) return "";
+        StringBuilder warnings = new StringBuilder();
+        for (Interpreter interpreter : mission.getInterpreters()) {
+            try {
+                checkQuota(interpreter, mission.getTimeSlot());
+            } catch (QuotaExceededException e) {
+                if (!warnings.isEmpty()) warnings.append("\n");
+                warnings.append("⚠ ")
+                        .append(interpreter.getFirstName())
+                        .append(" ")
+                        .append(interpreter.getLastName())
+                        .append(" dépasse son quota d'heures !");
+            }
+        }
+        return warnings.toString();
+    }
+
+
+
 }

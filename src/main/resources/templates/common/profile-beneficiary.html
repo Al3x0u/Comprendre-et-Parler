@@ -153,7 +153,9 @@
                             <select name="statusId" class="form-select">
                                 <option th:each="s : ${allStatuses}"
                                         th:value="${s.id}"
-                                        th:text="${s.designation}"></option>
+                                        th:text="${s.designation}"
+                                        th:selected="${s.id == beneficiaire.status.id}">
+                                </option>
                             </select>
                         </div>
                     </form>
@@ -165,7 +167,13 @@
 
     </div>
 
+    <!-- Modal Disable -->
     <div th:replace="~{common/modals :: modal-disable(${beneficiaire}, @{/beneficiaires/profil/{id}/desactiver(id=${beneficiaire.id})})}"></div>
+
+    <!-- Modal Error Disable -->
+    <div th:if="${error == 'disable'}">
+        <div th:replace="~{common/modals :: modal-error('Une erreur est survenue lors de la désactivation.')}"></div>
+    </div>
 </div>
 
 </body>

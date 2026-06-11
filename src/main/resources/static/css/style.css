@@ -344,6 +344,13 @@ body {
     }
 }
 
+#quotaWarningModal .modal-content {
+    z-index: 1061;
+}
+#quotaWarningModal + .modal-backdrop {
+    z-index: 1059;
+}
+
 /* ── TOAST ── */
 .toast-custom {
     position: fixed;
