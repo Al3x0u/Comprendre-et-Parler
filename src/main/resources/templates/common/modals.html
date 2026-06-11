@@ -98,14 +98,16 @@
 
 <th:block th:fragment="modal-password(actionUrl, autoShow)">
     <div class="modal fade" id="modalPassword" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
-         th:attr="data-autoshow=${autoShow}">
+         th:attr="data-autoshow=${autoShow == true or passwordError != null}">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header bg-primary text-white rounded-top-4">
                     <h5 class="modal-title"><i class="bi bi-lock-fill me-2"></i>Modifier le mot de passe</h5>
                 </div>
                 <div class="modal-body px-4">
-                    <div id="password-error" class="alert alert-danger d-none" role="alert"></div>
+                    <div id="password-error" class="alert alert-danger" role="alert"
+                         th:classappend="${passwordError == null} ? 'd-none'"
+                         th:text="${passwordError}"></div>
                     <form id="form-password" th:action="${actionUrl}" method="post" novalidate>
                         <div class="mb-3">
                             <label for="currentPassword" class="form-label">Mot de passe actuel</label>
