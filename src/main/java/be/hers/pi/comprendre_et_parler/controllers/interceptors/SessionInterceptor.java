@@ -145,8 +145,7 @@ public class SessionInterceptor implements HandlerInterceptor {
      * @throws IOException if an error occurs during the redirect
      */
     private boolean hasBeneficiaryProfileAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
-        if(!path.matches("/beneficiaires/profil/\\d+.*") || user instanceof Manager) return true;
-        if(user instanceof Interpreter) return true;
+        if(!path.matches("/beneficiaires/profil/\\d+.*") || user instanceof Interpreter) return true;
         int id = extractId(path);
         if(user.getId() != id){
             response.sendRedirect("/profil");

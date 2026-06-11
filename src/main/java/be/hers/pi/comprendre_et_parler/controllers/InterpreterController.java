@@ -171,7 +171,7 @@ public class InterpreterController {
         return "redirect:/interpretes/profil/" + id;
     }
 
-    /*
+    /**
      * Handle the update of an interpreter's weekly and yearly hour quotas
      * @param id the id of the interpreter to update
      * @param hourQuotaWeek the new weekly hour quota
@@ -260,8 +260,8 @@ public class InterpreterController {
         }
         return "redirect:/interpretes/profil/" + id;
     }
-
-    /*
+    
+     /**
      * Handle the demotion of a manager into an interpreter
      * @param id the id of the manager to demote
      * @return redirect to the interpreter profile
@@ -284,7 +284,7 @@ public class InterpreterController {
      * @return redirect to the interpreter list on success, or back to the profile with an error parameter on failure
      */
     @PostMapping("/profil/{id}/desactiver")
-    public String deactivateInterpreter(@PathVariable int id) {
+    public String desactivateInterpreter(@PathVariable int id) {
         try {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter != null)
@@ -294,7 +294,6 @@ public class InterpreterController {
             return "redirect:/interpretes/profil/" + id + "?error=disable";
         }
         return "redirect:/interpretes";
-
     }
 
     /**

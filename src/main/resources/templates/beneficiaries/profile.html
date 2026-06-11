@@ -27,13 +27,14 @@
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {
+            if (!document.getElementById('selected-interpreter-id').value) { location.reload(); return; }
             document.getElementById('form-interpreter').submit();
         } else {
             btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
             btn.classList.add('editing', 'btn-outline-success');
             btn.classList.remove('btn-outline-primary');
             btnCancel.classList.remove('d-none');
-            view.classList.add('d-none');
+            if(view) view.classList.add('d-none');
             edit.classList.remove('d-none');
         }
     }
