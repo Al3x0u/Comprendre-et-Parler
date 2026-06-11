@@ -91,20 +91,17 @@ public class MissionService {
     /**
      * Creates a mission with the status ACCEPTED
      * @param mission the mission to create, with interpreters and time slot already set
-     * @throws ConflictException if an assigned interpreter has a schedule conflict
-     * @throws AlreadyExistsException if the mission already exists in the database
-     * @throws SQLException if the database could not be reached
+     * @throws ConflictException if an assigned interpreter or beneficiary has a schedule conflict
+     * @throws SQLException if any database error occurs
      */
-    public void createMission(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
-        if (mission.getInterpreters() != null){
-            for (Interpreter interpreter : mission.getInterpreters()){
-                checkInterpreterConflict(interpreter, mission.getTimeSlot());
-            }
-        }
-
+    public void createMission(Mission mission) throws ConflictException, SQLException {
         mission.setStateOfMission(MissionState.ACCEPTED);
-
-        SQLWrap.callTransaction(daoMission::create, mission);
+        try {
+            SQLWrap.callTransaction(daoMission::create, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException(e.getMessage());
+        }
     }
 
 
@@ -131,14 +128,10 @@ public class MissionService {
         for (LocalDate date : getDates(slot)){
             for (Mission existing : SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), date)){
                 if (hasConflict(slot, existing.getTimeSlot())){
-                    throw new ConflictException("Conflit d'hiraire pour " + interpreter.getId());
+                    throw new ConflictException("Conflit d'horaire pour " + interpreter.getId());
                 }
-
             }
-
-
         }
-
     }
 
     /**
@@ -225,7 +218,6 @@ public class MissionService {
     public void acceptRequest(Mission mission) throws ConflictException, QuotaExceededException, AlreadyExistsException, SQLException {
         if (mission.getInterpreters() != null)
             for (Interpreter interpreter : mission.getInterpreters()) {
-                checkInterpreterConflict(interpreter, mission.getTimeSlot());
                 checkQuota(interpreter, mission.getTimeSlot());
             }
 
@@ -250,17 +242,11 @@ public class MissionService {
      * If the time slot has changed, checks for schedule conflicts with assigned interpreters.
      * @param mission the existing mission to update
      * @param newMission the new mission information to apply
-     * @throws ConflictException if an interpreter has a schedule conflict with the new time slot
-     * @throws AlreadyExistsException if the updated mission already exists in the database
+     * @throws ConflictException if an assigned interpreter or beneficiary has a schedule conflict
      * @throws NoSuchElementException if the mission does not exist in the database
      * @throws SQLException if the database could not be reached
      */
-    public void updateMission(Mission mission, Mission newMission) throws ConflictException, AlreadyExistsException, NoSuchElementException, SQLException {
-        if (!mission.getTimeSlot().equals(newMission.getTimeSlot()))
-            if (newMission.getInterpreters() != null)
-                for (Interpreter interpreter : newMission.getInterpreters())
-                    checkInterpreterConflict(interpreter, newMission.getTimeSlot());
-
+    public void updateMission(Mission mission, Mission newMission) throws ConflictException, NoSuchElementException, SQLException {
         mission.setSubject(newMission.getSubject());
         mission.setCommentary(newMission.getCommentary());
         mission.setTimeSlot(newMission.getTimeSlot());
@@ -272,7 +258,12 @@ public class MissionService {
         mission.setAcademicSkill(newMission.getAcademicSkill());
         mission.setBeneficiary(newMission.getBeneficiary());
 
-        SQLWrap.callTransaction(daoMission::update, mission);
+        try {
+            SQLWrap.callTransaction(daoMission::update, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException(e.getMessage());
+        }
     }
 
     /**
@@ -379,18 +370,19 @@ public class MissionService {
      * Use this when the interpreter's quota is exceeded but the manager
      * explicitly chooses to accept the mission anyway.
      * @param mission the mission to accept, with interpreters already set
-     * @throws ConflictException if an assigned interpreter has a schedule conflict
-     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws ConflictException if an assigned interpreter or beneficiary has a schedule conflict
      * @throws SQLException if the database could not be reached
      * @pre mission.getInterpreters() is not null and not empty
      * @post mission.getStateOfMission() == MissionState.ACCEPTED
      */
-    public void acceptRequestDespiteQuota(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
-        for (Interpreter interpreter : mission.getInterpreters()) {
-            checkInterpreterConflict(interpreter, mission.getTimeSlot());
-        }
+    public void acceptRequestDespiteQuota(Mission mission) throws ConflictException, SQLException {
         mission.setStateOfMission(MissionState.ACCEPTED);
-        SQLWrap.callTransaction(daoMission::update, mission);
+        try {
+            SQLWrap.callTransaction(daoMission::update, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException(e.getMessage());
+        }
     }
 
     /**
