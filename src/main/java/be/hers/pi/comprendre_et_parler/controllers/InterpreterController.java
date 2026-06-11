@@ -135,6 +135,8 @@ public class InterpreterController {
     public String updateInterpreterProfile(@PathVariable int id,
                                            @ModelAttribute UpdateInterpreterForm form,
                                            @ModelAttribute("birthdate") LocalDate birthdate,
+                                           @RequestHeader(value = "Referer", required = false) String referer,
+                                           HttpSession session,
                                            Model model) {
         try {
             form.setBirthDate(birthdate);
@@ -142,6 +144,9 @@ public class InterpreterController {
         } catch (AlreadyExistsException e) {
             model.addAttribute("submitState", "Cet utilisateur existe déjà");
             sortCities(model, form.getCityId());
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            model.addAttribute("referer", referer);
+            model.addAttribute("isOwnProfile", user.getId() == id);
             return "interpreters/edit-profile";
         } catch (SQLException | ConnectionException e) {
             e.printStackTrace();

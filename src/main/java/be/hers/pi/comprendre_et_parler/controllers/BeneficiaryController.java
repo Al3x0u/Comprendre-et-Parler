@@ -140,12 +140,17 @@ public class BeneficiaryController {
     public String updateBeneficiary(@PathVariable int id,
                                     @ModelAttribute UpdateBeneficiaryForm form,
                                     @ModelAttribute("birthdate") LocalDate birthdate,
+                                    @RequestHeader(value = "Referer", required = false) String referer,
+                                    HttpSession session,
                                     Model model) {
         try {
             form.setBirthDate(birthdate);
             beneficiaryService.updateBeneficiary(id, form);
         } catch (AlreadyExistsException e) {
             model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            model.addAttribute("referer", referer);
+            model.addAttribute("isOwnProfile", user.getId() == id);
             return "beneficiaries/edit-profile";
         } catch (SQLException | ConnectionException e) {
             e.printStackTrace();
