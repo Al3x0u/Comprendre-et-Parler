@@ -55,15 +55,15 @@ public class DAOMission extends DAO<Mission> {
     // Does not update objectToInsert's id when throwing an AlreadyExistException
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Mission overlaps with an existing mission");
-
         try {
             if (objectToInsert.getTimeSlot() instanceof PunctualTimeSlot pts)
                 new DAOPunctualTimeSlot().create(pts);
             else if (objectToInsert.getTimeSlot() instanceof BaseTimeSlot bts)
                 new DAOBaseTimeSlot().create(bts);
         } catch (AlreadyExistsException e) {}
+
+        if (checkAlreadyExists(objectToInsert) >= 0)
+            throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         try {
             new DAOLocation().create(objectToInsert.getLocation());
@@ -209,16 +209,23 @@ public class DAOMission extends DAO<Mission> {
                 // status is the same
                 "m." + FIELD_STATE + " = ? " +
                 // timeslots overlap
+                // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
                 "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
                 " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
                 //
-                " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
-                "OR m." + FIELD_ID + " IN " +
-                "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
-                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
-                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
-                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
-                ")" +
+                " AND (" +
+                    // beneficiary is the same (if there is one assigned)
+                    "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
+                    //
+                    "OR m." + FIELD_ID + " IN (" +
+                        // Missions ????
+                        "SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
+                        " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN (" +
+                            // Interpreters assigned to this mission
+                            "SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
+                            " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?" +
+                        ")" +
+                    ")" +
                 ")";
         PreparedStatement statement = null;
         ResultSet result = null;
