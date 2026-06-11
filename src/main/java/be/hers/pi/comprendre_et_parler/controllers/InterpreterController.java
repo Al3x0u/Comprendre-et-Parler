@@ -112,7 +112,7 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
-            sortCities(model, interpreter.getLocation().getCity().getId());
+            sortCities(model);
             model.addAttribute("updateInterpreterForm", new UpdateInterpreterForm(interpreter));
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -143,7 +143,7 @@ public class InterpreterController {
             interpreterService.updateInterpreter(id, form);
         } catch (AlreadyExistsException e) {
             model.addAttribute("submitState", "Cet utilisateur existe déjà");
-            sortCities(model, form.getCityId());
+            sortCities(model);
             AppliUser user = (AppliUser) session.getAttribute("user");
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -213,7 +213,7 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        populateCreationModel(model, 0);
+        populateCreationModel(model);
         model.addAttribute("interpreterForm", new CreateInterpreterForm());
         model.addAttribute("submitState", null);
 
@@ -243,7 +243,7 @@ public class InterpreterController {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
         } finally {
-            populateCreationModel(model, interpreterForm.getCityId());
+            populateCreationModel(model);
             return "interpreters/creation";
         }
     }
@@ -268,11 +268,10 @@ public class InterpreterController {
     /**
      * Populate the model with the data needed for the interpreter creation form.
      * @param model The Spring model to populate
-     * @param idCity The ID of the city to send to the front of the list
      */
-    private void populateCreationModel(Model model, int idCity) {
+    private void populateCreationModel(Model model) {
         getSkills(model);
-        sortCities(model, idCity);
+        sortCities(model);
     }
 
     /**
@@ -291,15 +290,10 @@ public class InterpreterController {
     /**
      * Get all the cities from the database and sort them according to their compareTo()
      * @param model The model to which the skills will be added
-     * @param idCity The ID of the city to send to the front of the list
      */
-    private void sortCities(Model model, int idCity) {
+    private void sortCities(Model model) {
         try {
-            List<City> allCities = new CityService().getAllCities();
-            if (idCity > 0 && allCities.removeIf(c -> c.getId() == idCity))
-                allCities.addFirst(new CityService().getOneCity(idCity));
-
-            model.addAttribute("allCities", allCities);
+            model.addAttribute("allCities", new CityService().getAllCities());
         } catch (SQLException e) {
             e.printStackTrace();
         }
