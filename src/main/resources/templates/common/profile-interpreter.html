@@ -172,7 +172,6 @@
                     <div th:if="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="d-flex flex-wrap gap-2" id="job-skills">
                         <span th:each="skill : *{jobSkills}" class="badge bg-dark fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
                             <span th:text="${skill.designation}"></span>
-                            <i class="bi bi-x skill-delete job-delete d-none" style="cursor:pointer"></i>
                         </span>
                     </div>
                     <div th:unless="*{jobSkills != null and !#sets.isEmpty(jobSkills)}" class="text-muted">
@@ -182,7 +181,7 @@
                             data-bs-toggle="modal" data-bs-target="#modalAddSkill"
                             data-type="job"
                             data-title="<i class='bi bi-briefcase me-2'></i>Ajouter une compétence métier"
-                            data-action="/interpretes/[[${interprete.id}]]/competences/metier/ajouter">
+                            th:attr="data-action='/interpretes/profil/' + ${interprete.id} + '/competences/metier/ajouter'">
                         <i class="bi bi-plus-lg me-1"></i>Ajouter une compétence
                     </button>
                 </div>
@@ -205,7 +204,6 @@
                     <div th:if="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="d-flex flex-wrap gap-2" id="academic-skills">
                         <span th:each="skill : *{academicSkills}" class="badge bg-secondary fs-6 px-3 py-2 rounded-pill d-flex align-items-center gap-2">
                             <span th:text="${skill.designation}"></span>
-                            <i class="bi bi-x skill-delete academic-delete d-none" style="cursor:pointer"></i>
                         </span>
                     </div>
                     <div th:unless="*{academicSkills != null and !#sets.isEmpty(academicSkills)}" class="text-muted">
@@ -214,8 +212,8 @@
                     <button class="btn btn-outline-primary btn-sm mt-3 d-none" id="btn-add-academic"
                             data-bs-toggle="modal" data-bs-target="#modalAddSkill"
                             data-type="academic"
-                            data-title="<i class='bi bi-mortarboard me-2'></i>Ajouter une compétence académique"
-                            data-action="/interpretes/[[${interprete.id}]]/competences/academiques/ajouter">
+                            data-title="<i class='bi bi-briefcase me-2'></i>Ajouter une compétence académique"
+                            th:attr="data-action='/interpretes/profil/' + ${interprete.id} + '/competences/academiques/ajouter'">
                         <i class="bi bi-plus-lg me-1"></i>Ajouter une compétence
                     </button>
                 </div>
@@ -227,7 +225,7 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Quota d'heures</h2>
                         <div class="d-flex" th:if="${isManager}">
-                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-quota" onclick="toggleEditQuota()">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-quota" onclick="location.reload()">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
                             <button class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-quota" onclick="toggleEditQuota()">
@@ -366,12 +364,14 @@
                             <select class="form-select" name="existingSkillId" id="existing-academic-select">
                                 <option value="">-- Sélectionner --</option>
                                 <option th:each="skill : ${allAcademicSkills}"
+                                        th:if="${interprete.academicSkills == null or !#sets.contains(interprete.academicSkills, skill)}"
                                         th:value="${skill.id}"
                                         th:text="${skill.designation}"></option>
                             </select>
                             <select class="form-select d-none" name="existingSkillId" id="existing-job-select">
                                 <option value="">-- Sélectionner --</option>
                                 <option th:each="skill : ${allJobSkills}"
+                                        th:if="${interprete.jobSkills == null or !#sets.contains(interprete.jobSkills, skill)}"
                                         th:value="${skill.id}"
                                         th:text="${skill.designation}"></option>
                             </select>
@@ -442,12 +442,8 @@
             const isEditing = btn.classList.contains('editing');
 
             if (isEditing) {
-                btn.innerHTML = '<i class="bi bi-pencil me-1"></i>Modifier';
-                btn.classList.remove('editing', 'btn-outline-success', 'd-none');
-                btn.classList.add('btn-outline-primary');
-                btnCancel.classList.add('d-none');
-                views.forEach(v => v.classList.remove('d-none'));
-                edits.forEach(e => e.classList.add('d-none'));
+                document.getElementById('quota-form').submit();
+                return;
             } else {
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Terminer';
                 btn.classList.add('editing', 'btn-outline-success');

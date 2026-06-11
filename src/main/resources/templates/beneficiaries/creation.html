@@ -71,7 +71,10 @@
                             <option th:if="*{statusId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="status : ${allStatuses}"
                                     th:value="${status.id}"
-                                    th:text="${status.designation}"></option>
+                                    th:text="${status.designation}"
+                                    th:selected="${status.id == beneficiaryForm.statusId}">
+
+                            </option>
                         </select>
                     </div>
                     <div class="col-12 col-md-6">
@@ -80,7 +83,9 @@
                             <option th:if="*{interpreterRefId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="interpreter : ${allInterpreters}"
                                     th:value="${interpreter.id}"
-                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
+                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"
+                                    th:selected="${interpreter.id == beneficiaryForm.interpreterRefId}">
+                            </option>
                         </select>
                     </div>
                 </div>

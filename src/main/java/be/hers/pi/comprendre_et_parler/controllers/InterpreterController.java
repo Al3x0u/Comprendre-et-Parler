@@ -112,7 +112,7 @@ public class InterpreterController {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter == null) return "redirect:/interpretes";
 
-            sortCities(model, interpreter.getLocation().getCity().getId());
+            sortCities(model);
             model.addAttribute("updateInterpreterForm", new UpdateInterpreterForm(interpreter));
             model.addAttribute("referer", referer);
             model.addAttribute("isOwnProfile", user.getId() == id);
@@ -133,14 +133,20 @@ public class InterpreterController {
      */
     @PostMapping("/profil/{id}/modifier")
     public String updateInterpreterProfile(@PathVariable int id,
-                                           @ModelAttribute("interprete") UpdateInterpreterForm form,
+                                           @ModelAttribute UpdateInterpreterForm form,
                                            @ModelAttribute("birthdate") LocalDate birthdate,
+                                           @RequestHeader(value = "Referer", required = false) String referer,
+                                           HttpSession session,
                                            Model model) {
         try {
             form.setBirthDate(birthdate);
             interpreterService.updateInterpreter(id, form);
         } catch (AlreadyExistsException e) {
             model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            sortCities(model);
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            model.addAttribute("referer", referer);
+            model.addAttribute("isOwnProfile", user.getId() == id);
             return "interpreters/edit-profile";
         } catch (SQLException | ConnectionException e) {
             e.printStackTrace();
@@ -166,6 +172,96 @@ public class InterpreterController {
     }
 
     /**
+     * Handle the update of an interpreter's weekly and yearly hour quotas
+     * @param id the id of the interpreter to update
+     * @param hourQuotaWeek the new weekly hour quota
+     * @param hourQuotaYear the new yearly hour quota
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/{id}/quota")
+    public String updateQuota(@PathVariable int id,
+                              @RequestParam int hourQuotaWeek,
+                              @RequestParam int hourQuotaYear) {
+        try {
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            interpreterService.updateQuota(interpreter, hourQuotaWeek, hourQuotaYear);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the addition of a job skill to an interpreter, either an existing one or a new one
+     * @param id the id of the interpreter
+     * @param existingSkillId the id of an existing skill to link, empty if a new skill is created
+     * @param newSkillName the designation of a new skill to create and link, empty if an existing skill is chosen
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/{id}/competences/metier/ajouter")
+    public String addJobSkill(@PathVariable int id,
+                              @RequestParam(required = false) Integer existingSkillId,
+                              @RequestParam(required = false) String newSkillName,
+                              HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager) && user.getId() != id)
+                return "redirect:/interpretes/profil/" + id;
+
+            JobSkill skill = null;
+            if (existingSkillId != null) {
+                skill = new JobSkillService().getAllJobSkills().stream()
+                        .filter(s -> s.getId() == existingSkillId)
+                        .findFirst().orElse(null);
+            } else if (newSkillName != null && !newSkillName.isBlank()) {
+                skill = new JobSkill(newSkillName.trim());
+            }
+
+            if (skill != null)
+                interpreterService.addJobSkill(interpreterService.getOneInterpreter(id), skill);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the addition of a academic skill to an interpreter, either an existing one or a new one
+     * @param id the id of the interpreter
+     * @param existingSkillId the id of an existing skill to link, empty if a new skill is created
+     * @param newSkillName the designation of a new skill to create and link, empty if an existing skill is chosen
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/{id}/competences/academiques/ajouter")
+    public String addAcademicSkill(@PathVariable int id,
+                              @RequestParam(required = false) Integer existingSkillId,
+                              @RequestParam(required = false) String newSkillName,
+                              HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager) && user.getId() != id)
+                return "redirect:/interpretes/profil/" + id;
+
+            AcademicSkill skill = null;
+            if (existingSkillId != null) {
+                skill = new AcademicSkillService().getAllAcademicSkills().stream()
+                        .filter(s -> s.getId() == existingSkillId)
+                        .findFirst().orElse(null);
+            } else if (newSkillName != null && !newSkillName.isBlank()) {
+                skill = new AcademicSkill(newSkillName.trim());
+            }
+
+            if (skill != null)
+                interpreterService.addAcademicSkill(interpreterService.getOneInterpreter(id), skill);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/interpretes/profil/" + id;
+    }
+    
+     /**
      * Handle the demotion of a manager into an interpreter
      * @param id the id of the manager to demote
      * @return redirect to the interpreter profile
@@ -188,7 +284,7 @@ public class InterpreterController {
      * @return redirect to the interpreter list on success, or back to the profile with an error parameter on failure
      */
     @PostMapping("/profil/{id}/desactiver")
-    public String deactivateInterpreter(@PathVariable int id) {
+    public String desactivateInterpreter(@PathVariable int id) {
         try {
             Interpreter interpreter = interpreterService.getOneInterpreter(id);
             if (interpreter != null)
@@ -207,7 +303,7 @@ public class InterpreterController {
      */
     @GetMapping("/creer")
     public String showCreateInterpreter(Model model) {
-        populateCreationModel(model, 0);
+        populateCreationModel(model);
         model.addAttribute("interpreterForm", new CreateInterpreterForm());
         model.addAttribute("submitState", null);
 
@@ -237,7 +333,7 @@ public class InterpreterController {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
         } finally {
-            populateCreationModel(model, interpreterForm.getCityId());
+            populateCreationModel(model);
             return "interpreters/creation";
         }
     }
@@ -262,11 +358,10 @@ public class InterpreterController {
     /**
      * Populate the model with the data needed for the interpreter creation form.
      * @param model The Spring model to populate
-     * @param idCity The ID of the city to send to the front of the list
      */
-    private void populateCreationModel(Model model, int idCity) {
+    private void populateCreationModel(Model model) {
         getSkills(model);
-        sortCities(model, idCity);
+        sortCities(model);
     }
 
     /**
@@ -285,15 +380,10 @@ public class InterpreterController {
     /**
      * Get all the cities from the database and sort them according to their compareTo()
      * @param model The model to which the skills will be added
-     * @param idCity The ID of the city to send to the front of the list
      */
-    private void sortCities(Model model, int idCity) {
+    private void sortCities(Model model) {
         try {
-            List<City> allCities = new CityService().getAllCities();
-            if (idCity > 0 && allCities.removeIf(c -> c.getId() == idCity))
-                allCities.addFirst(new CityService().getOneCity(idCity));
-
-            model.addAttribute("allCities", allCities);
+            model.addAttribute("allCities", new CityService().getAllCities());
         } catch (SQLException e) {
             e.printStackTrace();
         }
