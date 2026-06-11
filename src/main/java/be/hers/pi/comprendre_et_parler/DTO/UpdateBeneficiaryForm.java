@@ -29,6 +29,14 @@ public class UpdateBeneficiaryForm {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
     public String getLogin() {
         return login;
     }

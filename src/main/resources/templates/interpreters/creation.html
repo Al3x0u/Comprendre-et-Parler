@@ -98,7 +98,9 @@
                             <option th:if="*{cityId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="city : ${allCities}"
                                     th:value="${city.id}"
-                                    th:text="${city.postalCode + ' - ' + city.designation}"></option>
+                                    th:text="${city.postalCode + ' - ' + city.designation}"
+                                    th:selected="${city.id == interpreterForm.cityId}">
+                            </option>
                         </select>
                     </div>
                 </div>

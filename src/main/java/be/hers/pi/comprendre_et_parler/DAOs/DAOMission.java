@@ -55,15 +55,15 @@ public class DAOMission extends DAO<Mission> {
     // Does not update objectToInsert's id when throwing an AlreadyExistException
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Mission overlaps with an existing mission");
-
         try {
             if (objectToInsert.getTimeSlot() instanceof PunctualTimeSlot pts)
                 new DAOPunctualTimeSlot().create(pts);
             else if (objectToInsert.getTimeSlot() instanceof BaseTimeSlot bts)
                 new DAOBaseTimeSlot().create(bts);
         } catch (AlreadyExistsException e) {}
+
+        if (checkAlreadyExists(objectToInsert) >= 0)
+            throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         try {
             new DAOLocation().create(objectToInsert.getLocation());
@@ -202,34 +202,47 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
+        // Find Missions in the same state as mission, sharing an interpreter or beneficiary with it, and for which timeslots overlap
         String query = "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
                 "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
                 " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
-                "WHERE " +
-                // status is the same
+                " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
+                " WHERE " +
+                // status is shared
                 "m." + FIELD_STATE + " = ? " +
                 // timeslots overlap
+                // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
                 "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
                 " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
                 //
-                " AND (" + "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ") +
-                "OR m." + FIELD_ID + " IN " +
-                "(SELECT "+ INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
-                " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " IN " +
-                "(SELECT " + INTERPRETER_MISSION_REF_INTERPRETER + " FROM " + TABLE_INTERPRETER_MISSION +
-                " WHERE " + INTERPRETER_MISSION_REF_MISSION + " = ?)" +
-                ")" +
-                ")";
+                " AND (" +
+                    // beneficiary is shared (if there is one assigned)
+                    "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ");
+
+        // any interpreter is shared
+        if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
+                query = query + "OR im."+ DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?";
+            for(int i = 1; i < mission.getInterpreters().size(); i++){
+                query = query + ", ?"; // Concatenation in loop, but we rarely have more than 1 Interpreter per mission anyway
+            }
+            query = query + " )";
+        }
+        query = query + ")";
+
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
-            int field = 1; // variable number of fields depending on whether beneficiary is null or not
+            int field = 1; // variable number of fields depending on assigned interpreters and beneficiary
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(field++, mission.getTimeSlot().getId());
             statement.setInt(field++, mission.getStateOfMission().getValue());
             if (mission.getBeneficiary() != null)
                 statement.setInt(field++, mission.getBeneficiary().getId());
-            statement.setInt(field++, mission.getId());
+            if (mission.getInterpreters() != null) {
+                for (Interpreter i : mission.getInterpreters()) {
+                    statement.setInt(field++, i.getId());
+                }
+            }
 
             result = statement.executeQuery();
             if(result.next())
@@ -239,7 +252,6 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
         return -1;
-
     }
 
     @Override
