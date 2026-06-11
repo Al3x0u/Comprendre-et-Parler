@@ -59,6 +59,13 @@ public class SessionInterceptor implements HandlerInterceptor {
 
     // ── ACCESS CONTROL ────────────────────────────────────────────────────
 
+    private boolean hasUpdatedPassword(AppliUser user, String path, HttpServletResponse response) throws IOException {
+        if (user.isPasswordUpdated()) return true;
+        if (path.equals("/profil") || path.equals("/profil/modifier-mot-de-passe")) return true;
+        response.sendRedirect("/profil");
+        return false;
+    }
+
     /**
      * Check if the user is authorized to access the requested resource.
      * Verifies password update status, role-based access, and profile-specific access rules.
@@ -69,6 +76,7 @@ public class SessionInterceptor implements HandlerInterceptor {
      * @throws IOException if an error occurs during the redirect
      */
     private boolean hasAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
+        if(!hasUpdatedPassword(user, path, response)) return false;
         if(!hasManagerAccess(user, path, response)) return false;
         if(!hasInterpreterProfileAccess(user, path, response)) return false;
         if(!hasBeneficiaryProfileAccess(user, path, response)) return false;
@@ -88,7 +96,8 @@ public class SessionInterceptor implements HandlerInterceptor {
      * @throws IOException if an error occurs during the redirect
      */
     private boolean hasManagerAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
-        if (path.startsWith("/dashboard") || path.startsWith("/interpretes") || path.startsWith("/beneficiaires")) {
+        if (path.startsWith("/dashboard") || path.startsWith("/interpretes")
+                || path.startsWith("/beneficiaires") || path.startsWith("/gestion")) {
             if (!(user instanceof Manager)) {
                 if (user instanceof Beneficiary) {
                     if (path.matches("/beneficiaires/profil/\\d+") ||

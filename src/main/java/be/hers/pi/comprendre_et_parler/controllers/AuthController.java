@@ -3,6 +3,7 @@ package be.hers.pi.comprendre_et_parler.controllers;
 import be.hers.pi.comprendre_et_parler.models.AppliUser;
 import be.hers.pi.comprendre_et_parler.models.Manager;
 import be.hers.pi.comprendre_et_parler.services.LoginService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,14 +47,14 @@ public class AuthController {
      * @return redirect to schedule page if successful, login page with error otherwise
      */
     @PostMapping("/login")
-    public String login(@RequestParam String login, @RequestParam String password, Model model, HttpSession session) {
+    public String login(@RequestParam String login, @RequestParam String password, Model model, HttpSession session, HttpServletRequest request) {
         AppliUser user = loginService.getUserData(login, password);
 
         if (user == null) {
             model.addAttribute("error", "Identifiant ou mot de passe incorrect");
             return "login";
         }
-
+        request.changeSessionId();
         session.setAttribute("user", user);
 
         if (user instanceof Manager) {

@@ -27,8 +27,14 @@ public class PasswordService {
      */
     public void changePassword(AppliUser user, String newPassword) throws SQLException, ConnectionException {
         String hashedNewPassword = encoder.encode(newPassword);
+        String oldHash = user.getHashedPassword();
         user.setHashedPassword(hashedNewPassword);
-        SQLWrap.callTransaction(new DAOAppliUser()::updatePasswordUpdated, user);
+        try {
+            SQLWrap.callTransaction(new DAOAppliUser()::updatePasswordUpdated, user);
+        } catch (SQLException | ConnectionException e) {
+            user.setHashedPassword(oldHash);
+            throw e;
+        }
         user.setPasswordUpdated(true);
     }
 
@@ -39,6 +45,6 @@ public class PasswordService {
      * @return true if it's the correct password else false
      */
     public boolean verifyCurrentPassword(AppliUser user, String password) {
-        return true;
+        return encoder.matches(password, user.getHashedPassword());
     }
 }
