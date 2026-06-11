@@ -364,12 +364,14 @@
                             <select class="form-select" name="existingSkillId" id="existing-academic-select">
                                 <option value="">-- Sélectionner --</option>
                                 <option th:each="skill : ${allAcademicSkills}"
+                                        th:if="${interprete.academicSkills == null or !#sets.contains(interprete.academicSkills, skill)}"
                                         th:value="${skill.id}"
                                         th:text="${skill.designation}"></option>
                             </select>
                             <select class="form-select d-none" name="existingSkillId" id="existing-job-select">
                                 <option value="">-- Sélectionner --</option>
                                 <option th:each="skill : ${allJobSkills}"
+                                        th:if="${interprete.jobSkills == null or !#sets.contains(interprete.jobSkills, skill)}"
                                         th:value="${skill.id}"
                                         th:text="${skill.designation}"></option>
                             </select>
