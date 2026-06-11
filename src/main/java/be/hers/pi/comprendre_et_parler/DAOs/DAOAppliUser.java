@@ -74,4 +74,65 @@ public class DAOAppliUser {
             }
         }
     }
+
+    /**
+     * Disable a user account by setting its end date to today
+     * @param id the id of the user to disable
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     */
+    public void disableAccount(int id) throws SQLException, NoSuchElementException {
+        String query = "UPDATE AppliUserT SET end = SYSDATE WHERE id = ?";
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            if (statement.executeUpdate() == 0)
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if a user account is active (end date is null or in the future)
+     * @param id the id of the user to check
+     * @return true if the account is active, false if it has been disabled
+     * @throws SQLException if the database could not be reached
+     * @throws NoSuchElementException if no AppliUser with this id exists in the database
+     */
+    public boolean isAccountActive(int id) throws SQLException, NoSuchElementException {
+        String query = "SELECT end FROM AppliUserT WHERE id = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+            result = statement.executeQuery();
+            if (!result.next())
+                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
+            return result.getDate("end") == null;
+        } finally {
+            if (result != null) {
+                try {
+                    result.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

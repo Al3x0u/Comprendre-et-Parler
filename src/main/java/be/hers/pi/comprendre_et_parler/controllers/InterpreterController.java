@@ -63,6 +63,7 @@ public class InterpreterController {
      * Display the profile of an interpreter
      * @param id the ID of the interpreter to display
      * @param referer the URL of the referring page, used for the back button
+     * @param error optional error parameter, triggers an error modal if set
      * @param session the current HTTP session, used to retrieve the connected user
      * @param model the Spring model to populate
      * @return the interpreter profile view, or a redirect to the list if not found
@@ -179,6 +180,24 @@ public class InterpreterController {
             return "redirect:/interpretes/profil/" + id + "?error=demote";
         }
         return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the deactivation of an interpreter account
+     * @param id the id of the interpreter to deactivate
+     * @return redirect to the interpreter list on success, or back to the profile with an error parameter on failure
+     */
+    @PostMapping("/profil/{id}/desactiver")
+    public String deactivateInterpreter(@PathVariable int id) {
+        try {
+            Interpreter interpreter = interpreterService.getOneInterpreter(id);
+            if (interpreter != null)
+                interpreterService.deleteInterpreter(interpreter);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/interpretes/profil/" + id + "?error=disable";
+        }
+        return "redirect:/interpretes";
     }
 
     /**

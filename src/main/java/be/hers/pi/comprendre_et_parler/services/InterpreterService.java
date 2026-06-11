@@ -84,6 +84,17 @@ public class InterpreterService {
     }
 
     /**
+     * Disables an interpreter account by setting its end date to today.
+     * The account remains in the database but the user can no longer log in.
+     * @param id the id of the interpreter to disable
+     * @throws NoSuchElementException if the interpreter does not exist in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void disableInterpreter(int id) throws SQLException, NoSuchElementException {
+        SQLWrap.callTransaction(new DAOAppliUser()::disableAccount, id);
+    }
+
+    /**
      * Deletes an interpreter from the system.
      * If the interpreter is the only one assigned to a mission, the mission is set to CANCELED.
      * Otherwise, the interpreter is automatically removed from the mission via ON DELETE CASCADE.

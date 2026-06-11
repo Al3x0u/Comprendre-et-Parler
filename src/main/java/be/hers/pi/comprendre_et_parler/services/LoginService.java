@@ -33,6 +33,11 @@ public class LoginService {
             if (user == null || !checkUserLogin(user, login, password)) {
                 return null;
             }
+
+            if (!new DAOAppliUser().isAccountActive(user.getId())) {
+                return null;
+            }
+
             boolean passwordUpdated = new DAOAppliUser().getPasswordUpdated(user.getId());
             user.setPasswordUpdated(passwordUpdated);
 
