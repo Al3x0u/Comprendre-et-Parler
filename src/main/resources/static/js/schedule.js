@@ -446,24 +446,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('managerPendingComment').innerText = props.comment || '';
                 document.getElementById('managerPendingStatus').innerText = props.status || '';
 
-
                 const footer = document.querySelector('#managerPendingModal .modal-footer');
                 footer.innerHTML = '';
 
                 if (isPending && beforeStart) {
                     footer.innerHTML = `
-                        <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
-                        <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
-                    `;
-                } else {
+                            <button type="button" class="btn btn-secondary" id="btnEditMission">Modifier</button>
+                            <button type="button" class="btn btn-danger"    id="btnRefuseMission">Refuser</button>
+                            <button type="button" class="btn btn-success"   id="btnAcceptMission">Accepter</button>
+                        `;
+                } else if (isAccepted) {
                     footer.innerHTML = `
-                        <button type="button" class="btn btn-danger" id="btnCancelAcceptedMission">Annuler la mission</button>
-                    `;
+                            <button type="button" class="btn btn-secondary" id="btnEditMission">Modifier</button>
+                            <button type="button" class="btn btn-danger"    id="btnCancelAcceptedMission">Annuler la mission</button>
+                        `;
                 }
 
-                const acceptBtn = document.getElementById('btnAcceptMission');
-                const refuseBtn = document.getElementById('btnRefuseMission');
+                const btnEdit           = document.getElementById('btnEditMission');
+                const acceptBtn         = document.getElementById('btnAcceptMission');
+                const refuseBtn         = document.getElementById('btnRefuseMission');
                 const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
+
+                if (btnEdit) {
+                    btnEdit.addEventListener('click', function() {
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                        fillAndOpenEditModal('mission', props, event, currentMissionId);
+                    }, { once: true });
+                }
+
 
                 if (acceptBtn) {
                     /**
@@ -487,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ interpreterId: selectedInterpreter })
                                 });
-                                if (!res.ok) throw new Error(await res.text());
                                 bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal')).hide();
                                 bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
                                 calendar.refetchEvents();
@@ -503,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ interpreterId: selectedInterpreter })
                             });
-                            if (!checkRes.ok) throw new Error(await checkRes.text());
+
                             const warning = await checkRes.text();
 
                             if (warning && warning.trim() !== '') {
@@ -547,7 +556,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             const res = await fetch('/horaire/missions/' + event.id + '/refuser', {
                                 method: 'POST'
                             });
-                            if (!res.ok) throw new Error(await res.text());
                             bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
                             calendar.refetchEvents();
                             showToast("Mission refusée.", 'info');
@@ -591,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isPending) {
                 actions.innerHTML = `
                     <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
-                    <button type="button" class="btn btn-primary">Modifier la demande</button>
+                    <button type="button" class="btn btn-primary  id="btnEditRequest">Modifier la demande</button>
                 `;
             } else if (isAccepted && isSameDay && isBeforeEnd) {
                 actions.innerHTML = `
@@ -624,6 +632,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
                     bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
                 });
+            }
+
+            const editRequestBtn = document.getElementById('btnEditRequest');
+            if (editRequestBtn) {
+                /**
+                 * Closes the event modal and opens the request edit modal.
+                 * @listens click
+                 */
+                editRequestBtn.addEventListener('click', function() {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
+                    fillAndOpenEditModal('request', props, event, currentMissionId);
+                }, { once: true });
             }
 
             document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
@@ -680,7 +700,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await fetch('/horaire/missions/' + currentMissionId + '/annuler', {
                 method: 'POST'
             });
-            if (!res.ok) throw new Error(await res.text());
             bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
             calendar.refetchEvents();
             showToast("Mission annulée.", 'info');
@@ -721,7 +740,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ minutes, absent })
             });
-            if (!res.ok) throw new Error(await res.text());
             bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
             showToast("Retard signalé avec succès.", 'success');
         } catch (err) {
@@ -762,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         const payload = {
-            type:                document.querySelector('input[name="missionType"]:checked').value,
+            type: document.querySelector('input[name="missionType"]:checked')?.value || '',
             title:               document.getElementById('missionTitle').value,
             date:                document.getElementById('missionDate').value,
             startTime,
@@ -780,15 +798,31 @@ document.addEventListener('DOMContentLoaded', function() {
             academicSkillId:     document.getElementById('missionAcademicSkill').value,
         };
         try {
-            const res = await fetch('/horaire/missions', {
+            const btn = document.getElementById('sendMissionBtn');
+            const isEditMode = btn.dataset.editMode === 'true';
+            const missionIdToEdit = btn.dataset.missionId;
+
+            let url;
+            if (isEditMode) {
+                url = '/horaire/missions/' + missionIdToEdit + '/modifier';
+            } else {
+                url = '/horaire/missions';
+            }
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (!res.ok) throw new Error(await res.text());
+            btn.dataset.editMode = 'false';
+            btn.innerText = 'Envoyer';
+            document.getElementById('newMissionModalTitle').innerText = 'Nouvelle mission';
             bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).hide();
             calendar.refetchEvents();
-            showToast("Mission créée avec succès.", 'success');
+            if (isEditMode) {
+                showToast("Mission modifiée avec succès.", 'success');
+            } else {
+                showToast("Mission créée avec succès.", 'success');
+            }
         } catch (err) {
             showToast("Erreur : " + err.message, 'error');
         }
@@ -836,15 +870,34 @@ document.addEventListener('DOMContentLoaded', function() {
             importance:          document.querySelector('input[name="requestImportance"]:checked').value
         };
         try {
-            const res = await fetch('/horaire/requetes', {
+            const btn = document.getElementById('sendRequestBtn');
+            const isEditMode = btn.dataset.editMode === 'true';
+            const requestIdToEdit = btn.dataset.missionId;
+
+            let url;
+            if (isEditMode) {
+                url = '/horaire/requetes/' + requestIdToEdit + '/modifier';
+            } else {
+                url = '/horaire/requetes';
+            }
+
+            const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (!res.ok) throw new Error(await res.text());
+
+            btn.dataset.editMode = 'false';
+            btn.innerText = 'Envoyer';
+            document.getElementById('newRequestModalTitle').innerText = 'Nouvelle demande';
             bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).hide();
             calendar.refetchEvents();
-            showToast("Demande envoyée avec succès.", 'success');
+
+            if (isEditMode) {
+                showToast("Demande modifiée avec succès.", 'success');
+            } else {
+                showToast("Demande envoyée avec succès.", 'success');
+            }
         } catch (err) {
             showToast("Erreur : " + err.message, 'error');
         }
@@ -860,5 +913,144 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     setupFilter('.filter-status', 'status');
     setupFilter('.filter-interpreter', 'interpreter');
+
+    /**
+     * Fills a creation modal (mission or request) with existing data and switches it to edit mode.
+     * Changes the submit button to send a PUT instead of POST.
+     *
+     * @param {'mission'|'request'} type - Which modal to fill
+     * @param {Object} props             - extendedProps of the FullCalendar event
+     * @param {Object} event             - The FullCalendar event object
+     * @param {number} missionId         - The ID of the mission to edit
+     */
+    function fillAndOpenEditModal(type, props, event, missionId) {
+        let prefix;
+        let modalId;
+        let btnId;
+        if (type === 'mission') {
+            prefix = 'mission';
+            modalId = 'newMissionModal';
+            btnId = 'sendMissionBtn';
+        } else {
+            prefix = 'request';
+            modalId = 'newRequestModal';
+            btnId = 'sendRequestBtn';
+        }
+
+        const titleEl = document.getElementById(modalId + 'Title');
+
+        if (type === 'mission') {
+            titleEl.innerText = 'Modifier la mission';
+        } else {
+            titleEl.innerText = 'Modifier la demande';
+        }
+
+        if (event.title) {
+            document.getElementById(prefix + 'Title').value = event.title;
+        } else {
+            document.getElementById(prefix + 'Title').value = '';
+        }
+        if (event.start) {
+            document.getElementById(prefix + 'Date').value =
+                event.start.toISOString().substring(0, 10);
+        } else {
+            document.getElementById(prefix + 'Date').value = '';
+        }
+
+        document.getElementById(prefix + 'LocationDesignation').value = props.locationDesignation || '';
+        document.getElementById(prefix + 'Street').value = props.street || '';
+        document.getElementById(prefix + 'StreetNumber').value = props.streetNumber || '';
+        document.getElementById(prefix + 'Box').value = props.box || '';
+        document.getElementById(prefix + 'Room').value = props.room || '';
+        document.getElementById(prefix + 'Comment').value = props.comment || '';
+
+        let startTime = '';
+        if (event.start) {
+            startTime = event.start.toTimeString().substring(0, 5);
+        }
+        let endTime = '';
+
+        if (event.end) {
+            endTime = event.end.toTimeString().substring(0, 5);
+        }
+
+        document.getElementById(prefix + 'StartTime').value = startTime;
+        document.getElementById(prefix + 'EndTime').value = endTime;
+        const citySelect = document.getElementById(prefix + 'City');
+
+        if (props.postalCode) {
+            citySelect.value = props.postalCode;
+        }
+
+        document.getElementById(prefix + 'CityName').value = props.city || '';
+        const academicSelect = document.getElementById(prefix + 'AcademicSkill');
+
+        if (props.academicSkillId) {
+            academicSelect.value = props.academicSkillId;
+        }
+        let radioName;
+
+        if (type === 'mission') {
+            radioName = 'missionType';
+        } else {
+            radioName = 'requestType';
+        }
+
+        document.querySelectorAll('input[name="' + radioName + '"]').forEach(function (radio) {
+            if (radio.value === props.type) {
+                radio.checked = true;
+            } else {
+                radio.checked = false;
+            }
+        });
+
+        if (type === 'request') {
+            if (props.importance !== undefined) {
+
+                const importanceRadio = document.querySelector(
+                    'input[name="requestImportance"][value="' + props.importance + '"]'
+                );
+
+                if (importanceRadio) {
+                    importanceRadio.checked = true;
+                }
+            }
+        }
+
+        if (type === 'mission') {
+
+            let checkedIds = [];
+
+            if (props.interpreterIds) {
+                checkedIds = props.interpreterIds
+                    .split(',')
+                    .map(function (id) {
+                        return id.trim();
+                    });
+            }
+
+            document.querySelectorAll('.mission-interpreter-check').forEach(function (checkbox) {
+                if (checkedIds.includes(checkbox.value)) {
+                    checkbox.checked = true;
+                } else {
+                    checkbox.checked = false;
+                }
+            });
+            const beneficiarySelect = document.getElementById('missionBeneficiary');
+            if (props.beneficiaryId) {
+                beneficiarySelect.value = props.beneficiaryId;
+            }
+        }
+
+        const btn = document.getElementById(btnId);
+
+        btn.dataset.editMode = 'true';
+        btn.dataset.missionId = missionId;
+        btn.innerText = 'Enregistrer';
+
+        bootstrap.Modal
+            .getOrCreateInstance(document.getElementById(modalId))
+            .show();
+    }
     calendar.render();
 });
