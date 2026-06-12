@@ -31,8 +31,6 @@ public class ScheduleController {
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
     private final CityService cityService = new CityService();
     private final LocationService locationService = new LocationService();
-    private final TimeSlotService timeSlotService = new TimeSlotService();
-
 
 
     /**
@@ -776,14 +774,6 @@ public class ScheduleController {
             Mission mission  = missionService.getOneMission(id);
             Mission newMission = buildMissionFromBody(body);
             newMission.setId(mission.getId());
-            if (newMission.getTimeSlot() != null && mission.getTimeSlot() != null) {
-                newMission.getTimeSlot().setId(mission.getTimeSlot().getId());
-                try {
-                    timeSlotService.updateTimeSlot((PunctualTimeSlot) mission.getTimeSlot(), (PunctualTimeSlot) newMission.getTimeSlot());
-                } catch (AlreadyExistsException e) {
-                    e.printStackTrace();
-                }
-            }
             if (newMission.getLocation() != null && mission.getLocation() != null) {
                 locationService.updateLocation(mission.getLocation(), newMission.getLocation());
             } else if (mission.getLocation() != null) {
