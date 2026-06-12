@@ -324,65 +324,6 @@ public class MissionService {
         throw new IllegalArgumentException("Unknown TimeSlot subtype : " + ts.getClass().getSimpleName());
     }
 
-    /**
-     * Calculates the total hours already assigned to an interpreter for the week of the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot used to determine the week
-     * @return the total hours assigned for that week
-     * @throws SQLException if the database could not be reached
-     */
-    private double calculateAssignedHoursForWeek(Interpreter interpreter, TimeSlot slot) throws SQLException {
-        LocalDate date;
-
-        if (slot instanceof PunctualTimeSlot) {
-            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
-            date = punctualTimeSlot.getStartDate().toLocalDate();
-        } else {
-            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
-            date = baseTimeSlot.getStartDate();
-        }
-
-        int year = date.getYear();
-        int week = date.get(WeekFields.ISO.weekOfWeekBasedYear());
-
-        double total = 0;
-        for (Mission m : SQLWrap.call(daoMission::getScheduleForWeek,interpreter.getId(), year, week))
-            total += calculateHours(m.getTimeSlot());
-        return total;
-    }
-
-    /**
-     * Calculates the total hours already assigned to an interpreter for the year of the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot used to determine the year
-     * @return the total hours assigned for that year
-     * @throws SQLException if the database could not be reached
-     */
-    private double calculateAssignedHoursForYear(Interpreter interpreter, TimeSlot slot) throws SQLException {
-
-        LocalDate date;
-
-        if (slot instanceof PunctualTimeSlot) {
-            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
-            date = punctualTimeSlot.getStartDate().toLocalDate();
-        } else {
-            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
-            date = baseTimeSlot.getStartDate();
-        }
-
-        int year = date.getYear();
-
-        double total = 0;
-
-        for (int week = 1; week <= 52; week++) {
-
-            for (Mission mission : SQLWrap.call(daoMission::getScheduleForWeek, interpreter.getId(), year, week)) {
-                total += calculateHours(mission.getTimeSlot());
-            }
-        }
-
-        return total;
-    }
 
     /**
      * Accepts a pending request by setting its status to ACCEPTED,
