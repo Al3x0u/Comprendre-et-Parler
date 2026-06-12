@@ -119,6 +119,7 @@ public class SessionInterceptor implements HandlerInterceptor {
                     }
                 } else if (user instanceof Interpreter) {
                     if (path.matches("/interpretes/profil/\\d+.*") ||
+                            path.startsWith("/interpretes/profil/indisponibilites") ||
                             path.matches("/beneficiaires/profil/\\d+")) {
                         return true;
                     }
