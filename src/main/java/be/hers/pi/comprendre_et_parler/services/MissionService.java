@@ -247,18 +247,18 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     public void updateMission(Mission mission, Mission newMission) throws ConflictException, NoSuchElementException, SQLException {
-        mission.setSubject(newMission.getSubject());
-        mission.setCommentary(newMission.getCommentary());
-        mission.setTimeSlot(newMission.getTimeSlot());
-        mission.setLocation(newMission.getLocation());
-        mission.setRoom(newMission.getRoom());
-        mission.setImportance(newMission.getImportance());
-        mission.setInterpreters(newMission.getInterpreters());
-        mission.setJobSkill(newMission.getJobSkill());
-        mission.setAcademicSkill(newMission.getAcademicSkill());
-        mission.setBeneficiary(newMission.getBeneficiary());
-
         try {
+            mission.setSubject(newMission.getSubject());
+            mission.setCommentary(newMission.getCommentary());
+            mission.setTimeSlot(newMission.getTimeSlot());
+            mission.setLocation(newMission.getLocation());
+            mission.setRoom(newMission.getRoom());
+            mission.setImportance(newMission.getImportance());
+            mission.setInterpreters(newMission.getInterpreters());
+            mission.setJobSkill(newMission.getJobSkill());
+            mission.setAcademicSkill(newMission.getAcademicSkill());
+            mission.setBeneficiary(newMission.getBeneficiary());
+
             SQLWrap.callTransaction(daoMission::update, mission);
         }
         catch (AlreadyExistsException e) {

@@ -55,6 +55,7 @@ public class DAOMission extends DAO<Mission> {
     // Does not update objectToInsert's id when throwing an AlreadyExistException
     @Override
     public void create(Mission objectToInsert) throws AlreadyExistsException, SQLException {
+        // Create new TimeSlot if needed
         try {
             if (objectToInsert.getTimeSlot() instanceof PunctualTimeSlot pts)
                 new DAOPunctualTimeSlot().create(pts);
@@ -62,13 +63,16 @@ public class DAOMission extends DAO<Mission> {
                 new DAOBaseTimeSlot().create(bts);
         } catch (AlreadyExistsException e) {}
 
+        // Check for schedule overlaps with the new timeslot
         if (checkAlreadyExists(objectToInsert) >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
+        // Create new Location if needed
         try {
             new DAOLocation().create(objectToInsert.getLocation());
         } catch (AlreadyExistsException e) {}
 
+        // Create Mission
         String query = "INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_BENEFICIARY,
                 FIELD_LOCATION, FIELD_ROOM, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE);
@@ -120,10 +124,26 @@ public class DAOMission extends DAO<Mission> {
         if (find(objectToUpdate.getId()) == null)
             throw new NoSuchElementException("Mission " + objectToUpdate.getSubject() + " of id " + objectToUpdate.getId() + " could not be found in database");
 
+        // Create new TimeSlot if needed
+        try {
+            if (objectToUpdate.getTimeSlot() instanceof PunctualTimeSlot pts)
+                new DAOPunctualTimeSlot().create(pts);
+            else if (objectToUpdate.getTimeSlot() instanceof BaseTimeSlot bts)
+                new DAOBaseTimeSlot().create(bts);
+        }
+        catch (AlreadyExistsException e) {}
+
+        // Check for schedule overlaps with the new timeslot
         int idInDB = checkAlreadyExists(objectToUpdate);
         if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
+        // Create new Location if needed
+        try {
+            new DAOLocation().create(objectToUpdate.getLocation());
+        } catch (AlreadyExistsException e) {}
+
+        // Update Mission
         String query = "UPDATE %s SET %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ?, %s = ? WHERE %s = ?";
         query = String.format(query, TABLE, FIELD_SUBJECT, FIELD_STATE, FIELD_COMMENTARY, FIELD_TIME_SLOT, FIELD_LOCATION,
                 FIELD_ROOM, FIELD_BENEFICIARY, FIELD_JOB_SKILL, FIELD_ACADEMIC_SKILL, FIELD_IMPORTANCE, FIELD_ID);
