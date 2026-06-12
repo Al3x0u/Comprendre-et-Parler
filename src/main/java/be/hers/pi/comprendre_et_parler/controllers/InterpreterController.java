@@ -271,16 +271,11 @@ public class InterpreterController {
     public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
                                     HttpSession session) {
         Interpreter user = (Interpreter) session.getAttribute("user");
-        System.out.println(user.getId());
-        System.out.println(user.getLogin());
-        System.out.println(newUnavailability.getReason());
-        System.out.println(newUnavailability.getStartDate());
-        System.out.println(newUnavailability.getEndDate());
-
         try {
             interpreterService.createUnavailability(user, newUnavailability);
         } catch (AlreadyExistsException e) {
             e.printStackTrace();
+            //TODO : display "Vous êtes déjà indisponible à ce moment là"
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -215,6 +215,11 @@ public class DAOExceptionalUnavailability {
      * @throws SQLException if the database could not be reached
      */
     protected boolean checkAlreadyExists(ExceptionalUnavailability objectToCheck, Interpreter interpreter) throws SQLException {
+        int idTimeSlot = new DAOPunctualTimeSlot().checkAlreadyExists(objectToCheck.getTimeSlot());
+
+        if (idTimeSlot == -1)
+            return false;
+
         String query = String.format(
                 "SELECT 1 FROM %s WHERE %s = ? AND %s = ?",
                 TABLE,
@@ -226,7 +231,7 @@ public class DAOExceptionalUnavailability {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, interpreter.getId());
-            statement.setInt(2, objectToCheck.getTimeSlot().getId());
+            statement.setInt(2, idTimeSlot);
 
             result = statement.executeQuery();
             return result.next();
