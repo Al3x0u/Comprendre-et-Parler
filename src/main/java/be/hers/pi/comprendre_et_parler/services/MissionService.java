@@ -48,17 +48,9 @@ public class MissionService {
         Set<Mission> all = SQLWrap.call(daoMission::findAll);
         return all.stream()
                 .filter(m -> filter.getBeneficiary() == null ||
-                        m.getBeneficiary().equals(filter.getBeneficiary()))
+                        m.getBeneficiary() != null && m.getBeneficiary().equals(filter.getBeneficiary()))
                 .filter(m -> filter.getInterpreter() == null ||
-                        m.getInterpreters().contains(filter.getInterpreter()))
-                .filter(m -> filter.getJobSkill() == null ||
-                        m.getJobSkill().equals(filter.getJobSkill()))
-                .filter(m -> filter.getAcademicSkill() == null ||
-                        m.getAcademicSkill().equals(filter.getAcademicSkill()))
-                .filter(m -> filter.getLocation() == null ||
-                        m.getLocation().equals(filter.getLocation()))
-                .filter(m -> filter.getMinImportance() == null ||
-                        m.getImportance() >= filter.getMinImportance())
+                        (m.getInterpreters() != null && m.getInterpreters().contains(filter.getInterpreter())))
                 .filter(m -> filter.getStateOfMission() == null ||
                         m.getStateOfMission().equals(filter.getStateOfMission()))
                 .collect(Collectors.toList());
