@@ -263,21 +263,21 @@ public class InterpreterController {
 
     /**
      * Handle the creation of an unavailability to an interpreter
-     * @param id the id of the interpreter
      * @param newUnavailability the unavailability to create
      * @param session the current HTTP session, used to check the user's rights
      * @return a redirect to the interpreter's profile
      */
-    @PostMapping("/{id}/indisponibilites/ajouter")
-    public String addUnavailability(@PathVariable int id,
-                                    @ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
+    @PostMapping("/profil/indisponibilites/ajouter")
+    public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
                                     HttpSession session) {
-
+        AppliUser user = (AppliUser) session.getAttribute("user");
+        System.out.println(user.getId());
+        System.out.println(user.getLogin());
         System.out.println(newUnavailability.getReason());
         System.out.println(newUnavailability.getStartDate());
         System.out.println(newUnavailability.getEndDate());
 
-        return "redirect:/interpretes/profil/" + id;
+        return "redirect:/profil";
     }
     
      /**
