@@ -326,18 +326,20 @@
                     <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Modifier une indisponibilité</h5>
                 </div>
                 <div class="modal-body">
-                    <form id="unavailability-edit-form" method="post">
+                    <form id="unavailability-edit-form"
+                          th:object="${newUnavailability}"
+                          method="post">
                         <div class="mb-3">
                             <label for="unavailability-reason" class="form-label">Raison</label>
-                            <input id="unavailability-reason" type="text" class="form-control" name="reason" required>
+                            <input id="unavailability-reason" type="text" class="form-control" name="reason" th:field="*{reason}" required>
                         </div>
                         <div class="mb-3">
                             <label for="unavailability-start" class="form-label">Date de début</label>
-                            <input id="unavailability-start" type="datetime-local" class="form-control" name="startDate" required>
+                            <input id="unavailability-start" type="datetime-local" class="form-control" name="startDate" th:field="*{startDate}" required>
                         </div>
                         <div class="mb-3">
                             <label for="unavailability-end" class="form-label">Date de fin</label>
-                            <input id="unavailability-end" type="datetime-local" class="form-control" name="endDate" required>
+                            <input id="unavailability-end" type="datetime-local" class="form-control" name="endDate" th:field="*{endDate}" required>
                         </div>
                     </form>
                 </div>
@@ -414,7 +416,7 @@
             document.getElementById('unavailability-end').value = button.getAttribute('data-end');
             document.getElementById('unavailability-start').min = now;
             document.getElementById('unavailability-end').min = button.getAttribute('data-start');
-            document.getElementById('unavailability-edit-form').action = '/interpretes/' + button.getAttribute('data-id') + '/indisponibilites/modifier';
+            document.getElementById('unavailability-edit-form').action = '/interpretes/profil/indisponibilites/' + button.getAttribute('data-id') + '/modifier';
         });
 
         document.getElementById('unavailability-start').addEventListener('change', function() {

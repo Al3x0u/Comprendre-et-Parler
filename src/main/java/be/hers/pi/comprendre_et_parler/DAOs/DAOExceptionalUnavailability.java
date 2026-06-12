@@ -112,6 +112,10 @@ public class DAOExceptionalUnavailability {
      * @post the line referenced by objectToUpdate's id field has been updated with objectToUpdate's attributes, and the change was commited
      */
     public void update(ExceptionalUnavailability objectToUpdate, Interpreter interpreter) throws NoSuchElementException, SQLException {
+        try {
+            new DAOPunctualTimeSlot().create(objectToUpdate.getTimeSlot());
+        } catch (AlreadyExistsException e) {}
+
         String query = String.format(
                 "UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?",
                 TABLE, FIELD_REASON, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT

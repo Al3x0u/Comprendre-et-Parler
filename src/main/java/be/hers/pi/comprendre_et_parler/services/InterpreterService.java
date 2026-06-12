@@ -148,7 +148,8 @@ public class InterpreterService {
      * @throws SQLException if the database could not be reached
      */
     public void createUnavailability(Interpreter interpreter, CreateUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
-        ExceptionalUnavailability newUnavailability = new ExceptionalUnavailability(unavailability.getReason(), new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
+        ExceptionalUnavailability newUnavailability = new ExceptionalUnavailability(unavailability.getReason(),
+                new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
         SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, newUnavailability, interpreter);
         interpreter.addUnavailability(newUnavailability);
     }
@@ -279,13 +280,17 @@ public class InterpreterService {
     /**
      * Modifies an interpreter's unavailability slot
      * @param interpreter the interpreter to modify
-     * @param oldUn an up-to-date ExceptionalUnavailability object to modify
-     * @param newUn the object to replace it with
+     * @param idOldTimeSlot the ID of the unavailability's timeSlot to update
+     * @param unavailability the object to replace it with
      * @throws NoSuchElementException if interpreter does not exist or does not possess oldUn in database
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if a database error occurs
      */
-    public void updateUnavailability(Interpreter interpreter, ExceptionalUnavailability oldUn, ExceptionalUnavailability newUn) throws SQLException, ConnectionException, NoSuchElementException {
+    public void updateUnavailability(Interpreter interpreter, int idOldTimeSlot, CreateUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
+        ExceptionalUnavailability newUn = new ExceptionalUnavailability(unavailability.getReason(),
+                new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
+        ExceptionalUnavailability oldUn = SQLWrap.callTransaction(new DAOExceptionalUnavailability()::find, interpreter.getId(), idOldTimeSlot);
+
         if (Objects.equals(oldUn, newUn)) return;
 
         if (oldUn.getTimeSlot().equals(newUn.getTimeSlot())) {
