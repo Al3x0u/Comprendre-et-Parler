@@ -806,7 +806,7 @@ public class ScheduleController {
      */
     @PostMapping("/requetes/{id}/modifier")
     @ResponseBody
-    public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+    public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
             if (!(user instanceof Beneficiary) && !(user instanceof Manager)) {
@@ -827,7 +827,7 @@ public class ScheduleController {
 
 
 
-            Mission newMission = buildMissionFromBody(new HashMap<>(body));
+            Mission newMission = buildMissionFromBody(body);
             newMission.setBeneficiary(mission.getBeneficiary());
             newMission.setId(mission.getId());
 

@@ -811,9 +811,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let url;
             if (isEditMode) {
-                url = '/horaire/requetes/' + requestIdToEdit + '/modifier';
+                url = '/horaire/missions/' + missionIdToEdit + '/modifier';
             } else {
-                url = '/horaire/requetes';
+                url = '/horaire/missions';
             }
             const res = await fetch(url, {
                 method: 'POST',
