@@ -195,6 +195,12 @@ if (userRole === 'MANAGER') {
             newMissionModal.show();
         }
     };
+    customButtons.viewRequests = {
+        text: isMobile ? '📋' : 'Voir demandes',
+        click: function() {
+            window.location.href = '/demandes';
+        }
+    };
 }
 
 
@@ -275,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         customButtons: customButtons,
         headerToolbar: {
-            start: isMobile ? 'timeGridDay filterBtn' : 'timeGridWeek,timeGridDay filterBtn',
+            start: isMobile ? 'timeGridDay filterBtn viewRequests' : 'timeGridWeek,timeGridDay filterBtn viewRequests',
             center: 'prev title next',
             end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
                 : userRole === 'INTERPRETER' ? 'newUnavailability today'
