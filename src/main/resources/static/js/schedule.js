@@ -469,8 +469,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (btnEdit) {
                     btnEdit.addEventListener('click', function() {
-                        bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                        fillAndOpenEditModal('mission', props, event, currentMissionId);
+                        const managerModalEl = document.getElementById('managerPendingModal');
+                        managerModalEl.addEventListener('hidden.bs.modal', function() {
+                            const editType = isPending ? 'request' : 'mission';
+                            fillAndOpenEditModal(editType, props, event, currentMissionId);
+                        }, { once: true });
+                        bootstrap.Modal.getOrCreateInstance(managerModalEl).hide();
                     }, { once: true });
                 }
 
@@ -599,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isPending) {
                 actions.innerHTML = `
                     <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
-                    <button type="button" class="btn btn-primary  id="btnEditRequest">Modifier la demande</button>
+                    <button type="button" class="btn btn-primary" id="btnEditRequest">Modifier la demande</button>
                 `;
             } else if (isAccepted && isSameDay && isBeforeEnd) {
                 actions.innerHTML = `
@@ -641,8 +645,11 @@ document.addEventListener('DOMContentLoaded', function() {
                  * @listens click
                  */
                 editRequestBtn.addEventListener('click', function() {
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
-                    fillAndOpenEditModal('request', props, event, currentMissionId);
+                    const eventModalEl = document.getElementById('eventModal');
+                    eventModalEl.addEventListener('hidden.bs.modal', function() {
+                        fillAndOpenEditModal('request', props, event, currentMissionId);
+                    }, { once: true });
+                    bootstrap.Modal.getOrCreateInstance(eventModalEl).hide();
                 }, { once: true });
             }
 
@@ -804,9 +811,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             let url;
             if (isEditMode) {
-                url = '/horaire/missions/' + missionIdToEdit + '/modifier';
+                url = '/horaire/requetes/' + requestIdToEdit + '/modifier';
             } else {
-                url = '/horaire/missions';
+                url = '/horaire/requetes';
             }
             const res = await fetch(url, {
                 method: 'POST',
