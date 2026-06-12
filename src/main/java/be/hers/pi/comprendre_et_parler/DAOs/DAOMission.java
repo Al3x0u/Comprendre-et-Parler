@@ -298,7 +298,7 @@ public class DAOMission extends DAO<Mission> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setDate(1, java.sql.Date.valueOf(start));
-            statement.setDate(2, java.sql.Date.valueOf(end));
+            statement.setDate(2, java.sql.Date.valueOf(end.plusDays(1)));
 
             result = statement.executeQuery();
             while (result.next())
