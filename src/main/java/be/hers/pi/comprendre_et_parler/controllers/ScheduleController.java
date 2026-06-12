@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.Comparator;
 
 @Controller
 @RequestMapping("/horaire")
@@ -58,10 +59,46 @@ public class ScheduleController {
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
+            if (user instanceof Manager) {
+                List<Map<String, String>> filterUsers = new ArrayList<>();
+                for (Interpreter interp : interpreters) {
+                    Map<String, String> entry = new HashMap<>();
+                    entry.put("id", String.valueOf(interp.getId()));
+                    entry.put("fullName", interp.getFirstName() + " " + interp.getLastName());
+                    entry.put("role", interp instanceof Manager ? "MANAGER" : "INTERPRETER");
+                    filterUsers.add(entry);
+                }
+                for (Beneficiary bene : beneficiaries) {
+                    Map<String, String> entry = new HashMap<>();
+                    entry.put("id", String.valueOf(bene.getId()));
+                    entry.put("fullName", bene.getFirstName() + " " + bene.getLastName());
+                    entry.put("role", "BENEFICIARY");
+                    filterUsers.add(entry);
+                }
+                filterUsers.sort(Comparator.comparing(e -> e.get("fullName")));
+                model.addAttribute("filterUsers", filterUsers);
+
+                String managerFullName = user.getFirstName() + " " + user.getLastName();
+                model.addAttribute("managerFullName", managerFullName);
+
+            } else if (user instanceof Interpreter interpreter) {
+                Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
+                model.addAttribute("beneficiaries", refBeneficiaries);
+            }
+
+            if (user instanceof Manager) {
+                String managerFullName = user.getFirstName() + " " + user.getLastName();
+                events = events.stream().filter(e -> e.getOrDefault("interpreter", "").contains(managerFullName) || e.getOrDefault("beneficiary", "").contains(managerFullName))
+                        .collect(java.util.stream.Collectors.toList());
+            }
+
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("events", mapper.writeValueAsString(events));
-            model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("interpreters", interpreters);
+
+            if (!(user instanceof Interpreter)) {
+                model.addAttribute("beneficiaries", beneficiaries);
+            }
             model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
             model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
 
@@ -451,18 +488,17 @@ public class ScheduleController {
      * Fetch events for a given week with optional filters
      * @param weekDate the start date of the week to fetch (optional, defaults to current week)
      * @param status the status filter to apply (optional)
-     * @param interpreter the interpreter name filter to apply (optional)
      * @param session the current HTTP session
      * @return the filtered list of events, or 500 on error
      */
     @GetMapping("/evenements")
     @ResponseBody
-    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) {
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String user, HttpSession session) {
         try {
-            AppliUser user = (AppliUser) session.getAttribute("user");
-            LocalDate date =  LocalDate.now();
-            if(weekDate != null && !weekDate.isBlank()){
-                try{
+            AppliUser currentUser = (AppliUser) session.getAttribute("user");
+            LocalDate date = LocalDate.now();
+            if (weekDate != null && !weekDate.isBlank()) {
+                try {
                     date = LocalDate.parse(weekDate);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -470,8 +506,8 @@ public class ScheduleController {
                 }
             }
 
-            List<Mission> missions = missionService.getMissionsForWeek(user, date);
-            List<Map<String, String>> allEvents =  convertMissionsToEvents(missions);
+            List<Mission> missions = missionService.getMissionsForWeek(currentUser, date);
+            List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
 
             List<Map<String, String>> filtered = new ArrayList<>();
             for (Map<String, String> event : allEvents) {
@@ -480,21 +516,23 @@ public class ScheduleController {
                     if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
                 }
 
-                if (interpreter != null && !interpreter.isBlank()) {
-                    if (!event.getOrDefault("interpreter", "").contains(interpreter)) continue;
+                // Filtre par nom d'utilisateur : cherche dans interpreter ET beneficiary
+                // Un manager peut être interprète sur ses propres missions,
+                // un bénéficiaire apparaît uniquement dans "beneficiary"
+                if (user != null && !user.isBlank()) {
+                    boolean matchInterp = event.getOrDefault("interpreter", "").contains(user);
+                    boolean matchBene   = event.getOrDefault("beneficiary", "").contains(user);
+                    if (!matchInterp && !matchBene) continue;
                 }
 
                 filtered.add(event);
-
             }
             return ResponseEntity.ok(filtered);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-
     }
 
     /**
@@ -513,6 +551,9 @@ public class ScheduleController {
 
 
             interpreterService.loadInterpreters(mission);
+            if (mission.getInterpreters() == null) {
+                mission.setInterpreters(new java.util.HashSet<>());
+            }
 
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
