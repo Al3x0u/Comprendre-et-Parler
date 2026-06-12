@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOPunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
@@ -30,6 +31,8 @@ public class ScheduleController {
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
     private final CityService cityService = new CityService();
     private final LocationService locationService = new LocationService();
+    private final TimeSlotService timeSlotService = new TimeSlotService();
+
 
 
     /**
@@ -770,14 +773,21 @@ public class ScheduleController {
             if (!(user instanceof Manager)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
-            Mission mission    = missionService.getOneMission(id);
+            Mission mission  = missionService.getOneMission(id);
             Mission newMission = buildMissionFromBody(body);
             newMission.setId(mission.getId());
             if (newMission.getTimeSlot() != null && mission.getTimeSlot() != null) {
                 newMission.getTimeSlot().setId(mission.getTimeSlot().getId());
+                try {
+                    timeSlotService.updateTimeSlot((PunctualTimeSlot) mission.getTimeSlot(), (PunctualTimeSlot) newMission.getTimeSlot());
+                } catch (AlreadyExistsException e) {
+                    e.printStackTrace();
+                }
             }
             if (newMission.getLocation() != null && mission.getLocation() != null) {
                 locationService.updateLocation(mission.getLocation(), newMission.getLocation());
+            } else if (mission.getLocation() != null) {
+                newMission.setLocation(mission.getLocation());
             }
             if (newMission.getInterpreters() == null) {
                 newMission.setInterpreters(mission.getInterpreters());
