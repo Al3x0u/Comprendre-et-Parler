@@ -34,6 +34,24 @@ public class PasswordController {
             return "redirect:" + request.getHeader("Referer");
         }
 
+        // Validation des règles
+        if (newPassword.length() < 8) {
+            redirectAttributes.addFlashAttribute("passwordError", "Le mot de passe doit contenir au moins 8 caractères.");
+            return "redirect:" + request.getHeader("Referer");
+        }
+        if (!newPassword.matches(".*[A-Z].*")) {
+            redirectAttributes.addFlashAttribute("passwordError", "Le mot de passe doit contenir au moins une majuscule.");
+            return "redirect:" + request.getHeader("Referer");
+        }
+        if (!newPassword.matches(".*[0-9].*")) {
+            redirectAttributes.addFlashAttribute("passwordError", "Le mot de passe doit contenir au moins un chiffre.");
+            return "redirect:" + request.getHeader("Referer");
+        }
+        if (!newPassword.matches(".*[^a-zA-Z0-9].*")) {
+            redirectAttributes.addFlashAttribute("passwordError", "Le mot de passe doit contenir au moins un caractère spécial.");
+            return "redirect:" + request.getHeader("Referer");
+        }
+
         if(!passwordService.verifyCurrentPassword(user, currentPassword)) {
             redirectAttributes.addFlashAttribute("passwordError", "Mot de passe actuel incorrect.");
             return "redirect:" + request.getHeader("Referer");
