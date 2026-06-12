@@ -65,6 +65,24 @@
         <hr class="dropdown-divider mb-0">
     </th:block>
 
+    <th:block th:if="${userRole == 'INTERPRETER'}">
+        <h6 class="dropdown-header">Bénéficiaire(s) référé(s)</h6>
+        <div id="interp-filter-list" style="max-height:220px; overflow-y:auto;">
+            <div class="filter-section" id="interp-section-beneficiary">
+                <th:block th:each="b : ${beneficiaries}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
+                       href="#"
+                       th:data-value="${b.firstName + ' ' + b.lastName}"
+                       data-role="BENEFICIARY">
+                        <i class="bi bi-person-heart" style="color:#146c43;"></i>
+                        <span th:text="${b.firstName + ' ' + b.lastName}"></span>
+                    </a>
+                </th:block>
+            </div>
+        </div>
+        <hr class="dropdown-divider mb-0">
+    </th:block>
+
     <!-- By status -->
     <h6 class="dropdown-header">Par statut</h6>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Acceptée">
