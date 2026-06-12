@@ -270,12 +270,20 @@ public class InterpreterController {
     @PostMapping("/profil/indisponibilites/ajouter")
     public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
                                     HttpSession session) {
-        AppliUser user = (AppliUser) session.getAttribute("user");
+        Interpreter user = (Interpreter) session.getAttribute("user");
         System.out.println(user.getId());
         System.out.println(user.getLogin());
         System.out.println(newUnavailability.getReason());
         System.out.println(newUnavailability.getStartDate());
         System.out.println(newUnavailability.getEndDate());
+
+        try {
+            interpreterService.createUnavailability(user, newUnavailability);
+        } catch (AlreadyExistsException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return "redirect:/profil";
     }

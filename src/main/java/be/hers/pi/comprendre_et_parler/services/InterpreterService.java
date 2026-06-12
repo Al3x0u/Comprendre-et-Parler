@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.CreateInterpreterForm;
+import be.hers.pi.comprendre_et_parler.DTO.CreateUnavailability;
 import be.hers.pi.comprendre_et_parler.DTO.UpdateInterpreterForm;
 import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
@@ -146,8 +147,9 @@ public class InterpreterService {
      * @throws AlreadyExistsException if the unavailability already exists in the database
      * @throws SQLException if the database could not be reached
      */
-    public void createUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
-        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, unavailability, interpreter);
+    public void createUnavailability(Interpreter interpreter, CreateUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
+        ExceptionalUnavailability newUnavailability = new ExceptionalUnavailability(unavailability.getReason(), new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
+        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, newUnavailability, interpreter);
     }
 
     /**
