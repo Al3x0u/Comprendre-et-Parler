@@ -315,7 +315,10 @@ public class ScheduleController {
     @ResponseBody
     public ResponseEntity<?> refuseMission(@PathVariable int id, HttpSession session) {
         try {
-
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
             Mission mission = missionService.getOneMission(id);
             missionService.refuseRequest(mission);
 
@@ -402,11 +405,21 @@ public class ScheduleController {
     public ResponseEntity<?> reportDelay(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-            if (!(user instanceof Interpreter) && !(user instanceof Beneficiary)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
-            }
 
             Mission mission = missionService.getOneMission(id);
+
+            boolean concerned;
+            if (user instanceof Beneficiary) {
+                concerned = mission.getBeneficiary() != null
+                        && mission.getBeneficiary().getId() == user.getId();
+            } else {
+                interpreterService.loadInterpreters(mission);
+                concerned = mission.getInterpreters() != null
+                        && mission.getInterpreters().stream().anyMatch(i -> i.getId() == user.getId());
+            }
+            if (!concerned) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
 
             String minutesStr = body.get("minutes");
             String absentStr  = body.get("absent");
