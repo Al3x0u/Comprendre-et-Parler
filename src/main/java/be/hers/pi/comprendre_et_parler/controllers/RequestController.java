@@ -27,6 +27,7 @@ public class RequestController {
      */
     @GetMapping("")
     public String showRequests(@RequestParam(required = false) Integer beneficiaireId,
+                               @RequestParam(defaultValue = "1") int page,
                                Model model,
                                HttpSession session) {
         try {
@@ -42,12 +43,26 @@ public class RequestController {
                 filter.setBeneficiary(beneficiary);
             }
 
-            List<Mission> demandes = missionService.getByFilter(filter);
+            List<Mission> allDemandes = missionService.getByFilter(filter);
             List<Beneficiary> beneficiaires = beneficiaryService.getAllBeneficiaries();
 
-            model.addAttribute("demandes", demandes);
+            int total = allDemandes.size();
+            int totalPages = PaginationUtils.calculateTotalPages(total, 10);
+            page = Math.max(1, Math.min(page, totalPages));
+            List<Mission> pageDemandes = PaginationUtils.getPage(allDemandes, page, 10);
+            int startItem = total > 0 ? (page - 1) * 10 + 1 : 0;
+            int endItem = total > 0 ? startItem + pageDemandes.size() - 1 : 0;
+
+            model.addAttribute("demandes", pageDemandes);
             model.addAttribute("beneficiaires", beneficiaires);
             model.addAttribute("selectedBeneficiaireId", beneficiaireId);
+            model.addAttribute("pageNumber", page);
+            model.addAttribute("totalPages", totalPages);
+            model.addAttribute("totalItems", total);
+            model.addAttribute("startItem", startItem);
+            model.addAttribute("endItem", endItem);
+            model.addAttribute("hasPrevious", page > 1);
+            model.addAttribute("hasNext", page < totalPages);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -150,6 +150,37 @@
         </div>
     </div>
 
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <p class="text-muted small mb-0">
+            Affichage de <strong th:text="${startItem}"></strong> à <strong th:text="${endItem}"></strong>
+            sur <strong th:text="${totalItems}"></strong> demandes
+        </p>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/demandes(page=${pageNumber - 1}, beneficiaireId=${selectedBeneficiaireId})}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${i == pageNumber} ? 'active'">
+                    <a class="page-link"
+                       th:text="${i}"
+                       th:href="@{/demandes(page=${i}, beneficiaireId=${selectedBeneficiaireId})}">
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/demandes(page=${pageNumber + 1}, beneficiaireId=${selectedBeneficiaireId})}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
 </main>
 
 <!-- Modal Refuser -->
