@@ -21,9 +21,9 @@
 
             <div class="filter-section" id="section-manager">
                 <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#856404;">
-                    <i class="bi bi-shield-fill me-1"></i>Responsables
+                    <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
                 </div>
-                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER'}">
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == managerFullName}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
                         <i class="bi bi-person-fill-gear" style="color:#856404;"></i>
                         <span th:text="${u.fullName}"></span>
@@ -31,20 +31,18 @@
                 </th:block>
             </div>
 
-            <!-- Section Interprete -->
             <div class="filter-section" id="section-interpreter">
                 <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#0d6efd;">
                     <i class="bi bi-translate me-1"></i>Interprètes
                 </div>
-                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'INTERPRETER'}">
-                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="INTERPRETER">
+                <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != managerFullName}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-role="${u.role}">
                         <i class="bi bi-person-fill" style="color:#0d6efd;"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
                 </th:block>
             </div>
 
-            <!-- Section Bénéficiaire -->
             <div class="filter-section" id="section-beneficiary">
                 <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#146c43;">
                     <i class="bi bi-heart-fill me-1"></i>Bénéficiaires
@@ -66,9 +64,28 @@
     </th:block>
 
     <th:block th:if="${userRole == 'INTERPRETER'}">
-        <h6 class="dropdown-header">Bénéficiaire(s) référé(s)</h6>
-        <div id="interp-filter-list" style="max-height:220px; overflow-y:auto;">
+        <h6 class="dropdown-header">Par utilisateur</h6>
+        <div id="interp-filter-list" style="max-height:280px; overflow-y:auto;">
+
+            <div class="filter-section" id="interp-section-self">
+                <div class="px-3 pt-2 pb-1"
+                     style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#856404;">
+                    <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
+                </div>
+                <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
+                   href="#"
+                   th:data-value="${session.user.firstName + ' ' + session.user.lastName}"
+                   data-role="INTERPRETER">
+                    <i class="bi bi-person-fill" style="color:#856404;"></i>
+                    <span th:text="${session.user.firstName + ' ' + session.user.lastName}"></span>
+                </a>
+            </div>
+
             <div class="filter-section" id="interp-section-beneficiary">
+                <div class="px-3 pt-2 pb-1"
+                     style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#146c43;">
+                    <i class="bi bi-heart-fill me-1"></i>Bénéficiaires référés
+                </div>
                 <th:block th:each="b : ${beneficiaries}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
                        href="#"
@@ -79,6 +96,7 @@
                     </a>
                 </th:block>
             </div>
+
         </div>
         <hr class="dropdown-divider mb-0">
     </th:block>
