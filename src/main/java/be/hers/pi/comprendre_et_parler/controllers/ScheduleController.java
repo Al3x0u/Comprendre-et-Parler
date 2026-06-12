@@ -1,5 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOPunctualTimeSlot;
+import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
@@ -28,6 +30,7 @@ public class ScheduleController {
     private final JobSkillService jobSkillService = new JobSkillService();
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
     private final CityService cityService = new CityService();
+    private final LocationService locationService = new LocationService();
 
 
     /**
@@ -503,39 +506,28 @@ public class ScheduleController {
      * @return the list of event maps with title, start, end, color, status, and other display fields
      */
     private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions) {
-
         List<Map<String, String>> events = new ArrayList<>();
-
         for (Mission mission : missions) {
             if (!(mission.getTimeSlot() instanceof PunctualTimeSlot)) {
                 continue;
             }
 
-
             interpreterService.loadInterpreters(mission);
 
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
-            event.put("id", String.valueOf(mission.getId()));
-            event.put("title", mission.getSubject());
-            event.put("id", String.valueOf(mission.getId()));
+            event.put("id",         String.valueOf(mission.getId()));
+            event.put("title",      mission.getSubject());
+            event.put("start",      pts.getStartDate().toString());
+            event.put("end",        pts.getEndDate().toString());
+            event.put("color",      getColor(mission.getStateOfMission()));
+            event.put("importance", String.valueOf(mission.getImportance()));
+            event.put("status",     getDisplayStatus(mission.getStateOfMission()));
 
-
-            event.put("start", pts.getStartDate().toString());
-            event.put("end", pts.getEndDate().toString());
-
-            event.put("color", getColor(mission.getStateOfMission()));
-
-            if (mission.getJobSkill() != null) {
-                event.put("type", mission.getJobSkill().getDesignation());
+            if (mission.getCommentary() != null) {
+                event.put("comment", mission.getCommentary());
             } else {
-                event.put("type", "");
-            }
-
-            if (mission.getAcademicSkill() != null) {
-                event.put("academicSkill", mission.getAcademicSkill().getDesignation());
-            } else {
-                event.put("academicSkill", "");
+                event.put("comment", "");
             }
 
             if (mission.getRoom() != null) {
@@ -544,64 +536,112 @@ public class ScheduleController {
                 event.put("room", "");
             }
 
-            String interpreters = "";
-            if (mission.getInterpreters() != null) {
+            if (mission.getJobSkill() != null) {
+                event.put("type", mission.getJobSkill().getDesignation());
+            } else {
+                event.put("type", "");
+            }
 
+            if (mission.getAcademicSkill() != null) {
+                event.put("academicSkill",   mission.getAcademicSkill().getDesignation());
+                event.put("academicSkillId", String.valueOf(mission.getAcademicSkill().getId()));
+            } else {
+                event.put("academicSkill",   "");
+                event.put("academicSkillId", "");
+            }
+
+            if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
+                String names = "";
+                String ids   = "";
                 for (Interpreter interpreter : mission.getInterpreters()) {
-
-                    if (!interpreters.isEmpty()) {
-                        interpreters += ", ";
+                    if (!names.isEmpty()) {
+                        names += ", ";
+                        ids   += ",";
                     }
-                    interpreters += interpreter.getFirstName() + " " + interpreter.getLastName();
+                    names += interpreter.getFirstName() + " " + interpreter.getLastName();
+                    ids   += interpreter.getId();
                 }
+                event.put("interpreter",    names);
+                event.put("interpreterIds", ids);
+            } else {
+                event.put("interpreter",    "");
+                event.put("interpreterIds", "");
             }
-
-            event.put("interpreter", interpreters);
             if (mission.getBeneficiary() != null) {
-
-                String beneficiaryName =  mission.getBeneficiary().getFirstName() + " " + mission.getBeneficiary().getLastName();
-                event.put("beneficiary", beneficiaryName);
-
+                event.put("beneficiary",   mission.getBeneficiary().getFirstName() + " " + mission.getBeneficiary().getLastName());
+                event.put("beneficiaryId", String.valueOf(mission.getBeneficiary().getId()));
             } else {
-                event.put("beneficiary", "");
+                event.put("beneficiary",   "");
+                event.put("beneficiaryId", "");
             }
-
-
-            if (mission.getCommentary() != null) {
-                event.put("comment", mission.getCommentary());
-            } else {
-                event.put("comment", "");
-            }
-
             if (mission.getLocation() != null) {
                 Location loc = mission.getLocation();
+
+                if (loc.getDesignation() != null) {
+                    event.put("locationDesignation", loc.getDesignation());
+                } else {
+                    event.put("locationDesignation", "");
+                }
+
+                if (loc.getStreet() != null) {
+                    event.put("street", loc.getStreet());
+                } else {
+                    event.put("street", "");
+                }
+
+                if (loc.getStreetNumber() != null) {
+                    event.put("streetNumber", loc.getStreetNumber());
+                } else {
+                    event.put("streetNumber", "");
+                }
+
+                if (loc.getBox() > 0) {
+                    event.put("box", String.valueOf(loc.getBox()));
+                } else {
+                    event.put("box", "");
+                }
+
+                if (loc.getCity() != null) {
+                    if (loc.getCity().getDesignation() != null) {
+                        event.put("city", loc.getCity().getDesignation());
+                    } else {
+                        event.put("city", "");
+                    }
+                    event.put("postalCode", String.valueOf(loc.getCity().getPostalCode()));
+                } else {
+                    event.put("city",       "");
+                    event.put("postalCode", "");
+                }
+
                 StringBuilder address = new StringBuilder();
                 if (loc.getStreet() != null && !loc.getStreet().isBlank()) {
                     address.append(loc.getStreet());
-                    if (loc.getStreetNumber() != null && !loc.getStreetNumber().isBlank())
-                        address.append(" ").append(loc.getStreetNumber());
-                    if (loc.getBox() > 0)
-                        address.append(", bte ").append(loc.getBox());
+                    if (loc.getStreetNumber() != null && !loc.getStreetNumber().isBlank()) {address.append(" ").append(loc.getStreetNumber());
+                    }
+                    if (loc.getBox() > 0) {address.append(", bte ").append(loc.getBox());
+                    }
                 }
                 if (loc.getCity() != null) {
-                    if (!address.isEmpty()) address.append(", ");
-                    address.append(loc.getCity().getPostalCode())
-                            .append(" ")
-                            .append(loc.getCity().getDesignation());
+                    if (!address.isEmpty()) {
+                        address.append(", ");
+                    }
+                    address.append(loc.getCity().getPostalCode()).append(" ").append(loc.getCity().getDesignation());
                 }
                 if (loc.getDesignation() != null && !loc.getDesignation().isBlank()) {
                     address.insert(0, loc.getDesignation() + " — ");
                 }
                 event.put("address", address.toString());
             } else {
-                event.put("address", "");
+                event.put("locationDesignation", "");
+                event.put("street",              "");
+                event.put("streetNumber",        "");
+                event.put("box",                 "");
+                event.put("city",                "");
+                event.put("postalCode",          "");
+                event.put("address",             "");
             }
-
-            event.put("importance", String.valueOf(mission.getImportance()));
-            event.put("status", getDisplayStatus(mission.getStateOfMission()));
             events.add(event);
         }
-
         return events;
     }
 
@@ -727,6 +767,109 @@ public class ScheduleController {
         }
 
         return mission;
+    }
+
+    /**
+     * Updates an existing accepted mission (MANAGER only).
+     * @param id      the mission ID
+     * @param body    the updated mission data
+     * @param session the current HTTP session
+     * @return 200 on success, 403 if not a manager, 404 if not found, 409 on conflict, 500 on error
+     */
+    @PostMapping("/missions/{id}/modifier")
+    @ResponseBody
+    public ResponseEntity<?> updateMission(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+            Mission mission  = missionService.getOneMission(id);
+            Mission newMission = buildMissionFromBody(body);
+            newMission.setId(mission.getId());
+            if (newMission.getLocation() != null && mission.getLocation() != null) {
+                locationService.updateLocation(mission.getLocation(), newMission.getLocation());
+            } else if (mission.getLocation() != null) {
+                newMission.setLocation(mission.getLocation());
+            }
+            if (newMission.getInterpreters() == null) {
+                newMission.setInterpreters(mission.getInterpreters());
+            }
+
+            missionService.updateMission(mission, newMission);
+            return ResponseEntity.ok().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la modification de la mission.");
+        }
+    }
+
+    /**
+     * Updates an existing pending request (BENEFICIARY only, PENDING status only).
+     * @param id      the mission ID
+     * @param body    the updated request data
+     * @param session the current HTTP session
+     * @return 200 on success, 403 if not a beneficiary or mission not pending, 404 if not found, 500 on error
+     */
+    @PostMapping("/requetes/{id}/modifier")
+    @ResponseBody
+    public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Beneficiary) && !(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+
+            Mission mission = missionService.getOneMission(id);
+            if (mission.getStateOfMission() != MissionState.PENDING) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("La demande n'est plus modifiable.");
+            }
+
+            if (user instanceof Beneficiary) {
+                boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
+                if (!isOwner) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+                }
+            }
+
+
+
+            Mission newMission = buildMissionFromBody(body);
+            newMission.setBeneficiary(mission.getBeneficiary());
+            newMission.setId(mission.getId());
+
+            if (newMission.getTimeSlot() != null && mission.getTimeSlot() != null) {
+                newMission.getTimeSlot().setId(mission.getTimeSlot().getId());
+            }
+
+            if (newMission.getLocation() != null && mission.getLocation() != null) {
+                locationService.updateLocation(mission.getLocation(), newMission.getLocation());
+            }
+
+            if (newMission.getInterpreters() == null) {
+                interpreterService.loadInterpreters(mission);
+                newMission.setInterpreters(mission.getInterpreters() != null ? mission.getInterpreters() : new java.util.HashSet<>());
+            }
+
+            missionService.updateMission(mission, newMission);
+            return ResponseEntity.ok().build();
+
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la modification de la mission.");
+        }
     }
 
 
