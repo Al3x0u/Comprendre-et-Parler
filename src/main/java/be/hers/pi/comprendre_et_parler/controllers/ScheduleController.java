@@ -86,12 +86,6 @@ public class ScheduleController {
                 model.addAttribute("beneficiaries", refBeneficiaries);
             }
 
-            if (user instanceof Manager) {
-                String managerFullName = user.getFirstName() + " " + user.getLastName();
-                events = events.stream().filter(e -> e.getOrDefault("interpreter", "").contains(managerFullName) || e.getOrDefault("beneficiary", "").contains(managerFullName))
-                        .collect(java.util.stream.Collectors.toList());
-            }
-
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("interpreters", interpreters);
@@ -551,6 +545,7 @@ public class ScheduleController {
 
 
             interpreterService.loadInterpreters(mission);
+            // loadInterpreters peut laisser interpreters null en cas d'erreur SQL
             if (mission.getInterpreters() == null) {
                 mission.setInterpreters(new java.util.HashSet<>());
             }
