@@ -85,6 +85,7 @@ public class InterpreterController {
             model.addAttribute("error", error);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
+            model.addAttribute("newUnavailability", new CreateUnavailability());
             getSkills(model);
         } catch (Exception e) {
             e.printStackTrace();
@@ -269,8 +270,12 @@ public class InterpreterController {
      */
     @PostMapping("/{id}/indisponibilites/ajouter")
     public String addUnavailability(@PathVariable int id,
-                                    @RequestParam LocalDateTime newUnavailability,
+                                    @ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
                                     HttpSession session) {
+
+        System.out.println(newUnavailability.getReason());
+        System.out.println(newUnavailability.getStartDate());
+        System.out.println(newUnavailability.getEndDate());
 
         return "redirect:/interpretes/profil/" + id;
     }

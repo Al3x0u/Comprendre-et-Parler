@@ -292,18 +292,19 @@
                 <div class="modal-body">
                     <form id="unavailability-add-form"
                           th:action="@{/interpretes/{id}/indisponibilites/ajouter(id=${interprete.id})}"
+                          th:object="${newUnavailability}"
                           method="post">
                         <div class="mb-3">
                             <label for="unavailability-add-reason" class="form-label">Raison</label>
-                            <input id="unavailability-add-reason" type="text" class="form-control" name="reason" required>
+                            <input id="unavailability-add-reason" type="text" class="form-control" name="reason" th:field="*{reason}" required>
                         </div>
                         <div class="mb-3">
                             <label for="unavailability-add-start" class="form-label">Date de début</label>
-                            <input id="unavailability-add-start" type="datetime-local" class="form-control" name="startDate" required>
+                            <input id="unavailability-add-start" type="datetime-local" class="form-control" name="startDate" th:field="*{startDate}" required>
                         </div>
                         <div class="mb-3">
                             <label for="unavailability-add-end" class="form-label">Date de fin</label>
-                            <input id="unavailability-add-end" type="datetime-local" class="form-control" name="endDate" required>
+                            <input id="unavailability-add-end" type="datetime-local" class="form-control" name="endDate" th:field="*{endDate}" required>
                         </div>
                     </form>
                 </div>
