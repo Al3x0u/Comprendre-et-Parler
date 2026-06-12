@@ -150,6 +150,7 @@ public class InterpreterService {
     public void createUnavailability(Interpreter interpreter, CreateUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
         ExceptionalUnavailability newUnavailability = new ExceptionalUnavailability(unavailability.getReason(), new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
         SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, newUnavailability, interpreter);
+        interpreter.addUnavailability(newUnavailability);
     }
 
     /**
