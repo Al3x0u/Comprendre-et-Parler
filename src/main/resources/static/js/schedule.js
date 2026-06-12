@@ -12,8 +12,8 @@ const userRole = config.dataset.role;
 const userId = parseInt(config.dataset.userId);
 
 /**
- * Full name of the logged-in manager (used to pre-filter the schedule on load).
- * Empty string for non-manager roles.
+ * Full name of the logged-in user (manager or interpreter), used to pre-filter on load
+ * Empty string for BENEFICIARY.
  * @type {string}
  */
 const managerFullName = config.dataset.managerName || '';
@@ -21,21 +21,17 @@ const managerFullName = config.dataset.managerName || '';
 /** @type {boolean} True if the screen width is less than 768px */
 const isMobile = window.innerWidth < 768;
 
-
-
-/**
- * @typedef {Object} ActiveFilters
- * @property {string|null} status      - Active filter by status (e.g. "Acceptée", "En attente")
- * @property {string|null} interpreter - Active filter by user name (interpreter or beneficiary)
- */
-
 /** @type {ActiveFilters} */
 const activeFilters = {
     status: null,
+    // MANAGER et INTERPRETER : pré-filtré sur son propre nom au chargement
     interpreter: null
 };
 
 if (userRole === 'MANAGER' && managerFullName) {
+    activeFilters.interpreter = managerFullName;
+}
+if (userRole === 'INTERPRETER' && managerFullName) {
     activeFilters.interpreter = managerFullName;
 }
 /** @type {number|null} ID of the currently selected mission */
@@ -246,7 +242,6 @@ if (userRole === 'MANAGER') {
 
 
 //CALENDAR INIT
-
 
 /**
  * Apply local filter to the all mission charged
@@ -929,6 +924,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (userRole === 'INTERPRETER') {
         setupUserFilter();
+        highlightActiveUser();
     }
     calendar.render();
 });
