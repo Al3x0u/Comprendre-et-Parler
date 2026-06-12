@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 public class MissionService {
 
     private final DAOMission daoMission;
-    private final NotificationService notificationService; // ← ajoute ça
+    private final NotificationService notificationService;
 
     public MissionService() {
         this.daoMission = new DAOMission();
-        this.notificationService = new NotificationService(); // ← ajoute ça
+        this.notificationService = new NotificationService();
     }
 
     /**
@@ -37,6 +37,7 @@ public class MissionService {
         Mission mission = SQLWrap.call(daoMission::find, id);
         return mission;
     }
+
     /**
      * Returns a list of missions filtered according to the given filter.
      * @param filter the filter to apply, each criterion is optional (null means no filter)
@@ -63,7 +64,6 @@ public class MissionService {
                         m.getStateOfMission().equals(filter.getStateOfMission()))
                 .collect(Collectors.toList());
     }
-
 
     /**
      * Return the list of missions for a given week, filtered according to the user's role.
@@ -104,7 +104,6 @@ public class MissionService {
         }
     }
 
-
     /**
      * Creates a mission with the status PENDING.
      * @param mission the mission to create, with beneficiary and time slot already set
@@ -115,7 +114,6 @@ public class MissionService {
         mission.setStateOfMission(MissionState.PENDING);
         SQLWrap.callTransaction(daoMission::create, mission);
     }
-
 
     /**
      * Checks that an interpreter has no schedule conflict with the given time slot.
@@ -341,7 +339,6 @@ public class MissionService {
     private double calculateAssignedHoursForYear(Interpreter interpreter, TimeSlot slot) throws SQLException {
 
         LocalDate date;
-
         if (slot instanceof PunctualTimeSlot) {
             PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
             date = punctualTimeSlot.getStartDate().toLocalDate();
@@ -351,11 +348,8 @@ public class MissionService {
         }
 
         int year = date.getYear();
-
         double total = 0;
-
         for (int week = 1; week <= 52; week++) {
-
             for (Mission mission : SQLWrap.call(daoMission::getScheduleForWeek, interpreter.getId(), year, week)) {
                 total += calculateHours(mission.getTimeSlot());
             }
@@ -408,7 +402,4 @@ public class MissionService {
         }
         return warnings.toString();
     }
-
-
-
 }
