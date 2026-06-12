@@ -857,8 +857,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, interpreterId);
-            statement.setDate(2, java.sql.Date.valueOf(dateDebut));
-            statement.setDate(3, java.sql.Date.valueOf(dateFin));
+            statement.setDate(2, Date.valueOf(dateDebut));
+            statement.setDate(3, Date.valueOf(dateFin));
             result = statement.executeQuery();
             if (result.next()) {
                 return result.getDouble(1);
