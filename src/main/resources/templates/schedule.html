@@ -9,25 +9,60 @@
 <!-- Navbar -->
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<!-- Filters : just visual -->
+<!-- Filters : just visuel -->
 <div id="dropdown-filtre" class="dropdown-menu">
-    <!-- By user (only for Manager) -->
     <th:block th:if="${userRole == 'MANAGER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
-        <div class="px-3 pb-2">
-            <input type="text" id="search-interpreter" class="form-control form-control-sm"
-                   placeholder="Rechercher un utilisateur...">
+        <div class="px-3 pb-1">
+            <input type="text" id="search-interpreter" class="form-control form-control-sm" placeholder="Rechercher...">
         </div>
-        <div id="interpreter-list">
-            <a class="dropdown-item filter-interpreter"
-               href="#"
-               th:each="interpreter : ${interpreters}"
-               th:data-value="${interpreter.firstName + ' ' + interpreter.lastName}">
-                <i class="bi bi-person me-2"></i>
-                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName}"></span>
-            </a>
+
+        <div id="user-filter-list" style="max-height:280px; overflow-y:auto;">
+
+            <div class="filter-section" id="section-manager">
+                <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#856404;">
+                    <i class="bi bi-shield-fill me-1"></i>Responsables
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER'}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
+                        <i class="bi bi-person-fill-gear" style="color:#856404;"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <!-- Section Interprete -->
+            <div class="filter-section" id="section-interpreter">
+                <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#0d6efd;">
+                    <i class="bi bi-translate me-1"></i>Interprètes
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'INTERPRETER'}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="INTERPRETER">
+                        <i class="bi bi-person-fill" style="color:#0d6efd;"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <!-- Section Bénéficiaire -->
+            <div class="filter-section" id="section-beneficiary">
+                <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#146c43;">
+                    <i class="bi bi-heart-fill me-1"></i>Bénéficiaires
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'BENEFICIARY'}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="BENEFICIARY">
+                        <i class="bi bi-person-heart" style="color:#146c43;"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <!--Message aucun résultat-->
+            <div id="no-user-result" class="px-3 py-2 text-muted fst-italic" style="display:none;font-size:0.85rem;">
+                Aucun résultat
+            </div>
         </div>
-        <hr class="dropdown-divider">
+        <hr class="dropdown-divider mb-0">
     </th:block>
 
     <!-- By status -->
@@ -127,8 +162,6 @@
                     <span id="modalInterpreter" class="fst-italic text-muted"></span>
                 </div>
                 <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
-
-
             </div>
 
         </div>
@@ -603,7 +636,7 @@
 </div>
 
 <div id="schedule-config"
-     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}"
+     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}, data-manager-name=${managerFullName}"
      style="display:none">
 </div>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
