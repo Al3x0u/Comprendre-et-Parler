@@ -275,9 +275,30 @@ public class InterpreterController {
             interpreterService.createUnavailability(user, newUnavailability);
         } catch (AlreadyExistsException e) {
             e.printStackTrace();
-            //TODO : display "Vous êtes déjà indisponible à ce moment là"
+            //TODO : display "Vous êtes déjà indisponible à ce moment là."
         } catch (Exception e) {
             e.printStackTrace();
+            //TODO : display an error message
+        }
+
+        return "redirect:/profil";
+    }
+
+    /**
+     * Handle the suppression of an interpreter's unavailability
+     * @param id the ID of the unavailability's timeSlot to delete
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/indisponibilites/{id}/supprimer")
+    public String deleteUnavailability(@PathVariable int id,
+                                    HttpSession session) {
+        Interpreter user = (Interpreter) session.getAttribute("user");
+        try {
+            interpreterService.deleteUnavailability(user, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO : display an error message
         }
 
         return "redirect:/profil";
@@ -350,7 +371,7 @@ public class InterpreterController {
             model.addAttribute("submitState", "success");
             model.addAttribute("interpreterForm", new CreateInterpreterForm());
         } catch (AlreadyExistsException e) {
-            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            model.addAttribute("submitState", "Cet utilisateur existe déjà.");
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");

@@ -231,7 +231,7 @@ public class BeneficiaryController {
             model.addAttribute("submitState", "success");
             model.addAttribute("beneficiaryForm", new CreateBeneficiaryForm());
         } catch (AlreadyExistsException e) {
-            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            model.addAttribute("submitState", "Cet utilisateur existe déjà.");
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");

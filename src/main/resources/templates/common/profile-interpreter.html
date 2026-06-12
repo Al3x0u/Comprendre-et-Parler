@@ -495,7 +495,7 @@
     </div>
 
     <!-- Modal Delete -->
-    <div th:replace="~{common/modals :: modal-delete('/interpretes/' + ${interprete.id} + '/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
+    <div th:replace="~{common/modals :: modal-delete('/interpretes/profil/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
 
     <!-- Modal Disable -->
     <div th:replace="~{common/modals :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>

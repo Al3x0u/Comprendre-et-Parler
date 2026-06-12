@@ -305,14 +305,19 @@ public class InterpreterService {
 
     /**
      * Delete an interpreter's unavailability slot
-     * @param interpreter the interpreter to modify
-     * @param unavailability an up-to-date ExceptionalUnavailability object to delete
+     * @param interpreter the interpreter of the unavailability to delete
+     * @param timeSlotId the ID of the time slot of the unavailability to delete
      * @throws NoSuchElementException if the interpreter does not exist or does not possess unavailability in database
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if a database error occurs
      */
-    public void deleteUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
-        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::delete, interpreter.getId(), unavailability.getTimeSlot().getId());
+    public void deleteUnavailability(Interpreter interpreter, int timeSlotId) throws SQLException, ConnectionException, NoSuchElementException {
+        SQLWrap.callTransaction(
+                (Interpreter i, Integer id) -> {
+                    new DAOExceptionalUnavailability().delete(i.getId(), id);
+                    i.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(i.getId()));
+                }, interpreter, timeSlotId
+        );
     }
 
     /**
