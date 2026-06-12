@@ -1,12 +1,10 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
-import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -227,7 +226,7 @@ public class InterpreterController {
     }
 
     /**
-     * Handle the addition of a academic skill to an interpreter, either an existing one or a new one
+     * Handle the addition of an academic skill to an interpreter, either an existing one or a new one
      * @param id the id of the interpreter
      * @param existingSkillId the id of an existing skill to link, empty if a new skill is created
      * @param newSkillName the designation of a new skill to create and link, empty if an existing skill is chosen
@@ -258,6 +257,21 @@ public class InterpreterController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the creation of an unavailability to an interpreter
+     * @param id the id of the interpreter
+     * @param newUnavailability the unavailability to create
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/{id}/indisponibilites/ajouter")
+    public String addUnavailability(@PathVariable int id,
+                                    @RequestParam LocalDateTime newUnavailability,
+                                    HttpSession session) {
+
         return "redirect:/interpretes/profil/" + id;
     }
     

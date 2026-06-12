@@ -21,12 +21,12 @@
 <!-- Bundle Bootstrap JS -->
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script>
-    function toggleEditIndispo() {
-        const btn = document.getElementById('btn-edit-indispo');
-        const btnCancel = document.getElementById('btn-cancel-indispo');
-        const modifyButtons = document.querySelectorAll('.indispo-modify');
-        const deleteButtons = document.querySelectorAll('.indispo-delete');
-        const addButton = document.getElementById('btn-add-indispo');
+    function toggleEditUnavailability() {
+        const btn = document.getElementById('btn-edit-unavailability');
+        const btnCancel = document.getElementById('btn-cancel-unavailability');
+        const modifyButtons = document.querySelectorAll('.unavailability-modify');
+        const deleteButtons = document.querySelectorAll('.unavailability-delete');
+        const addButton = document.getElementById('btn-add-unavailability');
         const isEditing = btn.classList.contains('editing');
 
         if (isEditing) {

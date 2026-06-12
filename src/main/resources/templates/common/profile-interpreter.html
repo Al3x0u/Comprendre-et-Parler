@@ -102,10 +102,10 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Indisponibilités</h2>
                         <div class="d-flex">
-                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-indispo" onclick="toggleEditIndispo()">
+                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-unavailability" onclick="toggleEditUnavailability()">
                                 <i class="bi bi-x me-1"></i>Annuler
                             </button>
-                            <button th:if="${isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-indispo" onclick="toggleEditIndispo()">
+                            <button th:if="${isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-unavailability" onclick="toggleEditUnavailability()">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
                         </div>
@@ -124,15 +124,15 @@
                                 </p>
                             </div>
                             <div>
-                                <button class="btn btn-outline-primary btn-sm indispo-modify d-none"
-                                        data-bs-toggle="modal" data-bs-target="#modalIndispoEdit"
+                                <button class="btn btn-outline-primary btn-sm unavailability-modify d-none"
+                                        data-bs-toggle="modal" data-bs-target="#modalUnavailabilityEdit"
                                         th:attr="data-id=${u.timeSlot.id},
                                                  data-reason=${u.reason},
                                                  data-start=${#temporals.format(u.timeSlot.startDate, 'yyyy-MM-dd''T''HH:mm')},
                                                  data-end=${#temporals.format(u.timeSlot.endDate, 'yyyy-MM-dd''T''HH:mm')}">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button class="btn btn-outline-danger btn-sm indispo-delete d-none"
+                                <button class="btn btn-outline-danger btn-sm unavailability-delete d-none"
                                         data-bs-toggle="modal" data-bs-target="#modalDelete"
                                         th:attr="data-id=${u.timeSlot.id}, data-name=${u.reason}">
                                     <i class="bi bi-trash"></i>
@@ -144,8 +144,8 @@
                         Aucune indisponibilité renseignée
                     </div>
                     <button class="btn btn-outline-primary btn-sm mt-3 d-none"
-                            id="btn-add-indispo"
-                            data-bs-toggle="modal" data-bs-target="#modalIndispoAdd">
+                            id="btn-add-unavailability"
+                            data-bs-toggle="modal" data-bs-target="#modalUnavailabilityAdd">
                         <i class="bi bi-plus-lg me-1"></i>Ajouter une indisponibilité
                     </button>
                 </div>
@@ -283,33 +283,33 @@
     </div>
 
     <!-- Modal New Unavailability -->
-    <div class="modal fade" id="modalIndispoAdd" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="modalUnavailabilityAdd" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header text-bg-primary rounded-top-4">
                     <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Ajouter une indisponibilité</h5>
                 </div>
                 <div class="modal-body">
-                    <form id="indispo-add-form"
+                    <form id="unavailability-add-form"
                           th:action="@{/interpretes/{id}/indisponibilites/ajouter(id=${interprete.id})}"
                           method="post">
                         <div class="mb-3">
-                            <label for="indispo-add-reason" class="form-label">Raison</label>
-                            <input id="indispo-add-reason" type="text" class="form-control" name="reason" required>
+                            <label for="unavailability-add-reason" class="form-label">Raison</label>
+                            <input id="unavailability-add-reason" type="text" class="form-control" name="reason" required>
                         </div>
                         <div class="mb-3">
-                            <label for="indispo-add-start" class="form-label">Date de début</label>
-                            <input id="indispo-add-start" type="datetime-local" class="form-control" name="startDate" required>
+                            <label for="unavailability-add-start" class="form-label">Date de début</label>
+                            <input id="unavailability-add-start" type="datetime-local" class="form-control" name="startDate" required>
                         </div>
                         <div class="mb-3">
-                            <label for="indispo-add-end" class="form-label">Date de fin</label>
-                            <input id="indispo-add-end" type="datetime-local" class="form-control" name="endDate" required>
+                            <label for="unavailability-add-end" class="form-label">Date de fin</label>
+                            <input id="unavailability-add-end" type="datetime-local" class="form-control" name="endDate" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" form="indispo-add-form" class="btn btn-primary">
+                    <button type="submit" form="unavailability-add-form" class="btn btn-primary">
                         <i class="bi bi-plus-lg me-2"></i>Ajouter
                     </button>
                 </div>
@@ -318,31 +318,31 @@
     </div>
 
     <!-- Modal Edit Unavailability -->
-    <div class="modal fade" id="modalIndispoEdit" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="modalUnavailabilityEdit" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header text-bg-primary rounded-top-4">
                     <h5 class="modal-title"><i class="bi bi-calendar-event me-2"></i>Modifier une indisponibilité</h5>
                 </div>
                 <div class="modal-body">
-                    <form id="indispo-edit-form" method="post">
+                    <form id="unavailability-edit-form" method="post">
                         <div class="mb-3">
-                            <label for="indispo-reason" class="form-label">Raison</label>
-                            <input id="indispo-reason" type="text" class="form-control" name="reason" required>
+                            <label for="unavailability-reason" class="form-label">Raison</label>
+                            <input id="unavailability-reason" type="text" class="form-control" name="reason" required>
                         </div>
                         <div class="mb-3">
-                            <label for="indispo-start" class="form-label">Date de début</label>
-                            <input id="indispo-start" type="datetime-local" class="form-control" name="startDate" required>
+                            <label for="unavailability-start" class="form-label">Date de début</label>
+                            <input id="unavailability-start" type="datetime-local" class="form-control" name="startDate" required>
                         </div>
                         <div class="mb-3">
-                            <label for="indispo-end" class="form-label">Date de fin</label>
-                            <input id="indispo-end" type="datetime-local" class="form-control" name="endDate" required>
+                            <label for="unavailability-end" class="form-label">Date de fin</label>
+                            <input id="unavailability-end" type="datetime-local" class="form-control" name="endDate" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" form="indispo-edit-form" class="btn btn-primary">
+                    <button type="submit" form="unavailability-edit-form" class="btn btn-primary">
                         <i class="bi bi-floppy-fill me-2"></i>Enregistrer
                     </button>
                 </div>
@@ -395,29 +395,29 @@
     </div>
 
     <script>
-        document.getElementById('modalIndispoAdd').addEventListener('show.bs.modal', function() {
+        document.getElementById('modalUnavailabilityAdd').addEventListener('show.bs.modal', function() {
             const now = new Date().toISOString().slice(0, 16);
-            document.getElementById('indispo-add-start').min = now;
-            document.getElementById('indispo-add-end').min = now;
+            document.getElementById('unavailability-add-start').min = now;
+            document.getElementById('unavailability-add-end').min = now;
         });
 
-        document.getElementById('indispo-add-start').addEventListener('change', function() {
-            document.getElementById('indispo-add-end').min = this.value;
+        document.getElementById('unavailability-add-start').addEventListener('change', function() {
+            document.getElementById('unavailability-add-end').min = this.value;
         });
 
-        document.getElementById('modalIndispoEdit').addEventListener('show.bs.modal', function(event) {
+        document.getElementById('modalUnavailabilityEdit').addEventListener('show.bs.modal', function(event) {
             const button = event.relatedTarget;
             const now = new Date().toISOString().slice(0, 16);
-            document.getElementById('indispo-reason').value = button.getAttribute('data-reason');
-            document.getElementById('indispo-start').value = button.getAttribute('data-start');
-            document.getElementById('indispo-end').value = button.getAttribute('data-end');
-            document.getElementById('indispo-start').min = now;
-            document.getElementById('indispo-end').min = button.getAttribute('data-start');
-            document.getElementById('indispo-edit-form').action = '/interpretes/' + button.getAttribute('data-id') + '/indisponibilites/modifier';
+            document.getElementById('unavailability-reason').value = button.getAttribute('data-reason');
+            document.getElementById('unavailability-start').value = button.getAttribute('data-start');
+            document.getElementById('unavailability-end').value = button.getAttribute('data-end');
+            document.getElementById('unavailability-start').min = now;
+            document.getElementById('unavailability-end').min = button.getAttribute('data-start');
+            document.getElementById('unavailability-edit-form').action = '/interpretes/' + button.getAttribute('data-id') + '/indisponibilites/modifier';
         });
 
-        document.getElementById('indispo-start').addEventListener('change', function() {
-            document.getElementById('indispo-end').min = this.value;
+        document.getElementById('unavailability-start').addEventListener('change', function() {
+            document.getElementById('unavailability-end').min = this.value;
         });
 
         document.getElementById('modalAddSkill').addEventListener('show.bs.modal', function(event) {
