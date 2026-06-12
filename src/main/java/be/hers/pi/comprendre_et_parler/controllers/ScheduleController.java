@@ -84,6 +84,8 @@ public class ScheduleController {
             } else if (user instanceof Interpreter interpreter) {
                 Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
                 model.addAttribute("beneficiaries", refBeneficiaries);
+                String managerFullName = user.getFirstName() + " " + user.getLastName();
+                model.addAttribute("managerFullName", managerFullName);
             }
 
             ObjectMapper mapper = new ObjectMapper();
@@ -510,9 +512,6 @@ public class ScheduleController {
                     if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
                 }
 
-                // Filtre par nom d'utilisateur : cherche dans interpreter ET beneficiary
-                // Un manager peut être interprète sur ses propres missions,
-                // un bénéficiaire apparaît uniquement dans "beneficiary"
                 if (user != null && !user.isBlank()) {
                     boolean matchInterp = event.getOrDefault("interpreter", "").contains(user);
                     boolean matchBene   = event.getOrDefault("beneficiary", "").contains(user);
@@ -545,7 +544,6 @@ public class ScheduleController {
 
 
             interpreterService.loadInterpreters(mission);
-            // loadInterpreters peut laisser interpreters null en cas d'erreur SQL
             if (mission.getInterpreters() == null) {
                 mission.setInterpreters(new java.util.HashSet<>());
             }
@@ -704,8 +702,7 @@ public class ScheduleController {
             try { box = Integer.parseInt(boxObj.toString()); } catch (Exception ignored) {}
         }
 
-        boolean hasLocation =
-                (designation != null && !designation.isBlank()) ||
+        boolean hasLocation = (designation != null && !designation.isBlank()) ||
                         (cityName    != null && !cityName.isBlank())    ||
                         (postalCode  != null && !postalCode.isBlank())  ||
                         (street      != null && !street.isBlank())      ||
