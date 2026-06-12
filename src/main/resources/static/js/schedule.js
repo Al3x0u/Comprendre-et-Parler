@@ -196,7 +196,7 @@ if (userRole === 'MANAGER') {
         }
     };
     customButtons.viewRequests = {
-        text: isMobile ? '📋' : 'Voir demandes',
+        text: 'Voir demandes',
         click: function() {
             window.location.href = '/demandes';
         }
