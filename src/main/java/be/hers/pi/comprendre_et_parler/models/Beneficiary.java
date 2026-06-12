@@ -47,6 +47,24 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
+     * Minimal constructor
+     * @param id the beneficiary's id
+     */
+    public Beneficiary(int id) {
+        super(id);
+    }
+
+    /**
+     * Lightweight constructor
+     * @param id the beneficiary's id
+     * @param firstName the beneficiary's first name
+     * @param lastName the beneficiary's last name
+     */
+    public Beneficiary(int id, String firstName, String lastName) {
+        super(id, firstName, lastName);
+    }
+
+    /**
      * Copy constructor of a Beneficiary
      * @param other the Beneficiary to copy, must not be null
      */

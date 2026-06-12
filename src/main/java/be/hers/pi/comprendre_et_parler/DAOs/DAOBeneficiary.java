@@ -48,6 +48,36 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     }
 
     /**
+     * Fetch a lightweight version of the object from the database
+     * @param id the object's id
+     * @return A Beneficiary object with only its id, first name and last name initialized
+     * @throws SQLException if a database error occurs
+     */
+    public Beneficiary findLight(int id) throws SQLException {
+        String query = "SELECT id, firstName, lastName FROM Beneficiary WHERE id = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Beneficiary beneficiary = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, id);
+
+            result = statement.executeQuery();
+            if (result.next()) {
+                return new Beneficiary(
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_FIRST_NAME),
+                        result.getString(FIELD_LAST_NAME)
+                );
+            }
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return beneficiary;
+    }
+
+    /**
      * Search for a Beneficiary in the database with the String parameter
      * @param login the login of the Beneficiary to find in database
      * @return the Beneficiary identified by login in database, or null if none was present
