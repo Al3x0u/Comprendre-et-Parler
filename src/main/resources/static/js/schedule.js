@@ -5,7 +5,6 @@ const config = document.getElementById('schedule-config');
 
 /** @type {Array<Object>} List of all events loaded from the server */
 const allEvents = JSON.parse(config.dataset.events);
-
 /** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
 const userRole = config.dataset.role;
 
@@ -44,6 +43,12 @@ let currentMissionId = null;
 
 /** @type {boolean} Whether this is the first calendar load */
 let premierChargement = true;
+
+/**
+ * Hidden all events of the week-end
+ * @type {Array<Object>}
+ */
+let cachedEvents = allEvents.slice();
 
 /** The calendar */
 let calendar;
@@ -123,6 +128,7 @@ function setupUserFilter() {
             if (activeFilters.interpreter === value) return;
             activeFilters.interpreter = value;
             highlightActiveUser();
+            activeFilters._localOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
             document.querySelector('.fc-filterBtn-button')?.classList.remove('active');
@@ -158,6 +164,7 @@ function setupFilter(selector, filterKey) {
             activeFilters[filterKey] = activeFilters[filterKey] === item.dataset.value ? null : item.dataset.value;
             document.querySelectorAll(selector).forEach(i => i.classList.remove('fw-bold'));
             if (activeFilters[filterKey]) item.classList.add('fw-bold');
+            activeFilters._localOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
         });
@@ -240,31 +247,34 @@ if (userRole === 'MANAGER') {
 
 //CALENDAR INIT
 
+
 /**
- * Fetches calendar events from the REST API based on the current date range
- * and active filters (status, interpreter).
- *
- * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
- * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
- * @param {Function} successCallback    - Callback to call with the fetched events
- * @param {Function} failureCallback    - Callback to call on network error
- * @returns {Promise<void>}
+ * Apply local filter to the all mission charged
+ * @param {Array<Object>} events
+ * @returns {Array<Object>}
  */
+function applyLocalFilters(events) {
+    return events.filter(e => {
+        if (activeFilters.status && e.status !== activeFilters.status) return false;
+        if (activeFilters.interpreter) {
+            const f = activeFilters.interpreter.toLowerCase();
+            const matchInterp = (e.interpreter || '').toLowerCase().includes(f);
+            const matchBene   = (e.beneficiary || '').toLowerCase().includes(f);
+            if (!matchInterp && !matchBene) return false;
+        }
+        return true;
+    });
+}
+
 async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     const params = new URLSearchParams();
     params.append('weekDate', fetchInfo.startStr.substring(0, 10));
 
-    if (activeFilters.status !== null){
-        params.append('status', activeFilters.status);
-    }
-    if (activeFilters.interpreter !== null){
-        params.append('user', activeFilters.interpreter);
-    }
-
     try {
         const r = await fetch('/horaire/evenements?' + params.toString());
         const data = await r.json();
-        successCallback(data);
+        cachedEvents = data;
+        successCallback(applyLocalFilters(data));
     } catch (err) {
         failureCallback(err);
     }
@@ -306,17 +316,10 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {Function} failureCallback - Callback called on error
          */
         events: function(fetchInfo, successCallback, failureCallback) {
-            if (premierChargement) {
+            if (premierChargement || activeFilters._localOnly) {
                 premierChargement = false;
-                if (activeFilters.interpreter) {
-                    const f = activeFilters.interpreter.toLowerCase();
-                    successCallback(allEvents.filter(e =>
-                        (e.interpreter || '').toLowerCase().includes(f) ||
-                        (e.beneficiary || '').toLowerCase().includes(f)
-                    ));
-                } else {
-                    successCallback(allEvents);
-                }
+                activeFilters._localOnly = false;
+                successCallback(applyLocalFilters(cachedEvents));
                 return;
             }
             fetchEvents(fetchInfo, successCallback, failureCallback);
