@@ -181,6 +181,145 @@ function buildStars(importance, max = 3) {
     return stars;
 }
 
+/**
+ * Fills a creation modal (mission or request) with existing data and switches it to edit mode.
+ * Changes the submit button to send a PUT instead of POST.
+ *
+ * @param {'mission'|'request'} type - Which modal to fill
+ * @param {Object} props             - extendedProps of the FullCalendar event
+ * @param {Object} event             - The FullCalendar event object
+ * @param {number} missionId         - The ID of the mission to edit
+ */
+function fillAndOpenEditModal(type, props, event, missionId) {
+    let prefix;
+    let modalId;
+    let btnId;
+    if (type === 'mission') {
+        prefix = 'mission';
+        modalId = 'newMissionModal';
+        btnId = 'sendMissionBtn';
+    } else {
+        prefix = 'request';
+        modalId = 'newRequestModal';
+        btnId = 'sendRequestBtn';
+    }
+
+    const titleEl = document.getElementById(modalId + 'Title');
+
+    if (type === 'mission') {
+        titleEl.innerText = 'Modifier la mission';
+    } else {
+        titleEl.innerText = 'Modifier la demande';
+    }
+
+    if (event.title) {
+        document.getElementById(prefix + 'Title').value = event.title;
+    } else {
+        document.getElementById(prefix + 'Title').value = '';
+    }
+    if (event.start) {
+        document.getElementById(prefix + 'Date').value =
+            event.start.toISOString().substring(0, 10);
+    } else {
+        document.getElementById(prefix + 'Date').value = '';
+    }
+
+    document.getElementById(prefix + 'LocationDesignation').value = props.locationDesignation || '';
+    document.getElementById(prefix + 'Street').value = props.street || '';
+    document.getElementById(prefix + 'StreetNumber').value = props.streetNumber || '';
+    document.getElementById(prefix + 'Box').value = props.box || '';
+    document.getElementById(prefix + 'Room').value = props.room || '';
+    document.getElementById(prefix + 'Comment').value = props.comment || '';
+
+    let startTime = '';
+    if (event.start) {
+        startTime = event.start.toTimeString().substring(0, 5);
+    }
+    let endTime = '';
+
+    if (event.end) {
+        endTime = event.end.toTimeString().substring(0, 5);
+    }
+
+    document.getElementById(prefix + 'StartTime').value = startTime;
+    document.getElementById(prefix + 'EndTime').value = endTime;
+    const citySelect = document.getElementById(prefix + 'City');
+
+    if (props.postalCode) {
+        citySelect.value = props.postalCode;
+    }
+
+    document.getElementById(prefix + 'CityName').value = props.city || '';
+    const academicSelect = document.getElementById(prefix + 'AcademicSkill');
+
+    if (props.academicSkillId) {
+        academicSelect.value = props.academicSkillId;
+    }
+    let radioName;
+
+    if (type === 'mission') {
+        radioName = 'missionType';
+    } else {
+        radioName = 'requestType';
+    }
+
+    document.querySelectorAll('input[name="' + radioName + '"]').forEach(function (radio) {
+        if (radio.value === props.type) {
+            radio.checked = true;
+        } else {
+            radio.checked = false;
+        }
+    });
+
+    if (type === 'request') {
+        if (props.importance !== undefined) {
+
+            const importanceRadio = document.querySelector(
+                'input[name="requestImportance"][value="' + props.importance + '"]'
+            );
+
+            if (importanceRadio) {
+                importanceRadio.checked = true;
+            }
+        }
+    }
+
+    if (type === 'mission') {
+
+        let checkedIds = [];
+
+        if (props.interpreterIds) {
+            checkedIds = props.interpreterIds
+                .split(',')
+                .map(function (id) {
+                    return id.trim();
+                });
+        }
+
+        document.querySelectorAll('.mission-interpreter-check').forEach(function (checkbox) {
+            if (checkedIds.includes(checkbox.value)) {
+                checkbox.checked = true;
+            } else {
+                checkbox.checked = false;
+            }
+        });
+        const beneficiarySelect = document.getElementById('missionBeneficiary');
+        if (props.beneficiaryId) {
+            beneficiarySelect.value = props.beneficiaryId;
+        }
+    }
+
+    const btn = document.getElementById(btnId);
+
+    btn.dataset.editMode = 'true';
+    btn.dataset.missionId = missionId;
+    btn.innerText = 'Enregistrer';
+
+    bootstrap.Modal
+        .getOrCreateInstance(document.getElementById(modalId))
+        .show();
+}
+
 
 //CALENDAR BUTTONS
 
@@ -1000,144 +1139,5 @@ document.addEventListener('DOMContentLoaded', function() {
         highlightActiveUser();
     }
     setupFilter('.filter-interpreter', 'interpreter');
-
-    /**
-     * Fills a creation modal (mission or request) with existing data and switches it to edit mode.
-     * Changes the submit button to send a PUT instead of POST.
-     *
-     * @param {'mission'|'request'} type - Which modal to fill
-     * @param {Object} props             - extendedProps of the FullCalendar event
-     * @param {Object} event             - The FullCalendar event object
-     * @param {number} missionId         - The ID of the mission to edit
-     */
-    function fillAndOpenEditModal(type, props, event, missionId) {
-        let prefix;
-        let modalId;
-        let btnId;
-        if (type === 'mission') {
-            prefix = 'mission';
-            modalId = 'newMissionModal';
-            btnId = 'sendMissionBtn';
-        } else {
-            prefix = 'request';
-            modalId = 'newRequestModal';
-            btnId = 'sendRequestBtn';
-        }
-
-        const titleEl = document.getElementById(modalId + 'Title');
-
-        if (type === 'mission') {
-            titleEl.innerText = 'Modifier la mission';
-        } else {
-            titleEl.innerText = 'Modifier la demande';
-        }
-
-        if (event.title) {
-            document.getElementById(prefix + 'Title').value = event.title;
-        } else {
-            document.getElementById(prefix + 'Title').value = '';
-        }
-        if (event.start) {
-            document.getElementById(prefix + 'Date').value =
-                event.start.toISOString().substring(0, 10);
-        } else {
-            document.getElementById(prefix + 'Date').value = '';
-        }
-
-        document.getElementById(prefix + 'LocationDesignation').value = props.locationDesignation || '';
-        document.getElementById(prefix + 'Street').value = props.street || '';
-        document.getElementById(prefix + 'StreetNumber').value = props.streetNumber || '';
-        document.getElementById(prefix + 'Box').value = props.box || '';
-        document.getElementById(prefix + 'Room').value = props.room || '';
-        document.getElementById(prefix + 'Comment').value = props.comment || '';
-
-        let startTime = '';
-        if (event.start) {
-            startTime = event.start.toTimeString().substring(0, 5);
-        }
-        let endTime = '';
-
-        if (event.end) {
-            endTime = event.end.toTimeString().substring(0, 5);
-        }
-
-        document.getElementById(prefix + 'StartTime').value = startTime;
-        document.getElementById(prefix + 'EndTime').value = endTime;
-        const citySelect = document.getElementById(prefix + 'City');
-
-        if (props.postalCode) {
-            citySelect.value = props.postalCode;
-        }
-
-        document.getElementById(prefix + 'CityName').value = props.city || '';
-        const academicSelect = document.getElementById(prefix + 'AcademicSkill');
-
-        if (props.academicSkillId) {
-            academicSelect.value = props.academicSkillId;
-        }
-        let radioName;
-
-        if (type === 'mission') {
-            radioName = 'missionType';
-        } else {
-            radioName = 'requestType';
-        }
-
-        document.querySelectorAll('input[name="' + radioName + '"]').forEach(function (radio) {
-            if (radio.value === props.type) {
-                radio.checked = true;
-            } else {
-                radio.checked = false;
-            }
-        });
-
-        if (type === 'request') {
-            if (props.importance !== undefined) {
-
-                const importanceRadio = document.querySelector(
-                    'input[name="requestImportance"][value="' + props.importance + '"]'
-                );
-
-                if (importanceRadio) {
-                    importanceRadio.checked = true;
-                }
-            }
-        }
-
-        if (type === 'mission') {
-
-            let checkedIds = [];
-
-            if (props.interpreterIds) {
-                checkedIds = props.interpreterIds
-                    .split(',')
-                    .map(function (id) {
-                        return id.trim();
-                    });
-            }
-
-            document.querySelectorAll('.mission-interpreter-check').forEach(function (checkbox) {
-                if (checkedIds.includes(checkbox.value)) {
-                    checkbox.checked = true;
-                } else {
-                    checkbox.checked = false;
-                }
-            });
-            const beneficiarySelect = document.getElementById('missionBeneficiary');
-            if (props.beneficiaryId) {
-                beneficiarySelect.value = props.beneficiaryId;
-            }
-        }
-
-        const btn = document.getElementById(btnId);
-
-        btn.dataset.editMode = 'true';
-        btn.dataset.missionId = missionId;
-        btn.innerText = 'Enregistrer';
-
-        bootstrap.Modal
-            .getOrCreateInstance(document.getElementById(modalId))
-            .show();
-    }
     calendar.render();
 });
