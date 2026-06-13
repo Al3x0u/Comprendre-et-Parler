@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 public class MissionService {
 
     private final DAOMission daoMission;
-    private final NotificationService notificationService; // ← ajoute ça
+    private final NotificationService notificationService;
 
     public MissionService() {
         this.daoMission = new DAOMission();
-        this.notificationService = new NotificationService(); // ← ajoute ça
+        this.notificationService = new NotificationService();
     }
 
     /**
@@ -37,6 +37,7 @@ public class MissionService {
         Mission mission = SQLWrap.call(daoMission::find, id);
         return mission;
     }
+
     /**
      * Returns a list of missions filtered according to the given filter.
      * @param filter the filter to apply, each criterion is optional (null means no filter)
@@ -48,22 +49,13 @@ public class MissionService {
         Set<Mission> all = SQLWrap.call(daoMission::findAll);
         return all.stream()
                 .filter(m -> filter.getBeneficiary() == null ||
-                        m.getBeneficiary().equals(filter.getBeneficiary()))
+                        m.getBeneficiary() != null && m.getBeneficiary().equals(filter.getBeneficiary()))
                 .filter(m -> filter.getInterpreter() == null ||
-                        m.getInterpreters().contains(filter.getInterpreter()))
-                .filter(m -> filter.getJobSkill() == null ||
-                        m.getJobSkill().equals(filter.getJobSkill()))
-                .filter(m -> filter.getAcademicSkill() == null ||
-                        m.getAcademicSkill().equals(filter.getAcademicSkill()))
-                .filter(m -> filter.getLocation() == null ||
-                        m.getLocation().equals(filter.getLocation()))
-                .filter(m -> filter.getMinImportance() == null ||
-                        m.getImportance() >= filter.getMinImportance())
+                        (m.getInterpreters() != null && m.getInterpreters().contains(filter.getInterpreter())))
                 .filter(m -> filter.getStateOfMission() == null ||
                         m.getStateOfMission().equals(filter.getStateOfMission()))
                 .collect(Collectors.toList());
     }
-
 
     /**
      * Return the list of missions for a given week, filtered according to the user's role.
@@ -104,7 +96,6 @@ public class MissionService {
         }
     }
 
-
     /**
      * Creates a mission with the status PENDING.
      * @param mission the mission to create, with beneficiary and time slot already set
@@ -115,7 +106,6 @@ public class MissionService {
         mission.setStateOfMission(MissionState.PENDING);
         SQLWrap.callTransaction(daoMission::create, mission);
     }
-
 
     /**
      * Checks that an interpreter has no schedule conflict with the given time slot.
@@ -247,18 +237,18 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     public void updateMission(Mission mission, Mission newMission) throws ConflictException, NoSuchElementException, SQLException {
-        mission.setSubject(newMission.getSubject());
-        mission.setCommentary(newMission.getCommentary());
-        mission.setTimeSlot(newMission.getTimeSlot());
-        mission.setLocation(newMission.getLocation());
-        mission.setRoom(newMission.getRoom());
-        mission.setImportance(newMission.getImportance());
-        mission.setInterpreters(newMission.getInterpreters());
-        mission.setJobSkill(newMission.getJobSkill());
-        mission.setAcademicSkill(newMission.getAcademicSkill());
-        mission.setBeneficiary(newMission.getBeneficiary());
-
         try {
+            mission.setSubject(newMission.getSubject());
+            mission.setCommentary(newMission.getCommentary());
+            mission.setTimeSlot(newMission.getTimeSlot());
+            mission.setLocation(newMission.getLocation());
+            mission.setRoom(newMission.getRoom());
+            mission.setImportance(newMission.getImportance());
+            mission.setInterpreters(newMission.getInterpreters());
+            mission.setJobSkill(newMission.getJobSkill());
+            mission.setAcademicSkill(newMission.getAcademicSkill());
+            mission.setBeneficiary(newMission.getBeneficiary());
+
             SQLWrap.callTransaction(daoMission::update, mission);
         }
         catch (AlreadyExistsException e) {
@@ -341,7 +331,6 @@ public class MissionService {
     private double calculateAssignedHoursForYear(Interpreter interpreter, TimeSlot slot) throws SQLException {
 
         LocalDate date;
-
         if (slot instanceof PunctualTimeSlot) {
             PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
             date = punctualTimeSlot.getStartDate().toLocalDate();
@@ -351,11 +340,8 @@ public class MissionService {
         }
 
         int year = date.getYear();
-
         double total = 0;
-
         for (int week = 1; week <= 52; week++) {
-
             for (Mission mission : SQLWrap.call(daoMission::getScheduleForWeek, interpreter.getId(), year, week)) {
                 total += calculateHours(mission.getTimeSlot());
             }
@@ -408,7 +394,4 @@ public class MissionService {
         }
         return warnings.toString();
     }
-
-
-
 }

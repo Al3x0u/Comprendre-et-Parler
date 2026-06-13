@@ -109,7 +109,8 @@ public class SessionInterceptor implements HandlerInterceptor {
      */
     private boolean hasManagerAccess(AppliUser user, String path, HttpServletResponse response) throws IOException {
         if (path.startsWith("/dashboard") || path.startsWith("/interpretes")
-                || path.startsWith("/beneficiaires") || path.startsWith("/gestion")) {
+                || path.startsWith("/beneficiaires") || path.startsWith("/gestion")
+                || path.startsWith("/demandes")) {
             if (!(user instanceof Manager)) {
                 if (user instanceof Beneficiary) {
                     if (path.matches("/beneficiaires/profil/\\d+") ||
@@ -204,6 +205,7 @@ public class SessionInterceptor implements HandlerInterceptor {
         if(uri.contains("/beneficiaires")) return "beneficiaries";
         if(uri.contains("/gestion")) return "gestion";
         if(uri.contains("/profil")) return "profile";
+        if(uri.contains("/demandes")) return "requests";
         return "";
     }
 
