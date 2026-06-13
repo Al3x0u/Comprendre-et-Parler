@@ -354,7 +354,7 @@ public class DAOMission extends DAO<Mission> {
     public Set<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
         Set<Mission> missions = new HashSet<>();
 
-        String query = "SELECT m.id FROM " + TABLE + " m " +
+        String query = "SELECT m.* FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE (" +
                 "ts.day = ? " + // timeslot is base and happens on the correct day
@@ -376,9 +376,7 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(4, idUser);
             result = statement.executeQuery();
             while (result.next()) {
-                Mission mission = find(result.getInt("id"));
-                if (mission != null)
-                    missions.add(mission);
+                missions.add(getResult(result));
             }
         }
         finally {
@@ -434,8 +432,8 @@ public class DAOMission extends DAO<Mission> {
      * @post the interpreter is linked to the mission in the database
      */
     public void addInterpreterToMission(int missionId, int interpreterId) throws SQLException, AlreadyExistsException {
-        String checkQuery = "SELECT * FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
-        String insertQuery = "INSERT INTO InterpreterMission(mission, interpreter) VALUES(?, ?)";
+        String checkQuery = "SELECT * FROM "+ TABLE_INTERPRETER_MISSION +" WHERE "+ INTERPRETER_MISSION_REF_MISSION +" = ? AND "+ INTERPRETER_MISSION_REF_INTERPRETER +" = ?";
+        String insertQuery = "INSERT INTO "+ TABLE_INTERPRETER_MISSION +"("+ INTERPRETER_MISSION_REF_MISSION +", "+ INTERPRETER_MISSION_REF_INTERPRETER +") VALUES(?, ?)";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
@@ -465,7 +463,7 @@ public class DAOMission extends DAO<Mission> {
      * @post the interpreter is no longer linked to the mission in the database
      */
     public void removeInterpreterFromMission(int missionId, int interpreterId) throws SQLException, NoSuchElementException {
-        String deleteQuery = "DELETE FROM InterpreterMission WHERE mission = ? AND interpreter = ?";
+        String deleteQuery = "DELETE FROM "+ TABLE_INTERPRETER_MISSION +" WHERE "+ INTERPRETER_MISSION_REF_MISSION +" = ? AND "+ INTERPRETER_MISSION_REF_INTERPRETER +" = ?";
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(deleteQuery);
@@ -486,7 +484,7 @@ public class DAOMission extends DAO<Mission> {
      * @post all interpreters linked to the mission have been deleted from the database
      */
     private void deleteAllInterpretersFromMission(int missionId) throws SQLException {
-        String query = "DELETE FROM InterpreterMission WHERE mission = ?";
+        String query = "DELETE FROM "+ TABLE_INTERPRETER_MISSION +" WHERE "+ INTERPRETER_MISSION_REF_MISSION +" = ?";
         PreparedStatement statement = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);

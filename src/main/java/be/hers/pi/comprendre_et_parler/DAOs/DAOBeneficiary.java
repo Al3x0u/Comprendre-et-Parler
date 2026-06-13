@@ -54,7 +54,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if a database error occurs
      */
     public Beneficiary findLight(int id) throws SQLException {
-        String query = "SELECT id, firstName, lastName FROM Beneficiary WHERE id = ?";
+        String query = "SELECT "+FIELD_ID+", "+FIELD_FIRST_NAME+", "+FIELD_LAST_NAME+" FROM "+TABLE+" WHERE "+FIELD_ID+" = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         Beneficiary beneficiary = null;
