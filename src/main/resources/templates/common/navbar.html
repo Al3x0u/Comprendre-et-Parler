@@ -36,6 +36,14 @@
                 </li>
 
                 <li class="nav-item" th:if="${isManager}">
+                    <a class="nav-link" th:href="@{/demandes}"
+                       th:classappend="${currentPage == 'requests'} ? 'active' : ''">
+                        Demandes
+                    </a>
+                </li>
+
+                <!-- Gestion -->
+                <li class="nav-item" th:if="${isManager}">
                     <a class="nav-link" th:href="@{/gestion}"
                        th:classappend="${currentPage == 'gestion'} ? 'active' : ''">
                         Gestion
