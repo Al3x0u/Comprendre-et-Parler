@@ -230,42 +230,66 @@ public class DAOMission extends DAO<Mission> {
         return missions;
     }
 
+    /**
+     * Check if an overlapping mission exists in the database. <br>
+     * Missions overlap if they share an interpreter or beneficiary AND their timeslots overlap AND their MissionStates are not allowed to overlap. <br>
+     * CANCELED or DENIED missions can overlap with anything. <br>
+     * PENDING missions can overlap other PENDING missions. <br>
+     * Missions cannot overlap with themselves.
+     * @param mission the object to check.
+     * @return the id of the object found in DB, or -1 if none was found
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
-        // Find Missions in the same state as mission, sharing an interpreter or beneficiary with it, and for which timeslots overlap
-        String query = "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
-                "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
-                " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
-                " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
-                " WHERE " +
-                // status is shared and isn't one that's allowed to overlap
-                "m."+ FIELD_STATE +" = ? AND m."+ FIELD_STATE +"<> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +"<> "+ MissionState.CANCELED.getValue() +
-                // timeslots overlap
-                // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
-                " AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
-                " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
-                //
-                " AND (" +
-                    // beneficiary is shared (if there is one assigned)
-                    "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ");
+        if (mission.getStateOfMission() != MissionState.CANCELED && mission.getStateOfMission() != MissionState.DENIED)
+            return -1;
 
-        // any interpreter is shared
-        if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
-                query = query + "OR im."+ DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?";
-            for(int i = 1; i < mission.getInterpreters().size(); i++){
-                query = query + ", ?"; // Concatenation in loop, but we rarely have more than 1 Interpreter per mission anyway
-            }
-            query = query + " )";
-        }
-        query = query + ")";
+        // Find Missions in states that are not allowed to overlap, sharing an interpreter or beneficiary with mission, and for which timeslots overlap
+        StringBuilder query = new StringBuilder(
+            "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
+            "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
+            " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ?" +
+            " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
+            " WHERE "+
+
+            // mission is not the one we're checking against
+            "m."+ FIELD_ID +" <> ? ");
+
+            // state is not allowed to overlap
+            query.append("AND m."+ FIELD_STATE +" <> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +" <> "+ MissionState.CANCELED.getValue());
+            if (mission.getStateOfMission() == MissionState.PENDING)
+                // exclude PENDING missions since they can overlap with each other
+                query.append(" AND m."+ FIELD_STATE +" <> "+ MissionState.PENDING.getValue());
+
+
+            // timeslots overlap
+            // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
+            query.append(
+            " AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
+            " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
+            " AND (" +
+                // beneficiary is shared (if there is one assigned)
+                "m." + FIELD_BENEFICIARY);
+                query.append((mission.getBeneficiary() == null ? " IS NULL " : " = ? "));
+
+                // any interpreter is shared
+                if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
+                    query.append("OR im."+ DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?");
+                    for(int i = 1; i < mission.getInterpreters().size(); i++){
+                        query.append(", ?");
+                    }
+                    query.append(" )");
+                }
+            query.append(")");
 
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             int field = 1; // variable number of fields depending on assigned interpreters and beneficiary
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
             statement.setInt(field++, mission.getTimeSlot().getId());
-            statement.setInt(field++, mission.getStateOfMission().getValue());
+            statement.setInt(field++, mission.getId());
             if (mission.getBeneficiary() != null)
                 statement.setInt(field++, mission.getBeneficiary().getId());
             if (mission.getInterpreters() != null) {
@@ -273,7 +297,7 @@ public class DAOMission extends DAO<Mission> {
                     statement.setInt(field++, i.getId());
                 }
             }
-
+            System.out.println(query);
             result = statement.executeQuery();
             if(result.next())
                 return result.getInt(FIELD_ID);
