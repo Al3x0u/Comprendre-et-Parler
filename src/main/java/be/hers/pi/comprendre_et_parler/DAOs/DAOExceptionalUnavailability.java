@@ -176,42 +176,6 @@ public class DAOExceptionalUnavailability {
     }
 
     /**
-     * Return all line of ExceptionalUnavailability table in the database in a Set
-     * @return every object of the corresponding type present in database (possibly an empty Set)
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<ExceptionalUnavailability> findAll() throws SQLException {
-        Set<ExceptionalUnavailability> unavailability = new HashSet<ExceptionalUnavailability>();
-        String query = String.format("SELECT * FROM %s", TABLE);
-        PreparedStatement statement = null;
-        ResultSet result = null;
-
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-
-            result = statement.executeQuery();
-            while (result.next())
-                unavailability.add(getResult(result));
-        } finally {
-            if(result != null) {
-                try {
-                    result.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return unavailability;
-    }
-
-    /**
      * Check if an ExceptionalUnavailability already exists in the database
      * @param objectToCheck the ExceptionalUnavailability to check
      * @param interpreter the interpreter who is unavailable
