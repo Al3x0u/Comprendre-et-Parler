@@ -15,6 +15,25 @@ public abstract class AppliUser {
     protected boolean passwordUpdated;
 
     /**
+     * Minimal constructor
+     * @param id the user's id
+     */
+    public AppliUser(int id) {
+        this.id = id;
+    }
+
+    /**
+     * Lightweight constructor
+     * @param id the user's id
+     * @param firstName the user's first name
+     * @param lastName the user's last name
+     */
+    public AppliUser(int id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    /**
      Constructor of a AppliUser
      @param id represent the id
      @param login represent the login
