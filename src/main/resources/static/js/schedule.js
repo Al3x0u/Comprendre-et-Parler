@@ -1,34 +1,36 @@
-// ── CONFIG ────────────────────────────────────────────────────────────────
+//CONFIG
 
 /** @type {HTMLElement} Hidden element containing server-side configuration */
 const config = document.getElementById('schedule-config');
 
 /** @type {Array<Object>} List of all events loaded from the server */
 const allEvents = JSON.parse(config.dataset.events);
-
 /** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
 const userRole = config.dataset.role;
 
 /** @type {number} ID of the logged-in user */
 const userId = parseInt(config.dataset.userId);
 
+/**
+ * Full name of the logged-in user (manager or interpreter), used to pre-filter on load
+ * Empty string for BENEFICIARY.
+ * @type {string}
+ */
+const managerFullName = config.dataset.managerName || '';
+
 /** @type {boolean} True if the screen width is less than 768px */
 const isMobile = window.innerWidth < 768;
-
-
-// ── STATE ─────────────────────────────────────────────────────────────────
-
-/**
- * @typedef {Object} ActiveFilters
- * @property {string|null} status      - Active filter by status (e.g. "Acceptée", "En attente")
- * @property {string|null} interpreter - Active filter by interpreter name
- */
 
 /** @type {ActiveFilters} */
 const activeFilters = {
     status: null,
+    // MANAGER et INTERPRETER : pré-filtré sur son propre nom au chargement
     interpreter: null
 };
+
+if ((userRole === 'MANAGER' || userRole === 'INTERPRETER') && managerFullName) {
+    activeFilters.interpreter = managerFullName;
+}
 
 /** @type {number|null} ID of the currently selected mission */
 let currentMissionId = null;
@@ -36,16 +38,22 @@ let currentMissionId = null;
 /** @type {boolean} Whether this is the first calendar load */
 let premierChargement = true;
 
+/**
+ * Hidden all events of the week-end
+ * @type {Array<Object>}
+ */
+let cachedEvents = allEvents.slice();
+
 /** The calendar */
 let calendar;
 
-// ── UTILS ─────────────────────────────────────────────────────────────────
+//UTILS
 
 /**
  * Displays a notification toast in the bottom-right corner of the screen,
  * which disappears after 3 seconds.
  *
- * @param {string} message                             - Text to display in the toast
+ * @param {string} message -text to display in the toast
  * @param {'success'|'error'|'info'} [type='success'] - Visual type of the toast
  * @returns {void}
  */
@@ -103,13 +111,45 @@ function clearFormErrors(fieldIds) {
 }
 
 /**
- * Sets up a toggle filter on a group of elements.
- * Clicking an item activates or deactivates the filter,
- * updates the bold style, refreshes the calendar and closes the dropdown.
+ * Sets up the user filter (Manager only)
+ * Clicking a user item makes it the active filter (exclusive —always one selected)
+ */
+function setupUserFilter() {
+    document.querySelectorAll('.filter-user-item').forEach(item => {
+        item.addEventListener('click', e => {
+            e.preventDefault();
+            const value = item.dataset.value;
+            if (activeFilters.interpreter === value) return;
+            activeFilters.interpreter = value;
+            highlightActiveUser();
+            activeFilters._localOnly = true;
+            calendar.refetchEvents();
+            document.getElementById('dropdown-filtre').classList.remove('show');
+            document.querySelector('.fc-filterBtn-button')?.classList.remove('active');
+        });
+    });
+}
+
+/**
+ * Highlights the currently active user item in the filter list
+ * Removes .fw-bold and .active from all items, then applies them to the matching one
+ */
+function highlightActiveUser() {
+    document.querySelectorAll('.filter-user-item').forEach(i => {
+        i.classList.remove('fw-bold', 'active');
+    });
+    if (activeFilters.interpreter) {
+        const active = Array.from(document.querySelectorAll('.filter-user-item')).find(i => i.dataset.value === activeFilters.interpreter);
+        if (active) active.classList.add('fw-bold', 'active');
+    }
+}
+
+/**
+ * Sets up a toggle filter on a group of elements (for status filter).
+ * Clicking an item toggles the filter on/off.
  *
  * @param {string} selector  - CSS selector targeting the filter items
- * @param {string} filterKey - Key in activeFilters to update ('status' or 'interpreter')
- * @returns {void}
+ * @param {string} filterKey - Key in activeFilters to update
  */
 function setupFilter(selector, filterKey) {
     document.querySelectorAll(selector).forEach(item => {
@@ -118,6 +158,7 @@ function setupFilter(selector, filterKey) {
             activeFilters[filterKey] = activeFilters[filterKey] === item.dataset.value ? null : item.dataset.value;
             document.querySelectorAll(selector).forEach(i => i.classList.remove('fw-bold'));
             if (activeFilters[filterKey]) item.classList.add('fw-bold');
+            activeFilters._localOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
         });
@@ -140,7 +181,7 @@ function buildStars(importance, max = 3) {
 }
 
 
-// ── CALENDAR BUTTONS ──────────────────────────────────────────────────────
+//CALENDAR BUTTONS
 
 const customButtons = {
     filterBtn: {
@@ -204,33 +245,35 @@ if (userRole === 'MANAGER') {
 }
 
 
-// ── CALENDAR INIT ─────────────────────────────────────────────────────────
+//CALENDAR INIT
 
 /**
- * Fetches calendar events from the REST API based on the current date range
- * and active filters (status, interpreter).
- *
- * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
- * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
- * @param {Function} successCallback    - Callback to call with the fetched events
- * @param {Function} failureCallback    - Callback to call on network error
- * @returns {Promise<void>}
+ * Apply local filter to the all mission charged
+ * @param {Array<Object>} events
+ * @returns {Array<Object>}
  */
+function applyLocalFilters(events) {
+    return events.filter(e => {
+        if (activeFilters.status && e.status !== activeFilters.status) return false;
+        if (activeFilters.interpreter) {
+            const f = activeFilters.interpreter.toLowerCase();
+            const matchInterp = (e.interpreter || '').toLowerCase().includes(f);
+            const matchBene   = (e.beneficiary || '').toLowerCase().includes(f);
+            if (!matchInterp && !matchBene) return false;
+        }
+        return true;
+    });
+}
+
 async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     const params = new URLSearchParams();
     params.append('weekDate', fetchInfo.startStr.substring(0, 10));
 
-    if (activeFilters.status !== null){
-        params.append('status', activeFilters.status);
-    }
-    if (activeFilters.interpreter !== null){
-        params.append('interpreter', activeFilters.interpreter);
-    }
-
     try {
         const r = await fetch('/horaire/evenements?' + params.toString());
         const data = await r.json();
-        successCallback(data);
+        cachedEvents = data;
+        successCallback(applyLocalFilters(data));
     } catch (err) {
         failureCallback(err);
     }
@@ -272,9 +315,10 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {Function} failureCallback - Callback called on error
          */
         events: function(fetchInfo, successCallback, failureCallback) {
-            if (premierChargement) {
+            if (premierChargement || activeFilters._localOnly) {
                 premierChargement = false;
-                successCallback(allEvents);
+                activeFilters._localOnly = false;
+                successCallback(applyLocalFilters(cachedEvents));
                 return;
             }
             fetchEvents(fetchInfo, successCallback, failureCallback);
@@ -672,11 +716,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('search-interpreter')?.addEventListener('input', function() {
-        const query = this.value.toLowerCase();
-        document.querySelectorAll('#interpreter-list .filter-interpreter').forEach(item => {
-            const name = item.dataset.value.toLowerCase();
-            item.style.display = name.includes(query) ? '' : 'none';
+        const query = this.value.trim().toLowerCase();
+        let totalVisible = 0;
+        ['section-manager', 'section-interpreter', 'section-beneficiary'].forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+            const items = section.querySelectorAll('.filter-user-item');
+            let visibleInSection = 0;
+            items.forEach(item => {
+                const name = item.dataset.value.toLowerCase();
+                const matches = !query || name.includes(query);
+                item.style.display = matches ? '' : 'none';
+                if (matches) visibleInSection++;
+            });
+            section.style.display = visibleInSection > 0 ? '' : 'none';
+            totalVisible += visibleInSection;
         });
+        const noResult = document.getElementById('no-user-result');
+        if (noResult) noResult.style.display = totalVisible === 0 ? '' : 'none';
     });
 
     document.getElementById('search-interpreter')?.addEventListener('click', function(e) {
@@ -925,6 +982,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('missionCityName').value = opt.dataset.name || '';
     });
     setupFilter('.filter-status', 'status');
+    if (userRole === 'MANAGER') {
+        setupUserFilter();
+        highlightActiveUser();
+    }
+    if (userRole === 'INTERPRETER') {
+        setupUserFilter();
+        highlightActiveUser();
+    }
     setupFilter('.filter-interpreter', 'interpreter');
 
     /**

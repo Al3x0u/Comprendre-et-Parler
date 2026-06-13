@@ -159,27 +159,6 @@ body {
     display: inline-block;
 }
 
-.fc-filterBtn-button {
-    background-color: var(--oc-blue-1) !important;
-    border-color: var(--oc-blue-9) !important;
-    color: var(--oc-blue-9) !important;
-    box-shadow: none !important;
-}
-
-.fc-filterBtn-button:hover {
-    background-color: var(--oc-blue-9) !important;
-    color: white !important;
-}
-
-.fc-filterBtn-button:focus {
-    box-shadow: none !important;
-}
-
-.fc-filterBtn-button.active {
-    background-color: var(--oc-blue-9) !important;
-    color: white !important;
-}
-
 .fc-prev-button,
 .fc-next-button {
     background-color: transparent !important;
@@ -377,3 +356,68 @@ body {
 
 /* ── Champ invalide : affiche le message d'erreur ── */
 .is-invalid ~ .invalid-feedback { display: block; }
+
+/* ─── Filtres ────────────────────────────────────────── */
+.fc-filterBtn-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button:hover {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
+}
+
+.fc-filterBtn-button:focus {
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button.active {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
+}
+
+.filter-scroll-list {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.filter-section-label {
+    padding: 0.5rem 1rem 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-section-label--manager     { color: #856404; }
+.filter-section-label--interpreter { color: #0d6efd; }
+.filter-section-label--beneficiary { color: #146c43; }
+
+.filter-dot-manager     { color: #856404; }
+.filter-dot-interpreter { color: #0d6efd; }
+.filter-dot-beneficiary { color: #146c43; }
+
+.filter-no-result {
+    display: none;
+    font-size: 0.85rem;
+}
+
+.filter-status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.filter-status-dot--accepted { background: #40c057; }
+.filter-status-dot--pending  { background: #fab005; }
+.filter-status-dot--refused  { background: #fa5252; }
+.filter-status-dot--base     { background: #4dabf7; }
+
+.mission-interpreters-list {
+    max-height: 160px;
+    overflow-y: auto;
+}
