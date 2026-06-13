@@ -2,7 +2,6 @@ package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.DAOLocation;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.Location;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import java.util.NoSuchElementException;
 
 @Service
 public class LocationService {
+    private final static DAOLocation daoLocation = new DAOLocation();
 
     /**
      * Returns a location by its ID.
@@ -20,7 +20,7 @@ public class LocationService {
      * @throws SQLException if the database could not be reached
      */
     public Location getOneLocation(int id) throws SQLException {
-        return SQLWrap.call(new DAOLocation()::find, id);
+        return SQLWrap.call(daoLocation::find, id);
     }
 
     /**
@@ -31,7 +31,7 @@ public class LocationService {
      */
     public void createLocation(Location location) throws SQLException {
         try {
-            SQLWrap.callTransaction(new DAOLocation()::create, location);
+            SQLWrap.callTransaction(daoLocation::create, location);
         } catch (AlreadyExistsException e) {
             // ID already set by DAOLocation.create when AlreadyExistsException is thrown
         }
@@ -50,7 +50,7 @@ public class LocationService {
             return;
         }
         newLocation.setId(oldLocation.getId());
-        SQLWrap.callTransaction(new DAOLocation()::update, newLocation);
+        SQLWrap.callTransaction(daoLocation::update, newLocation);
     }
 
     /**
@@ -60,6 +60,6 @@ public class LocationService {
      * @throws SQLException if the database could not be reached
      */
     public void deleteLocation(Location location) throws NoSuchElementException, SQLException {
-        SQLWrap.callTransaction(new DAOLocation()::delete, location.getId());
+        SQLWrap.callTransaction(daoLocation::delete, location.getId());
     }
 }

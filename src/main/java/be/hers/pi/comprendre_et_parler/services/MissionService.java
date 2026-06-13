@@ -7,6 +7,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -16,15 +17,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class MissionService {
-
-    private final DAOMission daoMission;
-    private final NotificationService notificationService;
-
-    public MissionService() {
-        this.daoMission = new DAOMission();
-        this.notificationService = new NotificationService();
-    }
+    private final static DAOMission daoMission = new DAOMission();
+    private final static NotificationService notificationService = new NotificationService();
 
     /**
      * Returns a mission according to the given id.

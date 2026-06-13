@@ -19,7 +19,6 @@ import java.util.*;
 
 @Service
 public class InterpreterService {
-
     private final DAOInterpreter daoInterpreter = new DAOInterpreter();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
     private final DAOMission daoMission = new DAOMission();
@@ -186,7 +185,7 @@ public class InterpreterService {
      * @throws SQLException if any other database error occurs
      */
     public int countInterpreters() throws SQLException, ConnectionException {
-        return SQLWrap.call(new DAOInterpreter()::count);
+        return SQLWrap.call(daoInterpreter::count);
     }
 
     /**
@@ -362,33 +361,7 @@ public class InterpreterService {
     public void updateQuota(Interpreter interpreter, int weekQuota, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
         interpreter.setHourQuotaWeek(weekQuota);
         interpreter.setHourQuotaYear(yearQuota);
-        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
-    }
-
-    /**
-     * Modifies an interpreter's weekly quota
-     * @param interpreter the interpreter to modify
-     * @param weekQuota the new weekly quota
-     * @throws NoSuchElementException if the interpreter does not exist in database
-     * @throws ConnectionException if the database could not be reached
-     * @throws SQLException if a database error occurs
-     */
-    public void updateWeeklyQuota(Interpreter interpreter, int weekQuota) throws SQLException, ConnectionException, NoSuchElementException {
-        interpreter.setHourQuotaWeek(weekQuota);
-        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
-    }
-
-    /**
-     * Modifies an interpreter's yearly quota
-     * @param interpreter the interpreter to modify
-     * @param yearQuota the new yearly quota
-     * @throws NoSuchElementException if the interpreter does not exist in database
-     * @throws ConnectionException if the database could not be reached
-     * @throws SQLException if a database error occurs
-     */
-    public void updateYearlyQuota(Interpreter interpreter, int yearQuota) throws SQLException, ConnectionException, NoSuchElementException {
-        interpreter.setHourQuotaYear(yearQuota);
-        SQLWrap.callTransaction(new DAOInterpreter()::update, interpreter);
+        SQLWrap.callTransaction(daoInterpreter::update, interpreter);
     }
 
     /**
