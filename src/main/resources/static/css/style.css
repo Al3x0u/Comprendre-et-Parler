@@ -257,7 +257,8 @@ body {
 
 .fc-newMission-button,
 .fc-newRequest-button,
-.fc-newUnavailability-button {
+.fc-newUnavailability-button,
+.fc-viewRequests-button {
     background-color: var(--oc-blue-1) !important;
     border-color: var(--oc-blue-9) !important;
     color: var(--oc-blue-9) !important;
@@ -266,14 +267,16 @@ body {
 
 .fc-newMission-button:hover,
 .fc-newRequest-button:hover,
-.fc-newUnavailability-button:hover {
+.fc-newUnavailability-button:hover,
+.fc-viewRequests-button:hover {
     color: white !important;
     background-color: var(--oc-blue-9) !important;
 }
 
 .fc-newMission-button:focus,
 .fc-newRequest-button:focus,
-.fc-newUnavailability-button:focus{
+.fc-newUnavailability-button:focus,
+.fc-viewRequests-button:focus {
     box-shadow: none !important;
 }
 
