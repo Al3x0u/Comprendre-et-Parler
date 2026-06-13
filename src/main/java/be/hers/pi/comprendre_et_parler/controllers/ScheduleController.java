@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.Comparator;
+import java.util.List;
 
 @Controller
 @RequestMapping("/horaire")
@@ -33,6 +35,10 @@ public class ScheduleController {
     private final LocationService locationService = new LocationService();
     private final PunctualTimeSlotService punctualTimeSlotService = new PunctualTimeSlotService();
 
+    private static final String COLOR_ACCEPTED = "#40c057";
+    private static final String COLOR_PENDING = "#fab005";
+    private static final String COLOR_REFUSED = "#fa5252";
+    private static final String COLOR_DEFAULT = "#adb5bd";
 
     /**
      * Display the schedule page
@@ -720,11 +726,10 @@ public class ScheduleController {
             return "#adb5bd";
         }
         return switch (state) {
-            case ACCEPTED -> "#40c057";
-            case PENDING -> "#fab005";
-            case DENIED  -> "#fa5252";
-            case CANCELED -> "#fa5252";
-            default -> "#adb5bd";
+            case ACCEPTED -> COLOR_ACCEPTED;
+            case PENDING -> COLOR_PENDING;
+            case DENIED, CANCELED -> COLOR_REFUSED;
+            default -> COLOR_DEFAULT;
         };
     }
 
