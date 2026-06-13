@@ -9,6 +9,10 @@
 <!-- Navbar -->
 <div th:replace="~{common/navbar :: navbar}"></div>
 
+<div th:if="${loadError}" class="alert alert-danger m-3">
+    Une erreur est survenue lors du chargement de l'horaire. Veuillez réessayer ou contacter le support.
+</div>
+
 <!-- Filters : just visuel -->
 <div id="dropdown-filtre" class="dropdown-menu">
     <th:block th:if="${userRole == 'MANAGER'}">
@@ -23,7 +27,7 @@
                 <div class="filter-section-label filter-section-label--manager">
                     <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
                 </div>
-                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == managerFullName}">
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == userFullName}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
                         <i class="bi bi-person-fill-gear filter-dot-manager"></i>
                         <span th:text="${u.fullName}"></span>
@@ -35,7 +39,7 @@
                 <div class="filter-section-label filter-section-label--interpreter">
                     <i class="bi bi-translate me-1"></i>Interprètes
                 </div>
-                <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != managerFullName}">
+                <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != userFullName}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-role="${u.role}">
                         <i class="bi bi-person-fill filter-dot-interpreter"></i>
                         <span th:text="${u.fullName}"></span>
@@ -378,7 +382,7 @@
                         <div class="form-check" th:each="skill, iter : ${professionalSkills}">
                             <input class="form-check-input" type="radio" name="requestType"
                                    th:id="'requestType_' + ${iter.index}"
-                                   th:value="${skill.designation}"
+                                   th:value="${skill.id}"
                                    th:checked="${iter.first}">
                             <label class="form-check-label" th:for="'requestType_' + ${iter.index}"  th:text="${skill.designation}"></label>
                         </div>
@@ -531,7 +535,7 @@
                         <div class="form-check" th:each="skill, iter : ${professionalSkills}">
                             <input class="form-check-input" type="radio" name="missionType"
                                    th:id="'missionType_' + ${iter.index}"
-                                   th:value="${skill.designation}"
+                                   th:value="${skill.id}"
                                    th:checked="${iter.first}">
                             <label class="form-check-label" th:for="'missionType_' + ${iter.index}" th:text="${skill.designation}"></label>
                         </div>
@@ -671,7 +675,7 @@
 </div>
 
 <div id="schedule-config"
-     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}, data-manager-name=${managerFullName}"
+     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}, data-user-name=${userFullName}"
      style="display:none">
 </div>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>

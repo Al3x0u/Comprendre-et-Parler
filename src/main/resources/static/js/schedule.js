@@ -16,7 +16,7 @@ const userId = parseInt(config.dataset.userId);
  * Empty string for BENEFICIARY.
  * @type {string}
  */
-const managerFullName = config.dataset.managerName || '';
+const userFullName = config.dataset.userName || '';
 
 /** @type {boolean} True if the screen width is less than 768px */
 const isMobile = window.innerWidth < 768;
@@ -29,8 +29,8 @@ const activeFilters = {
     _localOnly: false
 };
 
-if ((userRole === 'MANAGER' || userRole === 'INTERPRETER') && managerFullName) {
-    activeFilters.interpreter = managerFullName;
+if ((userRole === 'MANAGER' || userRole === 'INTERPRETER') && userFullName) {
+    activeFilters.interpreter = userFullName;
 }
 
 /** @type {number|null} ID of the currently selected mission */
@@ -264,11 +264,7 @@ function fillAndOpenEditModal(type, props, event, missionId) {
     }
 
     document.querySelectorAll('input[name="' + radioName + '"]').forEach(function (radio) {
-        if (radio.value === props.type) {
-            radio.checked = true;
-        } else {
-            radio.checked = false;
-        }
+        radio.checked = (radio.value === String(props.jobSkillId || ''));
     });
 
     if (type === 'request') {
@@ -1030,7 +1026,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         const payload = {
-            type: document.querySelector('input[name="missionType"]:checked')?.value || '',
+            jobSkillId:          document.querySelector('input[name="missionType"]:checked')?.value || '',
             title:               document.getElementById('missionTitle').value,
             date:                document.getElementById('missionDate').value,
             startTime,
@@ -1107,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         const payload = {
-            type:                document.querySelector('input[name="requestType"]:checked').value,
+            jobSkillId:          document.querySelector('input[name="requestType"]:checked').value,
             title:               document.getElementById('requestTitle').value,
             date:                document.getElementById('requestDate').value,
             startTime,
