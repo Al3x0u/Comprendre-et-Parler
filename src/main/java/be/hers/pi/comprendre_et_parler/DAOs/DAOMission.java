@@ -49,7 +49,9 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
-        mission.setBeneficiary(new DAOBeneficiary().find(mission.getBeneficiary().getId()));
+        if (mission.getBeneficiary() != null)
+            mission.setBeneficiary(new DAOBeneficiary().find(mission.getBeneficiary().getId()));
+
         return mission;
     }
 
@@ -220,8 +222,10 @@ public class DAOMission extends DAO<Mission> {
         }
 
         // Complete Beneficiary objects
-        for (Mission mis : missions)
-            mis.setBeneficiary(new DAOBeneficiary().find(mis.getBeneficiary().getId()));
+        for (Mission mis : missions) {
+            if (mis.getBeneficiary() != null)
+                mis.setBeneficiary(new DAOBeneficiary().find(mis.getBeneficiary().getId()));
+        }
 
         return missions;
     }
@@ -336,8 +340,10 @@ public class DAOMission extends DAO<Mission> {
         }
 
         // Add id and name to Beneficiary objects
-        for (Mission mis : missions)
-            mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
+        for (Mission mis : missions) {
+            if (mis.getBeneficiary() != null)
+                mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
+        }
         return missions;
     }
 
@@ -405,8 +411,10 @@ public class DAOMission extends DAO<Mission> {
         }
 
         // Add id and name to Beneficiary objects
-        for (Mission mis : missions)
-            mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
+        for (Mission mis : missions) {
+            if (mis.getBeneficiary() != null)
+                mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
+        }
         return missions;
     }
 
