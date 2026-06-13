@@ -983,11 +983,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('missionCityName').value = opt.dataset.name || '';
     });
     setupFilter('.filter-status', 'status');
-    if (userRole === 'MANAGER') {
-        setupUserFilter();
-        highlightActiveUser();
-    }
-    if (userRole === 'INTERPRETER') {
+    if (userRole === 'MANAGER' || userRole === 'INTERPRETER') {
         setupUserFilter();
         highlightActiveUser();
     }
