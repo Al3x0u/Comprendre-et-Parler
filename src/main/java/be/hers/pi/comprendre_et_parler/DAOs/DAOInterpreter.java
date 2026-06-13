@@ -839,4 +839,32 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
         return interpreters;
     }
+
+
+    /**
+     * Get the number of worked hours of an Interpreter between two dates
+     * @param interpreterId the id of the interpreter
+     * @param dateDebut the start date
+     * @param dateFin the end date
+     * @throws SQLException if the database could not be reached
+     */
+    public double getWorkedHours(int interpreterId, LocalDate dateDebut, LocalDate dateFin) throws SQLException {
+        String query = "SELECT get_heures_prestees(?, ?, ?) FROM dual";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterId);
+            statement.setDate(2, Date.valueOf(dateDebut));
+            statement.setDate(3, Date.valueOf(dateFin));
+            result = statement.executeQuery();
+            if (result.next()) {
+                return result.getDouble(1);
+            }
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return 0;
+    }
 }
