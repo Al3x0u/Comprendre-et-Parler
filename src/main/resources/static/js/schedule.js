@@ -320,6 +320,318 @@ function fillAndOpenEditModal(type, props, event, missionId) {
         .show();
 }
 
+/**
+ * Fetches the list of available interpreters for a mission and populates
+ * the given select element with the results.
+ *
+ * @param {number} missionId - The ID of the mission to fetch available interpreters for
+ * @param {HTMLSelectElement} interpreterSelect - The select element to populate
+ * @returns {void}
+ */
+function loadAvailableInterpreters(missionId, interpreterSelect) {
+    interpreterSelect.innerHTML = '<option value="">Chargement...</option>';
+    fetch('/horaire/missions/' + missionId + '/interpretes-disponibles')
+        .then(res => res.json())
+        .then(interpreters => {
+            interpreterSelect.innerHTML = '<option value="">Sélectionner</option>';
+            if (interpreters.length === 0) {
+                interpreterSelect.innerHTML = '<option value="">Aucun interprète disponible</option>';
+            } else {
+                interpreters.forEach(i => {
+                    const opt = document.createElement('option');
+                    opt.value = i.id;
+                    opt.textContent = i.name;
+                    interpreterSelect.appendChild(opt);
+                });
+            }
+        })
+        .catch(() => {
+            interpreterSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+        });
+}
+
+/**
+ * Attaches the click handler to the "Accepter" button in the manager modal.
+ * Checks the selected interpreter's quota before accepting; if the quota
+ * is exceeded, shows a confirmation modal allowing the manager to override it.
+ *
+ * @param {HTMLButtonElement|null} acceptBtn - The accept button element, or null if not present
+ * @param {number} currentMissionId - The ID of the mission being accepted
+ * @listens click
+ * @returns {void}
+ */
+function setupAcceptButton(acceptBtn, currentMissionId) {
+    if (!acceptBtn) return;
+    acceptBtn.addEventListener('click', async function () {
+        const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
+        if (!selectedInterpreter) {
+            showToast("Veuillez sélectionner un interprète.", 'error');
+            return;
+        }
+
+        const doAccept = async () => {
+            try {
+                await fetch('/horaire/missions/' + currentMissionId + '/accepter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ interpreterId: selectedInterpreter })
+                });
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal')).hide();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                calendar.refetchEvents();
+                showToast("Mission acceptée.", 'success');
+            } catch (err) {
+                showToast("Erreur : " + err.message, 'error');
+            }
+        };
+
+        try {
+            const checkRes = await fetch('/horaire/missions/' + currentMissionId + '/verifier-quota', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interpreterId: selectedInterpreter })
+            });
+
+            const warning = await checkRes.text();
+
+            if (warning && warning.trim() !== '') {
+                document.getElementById('quotaWarningMessage').innerText = warning;
+                const quotaModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal'));
+                const managerModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
+
+                document.getElementById('quotaWarningConfirm').onclick = async () => { await doAccept(); };
+                document.getElementById('quotaWarningCancel').onclick = () => {
+                    quotaModal.hide();
+                    managerModal.show();
+                };
+
+                document.getElementById('managerPendingModal').addEventListener('hidden.bs.modal', () => {
+                    quotaModal.show();
+                }, { once: true });
+
+                managerModal.hide();
+            } else {
+                await doAccept();
+            }
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    }, { once: true });
+}
+
+/**
+ * Populates and displays the manager modal for a pending or accepted mission.
+ * Shows different content and footer actions depending on the mission status
+ * (pending missions can be edited, refused or accepted; accepted missions
+ * can be edited or cancelled).
+ *
+ * @param {Object} event - The FullCalendar event object
+ * @param {Object} props - extendedProps of the FullCalendar event
+ * @param {number} currentMissionId - The ID of the mission being displayed
+ * @returns {void}
+ */
+function openManagerModal(event, props, currentMissionId) {
+    const start = event.start;
+    const end = event.end;
+    const status = (props.status || '').toLowerCase();
+    const now = new Date();
+
+    const beforeStart = start && now < start;
+    const isPending = status.includes('en attente');
+    const isAccepted = status.includes('accept');
+    const interpreterSelect = document.getElementById('managerPendingInterpreter');
+    interpreterSelect.disabled = !(isPending && beforeStart);
+
+    if (isAccepted) {
+        interpreterSelect.style.display = 'none';
+
+        let nameSpan = document.getElementById('managerPendingInterpreterName');
+        if (!nameSpan) {
+            nameSpan = document.createElement('span');
+            nameSpan.id = 'managerPendingInterpreterName';
+            nameSpan.className = 'fst-italic text-muted';
+            interpreterSelect.parentNode.appendChild(nameSpan);
+        }
+
+        nameSpan.style.display = '';
+        const interpreterNames = (props.interpreter || '')
+            .split(',')
+            .map(name => name.trim())
+            .filter(name => name !== '');
+        nameSpan.textContent = interpreterNames.length > 0 ? interpreterNames.join(' • ') : 'Aucun interprète';
+    } else {
+        interpreterSelect.style.display = '';
+        const nameSpan = document.getElementById('managerPendingInterpreterName');
+        if (nameSpan) nameSpan.style.display = 'none';
+        interpreterSelect.value = '';
+        loadAvailableInterpreters(currentMissionId, interpreterSelect);
+    }
+
+    const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
+    let timeText = '';
+    if (start) {
+        timeText = timeFormatter.format(start);
+        if (end) timeText += ' - ' + timeFormatter.format(end);
+    }
+
+    const importance = parseInt(props.importance || '0', 10);
+    document.getElementById('managerPendingImportance').innerHTML = buildStars(importance, 5);
+    document.getElementById('managerPendingTitle').innerText = event.title || '';
+    document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
+    document.getElementById('managerPendingTime').innerText = timeText || '';
+    document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
+    document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || 'Aucun bénéficiaire';
+    document.getElementById('managerPendingType').innerText = props.type ? 'Type : ' + props.type : '';
+    document.getElementById('managerPendingComment').innerText = props.comment || '';
+    document.getElementById('managerPendingStatus').innerText = props.status || '';
+
+    const footer = document.querySelector('#managerPendingModal .modal-footer');
+    footer.innerHTML = '';
+
+    if (isPending && beforeStart) {
+        footer.innerHTML = `
+            <button type="button" class="btn btn-secondary" id="btnEditMission">Modifier</button>
+            <button type="button" class="btn btn-danger"    id="btnRefuseMission">Refuser</button>
+            <button type="button" class="btn btn-success"   id="btnAcceptMission">Accepter</button>
+        `;
+    } else if (isAccepted) {
+        footer.innerHTML = `
+            <button type="button" class="btn btn-secondary" id="btnEditMission">Modifier</button>
+            <button type="button" class="btn btn-danger"    id="btnCancelAcceptedMission">Annuler la mission</button>
+        `;
+    }
+
+    const btnEdit           = document.getElementById('btnEditMission');
+    const acceptBtn         = document.getElementById('btnAcceptMission');
+    const refuseBtn         = document.getElementById('btnRefuseMission');
+    const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
+
+    if (btnEdit) {
+        btnEdit.addEventListener('click', function() {
+            const managerModalEl = document.getElementById('managerPendingModal');
+            managerModalEl.addEventListener('hidden.bs.modal', function() {
+                const editType = isPending ? 'request' : 'mission';
+                fillAndOpenEditModal(editType, props, event, currentMissionId);
+            }, { once: true });
+            bootstrap.Modal.getOrCreateInstance(managerModalEl).hide();
+        }, { once: true });
+    }
+
+    setupAcceptButton(acceptBtn, currentMissionId);
+
+    if (refuseBtn) {
+        refuseBtn.addEventListener('click', async function () {
+            try {
+                const res = await fetch('/horaire/missions/' + event.id + '/refuser', { method: 'POST' });
+                if (!res.ok) {
+                    showToast("Erreur lors du refus.", 'error');
+                    return;
+                }
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+                calendar.refetchEvents();
+                showToast("Mission refusée.", 'info');
+            } catch (err) {
+                showToast("Erreur : " + err.message, 'error');
+            }
+        }, { once: true });
+    }
+
+    if (cancelAcceptedBtn) {
+        cancelAcceptedBtn.addEventListener('click', function() {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
+        });
+    }
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
+}
+
+/**
+ * Populates and displays the standard event modal for non-manager users,
+ * or for refused/cancelled missions viewed by a manager.
+ * Shows action buttons depending on the mission status and timing
+ * (pending requests can be cancelled or edited; accepted missions occurring
+ * today and not yet ended allow reporting a delay).
+ *
+ * @param {Object} event - The FullCalendar event object
+ * @param {Object} props - extendedProps of the FullCalendar event
+ * @param {number} currentMissionId - The ID of the mission being displayed
+ * @returns {void}
+ */
+function openEventModal(event, props, currentMissionId) {
+    const start = event.start;
+    const end = event.end;
+    const status = (props.status || '').toLowerCase();
+    const now = new Date();
+    const isPending = status.includes('en attente');
+    const isAccepted = status.includes('accept');
+
+    const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
+    let timeText = '';
+    if (start) {
+        timeText = timeFormatter.format(start);
+        if (end) timeText += ' - ' + timeFormatter.format(end);
+    }
+
+    document.getElementById('modalTitle').innerText = event.title || '';
+    document.getElementById('modalTime').innerText = timeText || '';
+    document.getElementById('modalDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
+    document.getElementById('modalType').innerText = props.type || '';
+    document.getElementById('modalAcademicSkill').innerText = props.academicSkill || '';
+    document.getElementById('modalLocation').innerText = props.address || '';
+    document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
+    document.getElementById('modalComment').innerText = props.comment || 'Aucun commentaire';
+    document.getElementById('modalStatus').innerText = props.status || '';
+    document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
+
+    const actions = document.getElementById('modalActions');
+    actions.innerHTML = '';
+
+    const isSameDay = start && now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
+    const isBeforeEnd = end && now < end;
+
+    if (isPending) {
+        actions.innerHTML = `
+            <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
+            <button type="button" class="btn btn-primary" id="btnEditRequest">Modifier la demande</button>
+        `;
+    } else if (isAccepted && isSameDay && isBeforeEnd) {
+        actions.innerHTML = `
+            <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
+        `;
+    }
+
+    const cancelBtn = document.getElementById('btnCancelRequest');
+    const delayBtn = document.getElementById('btnDelayReport');
+    const editRequestBtn = document.getElementById('btnEditRequest');
+
+    if (delayBtn) {
+        delayBtn.addEventListener('click', function() {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).show();
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
+        });
+    }
+
+    if (editRequestBtn) {
+        editRequestBtn.addEventListener('click', function() {
+            const eventModalEl = document.getElementById('eventModal');
+            eventModalEl.addEventListener('hidden.bs.modal', function() {
+                fillAndOpenEditModal('request', props, event, currentMissionId);
+            }, { once: true });
+            bootstrap.Modal.getOrCreateInstance(eventModalEl).hide();
+        }, { once: true });
+    }
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
+}
+
 
 //CALENDAR BUTTONS
 
@@ -554,301 +866,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const event = info.event;
             currentMissionId = event.id;
             const props = event.extendedProps;
-
-            const start = event.start;
-            const end = event.end;
             const status = (props.status || '').toLowerCase();
-            const now = new Date();
-
-            const beforeStart = start && now < start;
             const isManager = userRole === 'MANAGER';
             const isPending = status.includes('en attente');
             const isAccepted = status.includes('accept');
-            const interpreterSelect = document.getElementById('managerPendingInterpreter');
-            interpreterSelect.disabled = !(isPending && beforeStart);
-
-            if (isAccepted) {
-                interpreterSelect.style.display = 'none';
-
-                let nameSpan = document.getElementById('managerPendingInterpreterName');
-                if (!nameSpan) {
-                    nameSpan = document.createElement('span');
-                    nameSpan.id = 'managerPendingInterpreterName';
-                    nameSpan.className = 'fst-italic text-muted';
-                    interpreterSelect.parentNode.appendChild(nameSpan);
-                }
-
-                nameSpan.style.display = '';
-                const interpreterNames = (props.interpreter || '')
-                    .split(',')
-                    .map(name => name.trim())
-                    .filter(name => name !== '');
-                if (interpreterNames.length > 0) {
-                    nameSpan.textContent = interpreterNames.join(' • ');
-                } else {
-                    nameSpan.textContent = 'Aucun interprète';
-                }
-            } else {
-                interpreterSelect.style.display = '';
-                const nameSpan = document.getElementById('managerPendingInterpreterName');
-                if (nameSpan) {
-                    nameSpan.style.display = 'none';
-                }
-                interpreterSelect.value = '';
-
-                interpreterSelect.innerHTML = '<option value="">Chargement...</option>';
-                fetch('/horaire/missions/' + currentMissionId + '/interpretes-disponibles')
-                    .then(res => res.json())
-                    .then(interpreters => {
-                        interpreterSelect.innerHTML = '<option value="">Sélectionner</option>';
-                        if (interpreters.length === 0) {
-                            interpreterSelect.innerHTML = '<option value="">Aucun interprète disponible</option>';
-                        } else {
-                            interpreters.forEach(i => {
-                                const opt = document.createElement('option');
-                                opt.value = i.id;
-                                opt.textContent = i.name;
-                                interpreterSelect.appendChild(opt);
-                            });
-                        }
-                    })
-                    .catch(() => {
-                        interpreterSelect.innerHTML = '<option value="">Erreur de chargement</option>';
-                    });
-            }
-
-            const timeFormatter = new Intl.DateTimeFormat('fr-BE', { hour: '2-digit', minute: '2-digit' });
-            let timeText = '';
-            if (start) {
-                timeText = timeFormatter.format(start);
-                if (end) timeText += ' - ' + timeFormatter.format(end);
-            }
 
             if (isManager && (isPending || isAccepted)) {
-                const importance = parseInt(props.importance || '0', 10);
-                document.getElementById('managerPendingImportance').innerHTML = buildStars(importance, 5);
-                document.getElementById('managerPendingTitle').innerText = event.title || '';
-                document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
-                document.getElementById('managerPendingTime').innerText = timeText || '';
-                document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
-                document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || 'Aucun bénéficiaire';
-                document.getElementById('managerPendingType').innerText = props.type ? 'Type : ' + props.type : '';
-                document.getElementById('managerPendingComment').innerText = props.comment || '';
-                document.getElementById('managerPendingStatus').innerText = props.status || '';
-
-                const footer = document.querySelector('#managerPendingModal .modal-footer');
-                footer.innerHTML = '';
-
-                if (isPending && beforeStart) {
-                    footer.innerHTML = `
-                            <button type="button" class="btn btn-secondary" id="btnEditMission">Modifier</button>
-                            <button type="button" class="btn btn-danger"    id="btnRefuseMission">Refuser</button>
-                            <button type="button" class="btn btn-success"   id="btnAcceptMission">Accepter</button>
-                        `;
-                } else if (isAccepted) {
-                    footer.innerHTML = `
-                            <button type="button" class="btn btn-secondary" id="btnEditMission">Modifier</button>
-                            <button type="button" class="btn btn-danger"    id="btnCancelAcceptedMission">Annuler la mission</button>
-                        `;
-                }
-
-                const btnEdit           = document.getElementById('btnEditMission');
-                const acceptBtn         = document.getElementById('btnAcceptMission');
-                const refuseBtn         = document.getElementById('btnRefuseMission');
-                const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
-
-                if (btnEdit) {
-                    btnEdit.addEventListener('click', function() {
-                        const managerModalEl = document.getElementById('managerPendingModal');
-                        managerModalEl.addEventListener('hidden.bs.modal', function() {
-                            const editType = isPending ? 'request' : 'mission';
-                            fillAndOpenEditModal(editType, props, event, currentMissionId);
-                        }, { once: true });
-                        bootstrap.Modal.getOrCreateInstance(managerModalEl).hide();
-                    }, { once: true });
-                }
-
-
-                if (acceptBtn) {
-                    /**
-                     * Sends a POST request to accept the selected mission with the chosen interpreter.
-                     * Displays a success toast and refreshes the calendar events.
-                     *
-                     * @listens click
-                     * @returns {Promise<void>}
-                     */
-                    acceptBtn.addEventListener('click', async function () {
-                        const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
-                        if (!selectedInterpreter) {
-                            showToast("Veuillez sélectionner un interprète.", 'error');
-                            return;
-                        }
-
-                        const doAccept = async () => {
-                            try {
-                                const res = await fetch('/horaire/missions/' + currentMissionId + '/accepter', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ interpreterId: selectedInterpreter })
-                                });
-                                bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal')).hide();
-                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                                calendar.refetchEvents();
-                                showToast("Mission acceptée.", 'success');
-                            } catch (err) {
-                                showToast("Erreur : " + err.message, 'error');
-                            }
-                        };
-
-                        try {
-                            const checkRes = await fetch('/horaire/missions/' + currentMissionId + '/verifier-quota', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ interpreterId: selectedInterpreter })
-                            });
-
-                            const warning = await checkRes.text();
-
-                            if (warning && warning.trim() !== '') {
-                                document.getElementById('quotaWarningMessage').innerText = warning;
-                                const quotaModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('quotaWarningModal'));
-                                const managerModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
-
-                                document.getElementById('quotaWarningConfirm').onclick = async () => {
-                                    await doAccept();
-                                };
-                                document.getElementById('quotaWarningCancel').onclick = () => {
-                                    quotaModal.hide();
-                                    managerModal.show();
-                                };
-
-                                document.getElementById('managerPendingModal').addEventListener('hidden.bs.modal', () => {
-                                    quotaModal.show();
-                                }, { once: true });
-
-                                managerModal.hide();
-                            } else {
-                                await doAccept();
-                            }
-
-                        } catch (err) {
-                            showToast("Erreur : " + err.message, 'error');
-                        }
-                    }, { once: true });
-                }
-
-                if (refuseBtn) {
-                    /**
-                     * Sends a POST request to refuse the selected mission.
-                     * Displays an info toast and refreshes the calendar events.
-                     *
-                     * @listens click
-                     * @returns {Promise<void>}
-                     */
-                    refuseBtn.addEventListener('click', async function () {
-                        try {
-                            const res = await fetch('/horaire/missions/' + event.id + '/refuser', {
-                                method: 'POST'
-                            });
-                            if (!res.ok) {
-                                showToast("Erreur lors du refus.", 'error');
-                                return;
-                            }
-                            bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                            calendar.refetchEvents();
-                            showToast("Mission refusée.", 'info');
-                        } catch (err) {
-                            showToast("Erreur : " + err.message, 'error');
-                        }
-                    }, { once: true });
-                }
-
-                if (cancelAcceptedBtn) {
-                    /**
-                     * Closes the manager modal and opens the cancellation confirmation modal.
-                     *
-                     * @listens click
-                     */
-                    cancelAcceptedBtn.addEventListener('click', function() {
-                        bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                        bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
-                    });
-                }
-
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
+                openManagerModal(event, props, currentMissionId);
                 return;
             }
 
-            document.getElementById('modalTitle').innerText = event.title || '';
-            document.getElementById('modalTime').innerText = timeText || '';
-            document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
-            document.getElementById('modalType').innerText = props.type || '';
-            document.getElementById('modalAcademicSkill').innerText = props.academicSkill || '';
-            document.getElementById('modalLocation').innerText = props.address || '';
-            document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
-            document.getElementById('modalComment').innerText = props.comment || 'Aucun commentaire';
-            document.getElementById('modalStatus').innerText = props.status || '';
-            const actions = document.getElementById('modalActions');
-            actions.innerHTML = '';
-
-            const isSameDay = now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
-            const isBeforeEnd = now < end;
-
-            if (isPending) {
-                actions.innerHTML = `
-                    <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
-                    <button type="button" class="btn btn-primary" id="btnEditRequest">Modifier la demande</button>
-                `;
-            } else if (isAccepted && isSameDay && isBeforeEnd) {
-                actions.innerHTML = `
-                    <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
-                `;
-            }
-
-            const cancelBtn = document.getElementById('btnCancelRequest');
-            const delayBtn = document.getElementById('btnDelayReport');
-
-            if (delayBtn) {
-                /**
-                 * Closes the event modal and opens the delay report modal.
-                 *
-                 * @listens click
-                 */
-                delayBtn.addEventListener('click', function() {
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).show();
-                });
-            }
-
-            if (cancelBtn) {
-                /**
-                 * Closes the event modal and opens the cancellation confirmation modal.
-                 *
-                 * @listens click
-                 */
-                cancelBtn.addEventListener('click', function() {
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
-                });
-            }
-
-            const editRequestBtn = document.getElementById('btnEditRequest');
-            if (editRequestBtn) {
-                /**
-                 * Closes the event modal and opens the request edit modal.
-                 * @listens click
-                 */
-                editRequestBtn.addEventListener('click', function() {
-                    const eventModalEl = document.getElementById('eventModal');
-                    eventModalEl.addEventListener('hidden.bs.modal', function() {
-                        fillAndOpenEditModal('request', props, event, currentMissionId);
-                    }, { once: true });
-                    bootstrap.Modal.getOrCreateInstance(eventModalEl).hide();
-                }, { once: true });
-            }
-
-            document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
+            openEventModal(event, props, currentMissionId);
         }
     });
 
