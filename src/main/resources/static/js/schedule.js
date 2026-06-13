@@ -1063,6 +1063,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
+            if (!res.ok) {
+                showToast("Erreur lors de l'enregistrement de la mission.", 'error');
+                return;
+            }
             btn.dataset.editMode = 'false';
             btn.innerText = 'Envoyer';
             document.getElementById('newMissionModalTitle').innerText = 'Nouvelle mission';
@@ -1136,6 +1140,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
+
+            if (!res.ok) {
+                showToast("Erreur lors de l'enregistrement de la demande.", 'error');
+                return;
+            }
 
             btn.dataset.editMode = 'false';
             btn.innerText = 'Envoyer';
