@@ -703,7 +703,7 @@ public class ScheduleController {
             case ACCEPTED -> "Acceptée";
             case PENDING  -> "En attente";
             case DENIED   -> "Refusée";
-            case CANCELED -> "Refusée";
+            case CANCELED -> "Annulée";
             default       -> "";
         };
     }
