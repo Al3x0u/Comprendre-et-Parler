@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOPunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
