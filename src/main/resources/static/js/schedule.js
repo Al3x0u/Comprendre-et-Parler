@@ -611,6 +611,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             const res = await fetch('/horaire/missions/' + event.id + '/refuser', {
                                 method: 'POST'
                             });
+                            if (!res.ok) {
+                                showToast("Erreur lors du refus.", 'error');
+                                return;
+                            }
                             bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
                             calendar.refetchEvents();
                             showToast("Mission refusée.", 'info');
