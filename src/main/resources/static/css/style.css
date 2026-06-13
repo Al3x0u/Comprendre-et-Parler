@@ -44,6 +44,13 @@
     --oc-gray-8-rgb: 52, 58, 64;
     --oc-gray-9: #212529;
     --oc-gray-9-rgb: 33, 37, 41;
+
+    /* Status colors
+     * ─────────────────────────────────── */
+    --status-accepted: #40c057;
+    --status-pending: #fab005;
+    --status-refused: #fa5252;
+    --status-base: #4dabf7;
 }
 
 .form-login {
@@ -121,19 +128,19 @@ body {
 }
 
 .legende-dot-accepted {
-    background: #40c057;
+    background: var(--status-accepted);
 }
 
 .legende-dot-pending {
-    background: #fab005;
+    background: var(--status-pending);
 }
 
 .legende-dot-refused {
-    background: #fa5252;
+    background: var(--status-refused);
 }
 
 .legende-dot-base {
-    background: #4dabf7;
+    background: var(--status-base);
 }
 
 /* ─── Fullcalendar ───────────────────────────────── */
@@ -406,10 +413,10 @@ body {
     flex-shrink: 0;
 }
 
-.filter-status-dot--accepted { background: #40c057; }
-.filter-status-dot--pending  { background: #fab005; }
-.filter-status-dot--refused  { background: #fa5252; }
-.filter-status-dot--base     { background: #4dabf7; }
+.filter-status-dot--accepted { background: var(--status-accepted); }
+.filter-status-dot--pending  { background: var(--status-pending); }
+.filter-status-dot--refused  { background: var(--status-refused); }
+.filter-status-dot--base     { background: var(--status-base); }
 
 .mission-interpreters-list {
     max-height: 160px;
