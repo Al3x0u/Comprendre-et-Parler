@@ -34,11 +34,13 @@ public class LoginService {
                 return null;
             }
 
-            if (!new DAOAppliUser().isAccountActive(user.getId())) {
+            DAOAppliUser daoAppliUser = new DAOAppliUser();
+
+            if (!daoAppliUser.isAccountActive(user.getId())) {
                 return null;
             }
 
-            boolean passwordUpdated = new DAOAppliUser().getPasswordUpdated(user.getId());
+            boolean passwordUpdated = daoAppliUser.getPasswordUpdated(user.getId());
             user.setPasswordUpdated(passwordUpdated);
 
             return user;

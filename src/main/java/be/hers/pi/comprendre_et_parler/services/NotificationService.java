@@ -5,12 +5,13 @@ import be.hers.pi.comprendre_et_parler.models.*;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Properties;
 
+@Service
 public class NotificationService {
-
     private final String from;
     private final Session session;
 

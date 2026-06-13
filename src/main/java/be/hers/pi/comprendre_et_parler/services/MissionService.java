@@ -8,6 +8,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.DayOfWeek;
@@ -20,15 +21,11 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class MissionService {
-
-    private final DAOMission daoMission;
-    private final NotificationService notificationService;
-
-    public MissionService() {
-        this.daoMission = new DAOMission();
-        this.notificationService = new NotificationService();
-    }
+    private final static DAOMission daoMission = new DAOMission();
+    private final static DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private final static NotificationService notificationService = new NotificationService();
 
     /**
      * Returns a mission according to the given id.
@@ -277,8 +274,8 @@ public class MissionService {
         LocalDate yearStart = LocalDate.of(date.getYear(), 1, 1);
         LocalDate yearEnd = LocalDate.of(date.getYear(), 12, 31);
 
-        double hoursThisWeek = SQLWrap.call(new DAOInterpreter()::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
-        double hoursThisYear = SQLWrap.call(new DAOInterpreter()::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
+        double hoursThisWeek = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
+        double hoursThisYear = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
 
         if (hoursThisWeek + newMissionHours > interpreter.getHourQuotaWeek())
             throw new QuotaExceededException("Le quota hebdomadaire de l'interprète " + interpreter.getId() + " est dépassé");

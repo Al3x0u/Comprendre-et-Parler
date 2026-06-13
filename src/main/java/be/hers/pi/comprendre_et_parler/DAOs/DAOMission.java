@@ -31,6 +31,12 @@ public class DAOMission extends DAO<Mission> {
     protected static final String INTERPRETER_MISSION_REF_MISSION = "mission";
     protected static final String INTERPRETER_MISSION_REF_INTERPRETER = "interpreter";
 
+    private static final DAOAcademicSkill daoAcademicSkill = new DAOAcademicSkill();
+    private static final DAOJobSkill daoJobSkill = new DAOJobSkill();
+    private static final DAOLocation daoLocation = new DAOLocation();
+    private static final DAOBaseTimeSlot daoBaseTimeSlot = new DAOBaseTimeSlot();
+    private static final DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
+    private static final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
 
     @Override
     public Mission find(int id) throws SQLException {
@@ -50,7 +56,7 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
         if (mission.getBeneficiary() != null)
-            mission.setBeneficiary(new DAOBeneficiary().find(mission.getBeneficiary().getId()));
+            mission.setBeneficiary(daoBeneficiary.find(mission.getBeneficiary().getId()));
 
         return mission;
     }
@@ -61,9 +67,9 @@ public class DAOMission extends DAO<Mission> {
         // Create new TimeSlot if needed
         try {
             if (objectToInsert.getTimeSlot() instanceof PunctualTimeSlot pts)
-                new DAOPunctualTimeSlot().create(pts);
+                daoPunctualTimeSlot.create(pts);
             else if (objectToInsert.getTimeSlot() instanceof BaseTimeSlot bts)
-                new DAOBaseTimeSlot().create(bts);
+                daoBaseTimeSlot.create(bts);
         } catch (AlreadyExistsException e) {}
 
         // Check for schedule overlaps with the new timeslot
@@ -72,7 +78,7 @@ public class DAOMission extends DAO<Mission> {
 
         // Create new Location if needed
         try {
-            new DAOLocation().create(objectToInsert.getLocation());
+            daoLocation.create(objectToInsert.getLocation());
         } catch (AlreadyExistsException e) {}
 
         // Create Mission
@@ -130,9 +136,9 @@ public class DAOMission extends DAO<Mission> {
         // Create new TimeSlot if needed
         try {
             if (objectToUpdate.getTimeSlot() instanceof PunctualTimeSlot pts)
-                new DAOPunctualTimeSlot().create(pts);
+                daoPunctualTimeSlot.create(pts);
             else if (objectToUpdate.getTimeSlot() instanceof BaseTimeSlot bts)
-                new DAOBaseTimeSlot().create(bts);
+                daoBaseTimeSlot.create(bts);
         }
         catch (AlreadyExistsException e) {}
 
@@ -143,7 +149,7 @@ public class DAOMission extends DAO<Mission> {
 
         // Create new Location if needed
         try {
-            new DAOLocation().create(objectToUpdate.getLocation());
+            daoLocation.create(objectToUpdate.getLocation());
         } catch (AlreadyExistsException e) {}
 
         // Update Mission
@@ -224,7 +230,7 @@ public class DAOMission extends DAO<Mission> {
         // Complete Beneficiary objects
         for (Mission mis : missions) {
             if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(new DAOBeneficiary().find(mis.getBeneficiary().getId()));
+                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
         }
 
         return missions;
@@ -286,8 +292,8 @@ public class DAOMission extends DAO<Mission> {
 
     @Override
     protected Mission getResult(ResultSet result) throws SQLException {
-        BaseTimeSlot baseTimeSlot = new DAOBaseTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
-        PunctualTimeSlot punctualTimeSlot = new DAOPunctualTimeSlot().find(result.getInt(FIELD_TIME_SLOT));
+        BaseTimeSlot baseTimeSlot = daoBaseTimeSlot.find(result.getInt(FIELD_TIME_SLOT));
+        PunctualTimeSlot punctualTimeSlot = daoPunctualTimeSlot.find(result.getInt(FIELD_TIME_SLOT));
         TimeSlot timeSlot = (baseTimeSlot != null) ? baseTimeSlot : punctualTimeSlot;
 
         return new Mission(
@@ -297,9 +303,9 @@ public class DAOMission extends DAO<Mission> {
                 result.getString(FIELD_COMMENTARY),
                 timeSlot,
                 new Beneficiary(result.getInt(FIELD_BENEFICIARY)),
-                new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                new DAOJobSkill().find(result.getInt(FIELD_JOB_SKILL)),
-                new DAOAcademicSkill().find(result.getInt(FIELD_ACADEMIC_SKILL)),
+                daoLocation.find(result.getInt(FIELD_LOCATION)),
+                daoJobSkill.find(result.getInt(FIELD_JOB_SKILL)),
+                daoAcademicSkill.find(result.getInt(FIELD_ACADEMIC_SKILL)),
                 result.getString(FIELD_ROOM),
                 result.getInt(FIELD_IMPORTANCE)
         );
@@ -342,7 +348,7 @@ public class DAOMission extends DAO<Mission> {
         // Add id and name to Beneficiary objects
         for (Mission mis : missions) {
             if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
+                mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
         }
         return missions;
     }
@@ -413,7 +419,7 @@ public class DAOMission extends DAO<Mission> {
         // Add id and name to Beneficiary objects
         for (Mission mis : missions) {
             if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
+                mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
         }
         return missions;
     }

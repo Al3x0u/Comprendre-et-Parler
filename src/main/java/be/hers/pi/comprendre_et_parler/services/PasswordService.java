@@ -1,6 +1,6 @@
 package be.hers.pi.comprendre_et_parler.services;
 
-import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOAppliUser;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 
 @Service
 public class PasswordService {
-
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**

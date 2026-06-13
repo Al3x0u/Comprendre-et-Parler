@@ -20,6 +20,8 @@ public class DAOLocation extends DAO<Location> {
     protected static final String FIELD_STREET_NUMBER = "streetNumber";
     protected static final String FIELD_BOX = "box";
 
+    private static final DAOCity daoCity = new DAOCity();
+
     @Override
     public Location find(int id) throws SQLException {
         String query = String.format(
@@ -53,7 +55,7 @@ public class DAOLocation extends DAO<Location> {
 
         int cityRef = -1;
         try {
-            new DAOCity().create(objectToInsert.getCity());
+            daoCity.create(objectToInsert.getCity());
         }
         catch (AlreadyExistsException e) { }
         cityRef = objectToInsert.getCity().getId();
@@ -90,16 +92,16 @@ public class DAOLocation extends DAO<Location> {
 
         int cityRef = -1;
         try {
-            new DAOCity().update(objectToUpdate.getCity());
+            daoCity.update(objectToUpdate.getCity());
             cityRef = objectToUpdate.getCity().getId();
         }
         catch (NoSuchElementException e) {
             try {
-                new DAOCity().create(objectToUpdate.getCity());
+                daoCity.create(objectToUpdate.getCity());
                 cityRef = objectToUpdate.getCity().getId();
             }
             catch (AlreadyExistsException f) {
-                cityRef = new DAOCity().checkAlreadyExists(objectToUpdate.getCity());
+                cityRef = daoCity.checkAlreadyExists(objectToUpdate.getCity());
             }
         }
 
@@ -163,7 +165,7 @@ public class DAOLocation extends DAO<Location> {
     @Override
     protected int checkAlreadyExists(Location location) throws SQLException {
         City c1 = location.getCity();
-        c1.setId(new DAOCity().checkAlreadyExists(c1));
+        c1.setId(daoCity.checkAlreadyExists(c1));
         String designation = location.getDesignation();
         String streetNumber = location.getStreetNumber();
 
@@ -202,7 +204,7 @@ public class DAOLocation extends DAO<Location> {
         return new Location(
                 result.getInt(FIELD_ID),
                 result.getString(FIELD_DESIGNATION),
-                new DAOCity().find(result.getInt(FIELD_CITY)),
+                daoCity.find(result.getInt(FIELD_CITY)),
                 result.getString(FIELD_STREET),
                 result.getString(FIELD_STREET_NUMBER),
                 result.getInt(FIELD_BOX)

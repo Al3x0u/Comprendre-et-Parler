@@ -24,6 +24,9 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
     protected static final String FIELD_INTERPRETER_REFERENCE = "referenceInterpreter";
     protected static final String FIELD_STATUS = "status";
 
+    private static final DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private static final DAOStatus daoStatus = new DAOStatus();
+
     @Override
     public Beneficiary find(int id) throws SQLException {
         String query = String.format(
@@ -284,8 +287,8 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
                 result.getString(FIELD_HASHED_PASSWORD),
                 result.getString(FIELD_EMAIL),
                 result.getString(FIELD_PHONE_NUMBER),
-                new DAOStatus().find(result.getInt(FIELD_STATUS)),
-                new DAOInterpreter().find(result.getInt(FIELD_INTERPRETER_REFERENCE))
+                daoStatus.find(result.getInt(FIELD_STATUS)),
+                daoInterpreter.find(result.getInt(FIELD_INTERPRETER_REFERENCE))
         );
     }
 
@@ -298,7 +301,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * @throws SQLException if the database could not be reached
      */
     public Set<Beneficiary> findReferencedBeneficiaries(int idInterpreter) throws SQLException, NoSuchElementException {
-        if (new DAOInterpreter().find(idInterpreter) == null)
+        if (daoInterpreter.find(idInterpreter) == null)
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idInterpreter);
 
         String query = String.format(
@@ -353,7 +356,7 @@ public class DAOBeneficiary extends DAO<Beneficiary> {
      * or an empty Set if no beneficiaries having this Status
      */
     public Set<Beneficiary> findByStatus(int idStatus) throws SQLException, NoSuchElementException {
-        if (new DAOInterpreter().find(idStatus) == null)
+        if (daoInterpreter.find(idStatus) == null)
             throw new NoSuchElementException("[ERROR] There is no Status with the id " + idStatus);
 
         String query = String.format(
