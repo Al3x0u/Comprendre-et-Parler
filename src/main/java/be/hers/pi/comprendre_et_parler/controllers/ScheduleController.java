@@ -386,8 +386,7 @@ public class ScheduleController {
             Mission mission = missionService.getOneMission(id);
 
             if (user instanceof Beneficiary) {
-                boolean isOwner = mission.getBeneficiary() != null
-                        && mission.getBeneficiary().getId() == user.getId();
+                boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
                 boolean isPending = mission.getStateOfMission() == MissionState.PENDING;
                 if (!isOwner || !isPending) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
@@ -862,7 +861,7 @@ public class ScheduleController {
 
     @PostMapping("/requetes/{id}/modifier")
     @ResponseBody
-    public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, String> body, HttpSession session) {
+    public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
             if (!(user instanceof Beneficiary)) {
@@ -894,7 +893,11 @@ public class ScheduleController {
             }
 
             if (newMission.getInterpreters() == null) {
-                newMission.setInterpreters(mission.getInterpreters());
+                if (mission.getInterpreters() != null) {
+                    newMission.setInterpreters(mission.getInterpreters());
+                } else {
+                    newMission.setInterpreters(new HashSet<>());
+                }
             }
 
             missionService.updateMission(mission, newMission);
