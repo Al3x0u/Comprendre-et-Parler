@@ -129,7 +129,7 @@ public class DAOExceptionalUnavailability {
 
             if (statement.executeUpdate() == 0)
                 throw new NoSuchElementException("[ERROR] The Interpreter " + interpreter.getId()
-                        + " is not linked to the TimeSLot " + objectToUpdate.getTimeSlot().getId());
+                        + " is not linked to the TimeSlot " + objectToUpdate.getTimeSlot().getId());
         } finally {
             if(statement != null) {
                 try {
@@ -162,7 +162,7 @@ public class DAOExceptionalUnavailability {
             statement.setInt(2, idTimeSlot);
 
             if(statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] The Interpreter " + idInterpreter + " is not linked to the TimeSLot " + idTimeSlot);
+                throw new NoSuchElementException("[ERROR] The Interpreter " + idInterpreter + " is not linked to the TimeSlot " + idTimeSlot);
 
         } finally {
             if(statement != null) {
