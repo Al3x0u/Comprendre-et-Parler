@@ -811,6 +811,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ minutes, absent })
             });
+            if (!res.ok) {
+                showToast("Erreur lors du signalement.", 'error');
+                return;
+            }
             bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
             showToast("Retard signalé avec succès.", 'success');
         } catch (err) {
