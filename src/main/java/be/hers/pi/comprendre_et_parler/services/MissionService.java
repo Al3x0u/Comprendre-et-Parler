@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.services;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
@@ -10,7 +11,10 @@ import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -62,7 +66,7 @@ public class MissionService {
     public ArrayList<Mission> getMissionsForWeek(AppliUser user, LocalDate weekStart) throws SQLException {
 
         int yearNumber = weekStart.getYear();
-        int weekNumber = weekStart.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
+        int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
 
         Set<Mission> missions;
 
@@ -263,14 +267,21 @@ public class MissionService {
      */
     private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, SQLException {
         double newMissionHours = calculateHours(slot);
-        double hoursThisWeek = calculateAssignedHoursForWeek(interpreter, slot);
-        double hoursThisYear = calculateAssignedHoursForYear(interpreter, slot);
+        LocalDate date = ((PunctualTimeSlot) slot).getStartDate().toLocalDate();
+        LocalDate weekStart = date.with(DayOfWeek.MONDAY);
+        LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
+        LocalDate yearStart = LocalDate.of(date.getYear(), 1, 1);
+        LocalDate yearEnd = LocalDate.of(date.getYear(), 12, 31);
+
+        double hoursThisWeek = SQLWrap.call(new DAOInterpreter()::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
+        double hoursThisYear = SQLWrap.call(new DAOInterpreter()::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
 
         if (hoursThisWeek + newMissionHours > interpreter.getHourQuotaWeek())
             throw new QuotaExceededException("Le quota hebdomadaire de l'interprète " + interpreter.getId() + " est dépassé");
         if (hoursThisYear + newMissionHours > interpreter.getHourQuotaYear())
             throw new QuotaExceededException("Le quota annuel de l'interprète " + interpreter.getId() + " est dépassé");
     }
+
 
     /**
      * Calculates the total duration in hours of a TimeSlot.
@@ -283,70 +294,15 @@ public class MissionService {
     private double calculateHours(TimeSlot ts) {
         if (ts instanceof PunctualTimeSlot) {
             PunctualTimeSlot pts = (PunctualTimeSlot) ts;
-            return java.time.Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes() /60.0;
+            return Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes() /60.0;
         }
         if (ts instanceof BaseTimeSlot) {
             BaseTimeSlot bts = (BaseTimeSlot) ts;
-            return java.time.Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes() / 60.0;
+            return Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes() / 60.0;
         }
         throw new IllegalArgumentException("Unknown TimeSlot subtype : " + ts.getClass().getSimpleName());
     }
 
-    /**
-     * Calculates the total hours already assigned to an interpreter for the week of the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot used to determine the week
-     * @return the total hours assigned for that week
-     * @throws SQLException if the database could not be reached
-     */
-    private double calculateAssignedHoursForWeek(Interpreter interpreter, TimeSlot slot) throws SQLException {
-        LocalDate date;
-
-        if (slot instanceof PunctualTimeSlot) {
-            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
-            date = punctualTimeSlot.getStartDate().toLocalDate();
-        } else {
-            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
-            date = baseTimeSlot.getStartDate();
-        }
-
-        int year = date.getYear();
-        int week = date.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
-
-        double total = 0;
-        for (Mission m : SQLWrap.call(daoMission::getScheduleForWeek,interpreter.getId(), year, week))
-            total += calculateHours(m.getTimeSlot());
-        return total;
-    }
-
-    /**
-     * Calculates the total hours already assigned to an interpreter for the year of the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot used to determine the year
-     * @return the total hours assigned for that year
-     * @throws SQLException if the database could not be reached
-     */
-    private double calculateAssignedHoursForYear(Interpreter interpreter, TimeSlot slot) throws SQLException {
-
-        LocalDate date;
-        if (slot instanceof PunctualTimeSlot) {
-            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
-            date = punctualTimeSlot.getStartDate().toLocalDate();
-        } else {
-            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
-            date = baseTimeSlot.getStartDate();
-        }
-
-        int year = date.getYear();
-        double total = 0;
-        for (int week = 1; week <= 52; week++) {
-            for (Mission mission : SQLWrap.call(daoMission::getScheduleForWeek, interpreter.getId(), year, week)) {
-                total += calculateHours(mission.getTimeSlot());
-            }
-        }
-
-        return total;
-    }
 
     /**
      * Accepts a pending request by setting its status to ACCEPTED,
