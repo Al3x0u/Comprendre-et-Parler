@@ -78,16 +78,16 @@ public class ScheduleController {
                 filterUsers.sort(Comparator.comparing(e -> e.get("fullName")));
                 model.addAttribute("filterUsers", filterUsers);
 
-                String managerFullName = user.getFirstName() + " " + user.getLastName();
-                model.addAttribute("managerFullName", managerFullName);
+
 
             } else if (user instanceof Interpreter interpreter) {
                 Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
                 model.addAttribute("beneficiaries", refBeneficiaries);
-                String managerFullName = user.getFirstName() + " " + user.getLastName();
-                model.addAttribute("managerFullName", managerFullName);
+
             }
 
+            String managerFullName = user.getFirstName() + " " + user.getLastName();
+            model.addAttribute("managerFullName", managerFullName);
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("interpreters", interpreters);
@@ -107,7 +107,6 @@ public class ScheduleController {
 
             List<City> allCities = new ArrayList<>(cityService.getAllCities());
             allCities.sort(City::compareTo);
-            System.out.println(beneficiaries.size());
             model.addAttribute("allCities", allCities);
 
         }catch(Exception e){
@@ -509,11 +508,9 @@ public class ScheduleController {
                 boolean isBeneficiaryFilter = refBeneficiaries.stream()
                         .anyMatch(b -> (b.getFirstName() + " " + b.getLastName()).equals(user));
 
-                missions = missionService.getMissionsForWeek(currentUser, date);
-
-            } else {
-                missions = missionService.getMissionsForWeek(currentUser, date);
             }
+            missions = missionService.getMissionsForWeek(currentUser, date);
+
             List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
 
             List<Map<String, String>> filtered = new ArrayList<>();
@@ -590,16 +587,16 @@ public class ScheduleController {
             }
 
             String interpreters = "";
-            if (mission.getInterpreters() != null) {
 
-                for (Interpreter interpreter : mission.getInterpreters()) {
 
-                    if (!interpreters.isEmpty()) {
-                        interpreters += ", ";
-                    }
-                    interpreters += interpreter.getFirstName() + " " + interpreter.getLastName();
+            for (Interpreter interpreter : mission.getInterpreters()) {
+
+                if (!interpreters.isEmpty()) {
+                    interpreters += ", ";
                 }
+                interpreters += interpreter.getFirstName() + " " + interpreter.getLastName();
             }
+
 
             event.put("interpreter", interpreters);
             if (mission.getBeneficiary() != null) {
