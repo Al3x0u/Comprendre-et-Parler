@@ -733,7 +733,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     public Set<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) throws SQLException {
         String query = String.format(
                 "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%S " +
-                        "WHERE t.%S = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
+                        "WHERE t.%s = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
                 TABLE, TABLE_AVAILABILITY, FIELD_ID, FIELD_INTERPRETER, DAOBaseTimeSlot.TABLE,
                 DAOBaseTimeSlot.TABLE, DAOBaseTimeSlot.FIELD_ID, DAOPunctualTimeSlot.FIELD_START_TIME,
                 DAOPunctualTimeSlot.FIELD_END_TIME, DAOPunctualTimeSlot.FIELD_START_TIME
@@ -756,34 +756,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
         return interpreters;
     }
-
-    /**
-     * Load all interpreters linked to a mission from the InterpreterMission table
-     * @param missionId the id of the mission
-     * @return a Set of Interpreter linked to this mission
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<Interpreter> findByMission(int missionId) throws SQLException {
-        String query = "SELECT interpreter FROM InterpreterMission WHERE mission = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        Set<Interpreter> interpreters = new HashSet<>();
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            result = statement.executeQuery();
-            while (result.next()) {
-                Interpreter interpreter = find(result.getInt("interpreter"));
-                if (interpreter != null)
-                    interpreters.add(interpreter);
-            }
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
-        return interpreters;
-    }
-
 
     /**
      * Get the number of worked hours of an Interpreter between two dates

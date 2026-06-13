@@ -374,7 +374,7 @@ public class InterpreterService {
     public void loadInterpreters(Mission mission) {
         try {
             SQLWrap.callTransaction(
-                    (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(new DAOInterpreter().findByMission(m.getId())),
+                    (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(new DAOInterpreter().findAllByMissionId(m.getId())),
                     mission
             );
         }catch(SQLException e){
