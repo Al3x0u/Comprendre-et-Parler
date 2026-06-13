@@ -510,15 +510,7 @@ public class ScheduleController {
                 }
             }
 
-            List<Mission> missions;
-            if (currentUser instanceof Interpreter interpreter && user != null && !user.isBlank()) {
-                Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
-                boolean isBeneficiaryFilter = refBeneficiaries.stream()
-                        .anyMatch(b -> (b.getFirstName() + " " + b.getLastName()).equals(user));
-
-            }
-            missions = missionService.getMissionsForWeek(currentUser, date);
-
+            List<Mission> missions = missionService.getMissionsForWeek(currentUser, date);
             List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
 
             List<Map<String, String>> filtered = new ArrayList<>();
