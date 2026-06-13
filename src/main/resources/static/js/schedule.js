@@ -775,6 +775,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await fetch('/horaire/missions/' + currentMissionId + '/annuler', {
                 method: 'POST'
             });
+            if (!res.ok) {
+                showToast("Erreur lors de l'annulation.", 'error');
+                return;
+            }
             bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).hide();
             calendar.refetchEvents();
             showToast("Mission annulée.", 'info');
