@@ -644,9 +644,9 @@
                     <label for="missionBeneficiary" class="form-label fw-semibold">Bénéficiaire</label>
                     <select id="missionBeneficiary" class="form-select">
                         <option value="">Sélectionner un bénéficiaire</option>
-                        <option th:each="beneficiary : ${beneficiaries}"
-                                th:value="${beneficiary.id}"
-                                th:text="${beneficiary.firstName + ' ' + beneficiary.lastName}">
+                        <option th:each="b : ${allBeneficiaries}"
+                                th:value="${b.id}"
+                                th:text="${b.firstName + ' ' + b.lastName}">
                         </option>
                     </select>
                     <div id="missionBeneficiaryError" class="invalid-feedback"></div>

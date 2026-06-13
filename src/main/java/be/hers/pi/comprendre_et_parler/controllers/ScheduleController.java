@@ -92,8 +92,8 @@ public class ScheduleController {
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("interpreters", interpreters);
 
-            if (!(user instanceof Interpreter)) {
-                model.addAttribute("beneficiaries", beneficiaries);
+            if (user instanceof Manager) {
+                model.addAttribute("allBeneficiaries", new ArrayList<>(beneficiaries));
             }
             model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
             model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
@@ -107,6 +107,7 @@ public class ScheduleController {
 
             List<City> allCities = new ArrayList<>(cityService.getAllCities());
             allCities.sort(City::compareTo);
+            System.out.println(beneficiaries.size());
             model.addAttribute("allCities", allCities);
 
         }catch(Exception e){
@@ -502,7 +503,17 @@ public class ScheduleController {
                 }
             }
 
-            List<Mission> missions = missionService.getMissionsForWeek(currentUser, date);
+            List<Mission> missions;
+            if (currentUser instanceof Interpreter interpreter && user != null && !user.isBlank()) {
+                Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
+                boolean isBeneficiaryFilter = refBeneficiaries.stream()
+                        .anyMatch(b -> (b.getFirstName() + " " + b.getLastName()).equals(user));
+
+                missions = missionService.getMissionsForWeek(currentUser, date);
+
+            } else {
+                missions = missionService.getMissionsForWeek(currentUser, date);
+            }
             List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
 
             List<Map<String, String>> filtered = new ArrayList<>();
@@ -758,6 +769,7 @@ public class ScheduleController {
         if (beneficiaryIdObj != null && !beneficiaryIdObj.toString().isBlank()) {
             mission.setBeneficiary(beneficiaryService.getOneBeneficiary(Integer.parseInt(beneficiaryIdObj.toString())));
         }
+
 
         return mission;
     }
