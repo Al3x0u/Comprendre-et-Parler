@@ -56,10 +56,7 @@ public class ProfileController {
             model.addAttribute("isOwnProfile", true);
             return "profile";
 
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return "redirect:/login";
-        } catch (SQLException e) {
+        } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
             return "redirect:/login";
         }
