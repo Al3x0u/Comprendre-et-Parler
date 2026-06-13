@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOPunctualTimeSlot;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
@@ -19,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.Comparator;
 
 @Controller
 @RequestMapping("/horaire")
@@ -31,6 +31,7 @@ public class ScheduleController {
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
     private final CityService cityService = new CityService();
     private final LocationService locationService = new LocationService();
+    private final PunctualTimeSlotService punctualTimeSlotService = new PunctualTimeSlotService();
 
 
     /**
@@ -61,10 +62,42 @@ public class ScheduleController {
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
+            if (user instanceof Manager) {
+                List<Map<String, String>> filterUsers = new ArrayList<>();
+                for (Interpreter interp : interpreters) {
+                    Map<String, String> entry = new HashMap<>();
+                    entry.put("id", String.valueOf(interp.getId()));
+                    entry.put("fullName", interp.getFirstName() + " " + interp.getLastName());
+                    entry.put("role", interp instanceof Manager ? "MANAGER" : "INTERPRETER");
+                    filterUsers.add(entry);
+                }
+                for (Beneficiary bene : beneficiaries) {
+                    Map<String, String> entry = new HashMap<>();
+                    entry.put("id", String.valueOf(bene.getId()));
+                    entry.put("fullName", bene.getFirstName() + " " + bene.getLastName());
+                    entry.put("role", "BENEFICIARY");
+                    filterUsers.add(entry);
+                }
+                filterUsers.sort(Comparator.comparing(e -> e.get("fullName")));
+                model.addAttribute("filterUsers", filterUsers);
+
+
+
+            } else if (user instanceof Interpreter interpreter) {
+                Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
+                model.addAttribute("beneficiaries", refBeneficiaries);
+
+            }
+
+            String managerFullName = user.getFirstName() + " " + user.getLastName();
+            model.addAttribute("managerFullName", managerFullName);
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("events", mapper.writeValueAsString(events));
-            model.addAttribute("beneficiaries", beneficiaries);
             model.addAttribute("interpreters", interpreters);
+
+            if (user instanceof Manager) {
+                model.addAttribute("allBeneficiaries", new ArrayList<>(beneficiaries));
+            }
             model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
             model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
 
@@ -220,7 +253,7 @@ public class ScheduleController {
             mission.setInterpreters(interpreters);
 
             String warning = missionService.checkQuotaWarning(mission);
-            return ResponseEntity.ok().body(warning); // "" si ok, message si dépassement
+            return ResponseEntity.ok().body(warning);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -353,8 +386,7 @@ public class ScheduleController {
             Mission mission = missionService.getOneMission(id);
 
             if (user instanceof Beneficiary) {
-                boolean isOwner = mission.getBeneficiary() != null
-                        && mission.getBeneficiary().getId() == user.getId();
+                boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
                 boolean isPending = mission.getStateOfMission() == MissionState.PENDING;
                 if (!isOwner || !isPending) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
@@ -454,18 +486,17 @@ public class ScheduleController {
      * Fetch events for a given week with optional filters
      * @param weekDate the start date of the week to fetch (optional, defaults to current week)
      * @param status the status filter to apply (optional)
-     * @param interpreter the interpreter name filter to apply (optional)
      * @param session the current HTTP session
      * @return the filtered list of events, or 500 on error
      */
     @GetMapping("/evenements")
     @ResponseBody
-    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String interpreter, HttpSession session) {
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String user, HttpSession session) {
         try {
-            AppliUser user = (AppliUser) session.getAttribute("user");
-            LocalDate date =  LocalDate.now();
-            if(weekDate != null && !weekDate.isBlank()){
-                try{
+            AppliUser currentUser = (AppliUser) session.getAttribute("user");
+            LocalDate date = LocalDate.now();
+            if (weekDate != null && !weekDate.isBlank()) {
+                try {
                     date = LocalDate.parse(weekDate);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -473,8 +504,16 @@ public class ScheduleController {
                 }
             }
 
-            List<Mission> missions = missionService.getMissionsForWeek(user, date);
-            List<Map<String, String>> allEvents =  convertMissionsToEvents(missions);
+            List<Mission> missions;
+            if (currentUser instanceof Interpreter interpreter && user != null && !user.isBlank()) {
+                Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
+                boolean isBeneficiaryFilter = refBeneficiaries.stream()
+                        .anyMatch(b -> (b.getFirstName() + " " + b.getLastName()).equals(user));
+
+            }
+            missions = missionService.getMissionsForWeek(currentUser, date);
+
+            List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
 
             List<Map<String, String>> filtered = new ArrayList<>();
             for (Map<String, String> event : allEvents) {
@@ -483,21 +522,20 @@ public class ScheduleController {
                     if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
                 }
 
-                if (interpreter != null && !interpreter.isBlank()) {
-                    if (!event.getOrDefault("interpreter", "").contains(interpreter)) continue;
+                if (user != null && !user.isBlank()) {
+                    boolean matchInterp = event.getOrDefault("interpreter", "").contains(user);
+                    boolean matchBene   = event.getOrDefault("beneficiary", "").contains(user);
+                    if (!matchInterp && !matchBene) continue;
                 }
 
                 filtered.add(event);
-
             }
             return ResponseEntity.ok(filtered);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-
     }
 
     /**
@@ -506,35 +544,28 @@ public class ScheduleController {
      * @return the list of event maps with title, start, end, color, status, and other display fields
      */
     private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions) {
+
         List<Map<String, String>> events = new ArrayList<>();
+
         for (Mission mission : missions) {
             if (!(mission.getTimeSlot() instanceof PunctualTimeSlot)) {
                 continue;
             }
 
             interpreterService.loadInterpreters(mission);
+            if (mission.getInterpreters() == null) {
+                mission.setInterpreters(new java.util.HashSet<>());
+            }
 
             PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
-            event.put("id",         String.valueOf(mission.getId()));
-            event.put("title",      mission.getSubject());
-            event.put("start",      pts.getStartDate().toString());
-            event.put("end",        pts.getEndDate().toString());
-            event.put("color",      getColor(mission.getStateOfMission()));
+            event.put("id", String.valueOf(mission.getId()));
+            event.put("title",mission.getSubject());
+            event.put("start",pts.getStartDate().toString());
+            event.put("end", pts.getEndDate().toString());
+            event.put("color",getColor(mission.getStateOfMission()));
             event.put("importance", String.valueOf(mission.getImportance()));
-            event.put("status",     getDisplayStatus(mission.getStateOfMission()));
-
-            if (mission.getCommentary() != null) {
-                event.put("comment", mission.getCommentary());
-            } else {
-                event.put("comment", "");
-            }
-
-            if (mission.getRoom() != null) {
-                event.put("room", mission.getRoom());
-            } else {
-                event.put("room", "");
-            }
+            event.put("status", getDisplayStatus(mission.getStateOfMission()));
 
             if (mission.getJobSkill() != null) {
                 event.put("type", mission.getJobSkill().getDesignation());
@@ -543,30 +574,38 @@ public class ScheduleController {
             }
 
             if (mission.getAcademicSkill() != null) {
-                event.put("academicSkill",   mission.getAcademicSkill().getDesignation());
+                event.put("academicSkill", mission.getAcademicSkill().getDesignation());
                 event.put("academicSkillId", String.valueOf(mission.getAcademicSkill().getId()));
             } else {
                 event.put("academicSkill",   "");
                 event.put("academicSkillId", "");
             }
 
-            if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
-                String names = "";
-                String ids   = "";
-                for (Interpreter interpreter : mission.getInterpreters()) {
-                    if (!names.isEmpty()) {
-                        names += ", ";
-                        ids   += ",";
-                    }
-                    names += interpreter.getFirstName() + " " + interpreter.getLastName();
-                    ids   += interpreter.getId();
-                }
-                event.put("interpreter",    names);
-                event.put("interpreterIds", ids);
+            if (mission.getRoom() != null) {
+                event.put("room", mission.getRoom());
             } else {
-                event.put("interpreter",    "");
-                event.put("interpreterIds", "");
+                event.put("room", "");
             }
+
+            if (mission.getCommentary() != null) {
+                event.put("comment", mission.getCommentary());
+            } else {
+                event.put("comment", "");
+            }
+
+            String names = "";
+            String ids   = "";
+            for (Interpreter interpreter : mission.getInterpreters()) {
+                if (!names.isEmpty()) {
+                    names += ", ";
+                    ids   += ",";
+                }
+                names += interpreter.getFirstName() + " " + interpreter.getLastName();
+                ids   += interpreter.getId();
+            }
+            event.put("interpreter",    names);
+            event.put("interpreterIds", ids);
+
             if (mission.getBeneficiary() != null) {
                 event.put("beneficiary",   mission.getBeneficiary().getFirstName() + " " + mission.getBeneficiary().getLastName());
                 event.put("beneficiaryId", String.valueOf(mission.getBeneficiary().getId()));
@@ -574,6 +613,7 @@ public class ScheduleController {
                 event.put("beneficiary",   "");
                 event.put("beneficiaryId", "");
             }
+
             if (mission.getLocation() != null) {
                 Location loc = mission.getLocation();
 
@@ -616,21 +656,26 @@ public class ScheduleController {
                 StringBuilder address = new StringBuilder();
                 if (loc.getStreet() != null && !loc.getStreet().isBlank()) {
                     address.append(loc.getStreet());
-                    if (loc.getStreetNumber() != null && !loc.getStreetNumber().isBlank()) {address.append(" ").append(loc.getStreetNumber());
+                    if (loc.getStreetNumber() != null && !loc.getStreetNumber().isBlank()) {
+                        address.append(" ").append(loc.getStreetNumber());
                     }
-                    if (loc.getBox() > 0) {address.append(", bte ").append(loc.getBox());
+                    if (loc.getBox() > 0) {
+                        address.append(", bte ").append(loc.getBox());
                     }
                 }
                 if (loc.getCity() != null) {
                     if (!address.isEmpty()) {
                         address.append(", ");
                     }
-                    address.append(loc.getCity().getPostalCode()).append(" ").append(loc.getCity().getDesignation());
+                    address.append(loc.getCity().getPostalCode())
+                            .append(" ")
+                            .append(loc.getCity().getDesignation());
                 }
                 if (loc.getDesignation() != null && !loc.getDesignation().isBlank()) {
                     address.insert(0, loc.getDesignation() + " — ");
                 }
                 event.put("address", address.toString());
+
             } else {
                 event.put("locationDesignation", "");
                 event.put("street",              "");
@@ -640,8 +685,10 @@ public class ScheduleController {
                 event.put("postalCode",          "");
                 event.put("address",             "");
             }
+
             events.add(event);
         }
+
         return events;
     }
 
@@ -708,8 +755,7 @@ public class ScheduleController {
             try { box = Integer.parseInt(boxObj.toString()); } catch (Exception ignored) {}
         }
 
-        boolean hasLocation =
-                (designation != null && !designation.isBlank()) ||
+        boolean hasLocation = (designation != null && !designation.isBlank()) ||
                         (cityName    != null && !cityName.isBlank())    ||
                         (postalCode  != null && !postalCode.isBlank())  ||
                         (street      != null && !street.isBlank())      ||
@@ -766,16 +812,10 @@ public class ScheduleController {
             mission.setBeneficiary(beneficiaryService.getOneBeneficiary(Integer.parseInt(beneficiaryIdObj.toString())));
         }
 
+
         return mission;
     }
 
-    /**
-     * Updates an existing accepted mission (MANAGER only).
-     * @param id      the mission ID
-     * @param body    the updated mission data
-     * @param session the current HTTP session
-     * @return 200 on success, 403 if not a manager, 404 if not found, 409 on conflict, 500 on error
-     */
     @PostMapping("/missions/{id}/modifier")
     @ResponseBody
     public ResponseEntity<?> updateMission(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
@@ -784,20 +824,29 @@ public class ScheduleController {
             if (!(user instanceof Manager)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
-            Mission mission  = missionService.getOneMission(id);
+
+            Mission mission    = missionService.getOneMission(id);
             Mission newMission = buildMissionFromBody(body);
+
             newMission.setId(mission.getId());
+
+            if (newMission.getTimeSlot() != null) {
+                punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
+            }
+
             if (newMission.getLocation() != null && mission.getLocation() != null) {
                 locationService.updateLocation(mission.getLocation(), newMission.getLocation());
             } else if (mission.getLocation() != null) {
                 newMission.setLocation(mission.getLocation());
             }
+
             if (newMission.getInterpreters() == null) {
                 newMission.setInterpreters(mission.getInterpreters());
             }
 
             missionService.updateMission(mission, newMission);
             return ResponseEntity.ok().build();
+
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ConflictException e) {
@@ -810,19 +859,12 @@ public class ScheduleController {
         }
     }
 
-    /**
-     * Updates an existing pending request (BENEFICIARY only, PENDING status only).
-     * @param id      the mission ID
-     * @param body    the updated request data
-     * @param session the current HTTP session
-     * @return 200 on success, 403 if not a beneficiary or mission not pending, 404 if not found, 500 on error
-     */
     @PostMapping("/requetes/{id}/modifier")
     @ResponseBody
     public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-            if (!(user instanceof Beneficiary) && !(user instanceof Manager)) {
+            if (!(user instanceof Beneficiary)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
 
@@ -831,30 +873,31 @@ public class ScheduleController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("La demande n'est plus modifiable.");
             }
 
-            if (user instanceof Beneficiary) {
-                boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
-                if (!isOwner) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
-                }
+            boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
+            if (!isOwner) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
 
-
-
-            Mission newMission = buildMissionFromBody(body);
-            newMission.setBeneficiary(mission.getBeneficiary());
+            Mission newMission = buildMissionFromBody(new HashMap<>(body));
+            newMission.setBeneficiary((Beneficiary) user);
             newMission.setId(mission.getId());
 
-            if (newMission.getTimeSlot() != null && mission.getTimeSlot() != null) {
-                newMission.getTimeSlot().setId(mission.getTimeSlot().getId());
+            if (newMission.getTimeSlot() != null) {
+                punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
             }
 
             if (newMission.getLocation() != null && mission.getLocation() != null) {
                 locationService.updateLocation(mission.getLocation(), newMission.getLocation());
+            } else if (mission.getLocation() != null) {
+                newMission.setLocation(mission.getLocation());
             }
 
             if (newMission.getInterpreters() == null) {
-                interpreterService.loadInterpreters(mission);
-                newMission.setInterpreters(mission.getInterpreters() != null ? mission.getInterpreters() : new java.util.HashSet<>());
+                if (mission.getInterpreters() != null) {
+                    newMission.setInterpreters(mission.getInterpreters());
+                } else {
+                    newMission.setInterpreters(new HashSet<>());
+                }
             }
 
             missionService.updateMission(mission, newMission);
@@ -868,7 +911,7 @@ public class ScheduleController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la modification de la mission.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la modification de la demande.");
         }
     }
 

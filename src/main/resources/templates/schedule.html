@@ -9,40 +9,109 @@
 <!-- Navbar -->
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<!-- Filters : just visual -->
+<!-- Filters : just visuel -->
 <div id="dropdown-filtre" class="dropdown-menu">
-    <!-- By user (only for Manager) -->
     <th:block th:if="${userRole == 'MANAGER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
-        <div class="px-3 pb-2">
-            <input type="text" id="search-interpreter" class="form-control form-control-sm"
-                   placeholder="Rechercher un utilisateur...">
+        <div class="px-3 pb-1">
+            <input type="text" id="search-interpreter" class="form-control form-control-sm" placeholder="Rechercher...">
         </div>
-        <div id="interpreter-list">
-            <a class="dropdown-item filter-interpreter"
-               href="#"
-               th:each="interpreter : ${interpreters}"
-               th:data-value="${interpreter.firstName + ' ' + interpreter.lastName}">
-                <i class="bi bi-person me-2"></i>
-                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName}"></span>
-            </a>
+
+        <div id="user-filter-list" class="filter-scroll-list">
+
+            <div class="filter-section" id="section-manager">
+                <div class="filter-section-label filter-section-label--manager">
+                    <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == managerFullName}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
+                        <i class="bi bi-person-fill-gear filter-dot-manager"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <div class="filter-section" id="section-interpreter">
+                <div class="filter-section-label filter-section-label--interpreter">
+                    <i class="bi bi-translate me-1"></i>Interprètes
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != managerFullName}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-role="${u.role}">
+                        <i class="bi bi-person-fill filter-dot-interpreter"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <div class="filter-section" id="section-beneficiary">
+                <div class="filter-section-label filter-section-label--beneficiary">
+                    <i class="bi bi-heart-fill me-1"></i>Bénéficiaires
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'BENEFICIARY'}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="BENEFICIARY">
+                        <i class="bi bi-person-heart filter-dot-beneficiary"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <!--Message aucun résultat-->
+            <div id="no-user-result" class="px-3 py-2 text-muted fst-italic filter-no-result">
+                Aucun résultat
+            </div>
         </div>
-        <hr class="dropdown-divider">
+        <hr class="dropdown-divider mb-0">
+    </th:block>
+
+    <th:block th:if="${userRole == 'INTERPRETER'}">
+        <h6 class="dropdown-header">Par utilisateur</h6>
+        <div id="interp-filter-list" class="filter-scroll-list">
+
+            <div class="filter-section" id="interp-section-self">
+                <div class="filter-section-label filter-section-label--manager">
+                    <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
+                </div>
+                <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
+                   href="#"
+                   th:data-value="${session.user.firstName + ' ' + session.user.lastName}"
+                   data-role="INTERPRETER">
+                    <i class="bi bi-person-fill filter-dot-manager"></i>
+                    <span th:text="${session.user.firstName + ' ' + session.user.lastName}"></span>
+                </a>
+            </div>
+
+            <div class="filter-section" id="interp-section-beneficiary">
+                <div class="filter-section-label filter-section-label--beneficiary">
+                    <i class="bi bi-heart-fill me-1"></i>Bénéficiaires référés
+                </div>
+                <th:block th:each="b : ${beneficiaries}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
+                       href="#"
+                       th:data-value="${b.firstName + ' ' + b.lastName}"
+                       data-role="BENEFICIARY">
+                        <i class="bi bi-person-heart filter-dot-beneficiary"></i>
+                        <span th:text="${b.firstName + ' ' + b.lastName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+        </div>
+        <hr class="dropdown-divider mb-0">
     </th:block>
 
     <!-- By status -->
     <h6 class="dropdown-header">Par statut</h6>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Acceptée">
-        <div style="width:12px;height:12px;background:#40c057;border-radius:3px"></div>Acceptée
+        <div class="filter-status-dot filter-status-dot--accepted"></div>Acceptée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="En attente">
-        <div style="width:12px;height:12px;background:#fab005;border-radius:3px"></div>En attente
+        <div class="filter-status-dot filter-status-dot--pending"></div>En attente
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Refusée">
-        <div style="width:12px;height:12px;background:#fa5252;border-radius:3px"></div>Refusée/Annulée
+        <div class="filter-status-dot filter-status-dot--refused"></div>Refusée/Annulée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Horaire de base">
-        <div style="width:12px;height:12px;background:#4dabf7;border-radius:3px"></div>Horaire de base
+        <div class="filter-status-dot filter-status-dot--base"></div>Horaire de base
     </a>
 </div>
 
@@ -127,8 +196,6 @@
                     <span id="modalInterpreter" class="fst-italic text-muted"></span>
                 </div>
                 <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
-
-
             </div>
 
         </div>
@@ -136,7 +203,7 @@
 </div>
 
 <!-- CONFIRMATION DEPASSEMENT QUOTA -->
-<div class="modal fade" id="quotaWarningModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+<div class="modal fade" id="quotaWarningModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0">
@@ -558,7 +625,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Interprètes*</label>
-                    <div id="missionInterpreters" class="border rounded p-2" style="max-height: 160px; overflow-y: auto;">
+                    <div id="missionInterpreters" class="border rounded p-2 mission-interpreters-list">
                         <div class="form-check" th:each="interpreter : ${interpreters}">
                             <input class="form-check-input mission-interpreter-check" type="checkbox"
                                    th:id="'missionInterp_' + ${interpreter.id}"
@@ -576,9 +643,9 @@
                     <label for="missionBeneficiary" class="form-label fw-semibold">Bénéficiaire</label>
                     <select id="missionBeneficiary" class="form-select">
                         <option value="">Sélectionner un bénéficiaire</option>
-                        <option th:each="beneficiary : ${beneficiaries}"
-                                th:value="${beneficiary.id}"
-                                th:text="${beneficiary.firstName + ' ' + beneficiary.lastName}">
+                        <option th:each="b : ${allBeneficiaries}"
+                                th:value="${b.id}"
+                                th:text="${b.firstName + ' ' + b.lastName}">
                         </option>
                     </select>
                     <div id="missionBeneficiaryError" class="invalid-feedback"></div>
@@ -604,7 +671,7 @@
 </div>
 
 <div id="schedule-config"
-     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}"
+     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}, data-manager-name=${managerFullName}"
      style="display:none">
 </div>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>

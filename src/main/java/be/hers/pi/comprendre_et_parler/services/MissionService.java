@@ -73,7 +73,9 @@ public class MissionService {
         if (user instanceof Manager) {
             missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
         }
-        else {
+        else if(user instanceof Interpreter) {
+            missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
+        }else{
             missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
         }
 
