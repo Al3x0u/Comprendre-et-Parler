@@ -189,7 +189,7 @@ JOIN TimeSlot ts ON m.timeSlot = ts.id
 JOIN InterpreterMission im ON m.id = im.mission
 WHERE im.interpreter = interpreter_id
 AND ts.startDateTime >= date_debut
-AND ts.startDateTime <= date_fin
+AND ts.endDateTime  <= date_fin
 AND m.stateOfMission = 1;
 
 RETURN NVL(total, 0);
