@@ -667,16 +667,16 @@ if (userRole === 'INTERPRETER') {
     customButtons.newUnavailability = {
         text: '↗ Nouvelle indisponibilité',
         click: function() {
-            window.location.href = '/interpretes/profil/' + userId;
+            window.location.href = '/profil';
         }
     };
 }
 
 if (userRole === 'MANAGER') {
     customButtons.newUnavailability = {
-        text: isMobile ? '+ Indispo' : '+ Nouvelle indisponibilité',
+        text: isMobile ? '↗ Indispo' : '↗ Nouvelle indisponibilité',
         click: function() {
-            window.location.href = '/interpretes/profil/' + userId;
+            window.location.href = '/profil';
         }
     };
     customButtons.newMission = {
