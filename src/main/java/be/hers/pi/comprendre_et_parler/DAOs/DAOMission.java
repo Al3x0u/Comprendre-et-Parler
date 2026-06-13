@@ -283,6 +283,7 @@ public class DAOMission extends DAO<Mission> {
 
     /**
      * Return the schedule for a specific week
+     * Beneficiary data is partial and only includes id, firstName and lastName
      * @param year represent the year of the week
      * @param weekNumber represent the week number in the year (1-52)
      * @return a Set of Mission which compose the schedule OF the given week, or an empty Set if none was found
@@ -323,6 +324,7 @@ public class DAOMission extends DAO<Mission> {
 
     /**
      * Return the schedule of the user with the given id for a specific week
+     * Beneficiary data is partial and only includes id, firstName and lastName
      * @param idUser represent the id of the user which we want the schedule
      * @param year represent the year of the week
      * @param weekNumber represent the week number in the year (1-52)
@@ -338,14 +340,12 @@ public class DAOMission extends DAO<Mission> {
             missions.addAll(getScheduleForDay(idUser, date.plusDays(i)));
         }
 
-        // Add id and name to Beneficiary objects
-        for (Mission mis : missions)
-            mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
         return missions;
     }
 
     /**
      * Return the schedule of the user with the given id for a specific day
+     * Beneficiary data is partial and only includes id, firstName and lastName
      * @param idUser represent the id of the user which we want the schedule
      * @param date represent the specific day
      * @return a Set of Mission which compose the schedule of the idUser for the given day, or an empty Set if none was found
@@ -386,7 +386,7 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
 
-        // Add id and name Beneficiary objects
+        // Add id and name to Beneficiary objects
         for (Mission mis : missions)
             mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
         return missions;
@@ -421,9 +421,7 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
-        // Complete beneficiaries
-        //for (Mission mis : missions)
-            //mis.setBeneficiary(new DAOBeneficiary().find(mis.getBeneficiary().getId()));
+
         return missions;
     }
 
