@@ -25,7 +25,8 @@ const isMobile = window.innerWidth < 768;
 const activeFilters = {
     status: null,
     // MANAGER et INTERPRETER : pré-filtré sur son propre nom au chargement
-    interpreter: null
+    interpreter: null,
+    _localOnly: false
 };
 
 if ((userRole === 'MANAGER' || userRole === 'INTERPRETER') && managerFullName) {
