@@ -7,11 +7,11 @@ import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
 
 import java.sql.SQLException;
 
-public class TimeSlotService {
+public class PunctualTimeSlotService {
 
     private final DAOPunctualTimeSlot daoPunctualTimeSlot;
 
-    public TimeSlotService() {
+    public PunctualTimeSlotService() {
         this.daoPunctualTimeSlot = new DAOPunctualTimeSlot();
     }
 

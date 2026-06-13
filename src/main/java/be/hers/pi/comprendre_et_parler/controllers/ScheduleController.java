@@ -31,7 +31,7 @@ public class ScheduleController {
     private final AcademicSkillService academicSkillService = new AcademicSkillService();
     private final CityService cityService = new CityService();
     private final LocationService locationService = new LocationService();
-    private final TimeSlotService timeSlotService = new TimeSlotService();
+    private final PunctualTimeSlotService punctualTimeSlotService = new PunctualTimeSlotService();
 
 
     /**
@@ -831,7 +831,7 @@ public class ScheduleController {
             newMission.setId(mission.getId());
 
             if (newMission.getTimeSlot() != null) {
-                timeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
+                punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
             }
 
             if (newMission.getLocation() != null && mission.getLocation() != null) {
@@ -883,7 +883,7 @@ public class ScheduleController {
             newMission.setId(mission.getId());
 
             if (newMission.getTimeSlot() != null) {
-                timeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
+                punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
             }
 
             if (newMission.getLocation() != null && mission.getLocation() != null) {
