@@ -8,7 +8,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Savepoint;
 
 public class SQLWrap {
-    static boolean unimplementedReleaseSavepointWarning = true;
+    static boolean releaseSavePointManually = true; // Not supported on every JDBC. Sets itself to false after an SQLFeatureNotSupportedException
     /**
      * Wraps a method in an SQL transaction and single out connection exceptions
      * @param supplier the method to call. Must match a SupplierWithSQLException
@@ -288,13 +288,12 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
-            }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
                 }
             }
         }
@@ -323,13 +322,12 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
-            }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
                 }
             }
         }
@@ -360,14 +358,14 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
+                }
             }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
-                }            }
         }
     }
 
@@ -398,14 +396,14 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
+                }
             }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
-                }            }
         }
     }
 
@@ -429,14 +427,14 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
+                }
             }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
-                }            }
         }
     }
 
@@ -462,14 +460,14 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
+                }
             }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
-                }            }
         }
     }
 
@@ -495,14 +493,14 @@ public class SQLWrap {
         }
         finally {
             DatabaseConnector.getInstance().setAutoCommit(true);
-            try {
-                DatabaseConnector.getInstance().releaseSavepoint(sp);
+            if (releaseSavePointManually) {
+                try {
+                    DatabaseConnector.getInstance().releaseSavepoint(sp);
+                }
+                catch (SQLFeatureNotSupportedException e) {
+                    releaseSavePointManually = false;
+                }
             }
-            catch (SQLFeatureNotSupportedException e) {
-                if (unimplementedReleaseSavepointWarning) {
-                    System.err.println("Warning: " + e.getMessage());
-                    unimplementedReleaseSavepointWarning = false;
-                }            }
         }
     }
 }
