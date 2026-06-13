@@ -17,6 +17,8 @@ public class DAOExceptionalUnavailability {
     protected static final String FIELD_ID_TIMESLOT = "timeSlot";
     protected static final String FIELD_REASON = "reason";
 
+    private DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
+
     /**
      * Search for a ExceptionalUnavailability in the database with the int parameter
      * @param idInterpreter the primary key of the Interpreter for which one finds the unavailability in the database
@@ -77,9 +79,8 @@ public class DAOExceptionalUnavailability {
                     + " (id " + interpreter.getId() + ") does not exist in database");
 
         try {
-            new DAOPunctualTimeSlot().create(objectToInsert.getTimeSlot());
-        }
-        catch (AlreadyExistsException e) {}
+            daoPunctualTimeSlot.create(objectToInsert.getTimeSlot());
+        } catch (AlreadyExistsException ignored) {}
 
         String query = String.format("INSERT INTO %s(%s, %s, %s) VALUES (?, ?, ?)",
                 TABLE, FIELD_ID_INTERPRETER, FIELD_ID_TIMESLOT, FIELD_REASON);
@@ -113,7 +114,7 @@ public class DAOExceptionalUnavailability {
      */
     public void update(ExceptionalUnavailability objectToUpdate, Interpreter interpreter) throws NoSuchElementException, SQLException {
         try {
-            new DAOPunctualTimeSlot().create(objectToUpdate.getTimeSlot());
+            daoPunctualTimeSlot.create(objectToUpdate.getTimeSlot());
         } catch (AlreadyExistsException e) {}
 
         String query = String.format(
@@ -183,7 +184,7 @@ public class DAOExceptionalUnavailability {
      * @throws SQLException if the database could not be reached
      */
     protected boolean checkAlreadyExists(ExceptionalUnavailability objectToCheck, Interpreter interpreter) throws SQLException {
-        int idTimeSlot = new DAOPunctualTimeSlot().checkAlreadyExists(objectToCheck.getTimeSlot());
+        int idTimeSlot = daoPunctualTimeSlot.checkAlreadyExists(objectToCheck.getTimeSlot());
 
         if (idTimeSlot == -1)
             return false;
@@ -230,7 +231,7 @@ public class DAOExceptionalUnavailability {
     protected ExceptionalUnavailability getResult(ResultSet result) throws SQLException {
         return new ExceptionalUnavailability(
                 result.getString(FIELD_REASON),
-                new DAOPunctualTimeSlot().find(result.getInt(FIELD_ID_TIMESLOT))
+                daoPunctualTimeSlot.find(result.getInt(FIELD_ID_TIMESLOT))
         );
     }
 
@@ -247,8 +248,8 @@ public class DAOExceptionalUnavailability {
 
         Set<ExceptionalUnavailability> unavailability = new HashSet<ExceptionalUnavailability>();
         String query = "SELECT * FROM " + TABLE +" u"
-                + " JOIN "+ DAOPunctualTimeSlot.TABLE + " t ON t." + DAOPunctualTimeSlot.FIELD_ID + " = u." + FIELD_ID_TIMESLOT
-                + " WHERE " + FIELD_ID_INTERPRETER + " = ? AND t." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE";
+                + " JOIN "+ daoPunctualTimeSlot.TABLE + " t ON t." + daoPunctualTimeSlot.FIELD_ID + " = u." + FIELD_ID_TIMESLOT
+                + " WHERE " + FIELD_ID_INTERPRETER + " = ? AND t." + daoPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
