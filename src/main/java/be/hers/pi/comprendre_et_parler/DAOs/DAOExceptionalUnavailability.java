@@ -271,8 +271,8 @@ public class DAOExceptionalUnavailability {
     }
 
     /**
-     * Return all ExceptionalUnavailability of an Interpreter with the given id
-     * @param idInterpreter he primary key of the interpreter for which one finds all unavailability in the database
+     * Return all non-terminated ExceptionalUnavailability of the Interpreter with the given ID
+     * @param idInterpreter the primary key of the interpreter for which one finds all unavailability in the database
      * @return a Set of ExceptionalUnavailability instances representing the interpreter’s exceptional unavailability, or an empty Set if none exist
      * @throws IllegalArgumentException if id is < 0
      * @throws SQLException if the database could not be reached
