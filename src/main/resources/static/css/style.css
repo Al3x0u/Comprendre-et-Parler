@@ -56,7 +56,8 @@ body {
 }
 
 /* ─── Navbar ────────────────────────────────────────── */
-.nav-link.active {
+.nav-link.active,
+.active-profile {
     background-color: var(--oc-blue-1);
     color: var(--oc-blue-9) !important;
     border-radius: 8px;
@@ -69,13 +70,6 @@ body {
 
 .profile-name {
     color: var(--oc-blue-9);
-}
-
-.active-profile {
-    background-color: var(--oc-blue-1);
-    color: var(--oc-blue-9) !important;
-    border-radius: 8px;
-    padding: 4px 10px;
 }
 
 /* ─── Dashboard grid ────────────────────────────────── */
