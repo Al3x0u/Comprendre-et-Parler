@@ -244,11 +244,11 @@ public class DAOMission extends DAO<Mission> {
                 " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
                 " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
                 " WHERE " +
-                // status is shared
-                "m." + FIELD_STATE + " = ? " +
+                // status is shared and isn't one that's allowed to overlap
+                "m."+ FIELD_STATE +" = ? AND m."+ FIELD_STATE +"<> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +"<> "+ MissionState.CANCELED.getValue() +
                 // timeslots overlap
                 // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
-                "AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
+                " AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
                 " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
                 //
                 " AND (" +
