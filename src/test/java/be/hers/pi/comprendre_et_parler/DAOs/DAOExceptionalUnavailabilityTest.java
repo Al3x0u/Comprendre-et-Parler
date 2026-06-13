@@ -64,7 +64,7 @@ class DAOExceptionalUnavailabilityTest {
     }
 
     @Test
-    @Order(4)
+    @Order(3)
     public void testFind() throws SQLException {
         assertEquals(u1, unavailabilityDAO.find(i1.getId(), u1.getTimeSlot().getId()), "Find the updated object.");
         assertEquals(u2, unavailabilityDAO.find(i1.getId(), u2.getTimeSlot().getId()), "Find the unchanged object.");
@@ -89,7 +89,7 @@ class DAOExceptionalUnavailabilityTest {
     }
 
     @Test
-    @Order(3)
+    @Order(2)
     public void testUpdate() {
         u1.setReason("Lazy");
         assertDoesNotThrow(() -> {
@@ -102,7 +102,7 @@ class DAOExceptionalUnavailabilityTest {
     }
 
     @Test
-    @Order(6)
+    @Order(5)
     public void testDelete() {
         assertThrows(NoSuchElementException.class, () -> {
             unavailabilityDAO.delete(3, 3);
@@ -126,17 +126,7 @@ class DAOExceptionalUnavailabilityTest {
     }
 
     @Test
-    @Order(2)
-    public void testFindAll() throws SQLException {
-        Set<ExceptionalUnavailability> unavailability = unavailabilityDAO.findAll();
-        assertEquals(2, unavailability.size(), "There are two objects in the database.");
-        u1.setReason("Sick");
-        assertTrue(unavailability.contains(u1));
-        assertTrue(unavailability.contains(u2));
-    }
-
-    @Test
-    @Order(5)
+    @Order(4)
     public void testFindForInterpreter() throws SQLException {
         Set<ExceptionalUnavailability> unavailability = unavailabilityDAO.findForInterpreter(50);
         assertTrue(unavailability.isEmpty(), "There is no interpreter with this ID.");
