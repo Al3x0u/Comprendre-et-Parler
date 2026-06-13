@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DTO.CreateUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
@@ -13,9 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Controller
 public class ProfileController {
@@ -40,12 +38,14 @@ public class ProfileController {
                 model.addAttribute("userRole", "MANAGER");
                 model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
                 model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+                model.addAttribute("newUnavailability", new CreateUnavailability());
             } else if (user instanceof Interpreter i) {
                 i.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(i.getId()));
                 model.addAttribute("interprete", i);
                 model.addAttribute("userRole", "INTERPRETER");
                 model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
                 model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+                model.addAttribute("newUnavailability", new CreateUnavailability());
             } else if (user instanceof Beneficiary b) {
                 model.addAttribute("beneficiaire", b);
                 model.addAttribute("age", Period.between(b.getBirthDate(), LocalDate.now()).getYears());

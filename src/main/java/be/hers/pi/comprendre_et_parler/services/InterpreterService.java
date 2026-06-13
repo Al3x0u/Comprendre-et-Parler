@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.CreateInterpreterForm;
+import be.hers.pi.comprendre_et_parler.DTO.CreateUnavailability;
 import be.hers.pi.comprendre_et_parler.DTO.UpdateInterpreterForm;
 import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
@@ -22,6 +23,7 @@ public class InterpreterService {
     private final DAOInterpreter daoInterpreter = new DAOInterpreter();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
     private final DAOMission daoMission = new DAOMission();
+    private final DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
     private final MissionService missionService = new MissionService();
 
     /**
@@ -146,8 +148,11 @@ public class InterpreterService {
      * @throws AlreadyExistsException if the unavailability already exists in the database
      * @throws SQLException if the database could not be reached
      */
-    public void createUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
-        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, unavailability, interpreter);
+    public void createUnavailability(Interpreter interpreter, CreateUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
+        ExceptionalUnavailability newUnavailability = new ExceptionalUnavailability(unavailability.getReason(),
+                new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
+        SQLWrap.callTransaction(daoUnavailability::create, newUnavailability, interpreter);
+        interpreter.addUnavailability(newUnavailability);
     }
 
     /**
@@ -276,23 +281,27 @@ public class InterpreterService {
     /**
      * Modifies an interpreter's unavailability slot
      * @param interpreter the interpreter to modify
-     * @param oldUn an up-to-date ExceptionalUnavailability object to modify
-     * @param newUn the object to replace it with
+     * @param idOldTimeSlot the ID of the unavailability's timeSlot to update
+     * @param unavailability the object to replace it with
      * @throws NoSuchElementException if interpreter does not exist or does not possess oldUn in database
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if a database error occurs
      */
-    public void updateUnavailability(Interpreter interpreter, ExceptionalUnavailability oldUn, ExceptionalUnavailability newUn) throws SQLException, ConnectionException, NoSuchElementException {
+    public void updateUnavailability(Interpreter interpreter, int idOldTimeSlot, CreateUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
+        ExceptionalUnavailability newUn = new ExceptionalUnavailability(unavailability.getReason(),
+                new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
+        ExceptionalUnavailability oldUn = SQLWrap.callTransaction(daoUnavailability::find, interpreter.getId(), idOldTimeSlot);
+
         if (Objects.equals(oldUn, newUn)) return;
 
         if (oldUn.getTimeSlot().equals(newUn.getTimeSlot())) {
-            SQLWrap.callTransaction(new DAOExceptionalUnavailability()::update, newUn, interpreter);
+            SQLWrap.callTransaction(daoUnavailability::update, newUn, interpreter);
         }
         else {
             SQLWrap.callTransaction(
                     (Interpreter i, ExceptionalUnavailability oldEU, ExceptionalUnavailability newEU) -> {
-                        new DAOExceptionalUnavailability().delete(i.getId(), oldEU.getTimeSlot().getId());
-                        new DAOExceptionalUnavailability().create(newEU, i);
+                        daoUnavailability.delete(i.getId(), oldEU.getTimeSlot().getId());
+                        daoUnavailability.create(newEU, i);
                     }, interpreter, oldUn, newUn
             );
         }
@@ -302,14 +311,19 @@ public class InterpreterService {
 
     /**
      * Delete an interpreter's unavailability slot
-     * @param interpreter the interpreter to modify
-     * @param unavailability an up-to-date ExceptionalUnavailability object to delete
+     * @param interpreter the interpreter of the unavailability to delete
+     * @param timeSlotId the ID of the time slot of the unavailability to delete
      * @throws NoSuchElementException if the interpreter does not exist or does not possess unavailability in database
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if a database error occurs
      */
-    public void deleteUnavailability(Interpreter interpreter, ExceptionalUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
-        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::delete, interpreter.getId(), unavailability.getTimeSlot().getId());
+    public void deleteUnavailability(Interpreter interpreter, int timeSlotId) throws SQLException, ConnectionException, NoSuchElementException {
+        SQLWrap.callTransaction(
+                (Interpreter i, Integer id) -> {
+                    daoUnavailability.delete(i.getId(), id);
+                    i.setUnavailability(daoUnavailability.findForInterpreter(i.getId()));
+                }, interpreter, timeSlotId
+        );
     }
 
     /**

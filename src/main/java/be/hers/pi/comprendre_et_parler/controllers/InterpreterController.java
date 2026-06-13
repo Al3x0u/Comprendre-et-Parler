@@ -1,12 +1,10 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.*;
 import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.*;
-import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -86,6 +85,7 @@ public class InterpreterController {
             model.addAttribute("error", error);
             model.addAttribute("isOwnProfile", user.getId() == id);
             model.addAttribute("isInterpreterAManager", interpreter instanceof Manager);
+            model.addAttribute("newUnavailability", new CreateUnavailability());
             getSkills(model);
         } catch (Exception e) {
             e.printStackTrace();
@@ -227,7 +227,7 @@ public class InterpreterController {
     }
 
     /**
-     * Handle the addition of a academic skill to an interpreter, either an existing one or a new one
+     * Handle the addition of an academic skill to an interpreter, either an existing one or a new one
      * @param id the id of the interpreter
      * @param existingSkillId the id of an existing skill to link, empty if a new skill is created
      * @param newSkillName the designation of a new skill to create and link, empty if an existing skill is chosen
@@ -259,6 +259,71 @@ public class InterpreterController {
             e.printStackTrace();
         }
         return "redirect:/interpretes/profil/" + id;
+    }
+
+    /**
+     * Handle the creation of an unavailability to an interpreter
+     * @param newUnavailability the unavailability to create
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/indisponibilites/ajouter")
+    public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
+                                    HttpSession session) {
+        Interpreter user = (Interpreter) session.getAttribute("user");
+        try {
+            interpreterService.createUnavailability(user, newUnavailability);
+        } catch (AlreadyExistsException e) {
+            e.printStackTrace();
+            //TODO : display "Vous êtes déjà indisponible à ce moment là."
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO : display an error message
+        }
+
+        return "redirect:/profil";
+    }
+
+    /**
+     * Handle the suppression of an interpreter's unavailability
+     * @param idTimeSlot the ID of the unavailability's timeSlot to delete
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/indisponibilites/{idTimeSlot}/supprimer")
+    public String deleteUnavailability(@PathVariable int idTimeSlot,
+                                       HttpSession session) {
+        Interpreter user = (Interpreter) session.getAttribute("user");
+        try {
+            interpreterService.deleteUnavailability(user, idTimeSlot);
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO : display an error message
+        }
+
+        return "redirect:/profil";
+    }
+
+    /**
+     * Handle the update of an interpreter's unavailability
+     * @param idOldTimeSlot the ID of the unavailability's timeSlot to update
+     * @param newUnavailability the new information of the unavailability
+     * @param session the current HTTP session, used to check the user's rights
+     * @return a redirect to the interpreter's profile
+     */
+    @PostMapping("/profil/indisponibilites/{idOldTimeSlot}/modifier")
+    public String updateUnavailability(@PathVariable int idOldTimeSlot,
+                                       @ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
+                                       HttpSession session) {
+        Interpreter user = (Interpreter) session.getAttribute("user");
+        try {
+            interpreterService.updateUnavailability(user, idOldTimeSlot, newUnavailability);
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO : display an error message
+        }
+
+        return "redirect:/profil";
     }
     
      /**
@@ -328,7 +393,7 @@ public class InterpreterController {
             model.addAttribute("submitState", "success");
             model.addAttribute("interpreterForm", new CreateInterpreterForm());
         } catch (AlreadyExistsException e) {
-            model.addAttribute("submitState", "Cet utilisateur existe déjà");
+            model.addAttribute("submitState", "Cet utilisateur existe déjà.");
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
