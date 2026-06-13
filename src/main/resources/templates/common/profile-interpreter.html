@@ -102,9 +102,6 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Indisponibilités</h2>
                         <div class="d-flex">
-                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-unavailability" onclick="toggleEditUnavailability()">
-                                <i class="bi bi-x me-1"></i>Annuler
-                            </button>
                             <button th:if="${isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-unavailability" onclick="toggleEditUnavailability()">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
@@ -161,9 +158,6 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Compétences métier</h2>
                         <div class="d-flex">
-                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-job" onclick="toggleEditSkills('job')">
-                                <i class="bi bi-x me-1"></i>Annuler
-                            </button>
                             <button th:if="${isManager or isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-job" onclick="toggleEditSkills('job')">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
@@ -193,9 +187,6 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
                         <h2 class="h5 text-primary mb-0">Compétences académiques</h2>
                         <div class="d-flex">
-                            <button class="btn btn-outline-danger btn-sm rounded-4 d-none me-1" id="btn-cancel-academic" onclick="toggleEditSkills('academic')">
-                                <i class="bi bi-x me-1"></i>Annuler
-                            </button>
                             <button th:if="${isManager or isOwnProfile}" class="btn btn-outline-primary btn-sm rounded-4" id="btn-edit-academic" onclick="toggleEditSkills('academic')">
                                 <i class="bi bi-pencil me-1"></i>Modifier
                             </button>
