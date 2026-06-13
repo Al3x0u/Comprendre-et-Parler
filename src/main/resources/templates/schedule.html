@@ -17,46 +17,46 @@
             <input type="text" id="search-interpreter" class="form-control form-control-sm" placeholder="Rechercher...">
         </div>
 
-        <div id="user-filter-list" style="max-height:280px; overflow-y:auto;">
+        <div id="user-filter-list" class="filter-scroll-list">
 
             <div class="filter-section" id="section-manager">
-                <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#856404;">
+                <div class="filter-section-label filter-section-label--manager">
                     <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
                 </div>
                 <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == managerFullName}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
-                        <i class="bi bi-person-fill-gear" style="color:#856404;"></i>
+                        <i class="bi bi-person-fill-gear filter-dot-manager"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
                 </th:block>
             </div>
 
             <div class="filter-section" id="section-interpreter">
-                <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#0d6efd;">
+                <div class="filter-section-label filter-section-label--interpreter">
                     <i class="bi bi-translate me-1"></i>Interprètes
                 </div>
                 <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != managerFullName}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-role="${u.role}">
-                        <i class="bi bi-person-fill" style="color:#0d6efd;"></i>
+                        <i class="bi bi-person-fill filter-dot-interpreter"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
                 </th:block>
             </div>
 
             <div class="filter-section" id="section-beneficiary">
-                <div class="px-3 pt-2 pb-1" style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#146c43;">
+                <div class="filter-section-label filter-section-label--beneficiary">
                     <i class="bi bi-heart-fill me-1"></i>Bénéficiaires
                 </div>
                 <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'BENEFICIARY'}">
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="BENEFICIARY">
-                        <i class="bi bi-person-heart" style="color:#146c43;"></i>
+                        <i class="bi bi-person-heart filter-dot-beneficiary"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
                 </th:block>
             </div>
 
             <!--Message aucun résultat-->
-            <div id="no-user-result" class="px-3 py-2 text-muted fst-italic" style="display:none;font-size:0.85rem;">
+            <div id="no-user-result" class="px-3 py-2 text-muted fst-italic filter-no-result">
                 Aucun résultat
             </div>
         </div>
@@ -65,25 +65,23 @@
 
     <th:block th:if="${userRole == 'INTERPRETER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
-        <div id="interp-filter-list" style="max-height:280px; overflow-y:auto;">
+        <div id="interp-filter-list" class="filter-scroll-list">
 
             <div class="filter-section" id="interp-section-self">
-                <div class="px-3 pt-2 pb-1"
-                     style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#856404;">
+                <div class="filter-section-label filter-section-label--manager">
                     <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
                 </div>
                 <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
                    href="#"
                    th:data-value="${session.user.firstName + ' ' + session.user.lastName}"
                    data-role="INTERPRETER">
-                    <i class="bi bi-person-fill" style="color:#856404;"></i>
+                    <i class="bi bi-person-fill filter-dot-manager"></i>
                     <span th:text="${session.user.firstName + ' ' + session.user.lastName}"></span>
                 </a>
             </div>
 
             <div class="filter-section" id="interp-section-beneficiary">
-                <div class="px-3 pt-2 pb-1"
-                     style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#146c43;">
+                <div class="filter-section-label filter-section-label--beneficiary">
                     <i class="bi bi-heart-fill me-1"></i>Bénéficiaires référés
                 </div>
                 <th:block th:each="b : ${beneficiaries}">
@@ -91,7 +89,7 @@
                        href="#"
                        th:data-value="${b.firstName + ' ' + b.lastName}"
                        data-role="BENEFICIARY">
-                        <i class="bi bi-person-heart" style="color:#146c43;"></i>
+                        <i class="bi bi-person-heart filter-dot-beneficiary"></i>
                         <span th:text="${b.firstName + ' ' + b.lastName}"></span>
                     </a>
                 </th:block>
@@ -104,16 +102,16 @@
     <!-- By status -->
     <h6 class="dropdown-header">Par statut</h6>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Acceptée">
-        <div style="width:12px;height:12px;background:#40c057;border-radius:3px"></div>Acceptée
+        <div class="filter-status-dot filter-status-dot--accepted"></div>Acceptée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="En attente">
-        <div style="width:12px;height:12px;background:#fab005;border-radius:3px"></div>En attente
+        <div class="filter-status-dot filter-status-dot--pending"></div>En attente
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Refusée">
-        <div style="width:12px;height:12px;background:#fa5252;border-radius:3px"></div>Refusée/Annulée
+        <div class="filter-status-dot filter-status-dot--refused"></div>Refusée/Annulée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Horaire de base">
-        <div style="width:12px;height:12px;background:#4dabf7;border-radius:3px"></div>Horaire de base
+        <div class="filter-status-dot filter-status-dot--base"></div>Horaire de base
     </a>
 </div>
 
@@ -205,7 +203,7 @@
 </div>
 
 <!-- CONFIRMATION DEPASSEMENT QUOTA -->
-<div class="modal fade" id="quotaWarningModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+<div class="modal fade" id="quotaWarningModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0">
@@ -627,7 +625,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Interprètes*</label>
-                    <div id="missionInterpreters" class="border rounded p-2" style="max-height: 160px; overflow-y: auto;">
+                    <div id="missionInterpreters" class="border rounded p-2 mission-interpreters-list">
                         <div class="form-check" th:each="interpreter : ${interpreters}">
                             <input class="form-check-input mission-interpreter-check" type="checkbox"
                                    th:id="'missionInterp_' + ${interpreter.id}"
