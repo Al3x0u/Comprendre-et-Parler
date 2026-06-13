@@ -23,6 +23,7 @@ public class InterpreterService {
     private final DAOInterpreter daoInterpreter = new DAOInterpreter();
     private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
     private final DAOMission daoMission = new DAOMission();
+    private final DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
     private final MissionService missionService = new MissionService();
 
     /**
@@ -150,7 +151,7 @@ public class InterpreterService {
     public void createUnavailability(Interpreter interpreter, CreateUnavailability unavailability) throws AlreadyExistsException, IllegalArgumentException, SQLException {
         ExceptionalUnavailability newUnavailability = new ExceptionalUnavailability(unavailability.getReason(),
                 new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
-        SQLWrap.callTransaction(new DAOExceptionalUnavailability()::create, newUnavailability, interpreter);
+        SQLWrap.callTransaction(daoUnavailability::create, newUnavailability, interpreter);
         interpreter.addUnavailability(newUnavailability);
     }
 
@@ -289,18 +290,18 @@ public class InterpreterService {
     public void updateUnavailability(Interpreter interpreter, int idOldTimeSlot, CreateUnavailability unavailability) throws SQLException, ConnectionException, NoSuchElementException {
         ExceptionalUnavailability newUn = new ExceptionalUnavailability(unavailability.getReason(),
                 new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
-        ExceptionalUnavailability oldUn = SQLWrap.callTransaction(new DAOExceptionalUnavailability()::find, interpreter.getId(), idOldTimeSlot);
+        ExceptionalUnavailability oldUn = SQLWrap.callTransaction(daoUnavailability::find, interpreter.getId(), idOldTimeSlot);
 
         if (Objects.equals(oldUn, newUn)) return;
 
         if (oldUn.getTimeSlot().equals(newUn.getTimeSlot())) {
-            SQLWrap.callTransaction(new DAOExceptionalUnavailability()::update, newUn, interpreter);
+            SQLWrap.callTransaction(daoUnavailability::update, newUn, interpreter);
         }
         else {
             SQLWrap.callTransaction(
                     (Interpreter i, ExceptionalUnavailability oldEU, ExceptionalUnavailability newEU) -> {
-                        new DAOExceptionalUnavailability().delete(i.getId(), oldEU.getTimeSlot().getId());
-                        new DAOExceptionalUnavailability().create(newEU, i);
+                        daoUnavailability.delete(i.getId(), oldEU.getTimeSlot().getId());
+                        daoUnavailability.create(newEU, i);
                     }, interpreter, oldUn, newUn
             );
         }
@@ -319,8 +320,8 @@ public class InterpreterService {
     public void deleteUnavailability(Interpreter interpreter, int timeSlotId) throws SQLException, ConnectionException, NoSuchElementException {
         SQLWrap.callTransaction(
                 (Interpreter i, Integer id) -> {
-                    new DAOExceptionalUnavailability().delete(i.getId(), id);
-                    i.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(i.getId()));
+                    daoUnavailability.delete(i.getId(), id);
+                    i.setUnavailability(daoUnavailability.findForInterpreter(i.getId()));
                 }, interpreter, timeSlotId
         );
     }
