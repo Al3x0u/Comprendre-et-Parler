@@ -282,9 +282,9 @@ public class DAOExceptionalUnavailability {
             throw new IllegalArgumentException("Invalid id : " + idInterpreter);
 
         Set<ExceptionalUnavailability> unavailability = new HashSet<ExceptionalUnavailability>();
-        String query = String.format("SELECT * FROM %s WHERE %s = ?",
-                TABLE, FIELD_ID_INTERPRETER
-        );
+        String query = "SELECT * FROM " + TABLE +" u"
+                + " JOIN "+ DAOPunctualTimeSlot.TABLE + " t ON t." + DAOPunctualTimeSlot.FIELD_ID + " = u." + FIELD_ID_TIMESLOT
+                + " WHERE " + FIELD_ID_INTERPRETER + " = ? AND t." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
