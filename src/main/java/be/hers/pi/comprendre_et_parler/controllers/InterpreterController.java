@@ -22,6 +22,8 @@ public class InterpreterController {
 
     private final InterpreterService interpreterService = new InterpreterService();
     private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final JobSkillService jobSkillService = new JobSkillService();
+    private final AcademicSkillService academicSkillService = new AcademicSkillService();
 
     /**
      * Display the paginated and filtered list of interpreters
@@ -212,7 +214,7 @@ public class InterpreterController {
 
             JobSkill skill = null;
             if (existingSkillId != null) {
-                skill = new JobSkillService().getAllJobSkills().stream()
+                skill = jobSkillService.getAllJobSkills().stream()
                         .filter(s -> s.getId() == existingSkillId)
                         .findFirst().orElse(null);
             } else if (newSkillName != null && !newSkillName.isBlank()) {
@@ -247,7 +249,7 @@ public class InterpreterController {
 
             AcademicSkill skill = null;
             if (existingSkillId != null) {
-                skill = new AcademicSkillService().getAllAcademicSkills().stream()
+                skill = academicSkillService.getAllAcademicSkills().stream()
                         .filter(s -> s.getId() == existingSkillId)
                         .findFirst().orElse(null);
             } else if (newSkillName != null && !newSkillName.isBlank()) {
@@ -446,8 +448,8 @@ public class InterpreterController {
      */
     private void getSkills(Model model) {
         try {
-            model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
-            model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+            model.addAttribute("allAcademicSkills", academicSkillService.getAllAcademicSkills());
+            model.addAttribute("allJobSkills", jobSkillService.getAllJobSkills());
         } catch (SQLException e) {
             e.printStackTrace();
         }
