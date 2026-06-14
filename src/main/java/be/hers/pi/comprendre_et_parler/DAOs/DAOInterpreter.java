@@ -732,8 +732,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
      */
     public Set<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) throws SQLException {
         String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%S " +
-                        "WHERE t.%S = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
+                "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%s " +
+                        "WHERE t.%s = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
                 TABLE, TABLE_AVAILABILITY, FIELD_ID, FIELD_INTERPRETER, DAOBaseTimeSlot.TABLE,
                 DAOBaseTimeSlot.TABLE, DAOBaseTimeSlot.FIELD_ID, DAOPunctualTimeSlot.FIELD_START_TIME,
                 DAOPunctualTimeSlot.FIELD_END_TIME, DAOPunctualTimeSlot.FIELD_START_TIME
@@ -756,98 +756,6 @@ public class DAOInterpreter extends DAO<Interpreter> {
         }
         return interpreters;
     }
-
-    /**
-     * Return all Interpreter who have the AcademicSkill having the given id
-     * @param idAcademicSkills the id of the AcademicSkill
-     * @return a set of Interpreter who have the AcademicSkill having the idAcademicSkills, or an empty set if no Interpreter have this AcademicSkill
-     * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if idAcademicSkills doesn't correspond to the id of any AcademicSkill
-     */
-    public Set<Interpreter> findByAcademicSkills(int idAcademicSkills) throws NoSuchElementException, SQLException {
-        if (daoMission.find(idAcademicSkills) == null)
-            throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + idAcademicSkills);
-
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s ai ON i.%s = ai.%s WHERE ai.%s = ?",
-                TABLE, TABLE_ACADEMIC_SKILL_INTERPRETER, FIELD_ID, FIELD_INTERPRETER, FIELD_SKILL
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idAcademicSkills);
-
-            result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
-        return interpreters;
-    }
-
-    /**
-     * Return all Interpreter who have the JobSkill having the given id
-     * @param idJobSkills the id of the JobSkill
-     * @return a Set of Interpreter who have the JobSkill having the idJobSkills, or an empty set if no Interpreter have this JobSkill
-     * @throws NoSuchElementException if idJobSkills doesn't correspond to the id of any JobSkill
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<Interpreter> findByJobSkills(int idJobSkills) throws NoSuchElementException, SQLException {
-        if (daoMission.find(idJobSkills) == null)
-            throw new NoSuchElementException("[ERROR] There is no JobSkill with the id " + idJobSkills);
-
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s ai ON i.%s = ai.%s WHERE ai.%s = ?",
-                TABLE, TABLE_JOB_SKILL_INTERPRETER, FIELD_ID, FIELD_INTERPRETER, FIELD_SKILL
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idJobSkills);
-
-            result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
-        return interpreters;
-    }
-
-    /**
-     * Load all interpreters linked to a mission from the InterpreterMission table
-     * @param missionId the id of the mission
-     * @return a Set of Interpreter linked to this mission
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<Interpreter> findByMission(int missionId) throws SQLException {
-        String query = "SELECT interpreter FROM InterpreterMission WHERE mission = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        Set<Interpreter> interpreters = new HashSet<>();
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, missionId);
-            result = statement.executeQuery();
-            while (result.next()) {
-                Interpreter interpreter = find(result.getInt("interpreter"));
-                if (interpreter != null)
-                    interpreters.add(interpreter);
-            }
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
-        return interpreters;
-    }
-
 
     /**
      * Get the number of worked hours of an Interpreter between two dates

@@ -14,9 +14,8 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/demandes")
 public class RequestController {
-
-    private final MissionService missionService = new MissionService();
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static MissionService missionService = new MissionService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     /**
      * Display the list of pending requests, optionally filtered by beneficiary.

@@ -15,8 +15,8 @@ import java.sql.SQLException;
 @Controller
 public class DashboardController {
 
-    private final InterpreterService interpreterService = new InterpreterService();
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static InterpreterService interpreterService = new InterpreterService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     @GetMapping("/hash")
     @ResponseBody

@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
@@ -552,5 +553,53 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
+    }
+
+    /**
+     * Returns a list of missions filtered according to the given filter.
+     * @param filter the filter to apply, each criterion is optional (null means no filter)
+     * @return a Set of Mission matching the filter
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getByFilter(MissionFilter filter) throws SQLException {
+        String query = "SELECT * FROM %s %s %s %s";
+        query = String.format(query, TABLE,
+                filter.getInterpreter() != null && filter.getInterpreter().getId() != -1 ?
+                        "JOIN " + TABLE_INTERPRETER_MISSION + " i ON m." + FIELD_ID + " = i." + INTERPRETER_MISSION_REF_MISSION
+                                + " WHERE i." + INTERPRETER_MISSION_REF_INTERPRETER + " = ? AND"
+                        : "WHERE",
+                filter.getBeneficiary() != null && filter.getBeneficiary().getId() != -1 ? FIELD_BENEFICIARY + " = ? AND" : "",
+                filter.getStateOfMission() != null ? FIELD_STATE + " = ?" : ""
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<Mission> missions = new HashSet<>();
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            int field = 1;
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            if (filter.getBeneficiary() != null)
+                statement.setInt(field++, filter.getBeneficiary().getId());
+            if (filter.getStateOfMission() != null)
+                statement.setInt(field++, filter.getStateOfMission().getValue());
+            if (filter.getInterpreter() != null)
+                statement.setInt(field, filter.getInterpreter().getId());
+
+            result = statement.executeQuery();
+            while (result.next())
+                missions.add(getResult(result));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+
+        // Complete Beneficiary objects
+        for (Mission mis : missions) {
+            if (mis.getBeneficiary() != null)
+                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
+        }
+
+        return missions;
     }
 }

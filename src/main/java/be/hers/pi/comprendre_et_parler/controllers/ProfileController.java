@@ -16,10 +16,9 @@ import java.time.Period;
 
 @Controller
 public class ProfileController {
-
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
-    private final AcademicSkillService academicSkillService = new AcademicSkillService();
-    private final JobSkillService jobSkillService = new JobSkillService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
 
     /**
      * Display the profile of the connected user

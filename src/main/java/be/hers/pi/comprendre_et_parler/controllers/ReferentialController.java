@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/gestion")
 public class ReferentialController {
-    private final AcademicSkillService academicSkillService = new AcademicSkillService();
-    private final JobSkillService jobSkillService = new JobSkillService();
-    private final StatusService statusService = new StatusService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
+    private final static StatusService statusService = new StatusService();
 
     /**
      * Display the referential management page
