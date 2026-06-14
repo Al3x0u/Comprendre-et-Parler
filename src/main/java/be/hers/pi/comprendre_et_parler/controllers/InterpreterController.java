@@ -335,14 +335,13 @@ public class InterpreterController {
         return "redirect:/profil";
     }
 
-     /**
+    /**
      * Handle the demotion of a manager into an interpreter
      * @param id the id of the manager to demote
      * @return redirect to the interpreter profile
      */
     @PostMapping("/profil/{id}/retrograder")
-    public String demoteInterpreter(@PathVariable int id, Model model,
-                                    @RequestHeader(value = "Referer", required = false) String referer) {
+    public String demoteInterpreter(@PathVariable int id) {
         try {
             interpreterService.demoteManager(id);
         } catch (Exception e) {
