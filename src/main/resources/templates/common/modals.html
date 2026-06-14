@@ -10,16 +10,16 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header text-bg-primary rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-trash me-2"></i>[[${title}]]</h5>
+                    <h5 class="modal-title"><i class="bi bi-power me-2"></i>[[${title}]]</h5>
                 </div>
                 <div class="modal-body py-5">
-                    Êtes-vous sûr de vouloir supprimer <strong id="delete-name"></strong> ?
+                    Êtes-vous sûr de vouloir désactiver le compte de  <strong id="delete-name"></strong> ?
                 </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                     <form id="delete-form" method="post">
                         <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash me-2"></i>Supprimer
+                            <i class="bi bi-trash me-2"></i>Désactiver
                         </button>
                     </form>
                 </div>
@@ -31,7 +31,7 @@
             const button = event.relatedTarget;
             const route = button.getAttribute('data-route') || document.getElementById('modalDelete').getAttribute('data-route');
             document.getElementById('delete-name').textContent = button.getAttribute('data-name');
-            document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/supprimer';
+            document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/desactiver';
         });
     </script>
 </th:block>

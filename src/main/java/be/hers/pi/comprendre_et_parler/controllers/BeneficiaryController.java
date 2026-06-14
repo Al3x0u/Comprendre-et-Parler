@@ -260,7 +260,7 @@ public class BeneficiaryController {
      * @param id the id of the beneficiary to deactivate
      * @return redirect to the beneficiary list on success, or back to the profile with an error parameter on failure
      */
-    @PostMapping("/profil/{id}/desactiver")
+    @PostMapping({"/profil/{id}/desactiver", "/{id}/desactiver"})
     public String deactivateBeneficiary(@PathVariable int id) {
         try {
             beneficiaryService.disableBeneficiary(id);
