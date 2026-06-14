@@ -2,11 +2,7 @@
 <html lang="fr"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{website.name}"></title>
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <th:block th:replace="~{common/head :: head(#{website.name})}"></th:block>
 </head>
 <body>
 <div class="d-flex flex-column flex-wrap align-items-center container" style="margin-top: 10vh;">
@@ -33,11 +29,15 @@
             </div>
             <div class="mb-5">
                 <label class="form-label text-muted">Mot de passe</label>
-                <input type="password" name="password"
-                       th:classappend="${error != null} ? 'is-invalid' : ''"
-                       class="form-control rounded"
-                       placeholder="Entrez votre mot de passe"
-                       required/>
+                <div class="position-relative">
+                    <input type="password" name="password" id="password"
+                           th:classappend="${error != null} ? 'is-invalid' : ''"
+                           class="form-control rounded pe-5"
+                           placeholder="Entrez votre mot de passe"
+                           required/>
+                    <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                       data-target="password" style="cursor: pointer;"></i>
+                </div>
             </div>
             <div class="d-grid mb-2">
                 <button type="submit" class="btn btn-primary rounded">Se connecter</button>

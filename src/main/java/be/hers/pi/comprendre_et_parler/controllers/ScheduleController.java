@@ -903,7 +903,7 @@ public class ScheduleController {
     public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-            if (!(user instanceof Beneficiary)) {
+            if (!(user instanceof Beneficiary) && !(user instanceof Manager)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
             }
 
@@ -912,13 +912,15 @@ public class ScheduleController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("La demande n'est plus modifiable.");
             }
 
-            boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
-            if (!isOwner) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            if (user instanceof Beneficiary) {
+                boolean isOwner = mission.getBeneficiary() != null && mission.getBeneficiary().getId() == user.getId();
+                if (!isOwner) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+                }
             }
 
             Mission newMission = buildMissionFromBody(new HashMap<>(body));
-            newMission.setBeneficiary((Beneficiary) user);
+            newMission.setBeneficiary(mission.getBeneficiary());
             newMission.setId(mission.getId());
 
             prepareMissionUpdate(mission, newMission);
