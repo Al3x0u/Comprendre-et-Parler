@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -269,7 +270,8 @@ public class InterpreterController {
      */
     @PostMapping("/profil/indisponibilites/ajouter")
     public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
-                                    HttpSession session) {
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttributes) {
         AppliUser sessionUser = (AppliUser) session.getAttribute("user");
         if (!(sessionUser instanceof Interpreter user)) {
             return "redirect:/profil";
@@ -277,11 +279,10 @@ public class InterpreterController {
         try {
             interpreterService.createUnavailability(user, newUnavailability);
         } catch (AlreadyExistsException e) {
-            e.printStackTrace();
-            //TODO : display "Vous êtes déjà indisponible à ce moment là."
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Vous êtes déjà indisponible à ce moment-là.");
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO : display an error message
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Une erreur est survenue lors de l'ajout de l'indisponibilité.");
         }
 
         return "redirect:/profil";
@@ -295,7 +296,8 @@ public class InterpreterController {
      */
     @PostMapping("/profil/indisponibilites/{idTimeSlot}/supprimer")
     public String deleteUnavailability(@PathVariable int idTimeSlot,
-                                       HttpSession session) {
+                                       HttpSession session,
+                                       RedirectAttributes redirectAttributes) {
         AppliUser sessionUser = (AppliUser) session.getAttribute("user");
         if (!(sessionUser instanceof Interpreter user)) {
             return "redirect:/profil";
@@ -304,7 +306,7 @@ public class InterpreterController {
             interpreterService.deleteUnavailability(user, idTimeSlot);
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO : display an error message
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Une erreur est survenue lors de la suppression de l'indisponibilité.");
         }
 
         return "redirect:/profil";
@@ -320,7 +322,8 @@ public class InterpreterController {
     @PostMapping("/profil/indisponibilites/{idOldTimeSlot}/modifier")
     public String updateUnavailability(@PathVariable int idOldTimeSlot,
                                        @ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
-                                       HttpSession session) {
+                                       HttpSession session,
+                                       RedirectAttributes redirectAttributes) {
         AppliUser sessionUser = (AppliUser) session.getAttribute("user");
         if (!(sessionUser instanceof Interpreter user)) {
             return "redirect:/profil";
@@ -329,7 +332,7 @@ public class InterpreterController {
             interpreterService.updateUnavailability(user, idOldTimeSlot, newUnavailability);
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO : display an error message
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Une erreur est survenue lors de la modification de l'indisponibilité.");
         }
 
         return "redirect:/profil";
