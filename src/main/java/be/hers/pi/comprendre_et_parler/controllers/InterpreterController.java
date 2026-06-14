@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -18,8 +19,11 @@ import java.util.List;
 @Controller
 @RequestMapping("interpretes")
 public class InterpreterController {
+
     private final static InterpreterService interpreterService = new InterpreterService();
     private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
 
     /**
      * Display the paginated and filtered list of interpreters
@@ -210,7 +214,7 @@ public class InterpreterController {
 
             JobSkill skill = null;
             if (existingSkillId != null) {
-                skill = new JobSkillService().getAllJobSkills().stream()
+                skill = jobSkillService.getAllJobSkills().stream()
                         .filter(s -> s.getId() == existingSkillId)
                         .findFirst().orElse(null);
             } else if (newSkillName != null && !newSkillName.isBlank()) {
@@ -245,7 +249,7 @@ public class InterpreterController {
 
             AcademicSkill skill = null;
             if (existingSkillId != null) {
-                skill = new AcademicSkillService().getAllAcademicSkills().stream()
+                skill = academicSkillService.getAllAcademicSkills().stream()
                         .filter(s -> s.getId() == existingSkillId)
                         .findFirst().orElse(null);
             } else if (newSkillName != null && !newSkillName.isBlank()) {
@@ -268,16 +272,18 @@ public class InterpreterController {
      */
     @PostMapping("/profil/indisponibilites/ajouter")
     public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
-                                    HttpSession session) {
-        Interpreter user = (Interpreter) session.getAttribute("user");
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttributes) {
+        AppliUser sessionUser = (AppliUser) session.getAttribute("user");
+        if (!(sessionUser instanceof Interpreter user))
+            return "redirect:/profil";
         try {
             interpreterService.createUnavailability(user, newUnavailability);
         } catch (AlreadyExistsException e) {
-            e.printStackTrace();
-            //TODO : display "Vous êtes déjà indisponible à ce moment là."
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Vous êtes déjà indisponible à ce moment-là.");
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO : display an error message
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Une erreur est survenue lors de l'ajout de l'indisponibilité.");
         }
 
         return "redirect:/profil";
@@ -291,13 +297,16 @@ public class InterpreterController {
      */
     @PostMapping("/profil/indisponibilites/{idTimeSlot}/supprimer")
     public String deleteUnavailability(@PathVariable int idTimeSlot,
-                                       HttpSession session) {
-        Interpreter user = (Interpreter) session.getAttribute("user");
+                                       HttpSession session,
+                                       RedirectAttributes redirectAttributes) {
+        AppliUser sessionUser = (AppliUser) session.getAttribute("user");
+        if (!(sessionUser instanceof Interpreter user))
+            return "redirect:/profil";
         try {
             interpreterService.deleteUnavailability(user, idTimeSlot);
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO : display an error message
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Une erreur est survenue lors de la suppression de l'indisponibilité.");
         }
 
         return "redirect:/profil";
@@ -313,26 +322,28 @@ public class InterpreterController {
     @PostMapping("/profil/indisponibilites/{idOldTimeSlot}/modifier")
     public String updateUnavailability(@PathVariable int idOldTimeSlot,
                                        @ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
-                                       HttpSession session) {
-        Interpreter user = (Interpreter) session.getAttribute("user");
+                                       HttpSession session,
+                                       RedirectAttributes redirectAttributes) {
+        AppliUser sessionUser = (AppliUser) session.getAttribute("user");
+        if (!(sessionUser instanceof Interpreter user))
+            return "redirect:/profil";
         try {
             interpreterService.updateUnavailability(user, idOldTimeSlot, newUnavailability);
         } catch (Exception e) {
             e.printStackTrace();
-            //TODO : display an error message
+            redirectAttributes.addFlashAttribute("unavailabilityError", "Une erreur est survenue lors de la modification de l'indisponibilité.");
         }
 
         return "redirect:/profil";
     }
-    
-     /**
+
+    /**
      * Handle the demotion of a manager into an interpreter
      * @param id the id of the manager to demote
      * @return redirect to the interpreter profile
      */
     @PostMapping("/profil/{id}/retrograder")
-    public String demoteInterpreter(@PathVariable int id, Model model,
-                                    @RequestHeader(value = "Referer", required = false) String referer) {
+    public String demoteInterpreter(@PathVariable int id) {
         try {
             interpreterService.demoteManager(id);
         } catch (Exception e) {
@@ -396,10 +407,10 @@ public class InterpreterController {
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-        } finally {
-            populateCreationModel(model);
-            return "interpreters/creation";
         }
+
+        populateCreationModel(model);
+        return "interpreters/creation";
     }
 
     /**
@@ -434,8 +445,8 @@ public class InterpreterController {
      */
     private void getSkills(Model model) {
         try {
-            model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
-            model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+            model.addAttribute("allAcademicSkills", academicSkillService.getAllAcademicSkills());
+            model.addAttribute("allJobSkills", jobSkillService.getAllJobSkills());
         } catch (SQLException e) {
             e.printStackTrace();
         }
