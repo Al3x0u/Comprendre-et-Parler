@@ -146,7 +146,7 @@ public class DAOMission extends DAO<Mission> {
 
         // Check for schedule overlaps with the new timeslot
         int idInDB = checkAlreadyExists(objectToUpdate);
-        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
+        if (idInDB >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         // Create new Location if needed
@@ -250,7 +250,7 @@ public class DAOMission extends DAO<Mission> {
      */
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
-        if (mission.getStateOfMission() != MissionState.CANCELED && mission.getStateOfMission() != MissionState.DENIED)
+        if (mission.getStateOfMission() == MissionState.CANCELED || mission.getStateOfMission() == MissionState.DENIED)
             return -1;
 
         // Find Missions in states that are not allowed to overlap, sharing an interpreter or beneficiary with mission, and for which timeslots overlap
