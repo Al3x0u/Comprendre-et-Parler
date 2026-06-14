@@ -29,7 +29,7 @@ public class PasswordResetService {
     private final NotificationService notificationService = new NotificationService();
 
     /**
-     * Process a reinitialization request : si the email exist et there is still time in the limit
+     * Process a reinitialization request : if the email exist and there is still time in the limit
      * generate a token and send the email. Never reveal to the user if the email exist or not
      * @param email the email entered by the user
      * qparam baseUrl the root of the website, to build the url
@@ -61,7 +61,7 @@ public class PasswordResetService {
     }
 
     /**
-     * Consume the token (one use only) et return the id of the user
+     * Consume the token (one use only) and return the id of the user
      * @return the id of the user or -1 if the token is unknow or expired
      */
     public synchronized int consumeToken(String token){
