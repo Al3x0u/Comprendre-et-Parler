@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.services;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAO;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOAppliUser;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
@@ -45,5 +46,39 @@ public class PasswordService {
      */
     public boolean verifyCurrentPassword(AppliUser user, String password) {
         return encoder.matches(password, user.getHashedPassword());
+    }
+
+    /**
+     * Check if the password respect security rules
+     * @param password the plain text password to validate
+     * @return null if valid else the error message
+     */
+    public String validatePasswordRules(String password){
+        //single source of truth
+        String warningMsg = null;
+
+        if(password.length() < 8){
+            warningMsg = "Le mot de passe doit contenir au moins 8 caractères.";
+        }else if(!password.matches(".*[A-Z].*")){
+            warningMsg = "Le mot de passe doit contenir au moins une majuscule.";
+        }else if(!password.matches(".*[0-9].*")){
+            warningMsg = "Le mot de passe doit contenir au moins 1 chiffre.";
+        }else if(!password.matches(".*[^a-zA-Z0-9].*")){
+            warningMsg = "Le mot de passe doit contenir au moins un caractere special.";
+        }
+
+        return warningMsg;
+    }
+
+    /**
+     * Reinitialize the password of an user identified by its id
+     * @param userId the id of the user
+     * @param newPassword the plain text new password
+     * @post the hash of the password has been update and passwordUpdated of the user is true
+     */
+    public void resetPassword(int userId, String newPassword)throws SQLException, ConnectionException{
+        //the post is for avoid new SQL call to get the user then check its passwordUpdated flag is true
+        String hashedNewPassword = encoder.encode(newPassword);
+        SQLWrap.callTransaction(new DAOAppliUser()::updatePassword, userId, hashedNewPassword);
     }
 }

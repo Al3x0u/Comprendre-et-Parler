@@ -25,6 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/",
                         "/login",
                         "/logout",
+                        "/mot-de-passe-oublie",
+                        "/reinitialiser",
                         "/hash",
                         "/error",
                         "/css/**",
