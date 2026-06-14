@@ -181,6 +181,42 @@ function buildStars(importance, max = 3) {
     return stars;
 }
 
+/** @type {Array<{id: string, name: string}>} Interpreters currently selected for the mission form */
+let selectedMissionInterpreters = [];
+
+/**
+ * Renders the selected-interpreters badges in the mission form,
+ * each with a remove button that updates the selection.
+ * @returns {void}
+ */
+function renderInterpreterBadges() {
+    const container = document.getElementById('missionInterpreterBadges');
+    container.innerHTML = '';
+    selectedMissionInterpreters.forEach(interp => {
+        const badge = document.createElement('span');
+        badge.className = 'interpreter-badge';
+        badge.innerHTML = `${interp.name} <i class="bi bi-x" data-id="${interp.id}"></i>`;
+        badge.querySelector('i').addEventListener('click', () => {
+            selectedMissionInterpreters = selectedMissionInterpreters.filter(x => x.id !== interp.id);
+            renderInterpreterBadges();
+        });
+        container.appendChild(badge);
+    });
+}
+
+/**
+ * Maps a mission status label to the corresponding badge CSS class.
+ * @param {string} status - the status label (e.g. "Acceptée", "En attente")
+ * @returns {string} the CSS class to apply to the status badge
+ */
+function getStatusBadgeClass(status) {
+    const s = (status || '').toLowerCase();
+    if (s.includes('accept')) return 'status-badge--accepted';
+    if (s.includes('attente')) return 'status-badge--pending';
+    if (s.includes('refus') || s.includes('annul')) return 'status-badge--refused';
+    return 'status-badge--base';
+}
+
 /**
  * Fills a creation modal (mission or request) with existing data and switches it to edit mode.
  * Changes the submit button to send a PUT instead of POST.
@@ -282,23 +318,16 @@ function fillAndOpenEditModal(type, props, event, missionId) {
 
     if (type === 'mission') {
 
-        let checkedIds = [];
-
+        selectedMissionInterpreters = [];
         if (props.interpreterIds) {
-            checkedIds = props.interpreterIds
-                .split(',')
-                .map(function (id) {
-                    return id.trim();
-                });
+            const ids = props.interpreterIds.split(',').map(s => s.trim()).filter(s => s !== '');
+            const names = (props.interpreter || '').split(',').map(s => s.trim()).filter(s => s !== '');
+            ids.forEach((id, i) => {
+                selectedMissionInterpreters.push({ id, name: names[i] || id });
+            });
         }
+        renderInterpreterBadges();
 
-        document.querySelectorAll('.mission-interpreter-check').forEach(function (checkbox) {
-            if (checkedIds.includes(checkbox.value)) {
-                checkbox.checked = true;
-            } else {
-                checkbox.checked = false;
-            }
-        });
         const beneficiarySelect = document.getElementById('missionBeneficiary');
         if (props.beneficiaryId) {
             beneficiarySelect.value = props.beneficiaryId;
@@ -436,29 +465,21 @@ function openManagerModal(event, props, currentMissionId) {
     const isPending = status.includes('en attente');
     const isAccepted = status.includes('accept');
     const interpreterSelect = document.getElementById('managerPendingInterpreter');
-    interpreterSelect.disabled = !(isPending && beforeStart);
+    const nameSpan = document.getElementById('managerPendingInterpreterName');
 
     if (isAccepted) {
-        interpreterSelect.style.display = 'none';
+        interpreterSelect.classList.add('d-none');
+        nameSpan.classList.remove('d-none');
 
-        let nameSpan = document.getElementById('managerPendingInterpreterName');
-        if (!nameSpan) {
-            nameSpan = document.createElement('span');
-            nameSpan.id = 'managerPendingInterpreterName';
-            nameSpan.className = 'fst-italic text-muted';
-            interpreterSelect.parentNode.appendChild(nameSpan);
-        }
-
-        nameSpan.style.display = '';
         const interpreterNames = (props.interpreter || '')
             .split(',')
             .map(name => name.trim())
             .filter(name => name !== '');
         nameSpan.textContent = interpreterNames.length > 0 ? interpreterNames.join(' • ') : 'Aucun interprète';
     } else {
-        interpreterSelect.style.display = '';
-        const nameSpan = document.getElementById('managerPendingInterpreterName');
-        if (nameSpan) nameSpan.style.display = 'none';
+        nameSpan.classList.add('d-none');
+        interpreterSelect.classList.remove('d-none');
+        interpreterSelect.disabled = !(isPending && beforeStart);
         interpreterSelect.value = '';
         loadAvailableInterpreters(currentMissionId, interpreterSelect);
     }
@@ -477,9 +498,33 @@ function openManagerModal(event, props, currentMissionId) {
     document.getElementById('managerPendingTime').innerText = timeText || '';
     document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
     document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || 'Aucun bénéficiaire';
-    document.getElementById('managerPendingType').innerText = props.type ? 'Type : ' + props.type : '';
-    document.getElementById('managerPendingComment').innerText = props.comment || '';
-    document.getElementById('managerPendingStatus').innerText = props.status || '';
+    const typeBadge = document.getElementById('managerPendingType');
+    if (props.type) {
+        typeBadge.innerText = props.type;
+        typeBadge.classList.remove('d-none');
+    } else {
+        typeBadge.classList.add('d-none');
+    }
+
+    const academicBadge = document.getElementById('managerPendingAcademicSkill');
+    if (props.academicSkill) {
+        academicBadge.innerText = props.academicSkill;
+        academicBadge.classList.remove('d-none');
+    } else {
+        academicBadge.classList.add('d-none');
+    }
+
+    const commentSection = document.getElementById('managerPendingCommentSection');
+    if (props.comment) {
+        document.getElementById('managerPendingComment').innerText = props.comment;
+        commentSection.classList.remove('d-none');
+    } else {
+        commentSection.classList.add('d-none');
+    }
+
+    const statusBadge = document.getElementById('managerPendingStatus');
+    statusBadge.innerText = props.status || '';
+    statusBadge.className = 'status-badge ms-2 ' + getStatusBadgeClass(props.status);
 
     const footer = document.querySelector('#managerPendingModal .modal-footer');
     footer.innerHTML = '';
@@ -572,13 +617,37 @@ function openEventModal(event, props, currentMissionId) {
     document.getElementById('modalTitle').innerText = event.title || '';
     document.getElementById('modalTime').innerText = timeText || '';
     document.getElementById('modalDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
-    document.getElementById('modalType').innerText = props.type || '';
-    document.getElementById('modalAcademicSkill').innerText = props.academicSkill || '';
     document.getElementById('modalLocation').innerText = props.address || '';
-    document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
-    document.getElementById('modalComment').innerText = props.comment || 'Aucun commentaire';
-    document.getElementById('modalStatus').innerText = props.status || '';
+    document.getElementById('modalBeneficiary').innerText = props.beneficiary || 'Aucun bénéficiaire';
     document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
+
+    const statusBadge = document.getElementById('modalStatus');
+    statusBadge.innerText = props.status || '';
+    statusBadge.className = 'status-badge ms-2 ' + getStatusBadgeClass(props.status);
+
+    const typeBadge = document.getElementById('modalType');
+    if (props.type) {
+        typeBadge.innerText = props.type;
+        typeBadge.classList.remove('d-none');
+    } else {
+        typeBadge.classList.add('d-none');
+    }
+
+    const academicBadge = document.getElementById('modalAcademicSkill');
+    if (props.academicSkill) {
+        academicBadge.innerText = props.academicSkill;
+        academicBadge.classList.remove('d-none');
+    } else {
+        academicBadge.classList.add('d-none');
+    }
+
+    const commentSection = document.getElementById('modalCommentSection');
+    if (props.comment) {
+        document.getElementById('modalComment').innerText = props.comment;
+        commentSection.classList.remove('d-none');
+    } else {
+        commentSection.classList.add('d-none');
+    }
 
     const actions = document.getElementById('modalActions');
     actions.innerHTML = '';
@@ -678,6 +747,8 @@ if (userRole === 'MANAGER') {
     customButtons.newMission = {
         text: isMobile ? '+ Mission' : '+ Nouvelle mission',
         click: function () {
+            selectedMissionInterpreters = [];
+            renderInterpreterBadges();
             const newMissionModal = bootstrap.Modal.getOrCreateInstance(
                 document.getElementById('newMissionModal')
             );
@@ -772,13 +843,24 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchEvents(fetchInfo, successCallback, failureCallback);
         },
         customButtons: customButtons,
-        headerToolbar: {
-            start: isMobile ? 'timeGridDay filterBtn viewRequests' : 'timeGridWeek,timeGridDay filterBtn viewRequests',
+        headerToolbar: isMobile ? {
+            start: 'today',
+            center: 'prev,title,next',
+            end: ''
+        } : {
+            start: 'timeGridWeek,timeGridDay filterBtn viewRequests',
             center: 'prev title next',
             end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
                 : userRole === 'INTERPRETER' ? 'newUnavailability today'
                     : 'newRequest today'
         },
+        footerToolbar: isMobile ? {
+            start: 'filterBtn',
+            center: '',
+            end: userRole === 'MANAGER' ? 'newMission newUnavailability viewRequests'
+                : userRole === 'INTERPRETER' ? 'newUnavailability'
+                    : 'newRequest'
+        } : false,
         buttonText: {
             week: 'Semaine',
             day: 'Jour',
@@ -837,6 +919,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const endHourValue = formatTime(endHour);
 
             if (userRole === 'MANAGER') {
+                selectedMissionInterpreters = [];
+                renderInterpreterBadges();
                 document.getElementById('missionDate').value = dateValue;
                 document.getElementById('missionStartTime').value = startHourValue;
                 document.getElementById('missionEndTime').value = endHourValue;
@@ -881,6 +965,17 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dropdown-filtre').classList.remove('show');
             document.querySelector('.fc-filterBtn-button').classList.remove('active');
         }
+    });
+
+    document.getElementById('missionInterpreterSelect').addEventListener('change', function() {
+        const id = this.value;
+        if (!id) return;
+        if (!selectedMissionInterpreters.some(x => x.id === id)) {
+            const name = this.options[this.selectedIndex].dataset.name;
+            selectedMissionInterpreters.push({ id, name });
+            renderInterpreterBadges();
+        }
+        this.value = '';
     });
 
     document.getElementById('search-interpreter')?.addEventListener('input', function() {
@@ -1012,8 +1107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         if (!validateFields(rules)) return;
 
-        const checkedInterpreters = Array.from(document.querySelectorAll('.mission-interpreter-check:checked'));
-        if (checkedInterpreters.length === 0) {
+        if (selectedMissionInterpreters.length === 0) {
             document.getElementById('missionInterpreterError').textContent = 'Veuillez sélectionner au moins un interprète.';
             document.getElementById('missionInterpreterError').style.display = 'block';
             return;
@@ -1037,8 +1131,8 @@ document.addEventListener('DOMContentLoaded', function() {
             street:              document.getElementById('missionStreet').value,
             streetNumber:        document.getElementById('missionStreetNumber').value,
             box:                 document.getElementById('missionBox').value,
-            interpreterIds:      checkedInterpreters.map(cb => cb.value),
-            beneficiaryId:      document.getElementById('missionBeneficiary').value,
+            interpreterIds:      selectedMissionInterpreters.map(x => x.id),
+            beneficiaryId:       document.getElementById('missionBeneficiary').value,
             comment:             document.getElementById('missionComment').value,
             room:                document.getElementById('missionRoom').value,
             academicSkillId:     document.getElementById('missionAcademicSkill').value,
