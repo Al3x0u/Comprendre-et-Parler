@@ -19,7 +19,7 @@
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                     <form id="delete-form" method="post">
                         <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash me-2"></i>Supprimer
+                            <i class="bi bi-trash me-2"></i>Désactiver
                         </button>
                     </form>
                 </div>
@@ -31,7 +31,7 @@
             const button = event.relatedTarget;
             const route = button.getAttribute('data-route') || document.getElementById('modalDelete').getAttribute('data-route');
             document.getElementById('delete-name').textContent = button.getAttribute('data-name');
-            document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/supprimer';
+            document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/desactiver';
         });
     </script>
 </th:block>

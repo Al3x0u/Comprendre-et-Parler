@@ -358,7 +358,7 @@ public class InterpreterController {
      * @param id the id of the interpreter to deactivate
      * @return redirect to the interpreter list on success, or back to the profile with an error parameter on failure
      */
-    @PostMapping("/profil/{id}/desactiver")
+    @PostMapping({"/profil/{id}/desactiver","/{id}/desactiver"})
     public String desactivateInterpreter(@PathVariable int id) {
         try {
             interpreterService.disableInterpreter(id);
