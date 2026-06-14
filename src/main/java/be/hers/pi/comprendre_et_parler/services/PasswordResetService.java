@@ -34,19 +34,18 @@ public class PasswordResetService {
      * @param email the email entered by the user
      * qparam baseUrl the root of the website, to build the url
      */
-    public void requestReset(String email, String baseUrl)throws SQLException{
+    public void requestReset(String email, String baseUrl){
         if(email == null || email.isBlank()) return;
         email = email.trim();
         if(isRateLimited(email)) return;
         try{
             int userId = SQLWrap.call(new DAOAppliUser()::findByEmail, email);
-            if(userId < 0) return;//no account, no need to call the database
+            if(userId < 0) return;//no account, stop
             String token = createToken(userId,  email);
             String resetUrl = baseUrl + "/reinitialiser?token=" + token;
             notificationService.sendPasswordReset(email, resetUrl, (int) TOKEN_VALIDITY.toMinutes());
         } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            e.printStackTrace();//no need to propagate, the controler will do nothing with it
         }
     }
 
