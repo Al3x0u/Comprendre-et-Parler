@@ -406,10 +406,10 @@ public class InterpreterController {
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("submitState", "Une erreur est survenue. Veuillez réessayer.");
-        } finally {
-            populateCreationModel(model);
-            return "interpreters/creation";
         }
+
+        populateCreationModel(model);
+        return "interpreters/creation";
     }
 
     /**
