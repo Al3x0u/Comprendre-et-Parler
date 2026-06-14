@@ -17,7 +17,8 @@ public class DAOExceptionalUnavailability {
     protected static final String FIELD_ID_TIMESLOT = "timeSlot";
     protected static final String FIELD_REASON = "reason";
 
-    private DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
+    private static final DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
+    private static final DAOInterpreter daoInterpreter = new DAOInterpreter();
 
     /**
      * Search for a ExceptionalUnavailability in the database with the int parameter
@@ -73,7 +74,7 @@ public class DAOExceptionalUnavailability {
             throw new AlreadyExistsException("An unavailability for interpreter " + interpreter.getId()
                     + " at time slot " + objectToInsert.getTimeSlot().getId()+ " already exists in the database");
 
-        int interpreterRef = new DAOInterpreter().checkAlreadyExists(interpreter);
+        int interpreterRef = daoInterpreter.checkAlreadyExists(interpreter);
         if (interpreterRef < 0)
             throw new IllegalArgumentException("Interpreter " + interpreter.getFullName()
                     + " (id " + interpreter.getId() + ") does not exist in database");

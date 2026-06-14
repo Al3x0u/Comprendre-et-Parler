@@ -14,6 +14,13 @@ public class DAOManager extends DAO<Manager> {
     protected static final String TABLE = "ManagerT";
     protected static final String FIELD_ID = "id";
 
+    private static final DAOAcademicSkill daoAcademicSkill = new DAOAcademicSkill();
+    private static final DAOJobSkill daoJobSkill = new DAOJobSkill();
+    private static final DAOLocation daoLocation = new DAOLocation();
+    private static final DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
+    private static final DAOBaseTimeSlot daoBaseTimeSlot = new DAOBaseTimeSlot();
+    private static final DAOInterpreter daoInterpreter = new DAOInterpreter();
+
     /**
      * Search for a Manager in the database with the String parameter
      * @param id the id of the Manager to find in database
@@ -79,7 +86,7 @@ public class DAOManager extends DAO<Manager> {
      */
     @Override
     public void create(Manager objectToInsert) throws AlreadyExistsException, SQLException {
-        new DAOInterpreter().create(objectToInsert);
+        daoInterpreter.create(objectToInsert);
         String query = String.format("INSERT INTO %s VALUES (?)", TABLE);
         PreparedStatement statement = null;
         try {
@@ -103,7 +110,7 @@ public class DAOManager extends DAO<Manager> {
             throw new AlreadyExistsException("[ERROR] Manager already exists");
         }
 
-        if (new DAOInterpreter().find(idInterpreter) == null){
+        if (daoInterpreter.find(idInterpreter) == null){
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idInterpreter);
         }
 
@@ -129,7 +136,7 @@ public class DAOManager extends DAO<Manager> {
      */
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        new DAOInterpreter().update(objectToUpdate);
+        daoInterpreter.update(objectToUpdate);
     }
 
 
@@ -227,12 +234,12 @@ public class DAOManager extends DAO<Manager> {
                 result.getInt(DAOInterpreter.FIELD_WEEK_QUOTA),
                 result.getInt(DAOInterpreter.FIELD_YEAR_QUOTA),
                 result.getString(DAOInterpreter.FIELD_TRANSPORT_MODE),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(id),
-                new DAOLocation().find(result.getInt(DAOInterpreter.FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findAvailabilities(id)
+                daoAcademicSkill.getAcademicSkillOfAnInterpreter(id),
+                daoJobSkill.getJobSkillOfAnInterpreter(id),
+                daoLocation.find(result.getInt(DAOInterpreter.FIELD_LOCATION)),
+                daoBaseTimeSlot.findAvailabilities(id)
         );
-        manager.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+        manager.setUnavailability(daoUnavailability.findForInterpreter(id));
         return manager;
     }
 }

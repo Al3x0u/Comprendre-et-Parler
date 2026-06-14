@@ -18,9 +18,8 @@ import java.util.Set;
 
 @Service
 public class BeneficiaryService {
-
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final static DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final static BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**
      * Create a new Beneficiary in the database with a hashed password.
@@ -134,7 +133,7 @@ public class BeneficiaryService {
             if(new DAOMission().hasActiveMissions(userId)){
                 throw new IllegalArgumentException("Cannot delete beneficiary with existing missions");
             }
-            new DAOBeneficiary().delete(userId);
+            daoBeneficiary.delete(userId);
         }, id);
     }
 
