@@ -20,10 +20,10 @@ import java.util.List;
 @RequestMapping("interpretes")
 public class InterpreterController {
 
-    private final InterpreterService interpreterService = new InterpreterService();
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
-    private final JobSkillService jobSkillService = new JobSkillService();
-    private final AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static InterpreterService interpreterService = new InterpreterService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
 
     /**
      * Display the paginated and filtered list of interpreters
@@ -275,9 +275,8 @@ public class InterpreterController {
                                     HttpSession session,
                                     RedirectAttributes redirectAttributes) {
         AppliUser sessionUser = (AppliUser) session.getAttribute("user");
-        if (!(sessionUser instanceof Interpreter user)) {
+        if (!(sessionUser instanceof Interpreter user))
             return "redirect:/profil";
-        }
         try {
             interpreterService.createUnavailability(user, newUnavailability);
         } catch (AlreadyExistsException e) {
@@ -301,9 +300,8 @@ public class InterpreterController {
                                        HttpSession session,
                                        RedirectAttributes redirectAttributes) {
         AppliUser sessionUser = (AppliUser) session.getAttribute("user");
-        if (!(sessionUser instanceof Interpreter user)) {
+        if (!(sessionUser instanceof Interpreter user))
             return "redirect:/profil";
-        }
         try {
             interpreterService.deleteUnavailability(user, idTimeSlot);
         } catch (Exception e) {
@@ -327,9 +325,8 @@ public class InterpreterController {
                                        HttpSession session,
                                        RedirectAttributes redirectAttributes) {
         AppliUser sessionUser = (AppliUser) session.getAttribute("user");
-        if (!(sessionUser instanceof Interpreter user)) {
+        if (!(sessionUser instanceof Interpreter user))
             return "redirect:/profil";
-        }
         try {
             interpreterService.updateUnavailability(user, idOldTimeSlot, newUnavailability);
         } catch (Exception e) {

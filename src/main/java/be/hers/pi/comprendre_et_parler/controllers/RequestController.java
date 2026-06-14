@@ -15,11 +15,11 @@ import java.util.List;
 @RequestMapping("/demandes")
 public class RequestController {
 
-    private final MissionService missionService = new MissionService();
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
-    private final JobSkillService jobSkillService = new JobSkillService();
-    private final AcademicSkillService academicSkillService = new AcademicSkillService();
-    private final CityService cityService = new CityService();
+    private final static MissionService missionService = new MissionService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static CityService cityService = new CityService();
 
     /**
      * Display the list of pending requests, optionally filtered by beneficiary.

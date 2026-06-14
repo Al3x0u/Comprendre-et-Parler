@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
+import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
@@ -55,7 +56,9 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
-        if (mission.getBeneficiary() != null)
+
+        // Complete Beneficiary objects
+        if (mission != null && mission.getBeneficiary() != null)
             mission.setBeneficiary(daoBeneficiary.find(mission.getBeneficiary().getId()));
 
         return mission;
@@ -144,7 +147,7 @@ public class DAOMission extends DAO<Mission> {
 
         // Check for schedule overlaps with the new timeslot
         int idInDB = checkAlreadyExists(objectToUpdate);
-        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
+        if (idInDB >= 0)
             throw new AlreadyExistsException("Mission overlaps with an existing mission");
 
         // Create new Location if needed
@@ -236,42 +239,66 @@ public class DAOMission extends DAO<Mission> {
         return missions;
     }
 
+    /**
+     * Check if an overlapping mission exists in the database. <br>
+     * Missions overlap if they share an interpreter or beneficiary AND their timeslots overlap AND their MissionStates are not allowed to overlap. <br>
+     * CANCELED or DENIED missions can overlap with anything. <br>
+     * PENDING missions can overlap other PENDING missions. <br>
+     * Missions cannot overlap with themselves.
+     * @param mission the object to check.
+     * @return the id of the object found in DB, or -1 if none was found
+     * @throws SQLException if the database could not be reached
+     */
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
-        // Find Missions in the same state as mission, sharing an interpreter or beneficiary with it, and for which timeslots overlap
-        String query = "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
-                "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
-                " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ? " +
-                " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
-                " WHERE " +
-                // status is shared and isn't one that's allowed to overlap
-                "m."+ FIELD_STATE +" = ? AND m."+ FIELD_STATE +"<> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +"<> "+ MissionState.CANCELED.getValue() +
-                // timeslots overlap
-                // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
-                " AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
-                " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
-                //
-                " AND (" +
-                    // beneficiary is shared (if there is one assigned)
-                    "m." + FIELD_BENEFICIARY + (mission.getBeneficiary() == null ? " IS NULL " : " = ? ");
+        if (mission.getStateOfMission() == MissionState.CANCELED || mission.getStateOfMission() == MissionState.DENIED)
+            return -1;
 
-        // any interpreter is shared
-        if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
-                query = query + "OR im."+ DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?";
-            for(int i = 1; i < mission.getInterpreters().size(); i++){
-                query = query + ", ?"; // Concatenation in loop, but we rarely have more than 1 Interpreter per mission anyway
-            }
-            query = query + " )";
-        }
-        query = query + ")";
+        // Find Missions in states that are not allowed to overlap, sharing an interpreter or beneficiary with mission, and for which timeslots overlap
+        StringBuilder query = new StringBuilder(
+            "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
+            "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
+            " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ?" +
+            " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
+            " WHERE "+
+
+            // mission is not the one we're checking against
+            "m."+ FIELD_ID +" <> ? ");
+
+            // state is not allowed to overlap
+            query.append("AND m."+ FIELD_STATE +" <> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +" <> "+ MissionState.CANCELED.getValue());
+            if (mission.getStateOfMission() == MissionState.PENDING)
+                // exclude PENDING missions since they can overlap with each other
+                query.append(" AND m."+ FIELD_STATE +" <> "+ MissionState.PENDING.getValue());
+
+
+            // timeslots overlap
+            // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
+            query.append(
+            " AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
+            " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
+            " AND (" +
+                // beneficiary is shared (if there is one assigned)
+                "m." + FIELD_BENEFICIARY);
+                query.append((mission.getBeneficiary() == null ? " IS NULL " : " = ? "));
+
+                // any interpreter is shared
+                if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
+                    query.append("OR im."+ DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?");
+                    for(int i = 1; i < mission.getInterpreters().size(); i++){
+                        query.append(", ?");
+                    }
+                    query.append(" )");
+                }
+            query.append(")");
 
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             int field = 1; // variable number of fields depending on assigned interpreters and beneficiary
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
             statement.setInt(field++, mission.getTimeSlot().getId());
-            statement.setInt(field++, mission.getStateOfMission().getValue());
+            statement.setInt(field++, mission.getId());
             if (mission.getBeneficiary() != null)
                 statement.setInt(field++, mission.getBeneficiary().getId());
             if (mission.getInterpreters() != null) {
@@ -325,10 +352,10 @@ public class DAOMission extends DAO<Mission> {
         Set<Mission> missions = new HashSet<>();
 
         String query = "SELECT m.* FROM " + TABLE + " m " +
-                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "WHERE ( " +
-                "(ts.day IS NOT NULL)" +
-                "OR (ts.day IS NULL AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME +" BETWEEN ? AND ?)" +
+                "JOIN " + DAOPunctualTimeSlot.TABLE + " ts ON m." + FIELD_TIME_SLOT + " = ts." + DAOPunctualTimeSlot.FIELD_ID +
+                " WHERE ( " +
+                "(ts." + DAOBaseTimeSlot.FIELD_DAY +" IS NOT NULL) " +
+                "OR (ts." + DAOBaseTimeSlot.FIELD_DAY + " IS NULL AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME +" BETWEEN ? AND ?)" +
                 ")";
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -353,59 +380,54 @@ public class DAOMission extends DAO<Mission> {
         return missions;
     }
 
-
     /**
-     * Return the schedule of the user with the given id for a specific week
-     * Beneficiary data is partial and only includes id, firstName and lastName
-     * @param idUser represent the id of the user which we want the schedule
-     * @param year represent the year of the week
-     * @param weekNumber represent the week number in the year (1-52)
-     * @return a Set of Mission which compose the schedule of the idUser for the given week, or an empty Set if none was found
-     * @throws SQLException if the database could not be reached
+     * Return the schedule of the user with the given id for a specific time frame <br>
+     * Beneficiary data is partial and only includes id, firstName and lastName <br>
+     * @param idUser the id of the user for whom we want the schedule
+     * @param start the lower boundary, included
+     * @param end the upper boundary, excluded
+     * @return a Set of Mission which compose the schedule of the idUser during [start, end[, or an empty Set if none was found
+     * @throws SQLException if a database error occurs
      */
-    public Set<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
-        LocalDate date = LocalDate.ofYearDay(year, 1)
-                .with(WeekFields.ISO.weekOfYear(), weekNumber)
-                .with(DayOfWeek.MONDAY);
-        Set<Mission> missions = new HashSet<>();
-        for (int i = 0; i < 7; i++) {
-            missions.addAll(getScheduleForDay(idUser, date.plusDays(i)));
+    public Set<Mission> getScheduleBetween(int idUser, LocalDate start, LocalDate end) throws SQLException {
+        StringBuilder query = new StringBuilder(
+        "SELECT m.* FROM " +TABLE+ " m " +
+        "JOIN " +DAOPunctualTimeSlot.TABLE+ " ts ON m." +FIELD_TIME_SLOT+ " = ts." +DAOPunctualTimeSlot.FIELD_ID+
+        " WHERE " +
+            // Mission is assigned to idUser
+            "(m." +FIELD_BENEFICIARY+ " = ? "+ // idUser is assigned as a Beneficiary
+                "OR m." +FIELD_ID+ " IN (SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
+                " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // idUser is assigned as an Interpreter
+        ") AND (");
+        // Mission is base and happens between start and end dates
+        if (!start.plusWeeks(1).isAfter(end)) { // If the range covers a whole week, include all BaseTimeSlots
+            query.append("ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NOT NULL");
         }
+        else {
+            query.append("ts." +DAOBaseTimeSlot.FIELD_DAY+ " IN ( ?");
+            for (DayOfWeek day = start.getDayOfWeek().plus(1); day != end.getDayOfWeek(); day = day.plus(1)) {
+                query.append(", ?");
+            }
+            query.append(")");
+        }
+        // OR Mission is punctual and happens between start and end dates
+        query.append(" OR (ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NULL AND ts." +DAOPunctualTimeSlot.FIELD_START_TIME+ " >= ? AND " +DAOPunctualTimeSlot.FIELD_END_TIME+" < ?))");
 
-        return missions;
-    }
-
-    /**
-     * Return the schedule of the user with the given id for a specific day
-     * Beneficiary data is partial and only includes id, firstName and lastName
-     * @param idUser represent the id of the user which we want the schedule
-     * @param date represent the specific day
-     * @return a Set of Mission which compose the schedule of the idUser for the given day, or an empty Set if none was found
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
-        Set<Mission> missions = new HashSet<>();
-
-        String query = "SELECT m.* FROM " + TABLE + " m " +
-                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "WHERE (" +
-                "ts.day = ? " + // timeslot is base and happens on the correct day
-                "OR (ts.day IS NULL AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?)" + // timeslot is punctual and happens on the correct date
-                ") " +
-                "AND (" +
-                "m.id IN " +
-                "(SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
-                " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // mission is assigned to idUser (idUser is an Interpreter)
-                "OR m." + FIELD_BENEFICIARY + " = ?" + // mission is assigned to idUser (idUser is a Beneficiary)
-                ")";
         PreparedStatement statement = null;
         ResultSet result = null;
+        Set<Mission> missions = new HashSet<>();
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, date.getDayOfWeek().getValue() - 1);
-            statement.setDate(2, java.sql.Date.valueOf(date));
-            statement.setInt(3, idUser);
-            statement.setInt(4, idUser);
+            statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
+            int field = 1;
+            statement.setInt(field++, idUser);
+            statement.setInt(field++, idUser);
+            if (start.plusWeeks(1).isAfter(end)) {
+                for (DayOfWeek day = start.getDayOfWeek(); day != end.getDayOfWeek(); day = day.plus(1)) {
+                    statement.setInt(field++, day.getValue());
+                }
+            }
+            statement.setDate(field++, java.sql.Date.valueOf(start));
+            statement.setDate(field++, java.sql.Date.valueOf(end));
             result = statement.executeQuery();
             while (result.next()) {
                 missions.add(getResult(result));
@@ -421,7 +443,37 @@ public class DAOMission extends DAO<Mission> {
             if (mis.getBeneficiary() != null)
                 mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
         }
+
         return missions;
+    }
+
+    /**
+     * Return the schedule of the user with the given id for a specific day
+     * Beneficiary data is partial and only includes id, firstName and lastName
+     * @param idUser represent the id of the user which we want the schedule
+     * @param date represent the specific day
+     * @return a Set of Mission which compose the schedule of the idUser for the given day, or an empty Set if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
+        return getScheduleBetween(idUser, date, date.plusDays(1));
+    }
+
+    /**
+     * Return the schedule of the user with the given id for a specific week
+     * Beneficiary data is partial and only includes id, firstName and lastName
+     * @param idUser represent the id of the user which we want the schedule
+     * @param year represent the year of the week
+     * @param weekNumber represent the week number in the year (1-52)
+     * @return a Set of Mission which compose the schedule of the idUser for the given week, or an empty Set if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
+        LocalDate monday = LocalDate.ofYearDay(year, 1)
+                .with(WeekFields.ISO.weekOfYear(), weekNumber)
+                .with(DayOfWeek.MONDAY);
+
+        return getScheduleBetween(idUser, monday, monday.plusWeeks(1));
     }
 
     /**
@@ -433,8 +485,8 @@ public class DAOMission extends DAO<Mission> {
     public Set<Mission> findByInterpreter(int interpreterId) throws SQLException {
         Set<Mission> missions = new HashSet<>();
 
-        String query = "SELECT m.id FROM " + TABLE + " m " +
-                "WHERE m.id IN " +
+        String query = "SELECT m." +FIELD_ID+ " FROM " + TABLE + " m " +
+                "WHERE m." +FIELD_ID+ " IN " +
                 "(SELECT " + INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
                 " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " = ?)";
 
@@ -477,6 +529,7 @@ public class DAOMission extends DAO<Mission> {
             result = statement.executeQuery();
             if (result.next()) throw new AlreadyExistsException("This interpreter is already linked to the mission");
 
+            closeStatement(statement);
             statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
             statement.setInt(1, missionId);
             statement.setInt(2, interpreterId);
@@ -538,9 +591,9 @@ public class DAOMission extends DAO<Mission> {
      */
     public boolean hasActiveMissions(int beneficiaryId) throws SQLException {
         String query = "SELECT 1 FROM " + TABLE +
-                " JOIN TimeSlot ts ON ts.id = " + TABLE + "." + FIELD_TIME_SLOT +
+                " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = " + TABLE + "." + FIELD_TIME_SLOT +
                 " WHERE " + FIELD_BENEFICIARY + " = ?" +
-                " AND TRUNC(ts.startDateTime, 'IW') = TRUNC(SYSDATE, 'IW')";
+                " AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ", 'IW') = TRUNC(SYSDATE, 'IW')";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
@@ -552,5 +605,53 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
+    }
+
+    /**
+     * Returns a list of missions filtered according to the given filter.
+     * @param filter the filter to apply, each criterion is optional (null means no filter)
+     * @return a Set of Mission matching the filter
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getByFilter(MissionFilter filter) throws SQLException {
+        String query = "SELECT * FROM %s %s %s %s";
+        query = String.format(query, TABLE,
+                filter.getInterpreter() != null && filter.getInterpreter().getId() != -1 ?
+                        "JOIN " + TABLE_INTERPRETER_MISSION + " i ON m." + FIELD_ID + " = i." + INTERPRETER_MISSION_REF_MISSION
+                                + " WHERE i." + INTERPRETER_MISSION_REF_INTERPRETER + " = ? AND"
+                        : "WHERE",
+                filter.getBeneficiary() != null && filter.getBeneficiary().getId() != -1 ? FIELD_BENEFICIARY + " = ? AND" : "",
+                filter.getStateOfMission() != null ? FIELD_STATE + " = ?" : ""
+        );
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<Mission> missions = new HashSet<>();
+
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            int field = 1;
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            if (filter.getBeneficiary() != null)
+                statement.setInt(field++, filter.getBeneficiary().getId());
+            if (filter.getStateOfMission() != null)
+                statement.setInt(field++, filter.getStateOfMission().getValue());
+            if (filter.getInterpreter() != null)
+                statement.setInt(field, filter.getInterpreter().getId());
+
+            result = statement.executeQuery();
+            while (result.next())
+                missions.add(getResult(result));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+
+        // Complete Beneficiary objects
+        for (Mission mis : missions) {
+            if (mis.getBeneficiary() != null)
+                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
+        }
+
+        return missions;
     }
 }
