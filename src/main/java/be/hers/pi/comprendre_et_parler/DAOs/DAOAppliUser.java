@@ -2,6 +2,7 @@ package be.hers.pi.comprendre_et_parler.DAOs;
 
 import be.hers.pi.comprendre_et_parler.models.AppliUser;
 
+import javax.xml.crypto.Data;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ public class DAOAppliUser {
     protected static final String FIELD_ID = "id";
     protected static final String FIELD_PASSWORD_UPDATED = "passwordUpdated";
     protected static final String FIELD_HASHED_PASSWORD = "hashedPassword";
+    protected static final String FIELD_EMAIL = "email";
 
     /**
      * Retrieve the passwordUpdated flag of a user from the database
@@ -126,6 +128,76 @@ public class DAOAppliUser {
                     e.printStackTrace();
                 }
             }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the id of the active account with this email
+     * @param email l'email recherché
+     * @return the id of the user or -1 if there is no active account with the email
+     * @throws SQLException is an database error occurs
+     */
+    public int findByEmail(String email) throws SQLException{
+        int theId = -1;
+        String query = "SELECT " + FIELD_ID + " FROM " +
+                TABLE_APPLIUSER + " WHERE " + FIELD_EMAIL + " = ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+
+        try{
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, email);
+            result = statement.executeQuery();
+
+            if(result.next()){
+                theId = result.getInt(FIELD_ID);
+            }
+        }finally {
+            if(result != null){
+                try{
+                    result.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return theId;
+    }
+
+    /**
+     * Update the hash of the password of an user et passwordUpdated
+     * @param id the id of the user
+     * @param hashedPassword the new hash
+     * @throws NoSuchElementException if there is no account with this id
+     * @throws SQLException is an database error occurs
+     * @post the hash has been replace and the flag passwordUpdated is 1
+     */
+    public void updatePassword(int id, String hashedPassword) throws NoSuchElementException, SQLException{
+        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_HASHED_PASSWORD + " = ?, "
+                + FIELD_PASSWORD_UPDATED  + " = 1 WHERE " + FIELD_ID + " = ?";
+        PreparedStatement statement = null;
+        try{
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setString(1, hashedPassword);
+            statement.setInt(2, id);
+            if(statement.executeUpdate() == 0){
+                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
+            }
+        }finally {
             if (statement != null) {
                 try {
                     statement.close();
