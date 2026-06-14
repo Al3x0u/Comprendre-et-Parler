@@ -347,7 +347,7 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT m.* FROM " + TABLE + " m " +
                 "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
                 "WHERE ( " +
-                "(ts.day IS NOT NULL)" +
+                "(ts.day IS NOT NULL) " +
                 "OR (ts.day IS NULL AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME +" BETWEEN ? AND ?)" +
                 ")";
         PreparedStatement statement = null;
@@ -373,57 +373,49 @@ public class DAOMission extends DAO<Mission> {
         return missions;
     }
 
-
     /**
-     * Return the schedule of the user with the given id for a specific week
-     * Beneficiary data is partial and only includes id, firstName and lastName
-     * @param idUser represent the id of the user which we want the schedule
-     * @param year represent the year of the week
-     * @param weekNumber represent the week number in the year (1-52)
-     * @return a Set of Mission which compose the schedule of the idUser for the given week, or an empty Set if none was found
-     * @throws SQLException if the database could not be reached
+     * Return the schedule of the user with the given id for a specific time frame <br>
+     * Beneficiary data is partial and only includes id, firstName and lastName <br>
+     * @param idUser the id of the user for whom we want the schedule
+     * @param start the lower boundary, included
+     * @param end the upper boundary, excluded
+     * @return a Set of Mission which compose the schedule of the idUser during [start, end[, or an empty Set if none was found
+     * @throws SQLException if a database error occurs
      */
-    public Set<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
-        LocalDate date = LocalDate.ofYearDay(year, 1)
-                .with(WeekFields.ISO.weekOfYear(), weekNumber)
-                .with(DayOfWeek.MONDAY);
-        Set<Mission> missions = new HashSet<>();
-        for (int i = 0; i < 7; i++) {
-            missions.addAll(getScheduleForDay(idUser, date.plusDays(i)));
+    public Set<Mission> getScheduleBetween(int idUser, LocalDate start, LocalDate end) throws SQLException {
+        StringBuilder query = new StringBuilder(
+        "SELECT m.* FROM " +TABLE+ " m " +
+        "JOIN " +DAOPunctualTimeSlot.TABLE+ " ts ON m." +FIELD_TIME_SLOT+ " = ts." +DAOPunctualTimeSlot.FIELD_ID+
+        " WHERE " +
+            // Mission is assigned to idUser
+            "(m." +FIELD_ID+ " IN (" +
+                "SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
+                " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // idUser is assigned as an Interpreter
+            "OR m." +FIELD_BENEFICIARY+ " = ?) " + // idUser is assigned as a Beneficiary
+        "AND ");
+        // Mission is base and happens between start and end dates
+        if (!start.plusWeeks(1).isAfter(end)) { // If the range covers a whole week, include all BaseTimeSlots
+            query.append("ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NOT NULL");
         }
+        else {
+            query.append("ts." +DAOBaseTimeSlot.FIELD_DAY+ " IN ( ?");
+            for (DayOfWeek day = start.getDayOfWeek().plus(1); day != end.getDayOfWeek(); day = day.plus(1)) {
+                query.append(", ?");
+            }
+            query.append(")");
+        }
+        // OR Mission is punctual and happens between start and end dates
+        query.append(" OR (ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NULL AND ts." +DAOPunctualTimeSlot.FIELD_START_TIME+ " >= ? AND " +DAOPunctualTimeSlot.FIELD_END_TIME+" < ?)");
 
-        return missions;
-    }
+        System.out.println(query);
 
-    /**
-     * Return the schedule of the user with the given id for a specific day
-     * Beneficiary data is partial and only includes id, firstName and lastName
-     * @param idUser represent the id of the user which we want the schedule
-     * @param date represent the specific day
-     * @return a Set of Mission which compose the schedule of the idUser for the given day, or an empty Set if none was found
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
-        Set<Mission> missions = new HashSet<>();
-
-        String query = "SELECT m.* FROM " + TABLE + " m " +
-                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "WHERE (" +
-                "ts.day = ? " + // timeslot is base and happens on the correct day
-                "OR (ts.day IS NULL AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ") = ?)" + // timeslot is punctual and happens on the correct date
-                ") " +
-                "AND (" +
-                "m.id IN " +
-                "(SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
-                " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // mission is assigned to idUser (idUser is an Interpreter)
-                "OR m." + FIELD_BENEFICIARY + " = ?" + // mission is assigned to idUser (idUser is a Beneficiary)
-                ")";
         PreparedStatement statement = null;
         ResultSet result = null;
+        Set<Mission> missions = new HashSet<>();
         try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, date.getDayOfWeek().getValue() - 1);
-            statement.setDate(2, java.sql.Date.valueOf(date));
+            statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
+            statement.setDate(1, java.sql.Date.valueOf(start));
+            statement.setDate(2, java.sql.Date.valueOf(end));
             statement.setInt(3, idUser);
             statement.setInt(4, idUser);
             result = statement.executeQuery();
@@ -441,7 +433,37 @@ public class DAOMission extends DAO<Mission> {
             if (mis.getBeneficiary() != null)
                 mis.setBeneficiary(new DAOBeneficiary().findLight(mis.getBeneficiary().getId()));
         }
+
         return missions;
+    }
+
+    /**
+     * Return the schedule of the user with the given id for a specific day
+     * Beneficiary data is partial and only includes id, firstName and lastName
+     * @param idUser represent the id of the user which we want the schedule
+     * @param date represent the specific day
+     * @return a Set of Mission which compose the schedule of the idUser for the given day, or an empty Set if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getScheduleForDay(int idUser, LocalDate date) throws SQLException {
+        return getScheduleBetween(idUser, date, date.plusDays(1));
+    }
+
+    /**
+     * Return the schedule of the user with the given id for a specific week
+     * Beneficiary data is partial and only includes id, firstName and lastName
+     * @param idUser represent the id of the user which we want the schedule
+     * @param year represent the year of the week
+     * @param weekNumber represent the week number in the year (1-52)
+     * @return a Set of Mission which compose the schedule of the idUser for the given week, or an empty Set if none was found
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Mission> getScheduleForWeek(int idUser, int year, int weekNumber) throws SQLException {
+        LocalDate monday = LocalDate.ofYearDay(year, 1)
+                .with(WeekFields.ISO.weekOfYear(), weekNumber)
+                .with(DayOfWeek.MONDAY);
+
+        return getScheduleBetween(idUser, monday, monday.plusWeeks(1));
     }
 
     /**
