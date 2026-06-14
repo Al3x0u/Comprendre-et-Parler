@@ -704,6 +704,80 @@ function openEventModal(event, props, currentMissionId) {
     bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).show();
 }
 
+/**
+ * Resets the mission creation/edition form to its default empty state,
+ * clearing all fields, selected interpreters, validation errors,
+ * and exiting edit mode.
+ * @returns {void}
+ */
+function resetMissionForm() {
+    document.getElementById('missionTitle').value = '';
+    document.getElementById('missionDate').value = '';
+    document.getElementById('missionStartTime').selectedIndex = 0;
+    document.getElementById('missionEndTime').selectedIndex = 0;
+    document.getElementById('missionLocationDesignation').value = '';
+    document.getElementById('missionStreet').value = '';
+    document.getElementById('missionStreetNumber').value = '';
+    document.getElementById('missionBox').value = '';
+    document.getElementById('missionRoom').value = '';
+    document.getElementById('missionComment').value = '';
+    document.getElementById('missionCity').value = '';
+    document.getElementById('missionCityName').value = '';
+    document.getElementById('missionAcademicSkill').value = '';
+    document.getElementById('missionBeneficiary').value = '';
+
+    const typeRadios = document.querySelectorAll('input[name="missionType"]');
+    typeRadios.forEach((radio, index) => radio.checked = index === 0);
+
+    selectedMissionInterpreters = [];
+    renderInterpreterBadges();
+
+    clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionStreet']);
+    document.getElementById('missionInterpreterError').textContent = '';
+    document.getElementById('missionInterpreterError').style.display = '';
+
+    const btn = document.getElementById('sendMissionBtn');
+    btn.dataset.editMode = 'false';
+    btn.dataset.missionId = '';
+    btn.innerText = 'Envoyer';
+    document.getElementById('newMissionModalTitle').innerText = 'Nouvelle mission';
+}
+
+/**
+ * Resets the request creation/edition form to its default empty state,
+ * clearing all fields, validation errors, and exiting edit mode.
+ * @returns {void}
+ */
+function resetRequestForm() {
+    document.getElementById('requestTitle').value = '';
+    document.getElementById('requestDate').value = '';
+    document.getElementById('requestStartTime').selectedIndex = 0;
+    document.getElementById('requestEndTime').selectedIndex = 0;
+    document.getElementById('requestLocationDesignation').value = '';
+    document.getElementById('requestStreet').value = '';
+    document.getElementById('requestStreetNumber').value = '';
+    document.getElementById('requestBox').value = '';
+    document.getElementById('requestRoom').value = '';
+    document.getElementById('requestComment').value = '';
+    document.getElementById('requestCity').value = '';
+    document.getElementById('requestCityName').value = '';
+    document.getElementById('requestAcademicSkill').value = '';
+
+    const typeRadios = document.querySelectorAll('input[name="requestType"]');
+    typeRadios.forEach((radio, index) => radio.checked = index === 0);
+
+    const importance0 = document.getElementById('importance0');
+    if (importance0) importance0.checked = true;
+
+    clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity', 'requestStreet']);
+
+    const btn = document.getElementById('sendRequestBtn');
+    btn.dataset.editMode = 'false';
+    btn.dataset.missionId = '';
+    btn.innerText = 'Envoyer';
+    document.getElementById('newRequestModalTitle').innerText = 'Nouvelle demande';
+}
+
 
 //CALENDAR BUTTONS
 
@@ -1267,6 +1341,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const opt = this.options[this.selectedIndex];
         document.getElementById('missionCityName').value = opt.dataset.name || '';
     });
+    document.getElementById('newMissionModal').addEventListener('hidden.bs.modal', resetMissionForm);
+    document.getElementById('newRequestModal').addEventListener('hidden.bs.modal', resetRequestForm);
     setupFilter('.filter-status', 'status');
     if (userRole === 'MANAGER' || userRole === 'INTERPRETER') {
         setupUserFilter();
