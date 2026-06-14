@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{common/head :: head(#{website.name})}"></head>
+<body>
+
+<div th:replace="~{common/navbar :: navbar}"></div>
+
+<main class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Demandes en attente</h1>
+        <a th:href="@{/horaire}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Retour à l'horaire
+        </a>
+    </div>
+
+    <!-- Filtre par bénéficiaire -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3">
+            <form method="get" th:action="@{/demandes}" class="row g-2 align-items-end">
+                <div class="col-12 col-md">
+                    <label for="beneficiaire" class="form-label">Filtrer par bénéficiaire</label>
+                    <select id="beneficiaire" name="beneficiaireId" class="form-select">
+                        <option value="">Tous les bénéficiaires</option>
+                        <option th:each="b : ${beneficiaires}"
+                                th:value="${b.id}"
+                                th:text="${b.firstName + ' ' + b.lastName + ' (' + b.login + ')'}"
+                                th:selected="${b.id == selectedBeneficiaireId}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <a th:href="@{/demandes}" class="btn btn-outline-secondary w-100">Réinitialiser</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des demandes -->
+    <div th:if="${#lists.isEmpty(demandes)}">
+        <div class="alert alert-info">Aucune demande en attente.</div>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(demandes)}" class="d-flex flex-column gap-3">
+        <div th:each="demande : ${demandes}" class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+
+                    <!-- Infos principales -->
+                    <div class="d-flex flex-column gap-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-warning text-dark">En attente</span>
+                            <span class="fw-bold fs-5" th:text="${demande.subject}"></span>
+                            <span th:if="${demande.importance > 0}">
+                                <i th:each="i : ${#numbers.sequence(1, demande.importance)}"
+                                   class="bi bi-star-fill text-warning"></i>
+                            </span>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-person me-1"></i>
+                            <span th:text="${demande.beneficiary.firstName + ' ' + demande.beneficiary.lastName + ' (' + demande.beneficiary.login + ')'}"></span>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-calendar me-1"></i>
+                            <span th:text="${#temporals.format(demande.timeSlot.startDate, 'dd/MM/yyyy')}"></span>
+                            <i class="bi bi-clock ms-2 me-1"></i>
+                            <span th:text="${#temporals.format(demande.timeSlot.startDate, 'HH:mm') + ' - ' + #temporals.format(demande.timeSlot.endDate, 'HH:mm')}"></span>
+                        </div>
+                    </div>
+
+                    <!-- Boutons actions -->
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-secondary btn-sm"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                th:data-bs-target="'#details-' + ${demande.id}">
+                            <i class="bi bi-chevron-down me-1"></i>Détails
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalModifier"
+                                th:attr="
+                                    data-id=${demande.id},
+                                    data-title=${demande.subject},
+                                    data-date=${#temporals.format(demande.timeSlot.startDate, 'yyyy-MM-dd')},
+                                    data-start-time=${#temporals.format(demande.timeSlot.startDate, 'HH:mm')},
+                                    data-end-time=${#temporals.format(demande.timeSlot.endDate, 'HH:mm')},
+                                    data-job-skill-id=${demande.jobSkill != null ? demande.jobSkill.id : ''},
+                                    data-academic-skill-id=${demande.academicSkill != null ? demande.academicSkill.id : ''},
+                                    data-location-designation=${demande.location != null ? demande.location.designation : ''},
+                                    data-street=${demande.location != null ? demande.location.street : ''},
+                                    data-street-number=${demande.location != null ? demande.location.streetNumber : ''},
+                                    data-box=${demande.location != null and demande.location.box > 0 ? demande.location.box : ''},
+                                    data-postal-code=${demande.location != null ? demande.location.city.postalCode : ''},
+                                    data-city=${demande.location != null ? demande.location.city.designation : ''},
+                                    data-room=${demande.room},
+                                    data-comment=${demande.commentary},
+                                    data-importance=${demande.importance}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalRefuser"
+                                th:data-id="${demande.id}"
+                                th:data-subject="${demande.subject}">
+                            <i class="bi bi-x-circle me-1"></i>Refuser
+                        </button>
+                        <button class="btn btn-success btn-sm btn-accepter"
+                                th:data-id="${demande.id}"
+                                th:data-subject="${demande.subject}">
+                            <i class="bi bi-check-circle me-1"></i>Accepter
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Détails en collapse -->
+                <div class="collapse mt-3" th:id="'details-' + ${demande.id}">
+                    <div class="border-top pt-3 row g-3">
+
+                        <div class="col-12 col-md-6">
+                            <div class="bg-light rounded p-3">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-geo-alt me-2"></i>Lieu</p>
+                                <p class="mb-0" th:if="${demande.location != null}">
+                                    <span th:if="${demande.location.designation != null}" th:text="${demande.location.designation + ' — '}"></span>
+                                    <span th:text="${demande.location.street}"></span>
+                                    <span th:if="${demande.location.streetNumber != null}" th:text="' ' + ${demande.location.streetNumber}"></span>
+                                    <span th:if="${demande.location.box > 0}" th:text="', bte ' + ${demande.location.box}"></span>
+                                    <br>
+                                    <span th:text="${demande.location.city.postalCode + ' ' + demande.location.city.designation}"></span>
+                                </p>
+                                <p class="mb-0 text-muted" th:unless="${demande.location != null}">Non renseigné</p>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6" th:if="${demande.room != null}">
+                            <div class="bg-light rounded p-3">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-pin-map me-2"></i>Local</p>
+                                <p class="mb-0" th:text="${demande.room}"></p>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6" th:if="${demande.jobSkill != null}">
+                            <div class="bg-light rounded p-3">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-briefcase me-2"></i>Type</p>
+                                <p class="mb-0" th:text="${demande.jobSkill.designation}"></p>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6" th:if="${demande.academicSkill != null}">
+                            <div class="bg-light rounded p-3">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-mortarboard me-2"></i>Compétence académique</p>
+                                <p class="mb-0" th:text="${demande.academicSkill.designation}"></p>
+                            </div>
+                        </div>
+
+                        <div class="col-12" th:if="${demande.commentary != null}">
+                            <div class="bg-light rounded p-3">
+                                <p class="text-secondary fw-bold small mb-1"><i class="bi bi-chat-left-text me-2"></i>Commentaire</p>
+                                <p class="mb-0" th:text="${demande.commentary}"></p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <p class="text-muted small mb-0">
+            Affichage de <strong th:text="${startItem}"></strong> à <strong th:text="${endItem}"></strong>
+            sur <strong th:text="${totalItems}"></strong> demandes
+        </p>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/demandes(page=${pageNumber - 1}, beneficiaireId=${selectedBeneficiaireId})}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${i == pageNumber} ? 'active'">
+                    <a class="page-link"
+                       th:text="${i}"
+                       th:href="@{/demandes(page=${i}, beneficiaireId=${selectedBeneficiaireId})}">
+                    </a>
+                </li>
+                <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/demandes(page=${pageNumber + 1}, beneficiaireId=${selectedBeneficiaireId})}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+</main>
+
+<!-- Modal Modifier -->
+<div class="modal fade" id="modalModifier" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+
+            <div class="modal-header border-0 text-bg-primary rounded-top-4 p-0">
+                <h4 class="modal-title fw-bold p-3 mb-0"><i class="bi bi-pencil me-2"></i>Modifier la demande</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold d-block">Type*</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <th:block th:each="skill, iter : ${professionalSkills}">
+                            <input class="type-pill-input" type="radio" name="modifierType"
+                                   th:id="'modifierType_' + ${iter.index}"
+                                   th:value="${skill.id}">
+                            <label class="type-pill-label" th:for="'modifierType_' + ${iter.index}" th:text="${skill.designation}"></label>
+                        </th:block>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="modifierTitle" class="form-label fw-semibold">Titre*</label>
+                    <input type="text" class="form-control" id="modifierTitle" placeholder="Entrez le titre">
+                    <div id="modifierTitleError" class="invalid-feedback"></div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label for="modifierDate" class="form-label fw-semibold small">Date*</label>
+                        <input type="date" class="form-control" id="modifierDate">
+                        <div id="modifierDateError" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-4">
+                        <label for="modifierStartTime" class="form-label fw-semibold small">Début*</label>
+                        <select class="form-select" id="modifierStartTime">
+                            <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label for="modifierEndTime" class="form-label fw-semibold small">Fin*</label>
+                        <select class="form-select" id="modifierEndTime">
+                            <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="location-box mb-3">
+                    <div class="d-flex align-items-center gap-2 fw-semibold mb-2">
+                        <i class="bi bi-geo-alt"></i>Lieu
+                    </div>
+
+                    <div class="mb-2">
+                        <input type="text" class="form-control" id="modifierLocationDesignation" placeholder="Désignation (ex: Athénée Royal)">
+                        <div id="modifierLocationDesignationError" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-7">
+                            <input type="text" class="form-control" id="modifierStreet" placeholder="Rue">
+                            <div id="modifierStreetError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-2">
+                            <input type="text" class="form-control" id="modifierStreetNumber" placeholder="N°">
+                        </div>
+                        <div class="col-3">
+                            <input type="number" min="1" class="form-control" id="modifierBox" placeholder="Boîte">
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-8">
+                            <select class="form-select" id="modifierCity">
+                                <option value="">Sélectionner une ville</option>
+                                <option th:each="city : ${allCities}"
+                                        th:value="${city.postalCode}"
+                                        th:data-name="${city.designation}"
+                                        th:text="${city.postalCode + ' - ' + city.designation}">
+                                </option>
+                            </select>
+                            <input type="hidden" id="modifierCityName">
+                            <div id="modifierCityError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="modifierRoom" placeholder="Local">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="modifierAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
+                    <select class="form-select" id="modifierAcademicSkill">
+                        <option value="">Aucune</option>
+                        <option th:each="skill : ${academicSkills}"
+                                th:value="${skill.id}"
+                                th:text="${skill.designation}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="modifierComment" class="form-label fw-semibold">Commentaire</label>
+                    <textarea class="form-control" id="modifierComment" rows="3" placeholder="Entrez votre commentaire/remarque"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold d-block">Importance</label>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="modifierImportance" id="modifierImportance0" value="0">
+                            <label class="form-check-label" for="modifierImportance0">Aucune étoile</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="modifierImportance" id="modifierImportance1" value="1">
+                            <label class="form-check-label" for="modifierImportance1">★</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="modifierImportance" id="modifierImportance2" value="2">
+                            <label class="form-check-label" for="modifierImportance2">★★</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="modifierImportance" id="modifierImportance3" value="3">
+                            <label class="form-check-label" for="modifierImportance3">★★★</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="btn-confirmer-modification">
+                    <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Refuser -->
+<div class="modal fade" id="modalRefuser" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-danger rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-x-circle me-2"></i>Refuser la demande</h5>
+            </div>
+            <div class="modal-body py-4">
+                Êtes-vous sûr de vouloir refuser la demande <strong id="refuser-subject"></strong> ?
+            </div>
+            <div class="modal-footer rounded-bottom-4">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="btn-confirmer-refus">
+                    <i class="bi bi-x-circle me-1"></i>Refuser
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Accepter -->
+<div class="modal fade" id="modalAccepter" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+            <div class="modal-header text-bg-success rounded-top-4">
+                <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>Accepter la demande</h5>
+            </div>
+            <div class="modal-body py-4">
+                <p>Choisissez un interprète disponible pour <strong id="accepter-subject"></strong> :</p>
+                <div id="interpretes-loading" class="text-center text-muted">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Chargement...
+                </div>
+                <select id="interpretes-select" class="form-select d-none">
+                    <option value="">-- Sélectionner un interprète --</option>
+                </select>
+                <div id="interpretes-empty" class="text-muted d-none">Aucun interprète disponible pour ce créneau.</div>
+            </div>
+            <div class="modal-footer rounded-bottom-4">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" id="btn-confirmer-acceptation">
+                    <i class="bi bi-check-circle me-1"></i>Accepter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="toast" class="toast align-items-center text-white border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toast-message"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+    let currentMissionId = null;
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toast.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+        toast.classList.add(type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-warning');
+        toastMessage.textContent = message;
+        new bootstrap.Toast(toast, { delay: 3000 }).show();
+    }
+
+    // Modal Refuser
+    document.getElementById('modalRefuser').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        currentMissionId = button.getAttribute('data-id');
+        document.getElementById('refuser-subject').textContent = button.getAttribute('data-subject');
+    });
+
+    document.getElementById('btn-confirmer-refus').addEventListener('click', async function() {
+        if (!currentMissionId) return;
+        try {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/refuser', { method: 'POST' });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getInstance(document.getElementById('modalRefuser')).hide();
+            showToast("Demande refusée.", 'success');
+            setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+
+    // Boutons Accepter
+    document.querySelectorAll('.btn-accepter').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            currentMissionId = this.getAttribute('data-id');
+            document.getElementById('accepter-subject').textContent = this.getAttribute('data-subject');
+
+            const select = document.getElementById('interpretes-select');
+            const loading = document.getElementById('interpretes-loading');
+            const empty = document.getElementById('interpretes-empty');
+
+            select.classList.add('d-none');
+            empty.classList.add('d-none');
+            loading.classList.remove('d-none');
+            select.innerHTML = '<option value="">-- Sélectionner un interprète --</option>';
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccepter')).show();
+
+            try {
+                const res = await fetch('/horaire/missions/' + currentMissionId + '/interpretes-disponibles');
+                const interpreters = await res.json();
+                loading.classList.add('d-none');
+
+                if (interpreters.length === 0) {
+                    empty.classList.remove('d-none');
+                } else {
+                    interpreters.forEach(i => {
+                        const option = document.createElement('option');
+                        option.value = i.id;
+                        option.textContent = i.name;
+                        select.appendChild(option);
+                    });
+                    select.classList.remove('d-none');
+                }
+            } catch (err) {
+                loading.classList.add('d-none');
+                showToast("Erreur lors du chargement des interprètes.", 'error');
+            }
+        });
+    });
+
+    document.getElementById('btn-confirmer-acceptation').addEventListener('click', async function() {
+        const interpreterId = document.getElementById('interpretes-select').value;
+        if (!interpreterId) {
+            showToast("Veuillez sélectionner un interprète.", 'error');
+            return;
+        }
+        try {
+            const res = await fetch('/horaire/missions/' + currentMissionId + '/accepter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ interpreterId })
+            });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getInstance(document.getElementById('modalAccepter')).hide();
+            showToast("Demande acceptée.", 'success');
+            setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+    // Modal Modifier
+    document.getElementById('modalModifier').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        currentMissionId = button.getAttribute('data-id');
+
+        document.getElementById('modifierTitle').value = button.getAttribute('data-title') || '';
+        document.getElementById('modifierDate').value = button.getAttribute('data-date') || '';
+        document.getElementById('modifierStartTime').value = button.getAttribute('data-start-time') || '';
+        document.getElementById('modifierEndTime').value = button.getAttribute('data-end-time') || '';
+        document.getElementById('modifierLocationDesignation').value = button.getAttribute('data-location-designation') || '';
+        document.getElementById('modifierStreet').value = button.getAttribute('data-street') || '';
+        document.getElementById('modifierStreetNumber').value = button.getAttribute('data-street-number') || '';
+        document.getElementById('modifierBox').value = button.getAttribute('data-box') || '';
+        document.getElementById('modifierRoom').value = button.getAttribute('data-room') || '';
+        document.getElementById('modifierComment').value = button.getAttribute('data-comment') || '';
+
+        const postalCode = button.getAttribute('data-postal-code') || '';
+        const citySelect = document.getElementById('modifierCity');
+        citySelect.value = postalCode;
+        document.getElementById('modifierCityName').value = button.getAttribute('data-city') || '';
+
+        const jobSkillId = button.getAttribute('data-job-skill-id') || '';
+        document.querySelectorAll('input[name="modifierType"]').forEach(radio => {
+            radio.checked = (radio.value === jobSkillId);
+        });
+
+        const academicSkillId = button.getAttribute('data-academic-skill-id') || '';
+        document.getElementById('modifierAcademicSkill').value = academicSkillId;
+
+        const importance = button.getAttribute('data-importance') || '0';
+        const importanceRadio = document.querySelector('input[name="modifierImportance"][value="' + importance + '"]');
+        if (importanceRadio) importanceRadio.checked = true;
+    });
+
+    document.getElementById('modifierCity').addEventListener('change', function() {
+        const opt = this.options[this.selectedIndex];
+        document.getElementById('modifierCityName').value = opt.dataset.name || '';
+    });
+
+    document.getElementById('btn-confirmer-modification').addEventListener('click', async function() {
+        const startTime = document.getElementById('modifierStartTime').value;
+        const endTime = document.getElementById('modifierEndTime').value;
+        if (startTime >= endTime) {
+            showToast("L'heure de fin doit être après l'heure de début.", 'error');
+            return;
+        }
+
+        const payload = {
+            jobSkillId:          document.querySelector('input[name="modifierType"]:checked')?.value || '',
+            title:               document.getElementById('modifierTitle').value,
+            date:                document.getElementById('modifierDate').value,
+            startTime,
+            endTime,
+            locationDesignation: document.getElementById('modifierLocationDesignation').value,
+            city:                document.getElementById('modifierCityName').value,
+            postalCode:          document.getElementById('modifierCity').value,
+            room:                document.getElementById('modifierRoom').value,
+            academicSkillId:     document.getElementById('modifierAcademicSkill').value,
+            street:              document.getElementById('modifierStreet').value,
+            streetNumber:        document.getElementById('modifierStreetNumber').value,
+            box:                 document.getElementById('modifierBox').value,
+            comment:             document.getElementById('modifierComment').value,
+            importance:          document.querySelector('input[name="modifierImportance"]:checked')?.value || '0'
+        };
+
+        try {
+            const res = await fetch('/horaire/requetes/' + currentMissionId + '/modifier', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+            bootstrap.Modal.getInstance(document.getElementById('modalModifier')).hide();
+            showToast("Demande modifiée avec succès.", 'success');
+            setTimeout(() => location.reload(), 1000);
+        } catch (err) {
+            showToast("Erreur : " + err.message, 'error');
+        }
+    });
+</script>
+
+</body>
+</html>

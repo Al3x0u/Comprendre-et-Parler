@@ -1,11 +1,9 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.BeneficiaryService;
 import be.hers.pi.comprendre_et_parler.services.InterpreterService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,8 +15,8 @@ import java.sql.SQLException;
 @Controller
 public class DashboardController {
 
-    private final InterpreterService interpreterService = new InterpreterService();
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static InterpreterService interpreterService = new InterpreterService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     @GetMapping("/hash")
     @ResponseBody

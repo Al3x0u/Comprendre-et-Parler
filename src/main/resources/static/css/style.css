@@ -44,6 +44,13 @@
     --oc-gray-8-rgb: 52, 58, 64;
     --oc-gray-9: #212529;
     --oc-gray-9-rgb: 33, 37, 41;
+
+    /* Status colors
+     * ─────────────────────────────────── */
+    --status-accepted: #40c057;
+    --status-pending: #fab005;
+    --status-refused: #fa5252;
+    --status-base: #4dabf7;
 }
 
 .form-login {
@@ -56,7 +63,8 @@ body {
 }
 
 /* ─── Navbar ────────────────────────────────────────── */
-.nav-link.active {
+.nav-link.active,
+.active-profile {
     background-color: var(--oc-blue-1);
     color: var(--oc-blue-9) !important;
     border-radius: 8px;
@@ -69,13 +77,6 @@ body {
 
 .profile-name {
     color: var(--oc-blue-9);
-}
-
-.active-profile {
-    background-color: var(--oc-blue-1);
-    color: var(--oc-blue-9) !important;
-    border-radius: 8px;
-    padding: 4px 10px;
 }
 
 /* ─── Dashboard grid ────────────────────────────────── */
@@ -110,9 +111,12 @@ body {
     font-size: 1rem;
 }
 
+.dashboard-grid a .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
 .dashboard-grid a:hover .card {
     transform: translateY(-4px);
-    transition: transform 0.2s ease;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -127,19 +131,19 @@ body {
 }
 
 .legende-dot-accepted {
-    background: #40c057;
+    background: var(--status-accepted);
 }
 
 .legende-dot-pending {
-    background: #fab005;
+    background: var(--status-pending);
 }
 
 .legende-dot-refused {
-    background: #fa5252;
+    background: var(--status-refused);
 }
 
 .legende-dot-base {
-    background: #4dabf7;
+    background: var(--status-base);
 }
 
 /* ─── Fullcalendar ───────────────────────────────── */
@@ -157,27 +161,6 @@ body {
     min-width: 280px;
     text-align: center;
     display: inline-block;
-}
-
-.fc-filterBtn-button {
-    background-color: var(--oc-blue-1) !important;
-    border-color: var(--oc-blue-9) !important;
-    color: var(--oc-blue-9) !important;
-    box-shadow: none !important;
-}
-
-.fc-filterBtn-button:hover {
-    background-color: var(--oc-blue-9) !important;
-    color: white !important;
-}
-
-.fc-filterBtn-button:focus {
-    box-shadow: none !important;
-}
-
-.fc-filterBtn-button.active {
-    background-color: var(--oc-blue-9) !important;
-    color: white !important;
 }
 
 .fc-prev-button,
@@ -257,7 +240,8 @@ body {
 
 .fc-newMission-button,
 .fc-newRequest-button,
-.fc-newUnavailability-button {
+.fc-newUnavailability-button,
+.fc-viewRequests-button {
     background-color: var(--oc-blue-1) !important;
     border-color: var(--oc-blue-9) !important;
     color: var(--oc-blue-9) !important;
@@ -266,14 +250,16 @@ body {
 
 .fc-newMission-button:hover,
 .fc-newRequest-button:hover,
-.fc-newUnavailability-button:hover {
+.fc-newUnavailability-button:hover,
+.fc-viewRequests-button:hover {
     color: white !important;
     background-color: var(--oc-blue-9) !important;
 }
 
 .fc-newMission-button:focus,
 .fc-newRequest-button:focus,
-.fc-newUnavailability-button:focus{
+.fc-newUnavailability-button:focus,
+.fc-viewRequests-button:focus {
     box-shadow: none !important;
 }
 
@@ -293,6 +279,109 @@ body {
 /* ─── Schedule ───────────────────────────────────── */
 .modal-backdrop.show {
     opacity: 0.7;
+}
+
+/* ─── Mission ───────────────────────────────────── */
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.status-badge--accepted {
+    background: color-mix(in srgb, var(--status-accepted) 18%, white);
+    color: var(--status-accepted);
+}
+
+.status-badge--pending {
+    background: color-mix(in srgb, var(--status-pending) 18%, white);
+    color: var(--status-pending);
+}
+
+.status-badge--refused {
+    background: color-mix(in srgb, var(--status-refused) 18%, white);
+    color: var(--status-refused);
+}
+
+.status-badge--base {
+    background: color-mix(in srgb, var(--status-base) 18%, white);
+    color: var(--status-base);
+}
+
+.info-icon {
+    font-size: 1.1rem;
+    color: var(--oc-gray-5);
+    margin-top: 2px;
+}
+
+.info-label {
+    font-size: 0.8rem;
+    color: var(--oc-gray-6);
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.skill-badge {
+    background: var(--oc-gray-1);
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.comment-section {
+    border-top: 1px solid var(--oc-gray-2);
+    padding-top: 0.75rem;
+}
+
+.interpreter-badge {
+    background: var(--oc-blue-1);
+    color: var(--oc-blue-9);
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.interpreter-badge i {
+    cursor: pointer;
+}
+
+/* ─── Pills ───────────────────────────────────── */
+.type-pill-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.type-pill-label {
+    border: 1px solid var(--oc-gray-4);
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin: 0;
+}
+
+.type-pill-input:checked + .type-pill-label {
+    border-color: var(--oc-blue-9);
+    background: var(--oc-blue-1);
+    color: var(--oc-blue-9);
+}
+
+.type-pill-label:hover {
+    border-color: var(--oc-blue-5);
+}
+
+.location-box {
+    background: var(--oc-gray-0);
+    border-radius: 8px;
+    padding: 1rem;
 }
 
 /* ── MOBILE FIRST : modales plein écran sur petits écrans ── */
@@ -324,24 +413,59 @@ body {
     .legende span {
         font-size: 0.8rem;
     }
-    /* Calendrier : toolbar wrappée */
-    .fc .fc-toolbar {
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        justify-content: center;
+
+    /* Calendrier : toolbar en 2 lignes compactes */
+    .fc {
+        display: flex;
+        flex-direction: column;
     }
+
+    .fc-header-toolbar {
+        order: 1;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .fc-footer-toolbar {
+        order: 2;
+        margin: 0 0 0.5rem !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        justify-content: flex-start !important;
+        gap: 0.4rem;
+    }
+
+    .fc-view-harness {
+        order: 3;
+    }
+
     .fc .fc-toolbar-title {
+        min-width: auto !important;
         font-size: 1rem !important;
     }
+
+    .fc-footer-toolbar .fc-toolbar-chunk {
+        flex: none !important;
+        display: flex;
+        gap: 0.4rem;
+    }
+
     .fc .fc-button {
         padding: 0.25rem 0.5rem;
         font-size: 0.75rem;
     }
+
     /* Wrapper calendrier moins de padding */
     #calendar-container {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
     }
+}
+
+#quotaWarningModal .modal-content {
+    z-index: 1061;
+}
+#quotaWarningModal + .modal-backdrop {
+    z-index: 1059;
 }
 
 /* ── TOAST ── */
@@ -367,3 +491,74 @@ body {
 
 /* ── Champ invalide : affiche le message d'erreur ── */
 .is-invalid ~ .invalid-feedback { display: block; }
+
+/* ─── Filtres ────────────────────────────────────────── */
+.fc-filterBtn-button {
+    background-color: var(--oc-blue-1) !important;
+    border-color: var(--oc-blue-9) !important;
+    color: var(--oc-blue-9) !important;
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button:hover {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
+}
+
+.fc-filterBtn-button:focus {
+    box-shadow: none !important;
+}
+
+.fc-filterBtn-button.active {
+    background-color: var(--oc-blue-9) !important;
+    color: white !important;
+}
+
+.filter-scroll-list {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.filter-section-label {
+    padding: 0.5rem 1rem 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-section-label--manager     { color: #856404; }
+.filter-section-label--interpreter { color: #0d6efd; }
+.filter-section-label--beneficiary { color: #146c43; }
+
+.filter-dot-manager     { color: #856404; }
+.filter-dot-interpreter { color: #0d6efd; }
+.filter-dot-beneficiary { color: #146c43; }
+
+.filter-no-result {
+    display: none;
+    font-size: 0.85rem;
+}
+
+.filter-status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.filter-status-dot--accepted { background: var(--status-accepted); }
+.filter-status-dot--pending  { background: var(--status-pending); }
+.filter-status-dot--refused  { background: var(--status-refused); }
+.filter-status-dot--base     { background: var(--status-base); }
+
+.filter-user-item.active .filter-dot-manager,
+.filter-user-item.active .filter-dot-interpreter,
+.filter-user-item.active .filter-dot-beneficiary {
+    color: white;
+}
+
+.mission-interpreters-list {
+    max-height: 160px;
+    overflow-y: auto;
+}

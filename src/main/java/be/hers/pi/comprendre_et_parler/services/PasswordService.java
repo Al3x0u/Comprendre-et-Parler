@@ -1,6 +1,7 @@
 package be.hers.pi.comprendre_et_parler.services;
 
-import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DAOs.DAO;
+import be.hers.pi.comprendre_et_parler.DAOs.DAOAppliUser;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
@@ -12,7 +13,6 @@ import java.util.NoSuchElementException;
 
 @Service
 public class PasswordService {
-
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**
@@ -27,22 +27,58 @@ public class PasswordService {
      */
     public void changePassword(AppliUser user, String newPassword) throws SQLException, ConnectionException {
         String hashedNewPassword = encoder.encode(newPassword);
+        String oldHash = user.getHashedPassword();
         user.setHashedPassword(hashedNewPassword);
+        try {
+            SQLWrap.callTransaction(new DAOAppliUser()::updatePasswordUpdated, user);
+        } catch (SQLException | ConnectionException e) {
+            user.setHashedPassword(oldHash);
+            throw e;
+        }
+        user.setPasswordUpdated(true);
+    }
 
-        if(user instanceof Manager){
-            DAOManager dao = new DAOManager();
-            SQLWrap.callTransaction(dao::update, (Manager) user);
-            SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
-        } else if(user instanceof Interpreter){
-            DAOInterpreter dao = new DAOInterpreter();
-            SQLWrap.callTransaction(dao::update, (Interpreter) user);
-            SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
-        } else if(user instanceof Beneficiary){
-            DAOBeneficiary dao = new DAOBeneficiary();
-            SQLWrap.callTransaction(dao::update, (Beneficiary) user);
-            SQLWrap.callTransaction(dao::updatePasswordUpdated, user.getId());
+    /**
+     * Verify that the given password is the correct one
+     * @param user   the authenticated user
+     * @param password the password to verify
+     * @return true if it's the correct password else false
+     */
+    public boolean verifyCurrentPassword(AppliUser user, String password) {
+        return encoder.matches(password, user.getHashedPassword());
+    }
+
+    /**
+     * Check if the password respect security rules
+     * @param password the plain text password to validate
+     * @return null if valid else the error message
+     */
+    public String validatePasswordRules(String password){
+        //single source of truth
+        String warningMsg = null;
+
+        if(password.length() < 8){
+            warningMsg = "Le mot de passe doit contenir au moins 8 caractères.";
+        }else if(!password.matches(".*[A-Z].*")){
+            warningMsg = "Le mot de passe doit contenir au moins une majuscule.";
+        }else if(!password.matches(".*[0-9].*")){
+            warningMsg = "Le mot de passe doit contenir au moins 1 chiffre.";
+        }else if(!password.matches(".*[^a-zA-Z0-9].*")){
+            warningMsg = "Le mot de passe doit contenir au moins un caractere special.";
         }
 
-        user.setPasswordUpdated(true);
+        return warningMsg;
+    }
+
+    /**
+     * Reinitialize the password of an user identified by its id
+     * @param userId the id of the user
+     * @param newPassword the plain text new password
+     * @post the hash of the password has been update and passwordUpdated of the user is true
+     */
+    public void resetPassword(int userId, String newPassword)throws SQLException, ConnectionException{
+        //the post is for avoid new SQL call to get the user then check its passwordUpdated flag is true
+        String hashedNewPassword = encoder.encode(newPassword);
+        SQLWrap.callTransaction(new DAOAppliUser()::updatePassword, userId, hashedNewPassword);
     }
 }

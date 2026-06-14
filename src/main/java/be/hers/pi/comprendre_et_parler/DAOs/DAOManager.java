@@ -10,12 +10,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.NoSuchElementException;
 
-import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.FIELD_PASSWORD_UPDATED;
-import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.TABLE_APPLIUSER;
-
 public class DAOManager extends DAO<Manager> {
     protected static final String TABLE = "ManagerT";
     protected static final String FIELD_ID = "id";
+
+    private static final DAOAcademicSkill daoAcademicSkill = new DAOAcademicSkill();
+    private static final DAOJobSkill daoJobSkill = new DAOJobSkill();
+    private static final DAOLocation daoLocation = new DAOLocation();
+    private static final DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
+    private static final DAOBaseTimeSlot daoBaseTimeSlot = new DAOBaseTimeSlot();
+    private static final DAOInterpreter daoInterpreter = new DAOInterpreter();
 
     /**
      * Search for a Manager in the database with the String parameter
@@ -82,7 +86,7 @@ public class DAOManager extends DAO<Manager> {
      */
     @Override
     public void create(Manager objectToInsert) throws AlreadyExistsException, SQLException {
-        new DAOInterpreter().create(objectToInsert);
+        daoInterpreter.create(objectToInsert);
         String query = String.format("INSERT INTO %s VALUES (?)", TABLE);
         PreparedStatement statement = null;
         try {
@@ -106,7 +110,7 @@ public class DAOManager extends DAO<Manager> {
             throw new AlreadyExistsException("[ERROR] Manager already exists");
         }
 
-        if (new DAOInterpreter().find(idInterpreter) == null){
+        if (daoInterpreter.find(idInterpreter) == null){
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + idInterpreter);
         }
 
@@ -132,7 +136,7 @@ public class DAOManager extends DAO<Manager> {
      */
     @Override
     public void update(Manager objectToUpdate) throws AlreadyExistsException, NoSuchElementException, SQLException {
-        new DAOInterpreter().update(objectToUpdate);
+        daoInterpreter.update(objectToUpdate);
     }
 
 
@@ -230,57 +234,12 @@ public class DAOManager extends DAO<Manager> {
                 result.getInt(DAOInterpreter.FIELD_WEEK_QUOTA),
                 result.getInt(DAOInterpreter.FIELD_YEAR_QUOTA),
                 result.getString(DAOInterpreter.FIELD_TRANSPORT_MODE),
-                new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
-                new DAOJobSkill().getJobSkillOfAnInterpreter(id),
-                new DAOLocation().find(result.getInt(DAOInterpreter.FIELD_LOCATION)),
-                new DAOBaseTimeSlot().findAvailabilities(id)
+                daoAcademicSkill.getAcademicSkillOfAnInterpreter(id),
+                daoJobSkill.getJobSkillOfAnInterpreter(id),
+                daoLocation.find(result.getInt(DAOInterpreter.FIELD_LOCATION)),
+                daoBaseTimeSlot.findAvailabilities(id)
         );
-        manager.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
+        manager.setUnavailability(daoUnavailability.findForInterpreter(id));
         return manager;
-    }
-
-
-
-    /**
-     * Update the passwordUpdated flag of an AppliUser in the database
-     * @param id the id of the AppliUser to update
-     * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if no AppliUser with this id exists in the database
-     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
-     */
-    public void updatePasswordUpdated(int id) throws SQLException {
-        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, id);
-            if(statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
-        } finally {
-            closeStatement(statement);
-        }
-    }
-
-    /**
-     * Retrieve the passwordUpdated flag of a user from the database
-     * @param id the id of the user
-     * @return true if the password has been updated, false otherwise
-     * @throws SQLException if the database could not be reached
-     */
-    public boolean getPasswordUpdated(int id) throws SQLException {
-        String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, id);
-            result = statement.executeQuery();
-            if(!result.next())
-                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
-            return result.getInt(FIELD_PASSWORD_UPDATED) == 1;
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
     }
 }

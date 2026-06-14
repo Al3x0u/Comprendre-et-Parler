@@ -1,5 +1,6 @@
 package be.hers.pi.comprendre_et_parler.services;
 
+import be.hers.pi.comprendre_et_parler.DAOs.DAOInterpreter;
 import be.hers.pi.comprendre_et_parler.DAOs.DAOMission;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
@@ -7,24 +8,24 @@ import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class MissionService {
-
-    private final DAOMission daoMission;
-    private final NotificationService notificationService; // ← ajoute ça
-
-    public MissionService() {
-        this.daoMission = new DAOMission();
-        this.notificationService = new NotificationService(); // ← ajoute ça
-    }
+    private final static DAOMission daoMission = new DAOMission();
+    private final static DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private final static NotificationService notificationService = new NotificationService();
 
     /**
      * Returns a mission according to the given id.
@@ -37,6 +38,7 @@ public class MissionService {
         Mission mission = SQLWrap.call(daoMission::find, id);
         return mission;
     }
+
     /**
      * Returns a list of missions filtered according to the given filter.
      * @param filter the filter to apply, each criterion is optional (null means no filter)
@@ -45,25 +47,8 @@ public class MissionService {
      * @throws ConnectionException if the connection to the database could not be established
      */
     public List<Mission> getByFilter(MissionFilter filter) throws SQLException, ConnectionException {
-        Set<Mission> all = SQLWrap.call(daoMission::findAll);
-        return all.stream()
-                .filter(m -> filter.getBeneficiary() == null ||
-                        m.getBeneficiary().equals(filter.getBeneficiary()))
-                .filter(m -> filter.getInterpreter() == null ||
-                        m.getInterpreters().contains(filter.getInterpreter()))
-                .filter(m -> filter.getJobSkill() == null ||
-                        m.getJobSkill().equals(filter.getJobSkill()))
-                .filter(m -> filter.getAcademicSkill() == null ||
-                        m.getAcademicSkill().equals(filter.getAcademicSkill()))
-                .filter(m -> filter.getLocation() == null ||
-                        m.getLocation().equals(filter.getLocation()))
-                .filter(m -> filter.getMinImportance() == null ||
-                        m.getImportance() >= filter.getMinImportance())
-                .filter(m -> filter.getStateOfMission() == null ||
-                        m.getStateOfMission().equals(filter.getStateOfMission()))
-                .collect(Collectors.toList());
+        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter));
     }
-
 
     /**
      * Return the list of missions for a given week, filtered according to the user's role.
@@ -72,18 +57,16 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     public ArrayList<Mission> getMissionsForWeek(AppliUser user, LocalDate weekStart) throws SQLException {
-
         int yearNumber = weekStart.getYear();
-        int weekNumber = weekStart.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
-
+        int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
         Set<Mission> missions;
 
-        if (user instanceof Manager) {
+        if (user instanceof Manager)
             missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
-        }
-        else {
+        else if(user instanceof Interpreter)
             missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
-        }
+        else
+            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
 
         return new ArrayList<>(missions);
     }
@@ -91,33 +74,34 @@ public class MissionService {
     /**
      * Creates a mission with the status ACCEPTED
      * @param mission the mission to create, with interpreters and time slot already set
-     * @throws ConflictException if an assigned interpreter has a schedule conflict
-     * @throws AlreadyExistsException if the mission already exists in the database
-     * @throws SQLException if the database could not be reached
+     * @throws ConflictException if an assigned interpreter or beneficiary has a schedule conflict
+     * @throws SQLException if any database error occurs
      */
-    public void createMission(Mission mission) throws ConflictException, AlreadyExistsException, SQLException {
-        if (mission.getInterpreters() != null){
-            for (Interpreter interpreter : mission.getInterpreters()){
-                checkInterpreterConflict(interpreter, mission.getTimeSlot());
-            }
-        }
-
+    public void createMission(Mission mission) throws ConflictException, SQLException {
         mission.setStateOfMission(MissionState.ACCEPTED);
-        SQLWrap.callTransaction(daoMission::create, mission);
+        try {
+            SQLWrap.callTransaction(daoMission::create, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
+        }
     }
-
 
     /**
      * Creates a mission with the status PENDING.
      * @param mission the mission to create, with beneficiary and time slot already set
-     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws ConflictException if the new request overlaps with an existing mission
      * @throws SQLException if the database could not be reached
      */
-    public void createRequest(Mission mission) throws AlreadyExistsException, SQLException {
+    public void createRequest(Mission mission) throws ConflictException, SQLException {
         mission.setStateOfMission(MissionState.PENDING);
-        SQLWrap.callTransaction(daoMission::create, mission);
+        try {
+            SQLWrap.callTransaction(daoMission::create, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
+        }
     }
-
 
     /**
      * Checks that an interpreter has no schedule conflict with the given time slot.
@@ -127,17 +111,13 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     private void checkInterpreterConflict(Interpreter interpreter, TimeSlot slot) throws ConflictException, SQLException {
-        for (LocalDate date : getDates(slot)){
-            for (Mission existing : SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), date)){
-                if (hasConflict(slot, existing.getTimeSlot())){
-                    throw new ConflictException("Conflit d'hiraire pour " + interpreter.getId());
+        for (LocalDate date : getDates(slot)) {
+            for (Mission existing : SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), date)) {
+                if (hasConflict(slot, existing.getTimeSlot())) {
+                    throw new ConflictException("Conflit d'horaire pour " + interpreter.getId());
                 }
-
             }
-
-
         }
-
     }
 
     /**
@@ -156,9 +136,6 @@ public class MissionService {
         } else if (ts instanceof BaseTimeSlot) {
             BaseTimeSlot baseTimeSlot = (BaseTimeSlot) ts;
 
-            if (baseTimeSlot.getStartDate().isAfter(baseTimeSlot.getEndDate()))
-                throw new IllegalArgumentException("startDate est après endDate");
-
             LocalDate cursorStart = baseTimeSlot.getStartDate();
             while (!cursorStart.getDayOfWeek().equals(baseTimeSlot.getDay()))
                 cursorStart = cursorStart.plusDays(1);
@@ -167,8 +144,7 @@ public class MissionService {
                 dates.add(cursorStart);
                 cursorStart = cursorStart.plusWeeks(1);
             }
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Sous type Inconnu");
         }
 
@@ -224,8 +200,8 @@ public class MissionService {
     public void acceptRequest(Mission mission) throws ConflictException, QuotaExceededException, AlreadyExistsException, SQLException {
         if (mission.getInterpreters() != null)
             for (Interpreter interpreter : mission.getInterpreters()) {
-                checkInterpreterConflict(interpreter, mission.getTimeSlot());
                 checkQuota(interpreter, mission.getTimeSlot());
+                checkInterpreterConflict(interpreter, mission.getTimeSlot());
             }
 
         mission.setStateOfMission(MissionState.ACCEPTED);
@@ -249,29 +225,28 @@ public class MissionService {
      * If the time slot has changed, checks for schedule conflicts with assigned interpreters.
      * @param mission the existing mission to update
      * @param newMission the new mission information to apply
-     * @throws ConflictException if an interpreter has a schedule conflict with the new time slot
-     * @throws AlreadyExistsException if the updated mission already exists in the database
+     * @throws ConflictException if an assigned interpreter or beneficiary has a schedule conflict
      * @throws NoSuchElementException if the mission does not exist in the database
      * @throws SQLException if the database could not be reached
      */
-    public void updateMission(Mission mission, Mission newMission) throws ConflictException, AlreadyExistsException, NoSuchElementException, SQLException {
-        if (!mission.getTimeSlot().equals(newMission.getTimeSlot()))
-            if (newMission.getInterpreters() != null)
-                for (Interpreter interpreter : newMission.getInterpreters())
-                    checkInterpreterConflict(interpreter, newMission.getTimeSlot());
+    public void updateMission(Mission mission, Mission newMission) throws ConflictException, NoSuchElementException, SQLException {
+        try {
+            mission.setSubject(newMission.getSubject());
+            mission.setCommentary(newMission.getCommentary());
+            mission.setTimeSlot(newMission.getTimeSlot());
+            mission.setLocation(newMission.getLocation());
+            mission.setRoom(newMission.getRoom());
+            mission.setImportance(newMission.getImportance());
+            mission.setInterpreters(newMission.getInterpreters());
+            mission.setJobSkill(newMission.getJobSkill());
+            mission.setAcademicSkill(newMission.getAcademicSkill());
+            mission.setBeneficiary(newMission.getBeneficiary());
 
-        mission.setSubject(newMission.getSubject());
-        mission.setCommentary(newMission.getCommentary());
-        mission.setTimeSlot(newMission.getTimeSlot());
-        mission.setLocation(newMission.getLocation());
-        mission.setRoom(newMission.getRoom());
-        mission.setImportance(newMission.getImportance());
-        mission.setInterpreters(newMission.getInterpreters());
-        mission.setJobSkill(newMission.getJobSkill());
-        mission.setAcademicSkill(newMission.getAcademicSkill());
-        mission.setBeneficiary(newMission.getBeneficiary());
-
-        SQLWrap.callTransaction(daoMission::update, mission);
+            SQLWrap.callTransaction(daoMission::update, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
+        }
     }
 
     /**
@@ -280,17 +255,30 @@ public class MissionService {
      * @param slot the time slot of the mission to add
      * @throws QuotaExceededException if the weekly or yearly quota would be exceeded
      * @throws SQLException if the database could not be reached
+     * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype
      */
-    private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, SQLException {
+    private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, IllegalArgumentException, SQLException {
         double newMissionHours = calculateHours(slot);
-        double hoursThisWeek = calculateAssignedHoursForWeek(interpreter, slot);
-        double hoursThisYear = calculateAssignedHoursForYear(interpreter, slot);
+        LocalDate date;
+        if (slot instanceof PunctualTimeSlot)
+            date = ((PunctualTimeSlot) slot).getStartDate().toLocalDate();
+        else
+            date = ((BaseTimeSlot) slot).getStartDate();
+
+        LocalDate weekStart = date.with(DayOfWeek.MONDAY);
+        LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
+        LocalDate yearStart = LocalDate.of(date.getYear(), 1, 1);
+        LocalDate yearEnd = LocalDate.of(date.getYear(), 12, 31);
+
+        double hoursThisWeek = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
+        double hoursThisYear = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
 
         if (hoursThisWeek + newMissionHours > interpreter.getHourQuotaWeek())
             throw new QuotaExceededException("Le quota hebdomadaire de l'interprète " + interpreter.getId() + " est dépassé");
         if (hoursThisYear + newMissionHours > interpreter.getHourQuotaYear())
             throw new QuotaExceededException("Le quota annuel de l'interprète " + interpreter.getId() + " est dépassé");
     }
+
 
     /**
      * Calculates the total duration in hours of a TimeSlot.
@@ -300,76 +288,105 @@ public class MissionService {
      * @return the duration in hours
      * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype
      */
-    private double calculateHours(TimeSlot ts) {
+    private double calculateHours(TimeSlot ts) throws IllegalArgumentException{
         if (ts instanceof PunctualTimeSlot) {
             PunctualTimeSlot pts = (PunctualTimeSlot) ts;
-            return java.time.Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes();
+            return Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes() /60.0;
         }
         if (ts instanceof BaseTimeSlot) {
             BaseTimeSlot bts = (BaseTimeSlot) ts;
-            return java.time.Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes();
+            return Duration.between(bts.getStartTime(), bts.getEndTime()).toMinutes() / 60.0;
         }
         throw new IllegalArgumentException("Unknown TimeSlot subtype : " + ts.getClass().getSimpleName());
     }
 
+
     /**
-     * Calculates the total hours already assigned to an interpreter for the week of the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot used to determine the week
-     * @return the total hours assigned for that week
+     * Accepts a pending request by setting its status to ACCEPTED,
+     * bypassing the hour quota check but still verifying schedule conflicts.
+     * Use this when the interpreter's quota is exceeded but the manager
+     * explicitly chooses to accept the mission anyway.
+     * @param mission the mission to accept, with interpreters already set
+     * @throws ConflictException if an assigned interpreter or beneficiary has a schedule conflict
      * @throws SQLException if the database could not be reached
+     * @pre mission.getInterpreters() is not null and not empty
+     * @post mission.getStateOfMission() == MissionState.ACCEPTED
      */
-    private double calculateAssignedHoursForWeek(Interpreter interpreter, TimeSlot slot) throws SQLException {
-        LocalDate date;
-
-        if (slot instanceof PunctualTimeSlot) {
-            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
-            date = punctualTimeSlot.getStartDate().toLocalDate();
-        } else {
-            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
-            date = baseTimeSlot.getStartDate();
+    public void acceptRequestDespiteQuota(Mission mission) throws ConflictException, SQLException {
+        mission.setStateOfMission(MissionState.ACCEPTED);
+        try {
+            SQLWrap.callTransaction(daoMission::update, mission);
         }
-
-        int year = date.getYear();
-        int week = date.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear());
-
-        double total = 0;
-        for (Mission m : SQLWrap.call(daoMission::getScheduleForWeek,interpreter.getId(), year, week))
-            total += calculateHours(m.getTimeSlot());
-        return total;
+        catch (AlreadyExistsException e) {
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
+        }
     }
 
     /**
-     * Calculates the total hours already assigned to an interpreter for the year of the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot used to determine the year
-     * @return the total hours assigned for that year
+     * Checks quota for all interpreters of a mission without throwing.
+     * @param mission the mission to check
+     * @return a warning message if quota is exceeded, empty string otherwise
      * @throws SQLException if the database could not be reached
      */
-    private double calculateAssignedHoursForYear(Interpreter interpreter, TimeSlot slot) throws SQLException {
-
-        LocalDate date;
-
-        if (slot instanceof PunctualTimeSlot) {
-            PunctualTimeSlot punctualTimeSlot = (PunctualTimeSlot) slot;
-            date = punctualTimeSlot.getStartDate().toLocalDate();
-        } else {
-            BaseTimeSlot baseTimeSlot = (BaseTimeSlot) slot;
-            date = baseTimeSlot.getStartDate();
-        }
-
-        int year = date.getYear();
-
-        double total = 0;
-
-        for (int week = 1; week <= 52; week++) {
-
-            for (Mission mission : SQLWrap.call(daoMission::getScheduleForWeek, interpreter.getId(), year, week)) {
-                total += calculateHours(mission.getTimeSlot());
+    public String checkQuotaWarning(Mission mission) throws SQLException {
+        if (mission.getInterpreters() == null) return "";
+        StringBuilder warnings = new StringBuilder();
+        for (Interpreter interpreter : mission.getInterpreters()) {
+            try {
+                checkQuota(interpreter, mission.getTimeSlot());
+            } catch (QuotaExceededException e) {
+                if (!warnings.isEmpty()) warnings.append("\n");
+                warnings.append("⚠ ")
+                        .append(interpreter.getFirstName())
+                        .append(" ")
+                        .append(interpreter.getLastName())
+                        .append(" dépasse son quota d'heures !");
             }
         }
-
-        return total;
+        return warnings.toString();
     }
 
+    /**
+     * Builds a human-readable description of a mission for use in conflict messages.
+     * @param mission the mission to describe
+     * @return a String describing the mission's subject, date/time and beneficiary (if any)
+     */
+    private String describeMission(Mission mission) {
+        StringBuilder sb = new StringBuilder("\"").append(mission.getSubject()).append("\"");
+
+        TimeSlot ts = mission.getTimeSlot();
+        if (ts instanceof PunctualTimeSlot pts) {
+            sb.append(" le ").append(pts.getStartDate().toLocalDate())
+                    .append(" de ").append(pts.getStartDate().toLocalTime())
+                    .append(" à ").append(pts.getEndDate().toLocalTime());
+        } else if (ts instanceof BaseTimeSlot bts) {
+            sb.append(" le ").append(bts.getDay())
+                    .append(" de ").append(bts.getStartTime())
+                    .append(" à ").append(bts.getEndTime());
+        }
+
+        if (mission.getBeneficiary() != null) {
+            sb.append(" (bénéficiaire : ")
+                    .append(mission.getBeneficiary().getFirstName()).append(" ").append(mission.getBeneficiary().getLastName())
+                    .append(")");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Fetches and describes the mission that caused an AlreadyExistsException raised by the DAO,
+     * whose message contains the conflicting mission's id.
+     * @param e the AlreadyExistsException raised by the DAO
+     * @return a description of the conflicting mission, or a generic fallback if it could not be retrieved
+     */
+    private String describeConflict(AlreadyExistsException e) {
+        try {
+            int conflictId = Integer.parseInt(e.getMessage());
+            Mission conflict = daoMission.find(conflictId);
+            return conflict != null ? describeMission(conflict) : "une autre mission";
+        } catch (Exception ex) {
+            return "une autre mission";
+        }
+    }
 }

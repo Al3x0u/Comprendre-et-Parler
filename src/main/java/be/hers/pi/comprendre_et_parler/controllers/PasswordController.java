@@ -11,7 +11,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PasswordController {
-
     private final PasswordService passwordService;
 
     public PasswordController (PasswordService service){
@@ -20,6 +19,7 @@ public class PasswordController {
 
     @PostMapping("/profil/modifier-mot-de-passe")
     public String changePassword(
+            @RequestParam String currentPassword,
             @RequestParam String newPassword,
             @RequestParam String confirmPassword,
             HttpSession session,
@@ -30,6 +30,23 @@ public class PasswordController {
 
         if(!newPassword.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("passwordError", "Les mots de passe ne correspondent pas.");
+            return "redirect:" + request.getHeader("Referer");
+        }
+
+        //Rules validation
+        String ruleError = passwordService.validatePasswordRules(newPassword);
+        if(ruleError != null){
+            redirectAttributes.addFlashAttribute("passwordError", ruleError);
+            return "redirect:" + request.getHeader("Referer");
+        }
+
+        if(!passwordService.verifyCurrentPassword(user, currentPassword)) {
+            redirectAttributes.addFlashAttribute("passwordError", "Mot de passe actuel incorrect.");
+            return "redirect:" + request.getHeader("Referer");
+        }
+
+        if(newPassword.equals(currentPassword)) {
+            redirectAttributes.addFlashAttribute("passwordError", "Le nouveau mot de passe doit être différent de l'ancien.");
             return "redirect:" + request.getHeader("Referer");
         }
 

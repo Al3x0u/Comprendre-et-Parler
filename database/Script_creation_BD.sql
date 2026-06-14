@@ -172,10 +172,28 @@ ALTER TABLE City ADD CONSTRAINT PostalCodeValue CHECK (postalCode > 999);
 ALTER TABLE TimeSlot ADD CONSTRAINT DateOrder CHECK (startDateTime < endDateTime);
 ALTER TABLE TimeSlot ADD CONSTRAINT TypeOfTimeSlot CHECK (day IS NULL OR day BETWEEN 1 AND 7);
 
-ALTER TABLE Mission ADD CONSTRAINT SkillsNeeded CHECK ((beneficiary IS NULL AND jobSkill IS NULL AND academicSkill IS NULL) OR (jobSkill IS NOT NULL AND beneficiary IS NOT NULL));
 ALTER TABLE Mission ADD CONSTRAINT ImportanceValue CHECK (importance <= 3);
 
 ALTER TABLE RegularMissionCancelled ADD CONSTRAINT NumWeekValue CHECK (numWeek BETWEEN 1 AND 53);
 
+CREATE OR REPLACE FUNCTION get_heures_prestees(
+    interpreter_id IN INTEGER,
+    date_debut     IN DATE,
+    date_fin       IN DATE
+) RETURN NUMBER IS
+    total NUMBER;
+BEGIN
+SELECT SUM((ts.endDateTime - ts.startDateTime) * 24) INTO total
+FROM Mission m
+JOIN TimeSlot ts ON m.timeSlot = ts.id
+JOIN InterpreterMission im ON m.id = im.mission
+WHERE im.interpreter = interpreter_id
+AND ts.startDateTime >= date_debut
+AND ts.endDateTime  <= date_fin
+AND m.stateOfMission = 1;
+
+RETURN NVL(total, 0);
+END;
+/
 
 commit;

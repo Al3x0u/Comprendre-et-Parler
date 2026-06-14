@@ -4,7 +4,7 @@
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
     <div th:if="${mustChangePassword}">
-        <div th:replace="~{common/modal-password :: modal-password(@{/profil/modifier-mot-de-passe}, ${mustChangePassword})}"></div>
+        <div th:replace="~{common/modals :: modal-password(@{/profil/modifier-mot-de-passe}, ${mustChangePassword})}"></div>
     </div>
 
     <div class="container-fluid px-4">
@@ -35,6 +35,14 @@
                     </a>
                 </li>
 
+                <li class="nav-item" th:if="${isManager}">
+                    <a class="nav-link" th:href="@{/demandes}"
+                       th:classappend="${currentPage == 'requests'} ? 'active' : ''">
+                        Demandes
+                    </a>
+                </li>
+
+                <!-- Gestion -->
                 <li class="nav-item" th:if="${isManager}">
                     <a class="nav-link" th:href="@{/gestion}"
                        th:classappend="${currentPage == 'gestion'} ? 'active' : ''">

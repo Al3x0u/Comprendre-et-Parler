@@ -13,12 +13,13 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 public class BeneficiaryService {
-
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final static DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final static BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     /**
      * Create a new Beneficiary in the database with a hashed password.
@@ -69,12 +70,24 @@ public class BeneficiaryService {
     }
 
     /**
-     * @return all beneficiaries present in database
+     * Retrieve all Beneficiaries from the database.
+     * @return every Beneficiaries present in database, sorted by their compareTo()
      * @throws ConnectionException if the database could not be reached
      * @throws SQLException if any other database error occurs
      */
     public List<Beneficiary> getAllBeneficiaries()throws ConnectionException, SQLException {
-        return new ArrayList<>(SQLWrap.call(new DAOBeneficiary()::findAll));
+        List<Beneficiary> allBeneficiaries = new ArrayList<>(SQLWrap.call(daoBeneficiary::findAll));
+        allBeneficiaries.sort(Beneficiary::compareTo);
+        return allBeneficiaries;
+    }
+
+    /**
+     * @return all beneficiaries referenced by the interpreter with the given id present in database
+     * @throws ConnectionException if the database could not be reached
+     * @throws SQLException if any other database error occurs
+     */
+    public Set<Beneficiary> getBeneficiariesOf(int idInterpreter)throws ConnectionException, SQLException {
+        return SQLWrap.call(daoBeneficiary::findReferencedBeneficiaries, idInterpreter);
     }
 
     /**
@@ -98,6 +111,17 @@ public class BeneficiaryService {
     }
 
     /**
+     * Disables a beneficiary account by setting its end date to today.
+     * The account remains in the database but the user can no longer log in.
+     * @param id the id of the beneficiary to disable
+     * @throws NoSuchElementException if the beneficiary does not exist in the database
+     * @throws SQLException if the database could not be reached
+     */
+    public void disableBeneficiary(int id) throws SQLException, NoSuchElementException {
+        SQLWrap.callTransaction(new DAOAppliUser()::disableAccount, id);
+    }
+
+    /**
      * Delete a Beneficiary from the database by its id.
      * @param id the id of the Beneficiary to delete
      * @throws IllegalArgumentException if the Beneficiary has active missions
@@ -109,7 +133,7 @@ public class BeneficiaryService {
             if(new DAOMission().hasActiveMissions(userId)){
                 throw new IllegalArgumentException("Cannot delete beneficiary with existing missions");
             }
-            new DAOBeneficiary().delete(userId);
+            daoBeneficiary.delete(userId);
         }, id);
     }
 

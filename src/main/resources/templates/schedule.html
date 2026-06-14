@@ -9,40 +9,113 @@
 <!-- Navbar -->
 <div th:replace="~{common/navbar :: navbar}"></div>
 
-<!-- Filters : just visual -->
+<div th:if="${loadError}" class="alert alert-danger m-3">
+    Une erreur est survenue lors du chargement de l'horaire. Veuillez réessayer ou contacter le support.
+</div>
+
+<!-- Filters : just visuel -->
 <div id="dropdown-filtre" class="dropdown-menu">
-    <!-- By user (only for Manager) -->
     <th:block th:if="${userRole == 'MANAGER'}">
         <h6 class="dropdown-header">Par utilisateur</h6>
-        <div class="px-3 pb-2">
-            <input type="text" id="search-interpreter" class="form-control form-control-sm"
-                   placeholder="Rechercher un utilisateur...">
+        <div class="px-3 pb-1">
+            <input type="text" id="search-interpreter" class="form-control form-control-sm" placeholder="Rechercher...">
         </div>
-        <div id="interpreter-list">
-            <a class="dropdown-item filter-interpreter"
-               href="#"
-               th:each="interpreter : ${interpreters}"
-               th:data-value="${interpreter.firstName + ' ' + interpreter.lastName}">
-                <i class="bi bi-person me-2"></i>
-                <span th:text="${interpreter.firstName + ' ' + interpreter.lastName}"></span>
-            </a>
+
+        <div id="user-filter-list" class="filter-scroll-list">
+
+            <div class="filter-section" id="section-manager">
+                <div class="filter-section-label filter-section-label--manager">
+                    <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == userFullName}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
+                        <i class="bi bi-person-fill-gear filter-dot-manager"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <div class="filter-section" id="section-interpreter">
+                <div class="filter-section-label filter-section-label--interpreter">
+                    <i class="bi bi-translate me-1"></i>Interprètes
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != userFullName}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-role="${u.role}">
+                        <i class="bi bi-person-fill filter-dot-interpreter"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <div class="filter-section" id="section-beneficiary">
+                <div class="filter-section-label filter-section-label--beneficiary">
+                    <i class="bi bi-heart-fill me-1"></i>Bénéficiaires
+                </div>
+                <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'BENEFICIARY'}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="BENEFICIARY">
+                        <i class="bi bi-person-heart filter-dot-beneficiary"></i>
+                        <span th:text="${u.fullName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+            <!--Message aucun résultat-->
+            <div id="no-user-result" class="px-3 py-2 text-muted fst-italic filter-no-result">
+                Aucun résultat
+            </div>
         </div>
-        <hr class="dropdown-divider">
+        <hr class="dropdown-divider mb-0">
+    </th:block>
+
+    <th:block th:if="${userRole == 'INTERPRETER'}">
+        <h6 class="dropdown-header">Par utilisateur</h6>
+        <div id="interp-filter-list" class="filter-scroll-list">
+
+            <div class="filter-section" id="interp-section-self">
+                <div class="filter-section-label filter-section-label--manager">
+                    <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
+                </div>
+                <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
+                   href="#"
+                   th:data-value="${session.user.firstName + ' ' + session.user.lastName}"
+                   data-role="INTERPRETER">
+                    <i class="bi bi-person-fill filter-dot-manager"></i>
+                    <span th:text="${session.user.firstName + ' ' + session.user.lastName}"></span>
+                </a>
+            </div>
+
+            <div class="filter-section" id="interp-section-beneficiary">
+                <div class="filter-section-label filter-section-label--beneficiary">
+                    <i class="bi bi-heart-fill me-1"></i>Bénéficiaires référés
+                </div>
+                <th:block th:each="b : ${beneficiaries}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
+                       href="#"
+                       th:data-value="${b.firstName + ' ' + b.lastName}"
+                       data-role="BENEFICIARY">
+                        <i class="bi bi-person-heart filter-dot-beneficiary"></i>
+                        <span th:text="${b.firstName + ' ' + b.lastName}"></span>
+                    </a>
+                </th:block>
+            </div>
+
+        </div>
+        <hr class="dropdown-divider mb-0">
     </th:block>
 
     <!-- By status -->
     <h6 class="dropdown-header">Par statut</h6>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Acceptée">
-        <div style="width:12px;height:12px;background:#40c057;border-radius:3px"></div>Acceptée
+        <div class="filter-status-dot filter-status-dot--accepted"></div>Acceptée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="En attente">
-        <div style="width:12px;height:12px;background:#fab005;border-radius:3px"></div>En attente
+        <div class="filter-status-dot filter-status-dot--pending"></div>En attente
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Refusée">
-        <div style="width:12px;height:12px;background:#fa5252;border-radius:3px"></div>Refusée/Annulée
+        <div class="filter-status-dot filter-status-dot--refused"></div>Refusée/Annulée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Horaire de base">
-        <div style="width:12px;height:12px;background:#4dabf7;border-radius:3px"></div>Horaire de base
+        <div class="filter-status-dot filter-status-dot--base"></div>Horaire de base
     </a>
 </div>
 
@@ -74,55 +147,81 @@
 
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content custom-modal">
+        <div class="modal-content border-0 shadow rounded-4 p-2 overflow-hidden">
 
-            <!-- Header -->
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="modalTitle"></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            <div class="modal-header border-0 pb-2">
+                <h4 class="modal-title fw-bold mb-0" id="modalTitle"></h4>
+                <span class="status-badge ms-2" id="modalStatus"></span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body">
-
-                <div class="mb-2">
+            <div class="px-4 pb-2 d-flex align-items-center gap-3 text-secondary small">
+                <div class="d-flex align-items-center gap-1">
                     <i class="bi bi-calendar"></i>
                     <span id="modalDate"></span>
-                    <i class="bi bi-clock ms-2"></i>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-clock"></i>
                     <span id="modalTime"></span>
                 </div>
-
-                <div class="mb-2">
-                    <i class="bi bi-geo-alt"></i>
-                    <span id="modalLocation"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Bénéficiaire - </strong>
-                    <span id="modalBeneficiary" class="fst-italic text-muted"></span>
-                </div>
-
-                <div class="mb-2" id="modalType"></div>
-
-                <div class="mb-2">
-                    <strong>Commentaire :</strong>
-                    <span id="modalComment" class="fst-italic text-muted"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Statut :</strong>
-                    <span id="modalStatus"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Interprète :</strong>
-                    <span id="modalInterpreter" class="fst-italic text-muted"></span>
-                </div>
-                <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
-
-
             </div>
 
+            <hr class="m-0">
+
+            <div class="modal-body">
+
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-geo-alt info-icon"></i>
+                    <div id="modalLocation"></div>
+                </div>
+
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-heart info-icon"></i>
+                    <div>
+                        <div class="info-label">Bénéficiaire</div>
+                        <div id="modalBeneficiary" class="fst-italic text-muted"></div>
+                    </div>
+                </div>
+
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-translate info-icon"></i>
+                    <div>
+                        <div class="info-label">Interprète</div>
+                        <div id="modalInterpreter" class="fst-italic text-muted"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <span class="skill-badge d-none" id="modalType"></span>
+                    <span class="skill-badge d-none" id="modalAcademicSkill"></span>
+                </div>
+
+                <div class="comment-section d-none" id="modalCommentSection">
+                    <div class="info-label">Commentaire</div>
+                    <div id="modalComment" class="fst-italic text-muted"></div>
+                </div>
+
+                <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- CONFIRMATION DEPASSEMENT QUOTA -->
+<div class="modal fade" id="quotaWarningModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Dépassement de quota
+                </h5>
+            </div>
+            <div class="modal-body" id="quotaWarningMessage"></div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" id="quotaWarningCancel">Annuler</button>
+                <button type="button" class="btn btn-warning" id="quotaWarningConfirm">Accepter quand même</button>
+            </div>
         </div>
     </div>
 </div>
@@ -207,58 +306,73 @@
 
 <!-- POPUP MANAGER - DEMANDE EN ATTENTE -->
 <div class="modal fade" id="managerPendingModal" tabindex="-1" aria-labelledby="managerPendingTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content border-0 shadow">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow rounded-4 p-2 overflow-hidden">
 
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="managerPendingTitle"></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            <div class="modal-header border-0 pb-2">
+                <h4 class="modal-title fw-bold mb-0" id="managerPendingTitle"></h4>
+                <span class="status-badge ms-2" id="managerPendingStatus"></span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <div class="modal-body">
-                <div class="mb-2">
+            <div class="px-4 pb-2 d-flex align-items-center gap-3 text-secondary small">
+                <div class="d-flex align-items-center gap-1">
                     <i class="bi bi-calendar"></i>
                     <span id="managerPendingDate"></span>
-                    <i class="bi bi-clock ms-2"></i>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-clock"></i>
                     <span id="managerPendingTime"></span>
-                    <span class="ms-3" id="managerPendingImportance"></span>
+                </div>
+                <div class="ms-auto" id="managerPendingImportance"></div>
+            </div>
+
+            <hr class="m-0">
+
+            <div class="modal-body">
+
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-geo-alt info-icon"></i>
+                    <div id="managerPendingLocation"></div>
                 </div>
 
-                <div class="mb-2">
-                    <i class="bi bi-geo-alt"></i>
-                    <span id="managerPendingLocation"></span>
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-heart info-icon"></i>
+                    <div>
+                        <div class="info-label">Bénéficiaire</div>
+                        <div id="managerPendingBeneficiary" class="fst-italic text-muted"></div>
+                    </div>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Bénéficiaire - </strong>
-                    <span id="managerPendingBeneficiary" class="fst-italic text-muted"></span>
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-translate info-icon"></i>
+                    <div class="flex-grow-1">
+                        <div class="info-label">Interprète</div>
+                        <div id="managerPendingInterpreterName" class="fst-italic text-muted"></div>
+                        <select id="managerPendingInterpreter" class="form-select form-select-sm w-auto mt-1 d-none">
+                            <option value="">Sélectionner</option>
+                            <option th:each="interpreter : ${interpreters}"
+                                    th:value="${interpreter.id}"
+                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="mb-2" id="managerPendingType"></div>
-
-                <div class="mb-2">
-                    <strong>Commentaire :</strong>
-                    <span id="managerPendingComment" class="fst-italic text-muted"></span>
+                <div class="d-flex gap-2 flex-wrap mb-3" id="managerPendingSkills">
+                    <span class="skill-badge d-none" id="managerPendingType"></span>
+                    <span class="skill-badge d-none" id="managerPendingAcademicSkill"></span>
                 </div>
 
-                <div class="mb-3">
-                    <strong>Statut :</strong>
-                    <span id="managerPendingStatus"></span>
+                <div class="comment-section d-none" id="managerPendingCommentSection">
+                    <div class="info-label">Commentaire</div>
+                    <div id="managerPendingComment" class="fst-italic text-muted"></div>
                 </div>
 
-                <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
-                    <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète*</label>
-                    <select id="managerPendingInterpreter" class="form-select w-auto">
-                        <option value="">Sélectionner</option>
-                        <option th:each="interpreter : ${interpreters}"
-                                th:value="${interpreter.id}"
-                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
-                        </option>
-                    </select>
-                </div>
             </div>
 
             <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary d-none" id="btnEditMission">Modifier</button>
                 <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
                 <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
             </div>
@@ -270,32 +384,24 @@
 <!-- AJOUT NOUVELLE DEMANDE-->
 <div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
 
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            <div class="modal-header text-bg-primary border-0 p-0">
+                <h4 class="modal-title p-3 fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body px-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold d-block">Type*</label>
 
-                    <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeTranscription" value="Transcription" checked>
-                            <label class="form-check-label" for="typeTranscription">Transcription</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeTransliteration" value="Transliteration">
-                            <label class="form-check-label" for="typeTransliteration">Translitération</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="requestType" id="typeLpc" value="LPC">
-                            <label class="form-check-label" for="typeLpc">LPC</label>
-                        </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <th:block th:each="skill, iter : ${professionalSkills}">
+                            <input class="type-pill-input" type="radio" name="requestType"
+                                   th:id="'requestType_' + ${iter.index}"
+                                   th:value="${skill.id}"
+                                   th:checked="${iter.first}">
+                            <label class="type-pill-label" th:for="'requestType_' + ${iter.index}" th:text="${skill.designation}"></label>
+                        </th:block>
                     </div>
                 </div>
 
@@ -305,121 +411,82 @@
                     <div id="requestTitleError" class="invalid-feedback"></div>
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-12">
-                        <label for="requestDate" class="form-label fw-semibold">Date*</label>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label for="requestDate" class="form-label fw-semibold small">Date*</label>
                         <input type="date" class="form-control" id="requestDate">
                         <div id="requestDateError" class="invalid-feedback"></div>
                     </div>
 
-                    <div class="col-6">
-                        <label for="requestStartTime" class="form-label fw-semibold">Heure début*</label>
+                    <div class="col-4">
+                        <label for="requestStartTime" class="form-label fw-semibold small">Début*</label>
                         <select class="form-select" id="requestStartTime">
-                            <option value="08:00">08:00</option>
-                            <option value="08:30">08:30</option>
-                            <option value="09:00">09:00</option>
-                            <option value="09:30">09:30</option>
-                            <option value="10:00">10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="18:30">18:30</option>
-                            <option value="19:00">19:00</option>
-                            <option value="19:30">19:30</option>
-                            <option value="20:00">20:00</option>
-                            <option value="20:30">20:30</option>
-                            <option value="21:00">21:00</option>
-                            <option value="22:00">22:00</option>
+                            <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
 
-                    <div class="col-6">
-                        <label for="requestEndTime" class="form-label fw-semibold">Heure fin*</label>
+                    <div class="col-4">
+                        <label for="requestEndTime" class="form-label fw-semibold small">Fin*</label>
                         <select class="form-select" id="requestEndTime">
-                            <option value="08:00">08:00</option>
-                            <option value="08:30">08:30</option>
-                            <option value="09:00">09:00</option>
-                            <option value="09:30">09:30</option>
-                            <option value="10:00">10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="18:30">18:30</option>
-                            <option value="19:00">19:00</option>
-                            <option value="19:30">19:30</option>
-                            <option value="20:00">20:00</option>
-                            <option value="20:30">20:30</option>
-                            <option value="21:00">21:00</option>
-                            <option value="22:00">22:00</option>
+                            <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
                 </div>
 
+                <div class="location-box mb-3">
+                    <div class="d-flex align-items-center gap-2 fw-semibold mb-2">
+                        <i class="bi bi-geo-alt"></i>Lieu
+                    </div>
+
+                    <div class="mb-2">
+                        <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Désignation (ex: Athénée Royal)">
+                        <div id="requestLocationDesignationError" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-7">
+                            <input type="text" class="form-control" id="requestStreet" placeholder="Rue">
+                            <div id="requestStreetError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-2">
+                            <input type="text" class="form-control" id="requestStreetNumber" placeholder="N°">
+                        </div>
+                        <div class="col-3">
+                            <input type="number" min="1" class="form-control" id="requestBox" placeholder="Boîte">
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-8">
+                            <select class="form-select" id="requestCity">
+                                <option value="">Sélectionner une ville</option>
+                                <option th:each="city : ${allCities}"
+                                        th:value="${city.postalCode}"
+                                        th:data-name="${city.designation}"
+                                        th:text="${city.postalCode + ' - ' + city.designation}">
+                                </option>
+                            </select>
+                            <input type="hidden" id="requestCityName">
+                            <div id="requestCityError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="requestRoom" placeholder="Local">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-3">
-                    <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu*</label>
-                    <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Ex: Athénée Royal">
-                    <div id="requestLocationDesignationError" class="invalid-feedback"></div>
-
+                    <label for="requestAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
+                    <select class="form-select" id="requestAcademicSkill">
+                        <option value="">Aucune</option>
+                        <option th:each="skill : ${academicSkills}"
+                                th:value="${skill.id}"
+                                th:text="${skill.designation}">
+                        </option>
+                    </select>
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="requestCity" class="form-label fw-semibold">Ville*</label>
-                        <input type="text" class="form-control" id="requestCity" placeholder="Ex: Bruxelles">
-                        <div id="requestCityError" class="invalid-feedback"></div>
 
-                    </div>
-                    <div class="col-md-6">
-                        <label for="requestPostalCode" class="form-label fw-semibold">Code postal</label>
-                        <input type="text" class="form-control" id="requestPostalCode" placeholder="Ex: 6600">
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="requestStreet" class="form-label fw-semibold">Rue</label>
-                        <input type="text" class="form-control" id="requestStreet" placeholder="Ex: Rue des écoles">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="requestStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="number" class="form-control" id="requestStreetNumber" placeholder="12">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="requestBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="text" class="form-control" id="requestBox" placeholder="Optionnel">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="requestProfessor" class="form-label fw-semibold">Professeur</label>
-                    <input type="text" class="form-control" id="requestProfessor" placeholder="Entrez le nom du professeur">
-                </div>
 
                 <div class="mb-4">
                     <label for="requestComment" class="form-label fw-semibold">Commentaire</label>
@@ -454,7 +521,7 @@
             </div>
 
 
-            <div class="modal-footer border-0">
+            <div class="modal-footer p-3 border-0">
                 <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
                     Annuler
                 </button>
@@ -470,32 +537,24 @@
 <!-- AJOUT NOUVELLE MISSION -->
 <div class="modal fade" id="newMissionModal" tabindex="-1" aria-labelledby="newMissionModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
 
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="newMissionModalTitle">Nouvelle mission</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            <div class="modal-header text-bg-primary border-0 p-0">
+                <h4 class="modal-title p-3 fw-bold" id="newMissionModalTitle">Nouvelle mission</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body px-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold d-block">Type*</label>
 
-                    <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeTranscription" value="Transcription" checked>
-                            <label class="form-check-label" for="missionTypeTranscription">Transcription</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeTransliteration" value="Transliteration">
-                            <label class="form-check-label" for="missionTypeTransliteration">Translitération</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="missionType" id="missionTypeLpc" value="LPC">
-                            <label class="form-check-label" for="missionTypeLpc">LPC</label>
-                        </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <th:block th:each="skill, iter : ${professionalSkills}">
+                            <input class="type-pill-input" type="radio" name="missionType"
+                                   th:id="'missionType_' + ${iter.index}"
+                                   th:value="${skill.id}"
+                                   th:checked="${iter.first}">
+                            <label class="type-pill-label" th:for="'missionType_' + ${iter.index}" th:text="${skill.designation}"></label>
+                        </th:block>
                     </div>
                 </div>
 
@@ -506,127 +565,89 @@
 
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-12">
-                        <label for="missionDate" class="form-label fw-semibold">Date*</label>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label for="missionDate" class="form-label fw-semibold small">Date*</label>
                         <input type="date" class="form-control" id="missionDate">
                         <div id="missionDateError" class="invalid-feedback"></div>
                     </div>
 
-                    <div class="col-6">
-                        <label for="missionStartTime" class="form-label fw-semibold">Heure début*</label>
+                    <div class="col-4">
+                        <label for="missionStartTime" class="form-label fw-semibold small">Début*</label>
                         <select class="form-select" id="missionStartTime">
-                            <option value="08:00">08:00</option>
-                            <option value="08:30">08:30</option>
-                            <option value="09:00">09:00</option>
-                            <option value="09:30">09:30</option>
-                            <option value="10:00">10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="18:30">18:30</option>
-                            <option value="19:00">19:00</option>
-                            <option value="19:30">19:30</option>
-                            <option value="20:00">20:00</option>
-                            <option value="20:30">20:30</option>
-                            <option value="21:00">21:00</option>
-                            <option value="22:00">22:00</option>
+                            <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
 
-                    <div class="col-6">
-                        <label for="missionEndTime" class="form-label fw-semibold">Heure fin*</label>
+                    <div class="col-4">
+                        <label for="missionEndTime" class="form-label fw-semibold small">Fin*</label>
                         <select class="form-select" id="missionEndTime">
-                            <option value="08:00">08:00</option>
-                            <option value="08:30">08:30</option>
-                            <option value="09:00">09:00</option>
-                            <option value="09:30">09:30</option>
-                            <option value="10:00">10:00</option>
-                            <option value="10:30">10:30</option>
-                            <option value="11:00">11:00</option>
-                            <option value="11:30">11:30</option>
-                            <option value="12:00">12:00</option>
-                            <option value="12:30">12:30</option>
-                            <option value="13:00">13:00</option>
-                            <option value="13:30">13:30</option>
-                            <option value="14:00">14:00</option>
-                            <option value="14:30">14:30</option>
-                            <option value="15:00">15:00</option>
-                            <option value="15:30">15:30</option>
-                            <option value="16:00">16:00</option>
-                            <option value="16:30">16:30</option>
-                            <option value="17:00">17:00</option>
-                            <option value="17:30">17:30</option>
-                            <option value="18:00">18:00</option>
-                            <option value="18:30">18:30</option>
-                            <option value="19:00">19:00</option>
-                            <option value="19:30">19:30</option>
-                            <option value="20:00">20:00</option>
-                            <option value="20:30">20:30</option>
-                            <option value="21:00">21:00</option>
-                            <option value="22:00">22:00</option>
+                            <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
                 </div>
 
+                <div class="location-box mb-3">
+                    <div class="d-flex align-items-center gap-2 fw-semibold mb-2">
+                        <i class="bi bi-geo-alt"></i>Lieu
+                    </div>
+
+                    <div class="mb-2">
+                        <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Désignation (ex: Athénée Royal)">
+                        <div id="missionLocationDesignationError" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-7">
+                            <input type="text" class="form-control" id="missionStreet" placeholder="Rue">
+                            <div id="missionStreetError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-2">
+                            <input type="text" class="form-control" id="missionStreetNumber" placeholder="N°">
+                        </div>
+                        <div class="col-3">
+                            <input type="number" min="1" class="form-control" id="missionBox" placeholder="Boîte">
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-8">
+                            <select class="form-select" id="missionCity">
+                                <option value="">Sélectionner une ville</option>
+                                <option th:each="city : ${allCities}"
+                                        th:value="${city.postalCode}"
+                                        th:data-name="${city.designation}"
+                                        th:text="${city.postalCode + ' - ' + city.designation}">
+                                </option>
+                            </select>
+                            <input type="hidden" id="missionCityName">
+                            <div id="missionCityError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="missionRoom" placeholder="Local">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-3">
-                    <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu*</label>
-                    <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Ex: Athénée Royal">
-                    <div id="missionLocationDesignationError" class="invalid-feedback"></div>
-
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="missionCity" class="form-label fw-semibold">Ville*</label>
-                        <input type="text" class="form-control" id="missionCity" placeholder="Ex: Bruxelles">
-                        <div id="missionCityError" class="invalid-feedback"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="missionPostalCode" class="form-label fw-semibold">Code postal</label>
-                        <input type="text" class="form-control" id="missionPostalCode" placeholder="Ex: 6600">
-                    </div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="missionStreet" class="form-label fw-semibold">Rue</label>
-                        <input type="text" class="form-control" id="missionStreet" placeholder="Ex: Rue des écoles">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="missionStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="number" class="form-control" id="missionStreetNumber" placeholder="12">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="missionBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="text" class="form-control" id="missionBox" placeholder="Optionnel">
-                    </div>
+                    <label for="missionAcademicSkill" class="form-label fw-semibold">Compétence académique</label>
+                    <select class="form-select" id="missionAcademicSkill">
+                        <option value="">Aucune</option>
+                        <option th:each="skill : ${academicSkills}"
+                                th:value="${skill.id}"
+                                th:text="${skill.designation}">
+                        </option>
+                    </select>
                 </div>
 
                 <div class="mb-3">
-                    <label for="missionProfessor" class="form-label fw-semibold">Professeur</label>
-                    <input type="text" class="form-control" id="missionProfessor" placeholder="Entrez le nom du professeur">
-                </div>
-
-                <div class="mb-3">
-                    <label for="missionInterpreter" class="form-label fw-semibold">Interprète</label>
-                    <select id="missionInterpreter" class="form-select">
-                        <option value="">Sélectionner un interprète</option>
+                    <label class="form-label fw-semibold">Interprètes*</label>
+                    <div id="missionInterpreterBadges" class="d-flex flex-wrap gap-2 mb-2"></div>
+                    <select id="missionInterpreterSelect" class="form-select">
+                        <option value="">+ Ajouter un interprète</option>
                         <option th:each="interpreter : ${interpreters}"
                                 th:value="${interpreter.id}"
+                                th:attr="data-name=${interpreter.firstName + ' ' + interpreter.lastName}"
                                 th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
                         </option>
                     </select>
@@ -634,12 +655,12 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="missionBeneficiary" class="form-label fw-semibold">Bénéficiaire*</label>
+                    <label for="missionBeneficiary" class="form-label fw-semibold">Bénéficiaire</label>
                     <select id="missionBeneficiary" class="form-select">
                         <option value="">Sélectionner un bénéficiaire</option>
-                        <option th:each="beneficiary : ${beneficiaries}"
-                                th:value="${beneficiary.id}"
-                                th:text="${beneficiary.firstName + ' ' + beneficiary.lastName}">
+                        <option th:each="b : ${allBeneficiaries}"
+                                th:value="${b.id}"
+                                th:text="${b.firstName + ' ' + b.lastName}">
                         </option>
                     </select>
                     <div id="missionBeneficiaryError" class="invalid-feedback"></div>
@@ -651,7 +672,7 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-0">
+            <div class="modal-footer p-3 border-0">
                 <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
                     Annuler
                 </button>
@@ -664,793 +685,13 @@
     </div>
 </div>
 
-
+<div id="schedule-config"
+     th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}, data-user-name=${userFullName}"
+     style="display:none">
+</div>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/fullcalendar.min.js}"></script>
-<script th:inline="javascript">
-
-    /** @type {Array<Object>} List of all events loaded from the server */
-    const allEvents = JSON.parse(/*[[${events}]]*/ '[]');
-
-    /**
-     * @typedef {Object} ActiveFilters
-     * @property {string|null} status      - Active filter by status (e.g. "Acceptée", "En attente")
-     * @property {string|null} interpreter - Active filter by interpreter name
-     */
-
-    /** @type {ActiveFilters} */
-    const activeFilters = {
-        status: null,
-        interpreter: null
-    };
-
-    /** @type {number|null} ID of the currently selected mission */
-    let currentMissionId = null;
-
-    /** @type {boolean} Whether this is the first calendar load */
-    let premierChargement = true;
-
-    /**
-     * Fetches calendar events from the REST API based on the current date range
-     * and active filters (status, interpreter).
-     *
-     * @param {Object}   fetchInfo          - Object provided by FullCalendar containing view date range
-     * @param {string}   fetchInfo.startStr - View start date in ISO 8601 format
-     * @param {Function} successCallback    - Callback to call with the fetched events
-     * @param {Function} failureCallback    - Callback to call on network error
-     * @returns {Promise<void>}
-     */
-    async function fetchEvents(fetchInfo, successCallback, failureCallback) {
-        const params = new URLSearchParams();
-        params.append('weekDate', fetchInfo.startStr.substring(0, 10));
-
-        if (activeFilters.status !== null){
-            params.append('status', activeFilters.status);
-        }
-        if (activeFilters.interpreter !== null){
-            params.append('interpreter', activeFilters.interpreter);
-        }
-
-        try {
-            const r = await fetch('/horaire/evenements?' + params.toString());
-            const data = await r.json();
-            successCallback(data);
-        } catch (err) {
-            failureCallback(err);
-        }
-    }
-
-
-    /** @type {string} Role of the logged-in user ('MANAGER', 'INTERPRETER', 'BENEFICIARY') */
-    const userRole = /*[[${userRole}]]*/ 'MANAGER';
-
-    /** @type {number} ID of the logged-in user */
-    const userId = /*[[${session.user.id}]]*/ 0;
-
-    /** @type {boolean} True if the screen width is less than 768px */
-    const isMobile = window.innerWidth < 768;
-
-    const customButtons = {
-        filterBtn: {
-            text: 'Filtre ▾',
-            click: function() {
-                const btn = document.querySelector('.fc-filterBtn-button');
-                const rect = btn.getBoundingClientRect();
-                const dropdown = document.getElementById('dropdown-filtre');
-
-                dropdown.style.cssText = ` position: fixed !important; top: ${rect.top + rect.height}px !important; left: ${rect.left}px !important; z-index: 9999 !important;`;
-
-                dropdown.classList.toggle('show');
-                btn.classList.toggle('active');
-            }
-        }
-    };
-
-    if (userRole === 'BENEFICIARY') {
-        customButtons.newRequest = {
-            text: '+ Nouvelle demande',
-            click: function() {
-                const newRequestModal = bootstrap.Modal.getOrCreateInstance(
-                    document.getElementById('newRequestModal')
-                );
-                newRequestModal.show();
-            }
-        };
-    }
-
-    if (userRole === 'INTERPRETER') {
-        customButtons.newUnavailability = {
-            text: '+ Nouvelle indisponibilité',
-            click: function() {
-                window.location.href = '/interpretes/profil/' + userId;
-            }
-        };
-    }
-
-    if (userRole === 'MANAGER') {
-        customButtons.newUnavailability = {
-            text: isMobile ? '+ Indispo' : '+ Nouvelle indisponibilité',
-            click: function() {
-                window.location.href = '/interpretes/profil/' + userId;
-            }
-        };
-        customButtons.newMission = {
-            text: isMobile ? '+ Mission' : '+ Nouvelle mission',
-            click: function () {
-                const newMissionModal = bootstrap.Modal.getOrCreateInstance(
-                    document.getElementById('newMissionModal')
-                );
-                newMissionModal.show();
-            }
-        };
-    }
-
-    /**
-     * Displays a notification toast in the bottom-right corner of the screen,
-     * which disappears after 3 seconds.
-     *
-     * @param {string} message                             - Text to display in the toast
-     * @param {'success'|'error'|'info'} [type='success'] - Visual type of the toast
-     * @returns {void}
-     */
-    function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `toast-custom toast-${type}`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add('toast-hide'), 3000);
-        setTimeout(() => toast.remove(), 3300);
-    }
-
-    /**
-     * @typedef {Object} ValidationRule
-     * @property {string} id      - ID of the form field to validate
-     * @property {string} errorId - ID of the element displaying the error message
-     * @property {string} msg     - Error message to display if the field is empty
-     */
-
-    /**
-     * Validates a list of form fields. Marks each empty field as invalid
-     * and displays the associated error message.
-     *
-     * @param {ValidationRule[]} rules - Array of validation rules
-     * @returns {boolean} `true` if all fields are valid, `false` otherwise
-     */
-    function validateFields(rules) {
-        let isValid = true;
-        rules.forEach(({ id, errorId, msg }) => {
-            const field = document.getElementById(id);
-            const errorEl = document.getElementById(errorId);
-            if (!field || !field.value.trim()) {
-                if (field) field.classList.add('is-invalid');
-                if (errorEl) errorEl.textContent = msg;
-                isValid = false;
-            }
-        });
-        return isValid;
-    }
-
-    /**
-     * Clears validation errors from a list of form fields.
-     * Removes the `is-invalid` class and empties the associated error text.
-     *
-     * @param {string[]} fieldIds - Array of field IDs to clean up
-     * @returns {void}
-     */
-    function clearFormErrors(fieldIds) {
-        fieldIds.forEach(id => {
-            const field = document.getElementById(id);
-            if (field) field.classList.remove('is-invalid');
-            const errorEl = document.getElementById(id + 'Error');
-            if (errorEl) errorEl.textContent = '';
-        });
-    }
-
-    document.addEventListener('input', function (e) {
-        if (e.target.classList.contains('is-invalid')) {
-            e.target.classList.remove('is-invalid');
-            const errorEl = document.getElementById(e.target.id + 'Error');
-            if (errorEl) errorEl.textContent = '';
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-            initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
-            height: isMobile ? '75vh' : '83vh',
-            locale: 'fr',
-            firstDay: 1,
-            weekends: true,
-            allDaySlot: false,
-            businessHours: {
-                daysOfWeek: [ 1, 2, 3, 4, 5 ], // Monday - Thursday
-                startTime: '00:00',
-                endTime: '23:59',
-            },
-            slotDuration: '00:30:00',
-            slotMinTime: '08:00:00',
-            slotMaxTime: '22:00:00',
-            expandRows: true,
-
-            /**
-             * Event loading function for FullCalendar.
-             * Uses pre-loaded data on the first render, then queries
-             * the API on each subsequent navigation.
-             *
-             * @param {Object}   fetchInfo       - Information about the requested date range
-             * @param {Function} successCallback - Callback called with the events
-             * @param {Function} failureCallback - Callback called on error
-             */
-            events: function(fetchInfo, successCallback, failureCallback) {
-                if (premierChargement) {
-                    premierChargement = false;
-                    successCallback(allEvents);
-                    return;
-                }
-                fetchEvents(fetchInfo, successCallback, failureCallback);
-            },
-            customButtons: customButtons,
-            headerToolbar: {
-                start: isMobile ? 'timeGridDay filterBtn' : 'timeGridWeek,timeGridDay filterBtn',
-                center: 'prev title next',
-                end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
-                    : userRole === 'INTERPRETER' ? 'newUnavailability today'
-                        : 'newRequest today'
-            },
-            buttonText: {
-                week: 'Semaine',
-                day: 'Jour',
-                today: isMobile ? 'Auj.' : "Aujourd'hui"
-            },
-
-            /**
-             * Customizes the HTML rendering of a calendar event.
-             * Displays importance stars, title, time, type and room.
-             *
-             * @param {Object} arg          - Argument provided by FullCalendar
-             * @param {Object} arg.event    - FullCalendar event object
-             * @param {string} arg.timeText - Time text formatted by FullCalendar
-             * @returns {{ html: string }}  - Object containing the custom HTML to inject
-             */
-            eventContent: function(arg) {
-                const props = arg.event.extendedProps;
-                const importance = parseInt(props.importance);
-                let stars = '';
-                for(let i = 0; i < importance && i < 3; i++){
-                    stars += `<i class="bi bi-star-fill me-1"></i>`;
-                }
-                return {
-                    html: `
-                        <div class="fc-event-content-inner p-1">
-                        <div class="position-absolute top-0 end-0 pe-1 text-white fw-bold">
-                    ${stars}
-                </div>
-                            <div class="fw-bold">${arg.event.title}</div>
-                            <div>${arg.timeText}</div>
-                            <div>${props.type || ''}</div>
-                            <div><i class="bi bi-pin-map-fill"></i> ${props.room || ''}</div>
-                        </div>
-                    `
-                };
-            },
-
-            /**
-             * Handles a click on an empty calendar slot.
-             * Opens the mission creation modal (MANAGER) or request creation modal (BENEFICIARY),
-             * pre-filling the date and start/end times based on the clicked slot.
-             *
-             * @param {Object} info      - Information about the clicked slot
-             * @param {Date}   info.date - Date and time of the clicked slot
-             * @returns {void}
-             */
-            dateClick: function(info) {
-                const clickedDate = new Date(info.date);
-                const endHour = new Date(clickedDate);
-                endHour.setMinutes(endHour.getMinutes()+60);
-
-                const formatDate = (date) => date.toLocaleDateString('en-CA');
-                const formatTime = (date) => date.toLocaleTimeString('fr-BE', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                });
-                const dateValue = formatDate(clickedDate);
-                const startHourValue = formatTime(clickedDate);
-                const endHourValue = formatTime(endHour);
-                if (userRole === 'MANAGER') {
-                    document.getElementById('missionDate').value = dateValue;
-                    document.getElementById('missionStartTime').value = startHourValue;
-
-                    document.getElementById('missionEndTime').value = endHourValue;
-
-                    const newMissionModal = bootstrap.Modal.getOrCreateInstance(
-                        document.getElementById('newMissionModal')
-                    );
-                    newMissionModal.show();
-                } else if (userRole === 'BENEFICIARY') {
-                    document.getElementById('requestDate').value = dateValue;
-                    document.getElementById('requestStartTime').value = startHourValue;
-                    document.getElementById('requestEndTime').value = endHourValue;
-
-                    const newRequestModal = bootstrap.Modal.getOrCreateInstance(
-                        document.getElementById('newRequestModal')
-                    );
-                    newRequestModal.show();
-                }
-            },
-
-            /**
-             * Handles a click on a calendar event.
-             * Displays the appropriate detail modal based on the user's role and the event's
-             * status (manager modal for pending/accepted missions, standard modal otherwise).
-             *
-             * @param {Object} info       - Information about the clicked event
-             * @param {Object} info.event - FullCalendar event object
-             * @returns {void}
-             */
-            eventClick: function(info) {
-                const event = info.event;
-                currentMissionId = event.id;
-                const props = event.extendedProps;
-                const start = event.start;
-                const end = event.end;
-                const status = (props.status || '').toLowerCase();
-                const now = new Date();
-
-                const beforeStart = start && now < start;
-                const isManager = userRole === 'MANAGER';
-                const isPending = status.includes('en attente');
-                const isAccepted = status.includes('accept');
-                const interpreterSelect = document.getElementById('managerPendingInterpreter');
-                const canChangeInterpreter = isPending && beforeStart;
-                interpreterSelect.value = props.interpreter || '';
-                interpreterSelect.disabled = !canChangeInterpreter;
-                const timeFormatter = new Intl.DateTimeFormat('fr-BE', {hour: '2-digit', minute: '2-digit'});
-
-                let timeText = '';
-
-                if (start) {
-                    timeText = timeFormatter.format(start);
-
-                    if (end) {
-                        timeText += ' - ' + timeFormatter.format(end);
-                    }
-                }
-                if (isManager && (isPending || isAccepted)) {
-                    let importanceStars = '';
-                    const importance = parseInt(props.importance || '0', 10);
-
-                    for (let i = 0; i < importance && i < 5; i++) {
-                        importanceStars += `<i class="bi bi-star-fill me-1"></i>`;
-                    }
-                    document.getElementById('managerPendingImportance').innerHTML = importanceStars;
-                    document.getElementById('managerPendingTitle').innerText = event.title || '';
-                    document.getElementById('managerPendingDate').innerText = start ? start.toLocaleDateString('fr-BE') : '';
-                    document.getElementById('managerPendingTime').innerText = timeText || '';
-                    document.getElementById('managerPendingLocation').innerText = props.address || props.room || '';
-                    document.getElementById('managerPendingBeneficiary').innerText = props.beneficiary || '';
-                    document.getElementById('managerPendingType').innerText = props.type || '';
-                    document.getElementById('managerPendingComment').innerText = props.comment || '';
-                    document.getElementById('managerPendingStatus').innerText = props.status || '';
-                    document.getElementById('managerPendingInterpreter').value = props.interpreter || '';
-
-
-                    const footer = document.querySelector('#managerPendingModal .modal-footer');
-                    footer.innerHTML = '';
-
-                    if (isPending && beforeStart) {
-                        footer.innerHTML = `
-                            <button type="button" class="btn btn-danger" id="btnRefuseMission">Refuser</button>
-                            <button type="button" class="btn btn-success" id="btnAcceptMission">Accepter</button>
-                        `;
-                    } else  {
-                        footer.innerHTML = `
-                            <button type="button" class="btn btn-danger" id="btnCancelAcceptedMission">Annuler la mission</button>
-                        `;
-                    }
-
-                    const acceptBtn = document.getElementById('btnAcceptMission');
-                    const refuseBtn = document.getElementById('btnRefuseMission');
-                    const cancelAcceptedBtn = document.getElementById('btnCancelAcceptedMission');
-
-                    if (acceptBtn) {
-                        /**
-                         * Sends a POST request to accept the selected mission with the chosen interpreter.
-                         * Displays a success toast and refreshes the calendar events.
-                         *
-                         * @listens click
-                         * @returns {Promise<void>}
-                         */
-                        acceptBtn.addEventListener('click', async function () {
-                            const selectedInterpreter = document.getElementById('managerPendingInterpreter').value;
-                            if (!selectedInterpreter) {
-                                showToast("Veuillez sélectionner un interprète.", 'error');
-                                return;
-                            }
-                            try {
-                                const res = await fetch('/horaire/missions/' + event.id + '/accepter', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ interpreterId: selectedInterpreter })
-                                });
-                                if (!res.ok) throw new Error(await res.text());
-                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                                calendar.refetchEvents();
-                                showToast("Mission acceptée.", 'success');
-                            } catch (err) {
-                                showToast("Erreur : " + err.message, 'error');
-                            }
-                        }, { once: true });
-                    }
-
-                    if (refuseBtn) {
-                        /**
-                         * Sends a POST request to refuse the selected mission.
-                         * Displays an info toast and refreshes the calendar events.
-                         *
-                         * @listens click
-                         * @returns {Promise<void>}
-                         */
-                        refuseBtn.addEventListener('click', async function () {
-                            try {
-                                const res = await fetch('/horaire/missions/' + event.id + '/refuser', {
-                                    method: 'POST'
-                                });
-                                if (!res.ok) throw new Error(await res.text());
-                                bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).hide();
-                                calendar.refetchEvents();
-                                showToast("Mission refusée.", 'info');
-                            } catch (err) {
-                                showToast("Erreur : " + err.message, 'error');
-                            }
-                        }, { once: true });
-                    }
-
-                    if (cancelAcceptedBtn) {
-                        /**
-                         * Closes the manager modal and opens the cancellation confirmation modal.
-                         *
-                         * @listens click
-                         */
-                        cancelAcceptedBtn.addEventListener('click', function() {
-                            const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
-                            const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-
-                            managerPendingModal.hide();
-                            confirmCancelModal.show();
-                        });
-                    }
-
-                    bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal')).show();
-                    return;
-                }
-
-                document.getElementById('modalTitle').innerText = event.title || '';
-                document.getElementById('modalTime').innerText = timeText || '';
-                document.getElementById('modalDate').innerText = event.start ? event.start.toLocaleDateString('fr-BE') : '';
-                document.getElementById('modalType').innerText = props.type || '';
-                document.getElementById('modalLocation').innerText = props.address || '';
-                document.getElementById('modalBeneficiary').innerText = props.beneficiary || '';
-                document.getElementById('modalComment').innerText = props.comment || '';
-                document.getElementById('modalStatus').innerText = props.status || '';
-                const actions = document.getElementById('modalActions');
-                actions.innerHTML = '';
-
-                const type = (props.type || '').toLowerCase();
-
-                const isSameDay =   now.getFullYear() === start.getFullYear() && now.getMonth() === start.getMonth() && now.getDate() === start.getDate();
-                const isBeforeEnd = now < end;
-
-                if (isPending) {
-                    actions.innerHTML = `
-                    <button type="button" class="btn btn-danger" id="btnCancelRequest">Annuler la demande</button>
-                    <button type="button" class="btn btn-primary">Modifier la demande</button>
-                `;
-
-
-                } else if (isAccepted && isSameDay && isBeforeEnd) {
-                    actions.innerHTML = `
-                        <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
-                    `;
-                }
-                const cancelBtn = document.getElementById('btnCancelRequest');
-                const delayBtn = document.getElementById('btnDelayReport');
-
-                if (delayBtn) {
-                    /**
-                     * Closes the event modal and opens the delay report modal.
-                     *
-                     * @listens click
-                     */
-                    delayBtn.addEventListener('click', function() {
-                        const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-                        const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
-
-                        eventModal.hide();
-                        delayModal.show();
-                    });
-                }
-                if (cancelBtn) {
-                    /**
-                     * Closes the event modal and opens the cancellation confirmation modal.
-                     *
-                     * @listens click
-                     */
-                    cancelBtn.addEventListener('click', function() {
-                        const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-                        const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-                        eventModal.hide();
-                        confirmCancelModal.show();
-                    });
-                }
-
-
-                document.getElementById('modalInterpreter').innerText = props.interpreter || 'Aucun interprète';
-                const modal = new bootstrap.Modal(document.getElementById('eventModal'));
-                modal.show();
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.fc-filterBtn-button') && !e.target.closest('#dropdown-filtre')) {
-                document.getElementById('dropdown-filtre').classList.remove('show');
-                document.querySelector('.fc-filterBtn-button').classList.remove('active');
-            }
-        });
-
-        document.getElementById('search-interpreter')?.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            document.querySelectorAll('#interpreter-list .filter-interpreter').forEach(item => {
-                const name = item.dataset.value.toLowerCase();
-                item.style.display = name.includes(query) ? '' : 'none';
-            });
-        });
-
-        document.getElementById('search-interpreter')?.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-
-        /**
-         * Handles a click on the "No" button in the cancellation confirmation modal.
-         * Closes the confirmation modal and re-opens the previous modal
-         * based on the user's role.
-         *
-         * @listens click
-         */
-        document.getElementById('cancelConfirmBackBtn').addEventListener('click', function() {
-            const confirmCancelModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal'));
-
-            confirmCancelModal.hide();
-
-            if (userRole === 'MANAGER') {
-                const managerPendingModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('managerPendingModal'));
-                managerPendingModal.show();
-            } else {
-                const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-                eventModal.show();
-            }
-        });
-
-        const eventModalEl = document.getElementById('eventModal');
-        const delayModalEl = document.getElementById('delayModal');
-
-        /**
-         * Handles a click on "Cancel" in the delay report modal.
-         * Closes the delay modal and re-opens the event modal.
-         *
-         * @listens click
-         */
-        document.getElementById('cancelDelayModalBtn').addEventListener('click', function() {
-            const delayModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal'));
-            const eventModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal'));
-
-            delayModal.hide();
-            eventModal.show();
-        });
-
-        /**
-         * Sends a POST request to report a delay for the selected mission.
-         * Includes the number of delay minutes and the absence indicator.
-         * Displays a confirmation or error toast.
-         *
-         * @listens click
-         * @returns {Promise<void>}
-         */
-        document.getElementById('sendDelayBtn').addEventListener('click', async function () {
-            if (!currentMissionId) {
-                alert("Aucune mission sélectionnée.");
-                return;
-            }
-
-            const minutes = document.getElementById('delayMinutes').value;
-            const absent = document.getElementById('delayAbsent').checked;
-
-            try {
-                const res = await fetch('/horaire/missions/' + currentMissionId + '/retard', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ minutes, absent })
-                });
-                if (!res.ok) throw new Error(await res.text());
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('delayModal')).hide();
-                showToast("Retard signalé avec succès.", 'success');
-            } catch (err) {
-                showToast("Erreur : " + err.message, 'error');
-            }
-        });
-
-        /**
-         * Validates and submits the new mission creation form (MANAGER role).
-         * Checks required fields and time consistency, then sends
-         * the data via POST to `/horaire/missions`. Refreshes the calendar on success.
-         *
-         * @listens click
-         * @returns {Promise<void>}
-         */
-        document.getElementById('sendMissionBtn').addEventListener('click', async function () {
-            clearFormErrors(['missionTitle', 'missionDate', 'missionLocationDesignation', 'missionCity', 'missionInterpreter', 'missionBeneficiary']);
-
-
-            const rules = [
-                { id: 'missionTitle',               errorId: 'missionTitleError',               msg: 'Le titre est requis.' },
-                { id: 'missionDate',                errorId: 'missionDateError',                msg: 'La date est requise.' },
-                { id: 'missionLocationDesignation', errorId: 'missionLocationDesignationError', msg: 'Le lieu est requis.' },
-                { id: 'missionCity',                errorId: 'missionCityError',                msg: 'La ville est requise.' },
-                { id: 'missionInterpreter',         errorId: 'missionInterpreterError',         msg: 'Veuillez sélectionner un interprète.' },
-                { id: 'missionBeneficiary',         errorId: 'missionBeneficiaryError',         msg: 'Veuillez sélectionner un bénéficiaire.' },
-            ];
-
-
-            if (!validateFields(rules)) return;
-
-            const startTime = document.getElementById('missionStartTime').value;
-            const endTime   = document.getElementById('missionEndTime').value;
-            if (startTime >= endTime) {
-                showToast("L'heure de fin doit être après l'heure de début.", 'error');
-                return;
-            }
-
-            const payload = {
-                type:                document.querySelector('input[name="missionType"]:checked').value,
-                title:               document.getElementById('missionTitle').value,
-                date:                document.getElementById('missionDate').value,
-                startTime,
-                endTime,
-                locationDesignation: document.getElementById('missionLocationDesignation').value,
-                city:                document.getElementById('missionCity').value,
-                postalCode:          document.getElementById('missionPostalCode').value,
-                street:              document.getElementById('missionStreet').value,
-                streetNumber:        document.getElementById('missionStreetNumber').value,
-                box:                 document.getElementById('missionBox').value,
-                professor:           document.getElementById('missionProfessor').value,
-                interpreterId:       document.getElementById('missionInterpreter').value,
-                beneficiaryId:       document.getElementById('missionBeneficiary').value,
-                comment:             document.getElementById('missionComment').value
-            };
-
-            try {
-                const res = await fetch('/horaire/missions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(await res.text());
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('newMissionModal')).hide();
-                calendar.refetchEvents();
-                showToast("Mission créée avec succès.", 'success');
-            } catch (err) {
-                showToast("Erreur : " + err.message, 'error');
-            }
-        });
-
-        /**
-         * Validates and submits the new request creation form (BENEFICIARY role).
-         * Checks required fields and time consistency, then sends
-         * the data via POST to `/horaire/requetes`. Refreshes the calendar on success.
-         *
-         * @listens click
-         * @returns {Promise<void>}
-         */
-        document.getElementById('sendRequestBtn').addEventListener('click', async function () {
-            clearFormErrors(['requestTitle', 'requestDate', 'requestLocationDesignation', 'requestCity']);
-            const rules = [
-                { id: 'requestTitle',               errorId: 'requestTitleError',               msg: 'Le titre est requis.' },
-                { id: 'requestDate',                errorId: 'requestDateError',                msg: 'La date est requise.' },
-                { id: 'requestLocationDesignation', errorId: 'requestLocationDesignationError', msg: 'Le lieu est requis.' },
-                { id: 'requestCity',                errorId: 'requestCityError',                msg: 'La ville est requise.' },
-            ];
-
-
-            if (!validateFields(rules)) return;
-
-            const startTime = document.getElementById('requestStartTime').value;
-            const endTime   = document.getElementById('requestEndTime').value;
-            if (startTime >= endTime) {
-                showToast("L'heure de fin doit être après l'heure de début.", 'error');
-                return;
-            }
-
-
-
-            const payload = {
-                type:                document.querySelector('input[name="requestType"]:checked').value,
-                title:               document.getElementById('requestTitle').value,
-                date:                document.getElementById('requestDate').value,
-                startTime,
-                endTime,
-                locationDesignation: document.getElementById('requestLocationDesignation').value,
-                city:                document.getElementById('requestCity').value,
-                postalCode:          document.getElementById('requestPostalCode').value,
-                street:              document.getElementById('requestStreet').value,
-                streetNumber:        document.getElementById('requestStreetNumber').value,
-                box:                 document.getElementById('requestBox').value,
-                professor:           document.getElementById('requestProfessor').value,
-                comment:             document.getElementById('requestComment').value,
-                importance:          document.querySelector('input[name="requestImportance"]:checked').value
-            };
-
-            try {
-                const res = await fetch('/horaire/requetes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(await res.text());
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('newRequestModal')).hide();
-                calendar.refetchEvents();
-                showToast("Demande envoyée avec succès.", 'success');
-            } catch (err) {
-                showToast("Erreur : " + err.message, 'error');
-            }
-        });
-
-
-        calendar.render();
-
-        document.querySelectorAll('.filter-status').forEach(item => {
-            item.addEventListener('click', e => {
-                e.preventDefault();
-
-                if (activeFilters.status === item.dataset.value) {
-                    activeFilters.status = null;
-                } else {
-                    activeFilters.status = item.dataset.value;
-                }
-
-                document.querySelectorAll('.filter-status').forEach(i => i.classList.remove('fw-bold'));
-
-                if (activeFilters.status !== null) {
-                    item.classList.add('fw-bold');
-                }
-
-                calendar.refetchEvents();
-                document.getElementById('dropdown-filtre').classList.remove('show');
-            });
-        });
-
-        document.querySelectorAll('.filter-interpreter').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (activeFilters.interpreter === item.dataset.value){
-                    activeFilters.interpreter = null;
-                }else{
-                    activeFilters.interpreter = this.dataset.value
-                }
-
-                document.querySelectorAll('.filter-interpreter').forEach(function(i) { i.classList.remove('fw-bold'); });
-                if (activeFilters.interpreter !== null){
-                    this.classList.add('fw-bold');
-                }
-                calendar.refetchEvents();
-                document.getElementById('dropdown-filtre').classList.remove('show');
-            });
-        });
-
-
-
-
-    });
-</script>
-
+<script th:src="@{/js/schedule.js}"></script>
 
 </body>
 </html>

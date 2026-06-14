@@ -5,14 +5,12 @@
 <body>
 <div th:replace="~{common/navbar :: navbar}"></div>
 <main class="container py-4">
-    <div>
-        <div th:if="${submitState != null}">
-            <div th:if="${submitState == 'success'}">
-                <div th:replace="~{common/modal-creation :: modal-success}"></div>
-            </div>
-            <div th:unless="${submitStat  == 'success'}">
-                <div th:replace="~{common/modal-creation :: modal-error(${submitState})}"></div>
-            </div>
+    <div th:if="${submitState != null}">
+        <div th:if="${submitState == 'success'}">
+            <div th:replace="~{common/modals :: modal-success}"></div>
+        </div>
+        <div th:unless="${submitState  == 'success'}">
+            <div th:replace="~{common/modals :: modal-error(${submitState})}"></div>
         </div>
     </div>
 
@@ -54,7 +52,11 @@
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-md-6">
                         <label for="password" class="form-label"><i class="bi bi-lock-fill me-2"></i>Mot de passe&nbsp;<span class="text-danger">*</span></label>
-                        <input id="password" type="password" class="form-control" name="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
+                        <div class="position-relative">
+                            <input id="password" type="password" class="form-control pe-5" name="password" autocomplete="new-password" th:field="*{password}" minlength="6" required />
+                            <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                               data-target="password" style="cursor: pointer;"></i>
+                        </div>
                     </div>
                     <div class="col-12 col-md-6">
                         <label for="birthdate" class="form-label"><i class="bi bi-cake2-fill me-2"></i>Naissance&nbsp;<span class="text-danger">*</span></label>
@@ -73,7 +75,10 @@
                             <option th:if="*{statusId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="status : ${allStatuses}"
                                     th:value="${status.id}"
-                                    th:text="${status.designation}"></option>
+                                    th:text="${status.designation}"
+                                    th:selected="${status.id == beneficiaryForm.statusId}">
+
+                            </option>
                         </select>
                     </div>
                     <div class="col-12 col-md-6">
@@ -82,7 +87,9 @@
                             <option th:if="*{interpreterRefId == 0}" value="">-- Sélectionner --</option>
                             <option th:each="interpreter : ${allInterpreters}"
                                     th:value="${interpreter.id}"
-                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"></option>
+                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName + ' (' + interpreter.login + ')'}"
+                                    th:selected="${interpreter.id == beneficiaryForm.interpreterRefId}">
+                            </option>
                         </select>
                     </div>
                 </div>

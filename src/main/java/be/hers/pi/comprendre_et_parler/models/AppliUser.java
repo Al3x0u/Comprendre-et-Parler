@@ -15,6 +15,25 @@ public abstract class AppliUser {
     protected boolean passwordUpdated;
 
     /**
+     * Minimal constructor
+     * @param id the user's id
+     */
+    public AppliUser(int id) {
+        this.id = id;
+    }
+
+    /**
+     * Lightweight constructor
+     * @param id the user's id
+     * @param firstName the user's first name
+     * @param lastName the user's last name
+     */
+    public AppliUser(int id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    /**
      Constructor of a AppliUser
      @param id represent the id
      @param login represent the login
@@ -194,6 +213,7 @@ public abstract class AppliUser {
         this.passwordUpdated = passwordUpdated;
     }
 
+    @Override
     public abstract AppliUser clone();
 
     /**
@@ -211,6 +231,26 @@ public abstract class AppliUser {
         return Objects.equals(firstName, other.firstName)  && Objects.equals(lastName, other.lastName)
                 && Objects.equals(birthDate, other.birthDate) && Objects.equals(hashedPassword, other.hashedPassword)
                 && Objects.equals(email, other.email) && Objects.equals(phoneNumber, other.phoneNumber);
+    }
+
+    /**
+     * Compares two AppliUser lexicographically according to their designations
+     * @param a The second user to compare to this
+     * @return The result is a negative integer if this AppliUser.firstName lexicographically precedes the other AppliUser.firstName.
+     * The result is a positive integer if this AppliUser.firstName lexicographically follows the other AppliUser.firstName.
+     * If the firstName are the same, compare lastName.
+     * If the lastName are the same, compare login.
+     * If the login are the same, return 0.
+     */
+    public int compareTo(AppliUser a) {
+        if (this == a) return 0;
+        int res = firstName.compareTo(a.firstName);
+        if (res == 0) {
+            res = lastName.compareTo(a.lastName);
+            if (res == 0)
+                res = login.compareTo(a.login);
+        }
+        return res;
     }
 
     /**

@@ -3,7 +3,6 @@ package be.hers.pi.comprendre_et_parler.models;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,10 +12,10 @@ class AppliUserTest {
 
     @BeforeAll
     public static void init() {
-        Interpreter i1 = new Interpreter(1, "1", "test", "test", LocalDate.now(), "1234",
+        Interpreter i1 = new Interpreter(1, "1", "Test", "Test", LocalDate.now(), "1234",
                 "test@gmail.com", "123/45.67.89", 10, 120,
                 "Velo", null, null, null, null);
-        a1 = new Beneficiary(1, "1", "test", "test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
+        a1 = new Beneficiary(1, "1", "Test", "Test", LocalDate.now(), "1234", "test@gmail.com", "123/45.67.89", new Status(1, "test", 10), i1);
     }
 
     @Test
@@ -45,7 +44,7 @@ class AppliUserTest {
         int hash5 = a2.hashCode();
         assertEquals(hash3, hash5, "Logins are different but must not impact the hash.");
 
-        a2.setLastName("The last test");
+        a2.setFirstName("The last test");
         int hash6 = a2.hashCode();
         assertNotEquals(hash4, hash6, "One attribute other than the ID has changed.");
     }
@@ -66,5 +65,29 @@ class AppliUserTest {
 
         a2.setFirstName("The last test");
         assertNotEquals(a2, a1, "The second object has one of its attributes other than its id changed.");
+    }
+
+    @Test
+    public void testCompareTo() {
+        assertThrows(NullPointerException.class, () -> {
+            a1.compareTo(null);
+        }, "The second object is null.");
+
+        assertEquals(0, a1.compareTo(a1), "The second object is the same as the first one.");
+
+        AppliUser a2 = a1.clone();
+        assertEquals(0, a1.compareTo(a2), "The second object is a copy of the first one.");
+
+        a2.setLogin("2");
+        assertTrue(a1.compareTo(a2) < 0, "The login of the first object lexicographically precedes the second one.");
+        assertTrue(a2.compareTo(a1) > 0, "The login of the first object lexicographically follows the second one.");
+
+        a1.setLastName("The last test");
+        assertTrue(a1.compareTo(a2) > 0, "The last name of the first object lexicographically follows the second one.");
+        assertTrue(a2.compareTo(a1) < 0, "The last name of the first object lexicographically precedes the second one.");
+
+        a2.setFirstName("The last test");
+        assertTrue(a1.compareTo(a2) < 0, "The first name of the first object lexicographically precedes the second one.");
+        assertTrue(a2.compareTo(a1) > 0, "The first name of the first object lexicographically follows the second one.");
     }
 }

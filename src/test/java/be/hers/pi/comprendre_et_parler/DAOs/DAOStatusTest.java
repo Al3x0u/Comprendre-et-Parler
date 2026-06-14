@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOStatusTest {
-    public static Status s1;
-    public static Status s2;
-    public static Status s3;
-    public final static DAOStatus statusDAO = new DAOStatus();
+    private static Status s1;
+    private static Status s2;
+    private static Status s3;
+    private final static DAOStatus statusDAO = new DAOStatus();
 
     @BeforeAll
     public static void init() {

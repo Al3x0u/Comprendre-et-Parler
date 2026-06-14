@@ -1,6 +1,6 @@
 package be.hers.pi.comprendre_et_parler.DTO;
 
-import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.models.Beneficiary;
 
 import java.time.LocalDate;
 
@@ -13,24 +13,16 @@ public class UpdateBeneficiaryForm {
     private String email;
     private String phoneNumber;
 
-    public UpdateBeneficiaryForm(){}
+    public UpdateBeneficiaryForm() {}
 
     public UpdateBeneficiaryForm(Beneficiary beneficiary) {
-        this.id = beneficiary.getId();
-        this.login = beneficiary.getLogin();
-        this.firstName = beneficiary.getFirstName();
-        this.lastName = beneficiary.getLastName();
-        this.birthDate = beneficiary.getBirthDate();
-        this.email = beneficiary.getEmail();
-        this.phoneNumber = beneficiary.getPhoneNumber();
-    }
-
-    public UpdateBeneficiaryForm(String fName, String lName, LocalDate birthDate, String email, String phone){
-        firstName = fName;
-        lastName = lName;
-        this.birthDate = birthDate;
-        this.email = email;
-        phoneNumber = phone;
+        id = beneficiary.getId();
+        login = beneficiary.getLogin();
+        firstName = beneficiary.getFirstName();
+        lastName = beneficiary.getLastName();
+        birthDate = beneficiary.getBirthDate();
+        email = beneficiary.getEmail();
+        phoneNumber = beneficiary.getPhoneNumber();
     }
 
     public int getId() {
@@ -41,12 +33,12 @@ public class UpdateBeneficiaryForm {
         this.id = id;
     }
 
-    public String getLogin() {
-        return login;
-    }
-
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public String getLogin() {
+        return login;
     }
 
     public String getFirstName() {
@@ -87,16 +79,5 @@ public class UpdateBeneficiaryForm {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    @Override
-    public String toString() {
-        return "UpdateBeneficiaryForm{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", birthDate=" + birthDate +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
     }
 }

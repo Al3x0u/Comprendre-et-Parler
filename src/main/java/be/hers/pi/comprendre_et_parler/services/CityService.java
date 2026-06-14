@@ -5,17 +5,15 @@ import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.City;
 import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
 import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class CityService {
-    private final DAOCity daoCity;
-
-    public CityService() {
-        daoCity = new DAOCity();
-    }
+    private final static DAOCity daoCity = new DAOCity();
 
     /**
      * Search for a city in the database.

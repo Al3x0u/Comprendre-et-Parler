@@ -112,7 +112,7 @@ public class Interpreter extends AppliUser{
         if (other.unavailability != null)
             this.unavailability = new HashSet<>(other.unavailability);
     }
-
+    @Override
     public Interpreter clone() {
         return new Interpreter(this);
     }
@@ -259,7 +259,7 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     * @return this.punctualTime
+     * @return this.availability
      */
     public Set<BaseTimeSlot> getAvailability() {
         return availability;
@@ -312,25 +312,6 @@ public class Interpreter extends AppliUser{
                 && Objects.equals(jobSkills, other.jobSkills) && Objects.equals(location, other.location)
                 && Objects.equals(availability, other.availability)
                 && Objects.equals(unavailability, other.unavailability);
-    }
-
-    /**
-     * Compares two Interpreter lexicographically according to their designations
-     * @param i The second interpreter to compare to this
-     * @return The result is a negative integer if this Interpreter.firstName lexicographically precedes the other Interpreter.firstName.
-     * The result is a positive integer if this Interpreter.firstName lexicographically follows the other Interpreter.firstName.
-     * If the firstName are the same, compare lastName.
-     * If the lastName are the same, compare login.
-     * If the login are the same, return 0.
-     */
-    public int compareTo(Interpreter i) {
-        int res = firstName.compareTo(i.firstName);
-        if (res == 0) {
-            res = lastName.compareTo(i.lastName);
-            if (res == 0)
-                res = login.compareTo(i.login);
-        }
-        return res;
     }
 
     /**

@@ -1,8 +1,9 @@
 package be.hers.pi.comprendre_et_parler.controllers;
 
-import be.hers.pi.comprendre_et_parler.DAOs.*;
+import be.hers.pi.comprendre_et_parler.DTO.CreateUnavailability;
 import be.hers.pi.comprendre_et_parler.exceptions.*;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.services.*;
 import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -12,14 +13,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 @Controller
 public class ProfileController {
-
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
 
     /**
      * Display the profile of the connected user
@@ -32,19 +31,14 @@ public class ProfileController {
         AppliUser user = (AppliUser) session.getAttribute("user");
 
         try {
-            if (user instanceof Manager m) {
-                Set<Beneficiary> beneficiaries = SQLWrap.call(
-                        daoBeneficiary::findReferencedBeneficiaries, m.getId());
-                model.addAttribute("interprete", m);
-                model.addAttribute("beneficiaries", beneficiaries);
-                model.addAttribute("isInterpreterAManager", true);
-                model.addAttribute("userRole", "MANAGER");
-            } else if (user instanceof Interpreter i) {
-                Set<Beneficiary> beneficiaries = SQLWrap.call(
-                        daoBeneficiary::findReferencedBeneficiaries, i.getId());
+            if (user instanceof Interpreter i) {
+                i.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(i.getId()));
                 model.addAttribute("interprete", i);
-                model.addAttribute("beneficiaries", beneficiaries);
-                model.addAttribute("userRole", "INTERPRETER");
+                model.addAttribute("isInterpreterAManager", user instanceof Manager);
+                model.addAttribute("userRole", user instanceof Manager ? "MANAGER" : "INTERPRETER");
+                model.addAttribute("allAcademicSkills", academicSkillService.getAllAcademicSkills());
+                model.addAttribute("allJobSkills", jobSkillService.getAllJobSkills());
+                model.addAttribute("newUnavailability", new CreateUnavailability());
             } else if (user instanceof Beneficiary b) {
                 model.addAttribute("beneficiaire", b);
                 model.addAttribute("age", Period.between(b.getBirthDate(), LocalDate.now()).getYears());
@@ -54,10 +48,7 @@ public class ProfileController {
             model.addAttribute("isOwnProfile", true);
             return "profile";
 
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return "redirect:/login";
-        } catch (SQLException e) {
+        } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
             return "redirect:/login";
         }

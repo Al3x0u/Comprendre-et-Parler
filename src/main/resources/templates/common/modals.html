@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ── DELETE ──────────────────────────────────────────────────────────── -->
+
+<th:block th:fragment="modal-delete(route, title, entityName)">
+    <div class="modal fade" id="modalDelete" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+         th:attr="data-route=${route}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-power me-2"></i>[[${title}]]</h5>
+                </div>
+                <div class="modal-body py-5">
+                    Êtes-vous sûr de vouloir désactiver le compte de  <strong id="delete-name"></strong> ?
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form id="delete-form" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Désactiver
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('modalDelete').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const route = button.getAttribute('data-route') || document.getElementById('modalDelete').getAttribute('data-route');
+            document.getElementById('delete-name').textContent = button.getAttribute('data-name');
+            document.getElementById('delete-form').action = route + '/' + button.getAttribute('data-id') + '/desactiver';
+        });
+    </script>
+</th:block>
+
+
+<!-- ── DISABLE ─────────────────────────────────────────────────────────── -->
+
+<th:block th:fragment="modal-disable(accountToDisable, disableUrl)">
+    <div class="modal fade" id="modalDisable" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-primary rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-power me-2"></i>Désactiver un compte</h5>
+                </div>
+                <div class="modal-body py-5">
+                    Êtes-vous sûr de vouloir désactiver le compte de
+                    <strong th:text="${accountToDisable.firstName + ' ' + accountToDisable.lastName}"></strong> ?
+                    L'utilisateur ne pourra plus utiliser son compte après la désactivation.
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="${disableUrl}" method="post">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-power me-2"></i>Désactiver
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+
+<!-- ── CONFIRM ─────────────────────────────────────────────────────────── -->
+
+<th:block th:fragment="modal-confirm(id, title, icon, headerClass, action, firstName, lastName, actionUrl, btnLabel, btnClass)">
+    <div class="modal fade" th:id="${id}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div th:class="${'modal-header rounded-top-4 ' + headerClass}">
+                    <h5 class="modal-title">
+                        <i th:class="${'bi ' + icon + ' me-2'}"></i>[[${title}]]
+                    </h5>
+                </div>
+                <div class="modal-body py-5">
+                    Êtes-vous sûr de vouloir <span th:text="${action}"></span>
+                    <strong th:text="${firstName + ' ' + lastName}"></strong> ?
+                </div>
+                <div class="modal-footer rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form th:action="${actionUrl}" method="post">
+                        <button type="submit" th:class="${'btn ' + btnClass}">
+                            <i th:class="${'bi ' + icon + ' me-2'}"></i>[[${btnLabel}]]
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+
+<!-- ── PASSWORD ────────────────────────────────────────────────────────── -->
+
+<th:block th:fragment="modal-password(actionUrl, autoShow)">
+    <div class="modal fade" id="modalPassword" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+         th:attr="data-autoshow=${autoShow == true or passwordError != null}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-lock-fill me-2"></i>Modifier le mot de passe</h5>
+                </div>
+                <div class="modal-body px-4">
+                    <div id="password-error" class="alert alert-danger" role="alert"
+                         th:classappend="${passwordError == null} ? 'd-none'"
+                         th:text="${passwordError}"></div>
+                    <form id="form-password" th:action="${actionUrl}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Mot de passe actuel</label>
+                            <div class="position-relative">
+                                <input id="currentPassword" type="password" class="form-control pe-5" name="currentPassword" required>
+                                <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                                   data-target="currentPassword" style="cursor: pointer;"></i>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Nouveau mot de passe</label>
+                            <div class="position-relative">
+                                <input id="newPassword" type="password" class="form-control pe-5" name="newPassword" required minlength="8">
+                                <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                                   data-target="newPassword" style="cursor: pointer;"></i>
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
+                            <div class="position-relative">
+                                <input id="confirmPassword" type="password" class="form-control pe-5" name="confirmPassword" required minlength="8">
+                                <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                                   data-target="confirmPassword" style="cursor: pointer;"></i>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" id="btn-save-password" class="btn btn-primary">
+                        <i class="bi bi-floppy-fill me-2"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const modalElement = document.getElementById("modalPassword");
+            if (modalElement?.dataset.autoshow === 'true') {
+                new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false }).show();
+            }
+
+            modalElement?.addEventListener('hidden.bs.modal', () => {
+                document.getElementById("form-password").reset();
+                showPasswordError(null);
+                document.querySelectorAll('#modalPassword .toggle-password').forEach(icon => {
+                    const input = document.getElementById(icon.dataset.target);
+                    input.type = 'password';
+                    icon.classList.add('bi-eye');
+                    icon.classList.remove('bi-eye-slash');
+                });
+            });
+
+            document.getElementById("btn-save-password")?.addEventListener("click", () => {
+                const current    = document.getElementById("currentPassword").value.trim();
+                const newPwd     = document.getElementById("newPassword").value.trim();
+                const confirmPwd = document.getElementById("confirmPassword").value.trim();
+
+                if (!current || !newPwd || !confirmPwd)
+                    return showPasswordError("Veuillez remplir tous les champs.");
+                if (newPwd.length < 8)
+                    return showPasswordError("Le mot de passe doit contenir au moins 8 caractères.");
+                if (!/[A-Z]/.test(newPwd))
+                    return showPasswordError("Le mot de passe doit contenir au moins une majuscule.");
+                if (!/[0-9]/.test(newPwd))
+                    return showPasswordError("Le mot de passe doit contenir au moins un chiffre.");
+                if (!/[^a-zA-Z0-9]/.test(newPwd))
+                    return showPasswordError("Le mot de passe doit contenir au moins un caractère spécial.");
+                if (newPwd === current)
+                    return showPasswordError("Le nouveau mot de passe doit être différent de l'ancien.");
+                if (newPwd !== confirmPwd)
+                    return showPasswordError("Les mots de passe ne correspondent pas.");
+
+                showPasswordError(null);
+                document.getElementById("form-password").submit();
+            });
+
+            function showPasswordError(message) {
+                const box = document.getElementById("password-error");
+                if (message) {
+                    box.textContent = message;
+                    box.classList.remove("d-none");
+                } else {
+                    box.textContent = "";
+                    box.classList.add("d-none");
+                }
+            }
+        });
+    </script>
+</th:block>
+
+
+<!-- ── CREATION ────────────────────────────────────────────────────────── -->
+
+<th:block th:fragment="modal-success">
+    <div class="modal fade" id="modalCredentials" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <form th:action="@{/interpretes/creer/notifier}" th:object="${newUser}"
+                  method="post" class="modal-content border-0 rounded-4">
+                <input type="hidden" th:field="*{password}">
+                <input type="hidden" th:field="*{firstName}">
+                <input type="hidden" th:field="*{email}">
+                <input type="hidden" th:field="*{login}">
+                <div class="modal-header text-bg-success rounded-top-4">
+                    <h3 class="modal-title"><i class="bi bi-check-circle me-2"></i>Utilisateur créé avec succès</h3>
+                </div>
+                <div class="modal-body py-4">
+                    <p>L'utilisateur <span th:text="*{firstName}"></span> a été créé avec le login <span th:text="*{login}"></span> !</p>
+                    <p>Un mail va être envoyé à l'adresse <span th:text="*{email}"></span></p>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler l'envoi</button>
+                    <button type="submit" class="btn btn-outline-secondary">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const modalElement = document.getElementById("modalCredentials");
+            if (modalElement) {
+                new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false }).show();
+            }
+        });
+    </script>
+</th:block>
+
+<th:block th:fragment="modal-error(message)">
+    <div class="modal fade" id="modalError" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header text-bg-danger rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-x-octagon me-2"></i>Erreur</h5>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="text-center" th:text="${message}"></p>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Terminer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const modalElement = document.getElementById("modalError");
+            if (modalElement) {
+                new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false }).show();
+            }
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

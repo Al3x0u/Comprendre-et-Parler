@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOCityTest {
-    public static City c1;
-    public static City c2;
-    public static City c3;
-    public final static DAOCity cityDAO = new DAOCity();
+    private static City c1;
+    private static City c2;
+    private static City c3;
+    private final static DAOCity cityDAO = new DAOCity();
 
     @BeforeAll
     public static void init() {
@@ -41,9 +41,9 @@ class DAOCityTest {
     @Test
     @Order(4)
     public void testFind() throws SQLException {
-            assertEquals(c3, cityDAO.find(1), "Find the updated object.");
-            assertEquals(c2, cityDAO.find(2), "Find the unchanged object.");
-            assertNull(cityDAO.find(3), "There is no object with this ID.");
+        assertEquals(c3, cityDAO.find(1), "Find the updated object.");
+        assertEquals(c2, cityDAO.find(2), "Find the unchanged object.");
+        assertNull(cityDAO.find(3), "There is no object with this ID.");
     }
 
     @Test

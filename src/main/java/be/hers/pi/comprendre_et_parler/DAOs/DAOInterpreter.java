@@ -15,9 +15,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 
-import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.FIELD_PASSWORD_UPDATED;
-import static be.hers.pi.comprendre_et_parler.DAOs.DAOBeneficiary.TABLE_APPLIUSER;
-
 public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String TABLE = "Interpreter";
     protected static final String FIELD_SKILL = "skill";
@@ -48,6 +45,15 @@ public class DAOInterpreter extends DAO<Interpreter> {
     protected static final String JOB_SKILL_REF_INTERPRETER = "interpreter";
     protected static final String JOB_SKILL_REF_SKILL = "skill";
 
+    private static final DAOAcademicSkill daoAcademicSkill = new DAOAcademicSkill();
+    private static final DAOJobSkill daoJobSkill = new DAOJobSkill();
+    private static final DAOLocation daoLocation = new DAOLocation();
+    private static final DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
+    private static final DAOBaseTimeSlot daoBaseTimeSlot = new DAOBaseTimeSlot();
+    private static final DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
+    private static final DAOManager daoManager = new DAOManager();
+    private static final DAOMission daoMission = new DAOMission();
+
     @Override
     public Interpreter find(int id) throws SQLException {
         String query = String.format(
@@ -63,7 +69,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
             result = statement.executeQuery();
             if(result.next())
-               interpreter = getResult(result);
+                interpreter = getResult(result);
         } finally {
             closeResultSet(result);
             closeStatement(statement);
@@ -109,7 +115,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
 
         int locationRef = -1;
         try {
-            new DAOLocation().create(objectToInsert.getLocation());
+            daoLocation.create(objectToInsert.getLocation());
         }
         catch (AlreadyExistsException e) { }
         locationRef = objectToInsert.getLocation().getId();
@@ -151,7 +157,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
         if (unavailabilities != null) {
             for (ExceptionalUnavailability eu : unavailabilities) {
                 try {
-                    new DAOExceptionalUnavailability().create(eu, objectToInsert);
+                    daoUnavailability.create(eu, objectToInsert);
                 }
                 catch(AlreadyExistsException e) {}
             }
@@ -214,21 +220,22 @@ public class DAOInterpreter extends DAO<Interpreter> {
         if (objectInDB == null)
             throw new NoSuchElementException("[ERROR] There is no Interpreter with the id " + objectToUpdate.getId());
 
-        if (checkAlreadyExists(objectToUpdate) >= 0)
+        int idInDB = checkAlreadyExists(objectToUpdate);
+        if (idInDB != objectToUpdate.getId() && idInDB >= 0)
             throw new AlreadyExistsException("The interpreter already exists in database.");
 
         int locationRef = -1;
         try {
-            new DAOLocation().update(objectToUpdate.getLocation());
+            daoLocation.update(objectToUpdate.getLocation());
             locationRef = objectToUpdate.getLocation().getId();
         }
         catch (NoSuchElementException e) {
             try {
-                new DAOLocation().create(objectToUpdate.getLocation());
+                daoLocation.create(objectToUpdate.getLocation());
                 locationRef = objectToUpdate.getLocation().getId();
             }
             catch (AlreadyExistsException f) {
-                locationRef = new DAOLocation().checkAlreadyExists(objectToUpdate.getLocation());
+                locationRef = daoLocation.checkAlreadyExists(objectToUpdate.getLocation());
             }
         }
 
@@ -330,7 +337,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
     @Override
     public Interpreter getResult(ResultSet result) throws SQLException {
         int id = result.getInt(FIELD_ID);
-        Interpreter ret = new DAOManager().find(id);
+        Interpreter ret = daoManager.find(id);
         if (ret == null) {
             ret = new Interpreter(
                     id,
@@ -344,14 +351,12 @@ public class DAOInterpreter extends DAO<Interpreter> {
                     result.getInt(FIELD_WEEK_QUOTA),
                     result.getInt(FIELD_YEAR_QUOTA),
                     result.getString(FIELD_TRANSPORT_MODE),
-                    new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id),
-                    new DAOJobSkill().getJobSkillOfAnInterpreter(id),
-                    new DAOLocation().find(result.getInt(FIELD_LOCATION)),
-                    new DAOBaseTimeSlot().findAvailabilities(id)
+                    daoAcademicSkill.getAcademicSkillOfAnInterpreter(id),
+                    daoJobSkill.getJobSkillOfAnInterpreter(id),
+                    daoLocation.find(result.getInt(FIELD_LOCATION)),
+                    daoBaseTimeSlot.findAvailabilities(id)
             );
-            ret.setUnavailability(new DAOExceptionalUnavailability().findForInterpreter(id));
-            ret.setAcademicSkills(new DAOAcademicSkill().getAcademicSkillOfAnInterpreter(id));
-            ret.setJobSkills(new DAOJobSkill().getJobSkillOfAnInterpreter(id));
+            ret.setUnavailability(daoUnavailability.findForInterpreter(id));
         }
         return ret;
     }
@@ -421,10 +426,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
             interpreterRef = interpreter.getId();
         }
 
-        DAOBaseTimeSlot daoSlot = new DAOBaseTimeSlot();
-        int timeSlotRef = daoSlot.checkAlreadyExists(slot);
+        int timeSlotRef = daoBaseTimeSlot.checkAlreadyExists(slot);
         if (timeSlotRef < 0 ) {
-            daoSlot.create(slot);
+            daoBaseTimeSlot.create(slot);
             timeSlotRef = slot.getId();
         }
 
@@ -511,9 +515,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
             interpreterRef = interpreter.getId();
         }
 
-        int skillRef = new DAOAcademicSkill().checkAlreadyExists(skill);
+        int skillRef = daoAcademicSkill.checkAlreadyExists(skill);
         if (skillRef < 0) {
-            new DAOAcademicSkill().create(skill);
+            daoAcademicSkill.create(skill);
             skillRef = skill.getId();
         }
 
@@ -620,9 +624,9 @@ public class DAOInterpreter extends DAO<Interpreter> {
             interpreterRef = interpreter.getId();
         }
 
-        int skillRef = new DAOJobSkill().checkAlreadyExists(skill);
+        int skillRef = daoJobSkill.checkAlreadyExists(skill);
         if (skillRef < 0) {
-            new DAOJobSkill().create(skill);
+            daoJobSkill.create(skill);
             skillRef = skill.getId();
         }
 
@@ -694,7 +698,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
      * @throws SQLException if the database could not be reached
      */
     public Set<Interpreter> findAllByMissionId(int idMission) throws SQLException, NoSuchElementException {
-        if (new DAOMission().find(idMission) == null)
+        if (daoMission.find(idMission) == null)
             throw new NoSuchElementException("[ERROR] There is no Mission with the id " + idMission);
 
         String query = String.format(
@@ -728,8 +732,8 @@ public class DAOInterpreter extends DAO<Interpreter> {
      */
     public Set<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) throws SQLException {
         String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%S " +
-                        "WHERE t.%S = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
+                "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%s " +
+                        "WHERE t.%s = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
                 TABLE, TABLE_AVAILABILITY, FIELD_ID, FIELD_INTERPRETER, DAOBaseTimeSlot.TABLE,
                 DAOBaseTimeSlot.TABLE, DAOBaseTimeSlot.FIELD_ID, DAOPunctualTimeSlot.FIELD_START_TIME,
                 DAOPunctualTimeSlot.FIELD_END_TIME, DAOPunctualTimeSlot.FIELD_START_TIME
@@ -754,109 +758,29 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     * Return all Interpreter who have the AcademicSkill having the given id
-     * @param idAcademicSkills the id of the AcademicSkill
-     * @return a set of Interpreter who have the AcademicSkill having the idAcademicSkills, or an empty set if no Interpreter have this AcademicSkill
+     * Get the number of worked hours of an Interpreter between two dates
+     * @param interpreterId the id of the interpreter
+     * @param dateDebut the start date
+     * @param dateFin the end date
      * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if idAcademicSkills doesn't correspond to the id of any AcademicSkill
      */
-    public Set<Interpreter> findByAcademicSkills(int idAcademicSkills) throws NoSuchElementException, SQLException {
-        if (new DAOMission().find(idAcademicSkills) == null)
-            throw new NoSuchElementException("[ERROR] There is no AcademicSkill with the id " + idAcademicSkills);
-
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s ai ON i.%s = ai.%s WHERE ai.%s = ?",
-                TABLE, TABLE_ACADEMIC_SKILL_INTERPRETER, FIELD_ID, FIELD_INTERPRETER, FIELD_SKILL
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
+    public double getWorkedHours(int interpreterId, LocalDate dateDebut, LocalDate dateFin) throws SQLException {
+        String query = "SELECT get_heures_prestees(?, ?, ?) FROM dual";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idAcademicSkills);
-
+            statement.setInt(1, interpreterId);
+            statement.setDate(2, Date.valueOf(dateDebut));
+            statement.setDate(3, Date.valueOf(dateFin));
             result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
+            if (result.next()) {
+                return result.getDouble(1);
+            }
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
-        return interpreters;
-    }
-
-    /**
-     * Return all Interpreter who have the JobSkill having the given id
-     * @param idJobSkills the id of the JobSkill
-     * @return a Set of Interpreter who have the JobSkill having the idJobSkills, or an empty set if no Interpreter have this JobSkill
-     * @throws NoSuchElementException if idJobSkills doesn't correspond to the id of any JobSkill
-     * @throws SQLException if the database could not be reached
-     */
-    public Set<Interpreter> findByJobSkills(int idJobSkills) throws NoSuchElementException, SQLException {
-        if (new DAOMission().find(idJobSkills) == null)
-            throw new NoSuchElementException("[ERROR] There is no JobSkill with the id " + idJobSkills);
-
-        String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s ai ON i.%s = ai.%s WHERE ai.%s = ?",
-                TABLE, TABLE_JOB_SKILL_INTERPRETER, FIELD_ID, FIELD_INTERPRETER, FIELD_SKILL
-        );
-        Set<Interpreter> interpreters = new HashSet<>();
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, idJobSkills);
-
-            result = statement.executeQuery();
-            while (result.next())
-                interpreters.add(getResult(result));
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
-        return interpreters;
-    }
-
-    /**
-     * Update the passwordUpdated flag of an AppliUser in the database
-     * @param id the id of the AppliUser to update
-     * @throws SQLException if the database could not be reached
-     * @throws NoSuchElementException if no AppliUser with this id exists in the database
-     * @post the passwordUpdated flag of the AppliUser has been set to true in the database
-     */
-    public void updatePasswordUpdated(int id) throws SQLException {
-        String query = "UPDATE " + TABLE_APPLIUSER + " SET " + FIELD_PASSWORD_UPDATED + " = 1 WHERE " + FIELD_ID + " = ?";
-        PreparedStatement statement = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, id);
-            if(statement.executeUpdate() == 0)
-                throw new NoSuchElementException("[ERROR] There is no AppliUser with the id " + id);
-        } finally {
-            closeStatement(statement);
-        }
-    }
-
-    /**
-     * Retrieve the passwordUpdated flag of a user from the database
-     * @param id the id of the user
-     * @return true if the password has been updated, false otherwise
-     * @throws SQLException if the database could not be reached
-     */
-    public boolean getPasswordUpdated(int id) throws SQLException {
-        String query = "SELECT " + FIELD_PASSWORD_UPDATED + " FROM " + TABLE_APPLIUSER + " WHERE " + FIELD_ID + " = ?";
-        PreparedStatement statement = null;
-        ResultSet result = null;
-        try {
-            statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setInt(1, id);
-            result = statement.executeQuery();
-            if(!result.next())
-                throw new NoSuchElementException("[ERROR] There is no user with the id " + id);
-            return result.getInt(FIELD_PASSWORD_UPDATED) == 1;
-        } finally {
-            closeResultSet(result);
-            closeStatement(statement);
-        }
+        return 0;
     }
 }

@@ -5,12 +5,13 @@ import be.hers.pi.comprendre_et_parler.models.*;
 
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Properties;
 
+@Service
 public class NotificationService {
-
     private final String from;
     private final Session session;
 
@@ -109,6 +110,25 @@ public class NotificationService {
                 + "<p><strong>Attention :</strong> Vous devrez changer votre mot de passe dès votre première connexion.</p>";
 
         sendEmail(userCredentials.getEmail(), subject, body);
+    }
+
+    /**
+     * Send the link of reinitialization of the password, The link is also print in the logs so we can check
+     * @param email the destination mail
+     * @param resetUrl the absolute url (with the ttoken) to open to enter a new password
+     * @param validityMinutes validity duration of the link, print in the mail
+     */
+    public void sendPasswordReset(String email, String resetUrl, int validityMinutes){
+        System.out.println("[PASSWORD RESET] User mail " + email + " Link : " + resetUrl);//pour tester
+        String subject = "Réinitialisation de votre mot de passe";
+        String body = "<p>Bonjour,</p>"
+                + "<p>Vous avez demandé la réinitialisation de votre mot de passe sur la plateforme Comprendre et Parler.</p>"
+                + "<p>Cliquez sur ce lien pour choisir un nouveau mot de passe :</p>"
+                + "<p><a href=\"" + resetUrl + "\">" + resetUrl + "</a></p>"
+                + "<p>Ce lien est valable " + validityMinutes + " minutes. "
+                + "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.</p>"
+                + "<p>Cordialement,<br>L'équipe Comprendre et Parler</p>";
+        sendEmail(email, subject, body);
     }
 
     /**

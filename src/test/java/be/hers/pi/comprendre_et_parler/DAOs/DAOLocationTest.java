@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DAOLocationTest {
-    public static Location l1;
-    public static Location l2;
-    public static Location l3;
-    public final static DAOLocation locationDAO = new DAOLocation();
+    private static Location l1;
+    private static Location l2;
+    private static Location l3;
+    private final static DAOLocation locationDAO = new DAOLocation();
 
     @BeforeAll
     public static void init() throws SQLException {
