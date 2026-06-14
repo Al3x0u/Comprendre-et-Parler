@@ -388,11 +388,10 @@ public class DAOMission extends DAO<Mission> {
         "JOIN " +DAOPunctualTimeSlot.TABLE+ " ts ON m." +FIELD_TIME_SLOT+ " = ts." +DAOPunctualTimeSlot.FIELD_ID+
         " WHERE " +
             // Mission is assigned to idUser
-            "(m." +FIELD_ID+ " IN (" +
-                "SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
+            "(m." +FIELD_BENEFICIARY+ " = ? "+ // idUser is assigned as a Beneficiary
+                "OR m." +FIELD_ID+ " IN (SELECT " +INTERPRETER_MISSION_REF_MISSION+ " FROM " +TABLE_INTERPRETER_MISSION+
                 " WHERE " +INTERPRETER_MISSION_REF_INTERPRETER+ " = ?)" + // idUser is assigned as an Interpreter
-            "OR m." +FIELD_BENEFICIARY+ " = ?) " + // idUser is assigned as a Beneficiary
-        "AND ");
+        ") AND (");
         // Mission is base and happens between start and end dates
         if (!start.plusWeeks(1).isAfter(end)) { // If the range covers a whole week, include all BaseTimeSlots
             query.append("ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NOT NULL");
@@ -405,7 +404,7 @@ public class DAOMission extends DAO<Mission> {
             query.append(")");
         }
         // OR Mission is punctual and happens between start and end dates
-        query.append(" OR (ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NULL AND ts." +DAOPunctualTimeSlot.FIELD_START_TIME+ " >= ? AND " +DAOPunctualTimeSlot.FIELD_END_TIME+" < ?)");
+        query.append(" OR (ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NULL AND ts." +DAOPunctualTimeSlot.FIELD_START_TIME+ " >= ? AND " +DAOPunctualTimeSlot.FIELD_END_TIME+" < ?))");
 
         System.out.println(query);
 
@@ -414,10 +413,10 @@ public class DAOMission extends DAO<Mission> {
         Set<Mission> missions = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
-            statement.setDate(1, java.sql.Date.valueOf(start));
-            statement.setDate(2, java.sql.Date.valueOf(end));
-            statement.setInt(3, idUser);
-            statement.setInt(4, idUser);
+            statement.setInt(1, idUser);
+            statement.setInt(2, idUser);
+            statement.setDate(3, java.sql.Date.valueOf(start));
+            statement.setDate(4, java.sql.Date.valueOf(end));
             result = statement.executeQuery();
             while (result.next()) {
                 missions.add(getResult(result));
