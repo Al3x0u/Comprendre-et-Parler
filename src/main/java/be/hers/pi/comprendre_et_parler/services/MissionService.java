@@ -260,10 +260,16 @@ public class MissionService {
      * @param slot the time slot of the mission to add
      * @throws QuotaExceededException if the weekly or yearly quota would be exceeded
      * @throws SQLException if the database could not be reached
+     * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype
      */
-    private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, SQLException {
+    private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, IllegalArgumentException, SQLException {
         double newMissionHours = calculateHours(slot);
-        LocalDate date = ((PunctualTimeSlot) slot).getStartDate().toLocalDate();
+        LocalDate date;
+        if (slot instanceof PunctualTimeSlot)
+            date = ((PunctualTimeSlot) slot).getStartDate().toLocalDate();
+        else
+            date = ((BaseTimeSlot) slot).getStartDate();
+
         LocalDate weekStart = date.with(DayOfWeek.MONDAY);
         LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
         LocalDate yearStart = LocalDate.of(date.getYear(), 1, 1);
@@ -287,7 +293,7 @@ public class MissionService {
      * @return the duration in hours
      * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype
      */
-    private double calculateHours(TimeSlot ts) {
+    private double calculateHours(TimeSlot ts) throws IllegalArgumentException{
         if (ts instanceof PunctualTimeSlot) {
             PunctualTimeSlot pts = (PunctualTimeSlot) ts;
             return Duration.between(pts.getStartDate(), pts.getEndDate()).toMinutes() /60.0;
