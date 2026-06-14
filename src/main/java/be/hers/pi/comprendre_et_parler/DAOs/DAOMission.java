@@ -406,17 +406,21 @@ public class DAOMission extends DAO<Mission> {
         // OR Mission is punctual and happens between start and end dates
         query.append(" OR (ts." +DAOBaseTimeSlot.FIELD_DAY+ " IS NULL AND ts." +DAOPunctualTimeSlot.FIELD_START_TIME+ " >= ? AND " +DAOPunctualTimeSlot.FIELD_END_TIME+" < ?))");
 
-        System.out.println(query);
-
         PreparedStatement statement = null;
         ResultSet result = null;
         Set<Mission> missions = new HashSet<>();
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
-            statement.setInt(1, idUser);
-            statement.setInt(2, idUser);
-            statement.setDate(3, java.sql.Date.valueOf(start));
-            statement.setDate(4, java.sql.Date.valueOf(end));
+            int field = 1;
+            statement.setInt(field++, idUser);
+            statement.setInt(field++, idUser);
+            if (start.plusWeeks(1).isAfter(end)) {
+                for (DayOfWeek day = start.getDayOfWeek(); day != end.getDayOfWeek(); day = day.plus(1)) {
+                    statement.setInt(field++, day.getValue());
+                }
+            }
+            statement.setDate(field++, java.sql.Date.valueOf(start));
+            statement.setDate(field++, java.sql.Date.valueOf(end));
             result = statement.executeQuery();
             while (result.next()) {
                 missions.add(getResult(result));
