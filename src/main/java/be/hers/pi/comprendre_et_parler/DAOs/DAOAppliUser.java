@@ -166,12 +166,12 @@ public class DAOAppliUser {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+            }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
         }

@@ -26,10 +26,14 @@ public class PasswordResetController {
     @PostMapping("/mot-de-passe-oublie")
     public String requestReset(@RequestParam String email, RedirectAttributes redirectAttributes){
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        passwordResetService.requestReset(email, baseUrl);
-        redirectAttributes.addFlashAttribute("info", "Si un compte est" +
-                " associé à cette adresse, un lien de réinitialisation vient d'être envoyé.");
-
+        try {
+            passwordResetService.requestReset(email, baseUrl);
+            redirectAttributes.addFlashAttribute("info", "Si un compte est" +
+                    " associé à cette adresse, un lien de réinitialisation vient d'être envoyé.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Une erreur est survenue. Veuillez réessayer plus tard.");
+        }
         return "redirect:/mot-de-passe-oublie";
     }
 

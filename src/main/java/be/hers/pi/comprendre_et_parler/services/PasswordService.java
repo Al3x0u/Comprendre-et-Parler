@@ -49,9 +49,9 @@ public class PasswordService {
     }
 
     /**
-     * Check if the password respect security relues
+     * Check if the password respect security rules
      * @param password the plain text password to validate
-     * @return null is validate else the error message
+     * @return null if valid else the error message
      */
     public String validatePasswordRules(String password){
         //single source of truth
@@ -59,15 +59,12 @@ public class PasswordService {
 
         if(password.length() < 8){
             warningMsg = "Le mot de passe doit contenir au moins 8 caractères.";
-        }
-        if(!password.matches(".*[A-Z].*")){
+        }else if(!password.matches(".*[A-Z].*")){
             warningMsg = "Le mot de passe doit contenir au moins une majuscule.";
-        }
-        if(!password.matches(".*[0-9].*")){
-            warningMsg = "Le mot de passe doit contenir au moins 1 chiffre";
-        }
-        if(!password.matches(".*[^a-zA-Z0-9].*")){
-            warningMsg = " Le mot de passe doit contenir au moins un caractere special.";
+        }else if(!password.matches(".*[0-9].*")){
+            warningMsg = "Le mot de passe doit contenir au moins 1 chiffre.";
+        }else if(!password.matches(".*[^a-zA-Z0-9].*")){
+            warningMsg = "Le mot de passe doit contenir au moins un caractere special.";
         }
 
         return warningMsg;
