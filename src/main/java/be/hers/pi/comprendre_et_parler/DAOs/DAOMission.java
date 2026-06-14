@@ -562,14 +562,14 @@ public class DAOMission extends DAO<Mission> {
      * @throws SQLException if the database could not be reached
      */
     public Set<Mission> getByFilter(MissionFilter filter) throws SQLException {
-        String query = "SELECT * FROM %s WHERE %s AND %s AND %s";
+        String query = "SELECT * FROM %s %s %s %s";
         query = String.format(query, TABLE,
-                filter.getBeneficiary() != null && filter.getBeneficiary().getId() != -1 ? FIELD_BENEFICIARY + " = ?" : "",
-                filter.getStateOfMission() != null ? FIELD_STATE + " = ?" : "",
                 filter.getInterpreter() != null && filter.getInterpreter().getId() != -1 ?
                         "JOIN " + TABLE_INTERPRETER_MISSION + " i ON m." + FIELD_ID + " = i." + INTERPRETER_MISSION_REF_MISSION
-                                + " WHERE i." + INTERPRETER_MISSION_REF_INTERPRETER + " = ?"
-                        : ""
+                                + " WHERE i." + INTERPRETER_MISSION_REF_INTERPRETER + " = ? AND"
+                        : "WHERE",
+                filter.getBeneficiary() != null && filter.getBeneficiary().getId() != -1 ? FIELD_BENEFICIARY + " = ? AND" : "",
+                filter.getStateOfMission() != null ? FIELD_STATE + " = ?" : ""
         );
         PreparedStatement statement = null;
         ResultSet result = null;

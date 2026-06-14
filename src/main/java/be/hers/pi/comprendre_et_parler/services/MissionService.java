@@ -106,9 +106,9 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     private void checkInterpreterConflict(Interpreter interpreter, TimeSlot slot) throws ConflictException, SQLException {
-        for (LocalDate date : getDates(slot)){
-            for (Mission existing : SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), date)){
-                if (hasConflict(slot, existing.getTimeSlot())){
+        for (LocalDate date : getDates(slot)) {
+            for (Mission existing : SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), date)) {
+                if (hasConflict(slot, existing.getTimeSlot())) {
                     throw new ConflictException("Conflit d'horaire pour " + interpreter.getId());
                 }
             }
@@ -131,9 +131,6 @@ public class MissionService {
         } else if (ts instanceof BaseTimeSlot) {
             BaseTimeSlot baseTimeSlot = (BaseTimeSlot) ts;
 
-            if (baseTimeSlot.getStartDate().isAfter(baseTimeSlot.getEndDate()))
-                throw new IllegalArgumentException("startDate est après endDate");
-
             LocalDate cursorStart = baseTimeSlot.getStartDate();
             while (!cursorStart.getDayOfWeek().equals(baseTimeSlot.getDay()))
                 cursorStart = cursorStart.plusDays(1);
@@ -142,8 +139,7 @@ public class MissionService {
                 dates.add(cursorStart);
                 cursorStart = cursorStart.plusWeeks(1);
             }
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Sous type Inconnu");
         }
 
@@ -200,6 +196,7 @@ public class MissionService {
         if (mission.getInterpreters() != null)
             for (Interpreter interpreter : mission.getInterpreters()) {
                 checkQuota(interpreter, mission.getTimeSlot());
+                checkInterpreterConflict(interpreter, mission.getTimeSlot());
             }
 
         mission.setStateOfMission(MissionState.ACCEPTED);
