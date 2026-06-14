@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.Comparator;
+import java.util.List;
 
 @Controller
 @RequestMapping("/horaire")
@@ -33,6 +35,10 @@ public class ScheduleController {
     private final LocationService locationService = new LocationService();
     private final PunctualTimeSlotService punctualTimeSlotService = new PunctualTimeSlotService();
 
+    private static final String COLOR_ACCEPTED = "#40c057";
+    private static final String COLOR_PENDING = "#fab005";
+    private static final String COLOR_REFUSED = "#fa5252";
+    private static final String COLOR_DEFAULT = "#adb5bd";
 
     /**
      * Display the schedule page
@@ -89,8 +95,8 @@ public class ScheduleController {
 
             }
 
-            String managerFullName = user.getFirstName() + " " + user.getLastName();
-            model.addAttribute("managerFullName", managerFullName);
+            String userFullName = user.getFirstName() + " " + user.getLastName();
+            model.addAttribute("userFullName", userFullName);
             ObjectMapper mapper = new ObjectMapper();
             model.addAttribute("events", mapper.writeValueAsString(events));
             model.addAttribute("interpreters", interpreters);
@@ -114,7 +120,7 @@ public class ScheduleController {
 
         }catch(Exception e){
             e.printStackTrace();
-
+            model.addAttribute("loadError", true);
         }
         return "schedule";
     }
@@ -135,7 +141,6 @@ public class ScheduleController {
             }
 
             String title = payload.get("title");
-            String type = payload.get("type");
             String date = payload.get("date");
             String startTime = payload.get("startTime");
             String endTime = payload.get("endTime");
@@ -214,11 +219,17 @@ public class ScheduleController {
                 }
             }
 
-            if (type != null && !type.isBlank()) {
-                jobSkillService.getAllJobSkills().stream()
-                        .filter(js -> js.getDesignation() != null && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
-                        .findFirst()
-                        .ifPresent(mission::setJobSkill);
+            String jobSkillIdStr = payload.get("jobSkillId");
+            if (jobSkillIdStr != null && !jobSkillIdStr.isBlank()) {
+                try {
+                    int skillId = Integer.parseInt(jobSkillIdStr);
+                    mission.setJobSkill(jobSkillService.getAllJobSkills().stream()
+                            .filter(s -> s.getId() == skillId)
+                            .findFirst()
+                            .orElse(null));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
 
@@ -504,15 +515,7 @@ public class ScheduleController {
                 }
             }
 
-            List<Mission> missions;
-            if (currentUser instanceof Interpreter interpreter && user != null && !user.isBlank()) {
-                Set<Beneficiary> refBeneficiaries = beneficiaryService.getBeneficiariesOf(interpreter.getId());
-                boolean isBeneficiaryFilter = refBeneficiaries.stream()
-                        .anyMatch(b -> (b.getFirstName() + " " + b.getLastName()).equals(user));
-
-            }
-            missions = missionService.getMissionsForWeek(currentUser, date);
-
+            List<Mission> missions = missionService.getMissionsForWeek(currentUser, date);
             List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
 
             List<Map<String, String>> filtered = new ArrayList<>();
@@ -569,8 +572,10 @@ public class ScheduleController {
 
             if (mission.getJobSkill() != null) {
                 event.put("type", mission.getJobSkill().getDesignation());
+                event.put("jobSkillId", String.valueOf(mission.getJobSkill().getId()));
             } else {
                 event.put("type", "");
+                event.put("jobSkillId", "");
             }
 
             if (mission.getAcademicSkill() != null) {
@@ -705,7 +710,7 @@ public class ScheduleController {
             case ACCEPTED -> "Acceptée";
             case PENDING  -> "En attente";
             case DENIED   -> "Refusée";
-            case CANCELED -> "Refusée";
+            case CANCELED -> "Annulée";
             default       -> "";
         };
     }
@@ -717,14 +722,13 @@ public class ScheduleController {
      */
     private String getColor(MissionState state) {
         if (state == null) {
-            return "#adb5bd";
+            return COLOR_DEFAULT;
         }
         return switch (state) {
-            case ACCEPTED -> "#40c057";
-            case PENDING -> "#fab005";
-            case DENIED  -> "#fa5252";
-            case CANCELED -> "#fa5252";
-            default -> "#adb5bd";
+            case ACCEPTED -> COLOR_ACCEPTED;
+            case PENDING -> COLOR_PENDING;
+            case DENIED, CANCELED -> COLOR_REFUSED;
+            default -> COLOR_DEFAULT;
         };
     }
 
@@ -756,11 +760,11 @@ public class ScheduleController {
         }
 
         boolean hasLocation = (designation != null && !designation.isBlank()) ||
-                        (cityName    != null && !cityName.isBlank())    ||
-                        (postalCode  != null && !postalCode.isBlank())  ||
-                        (street      != null && !street.isBlank())      ||
-                        (streetNumber!= null && !streetNumber.isBlank())||
-                        box > 0;
+                (cityName    != null && !cityName.isBlank())    ||
+                (postalCode  != null && !postalCode.isBlank())  ||
+                (street      != null && !street.isBlank())      ||
+                (streetNumber!= null && !streetNumber.isBlank())||
+                box > 0;
 
         if (hasLocation) {
             int parsedPostalCode = 0;
@@ -790,12 +794,15 @@ public class ScheduleController {
         LocalTime end   = LocalTime.parse((String) body.get("endTime"));
         mission.setTimeSlot(new PunctualTimeSlot(LocalDateTime.of(date, start), LocalDateTime.of(date, end)));
 
-        String type = (String) body.get("type");
-        if (type != null && !type.isBlank()) {
-            jobSkillService.getAllJobSkills().stream()
-                    .filter(js -> js.getDesignation() != null && js.getDesignation().trim().equalsIgnoreCase(type.trim()))
-                    .findFirst()
-                    .ifPresent(mission::setJobSkill);
+        Object jobSkillIdObj = body.get("jobSkillId");
+        if (jobSkillIdObj != null && !jobSkillIdObj.toString().isBlank()) {
+            try {
+                int skillId = Integer.parseInt(jobSkillIdObj.toString());
+                mission.setJobSkill(jobSkillService.getAllJobSkills().stream()
+                        .filter(s -> s.getId() == skillId)
+                        .findFirst()
+                        .orElse(null));
+            } catch (Exception ignored) {}
         }
 
         Object interpreterIdsObj = body.get("interpreterIds");
@@ -816,6 +823,43 @@ public class ScheduleController {
         return mission;
     }
 
+    /**
+     * Applies shared post-processing to a mission update: persists the time slot if needed,
+     * updates or carries over the location, and carries over existing interpreters if none were provided.
+     * @param mission the existing mission as currently stored in the database
+     * @param newMission the new mission information to apply, modified in place
+     * @throws AlreadyExistsException if the updated location already exists with a different id
+     * @throws NoSuchElementException if the existing location does not exist in the database
+     * @throws Exception if a database error occurs
+     */
+    private void prepareMissionUpdate(Mission mission, Mission newMission) throws Exception {
+        if (newMission.getTimeSlot() != null) {
+            punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
+        }
+
+        if (newMission.getLocation() != null && mission.getLocation() != null) {
+            locationService.updateLocation(mission.getLocation(), newMission.getLocation());
+        } else if (mission.getLocation() != null) {
+            newMission.setLocation(mission.getLocation());
+        }
+
+        if (newMission.getInterpreters() == null) {
+            if (mission.getInterpreters() != null) {
+                newMission.setInterpreters(mission.getInterpreters());
+            } else {
+                newMission.setInterpreters(new HashSet<>());
+            }
+        }
+    }
+
+    /**
+     * Update an existing mission (manager only).
+     * @param id the id of the mission to update
+     * @param body the request body containing the updated mission details
+     * @param session the current HTTP session, used to check the user's rights
+     * @return 200 if updated, 404 if the mission does not exist, 409 on schedule conflict,
+     *         403 if the user is not a manager, 500 on error
+     */
     @PostMapping("/missions/{id}/modifier")
     @ResponseBody
     public ResponseEntity<?> updateMission(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
@@ -830,19 +874,7 @@ public class ScheduleController {
 
             newMission.setId(mission.getId());
 
-            if (newMission.getTimeSlot() != null) {
-                punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
-            }
-
-            if (newMission.getLocation() != null && mission.getLocation() != null) {
-                locationService.updateLocation(mission.getLocation(), newMission.getLocation());
-            } else if (mission.getLocation() != null) {
-                newMission.setLocation(mission.getLocation());
-            }
-
-            if (newMission.getInterpreters() == null) {
-                newMission.setInterpreters(mission.getInterpreters());
-            }
+            prepareMissionUpdate(mission, newMission);
 
             missionService.updateMission(mission, newMission);
             return ResponseEntity.ok().build();
@@ -859,6 +891,14 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Update a pending request (beneficiary owner only).
+     * @param id the id of the request to update
+     * @param body the request body containing the updated request details
+     * @param session the current HTTP session, used to check the user's rights
+     * @return 200 if updated, 404 if the request does not exist, 409 on schedule conflict,
+     *         403 if the user is not the owning beneficiary or the request is no longer pending, 500 on error
+     */
     @PostMapping("/requetes/{id}/modifier")
     @ResponseBody
     public ResponseEntity<?> updateRequest(@PathVariable int id, @RequestBody Map<String, Object> body, HttpSession session) {
@@ -882,23 +922,7 @@ public class ScheduleController {
             newMission.setBeneficiary((Beneficiary) user);
             newMission.setId(mission.getId());
 
-            if (newMission.getTimeSlot() != null) {
-                punctualTimeSlotService.findOrCreate((PunctualTimeSlot) newMission.getTimeSlot());
-            }
-
-            if (newMission.getLocation() != null && mission.getLocation() != null) {
-                locationService.updateLocation(mission.getLocation(), newMission.getLocation());
-            } else if (mission.getLocation() != null) {
-                newMission.setLocation(mission.getLocation());
-            }
-
-            if (newMission.getInterpreters() == null) {
-                if (mission.getInterpreters() != null) {
-                    newMission.setInterpreters(mission.getInterpreters());
-                } else {
-                    newMission.setInterpreters(new HashSet<>());
-                }
-            }
+            prepareMissionUpdate(mission, newMission);
 
             missionService.updateMission(mission, newMission);
             return ResponseEntity.ok().build();

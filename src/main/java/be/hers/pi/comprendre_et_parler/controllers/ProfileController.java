@@ -18,6 +18,8 @@ import java.time.Period;
 public class ProfileController {
 
     private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final JobSkillService jobSkillService = new JobSkillService();
 
     /**
      * Display the profile of the connected user
@@ -30,20 +32,13 @@ public class ProfileController {
         AppliUser user = (AppliUser) session.getAttribute("user");
 
         try {
-            if (user instanceof Manager m) {
-                m.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(m.getId()));
-                model.addAttribute("interprete", m);
-                model.addAttribute("isInterpreterAManager", true);
-                model.addAttribute("userRole", "MANAGER");
-                model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
-                model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
-                model.addAttribute("newUnavailability", new CreateUnavailability());
-            } else if (user instanceof Interpreter i) {
+            if (user instanceof Interpreter i) {
                 i.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(i.getId()));
                 model.addAttribute("interprete", i);
-                model.addAttribute("userRole", "INTERPRETER");
-                model.addAttribute("allAcademicSkills", new AcademicSkillService().getAllAcademicSkills());
-                model.addAttribute("allJobSkills", new JobSkillService().getAllJobSkills());
+                model.addAttribute("isInterpreterAManager", user instanceof Manager);
+                model.addAttribute("userRole", user instanceof Manager ? "MANAGER" : "INTERPRETER");
+                model.addAttribute("allAcademicSkills", academicSkillService.getAllAcademicSkills());
+                model.addAttribute("allJobSkills", jobSkillService.getAllJobSkills());
                 model.addAttribute("newUnavailability", new CreateUnavailability());
             } else if (user instanceof Beneficiary b) {
                 model.addAttribute("beneficiaire", b);
@@ -54,10 +49,7 @@ public class ProfileController {
             model.addAttribute("isOwnProfile", true);
             return "profile";
 
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return "redirect:/login";
-        } catch (SQLException e) {
+        } catch (ConnectionException | SQLException e) {
             e.printStackTrace();
             return "redirect:/login";
         }
