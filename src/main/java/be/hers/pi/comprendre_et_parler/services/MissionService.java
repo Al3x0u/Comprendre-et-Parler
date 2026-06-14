@@ -64,20 +64,16 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      */
     public ArrayList<Mission> getMissionsForWeek(AppliUser user, LocalDate weekStart) throws SQLException {
-
         int yearNumber = weekStart.getYear();
         int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
-
         Set<Mission> missions;
 
-        if (user instanceof Manager) {
+        if (user instanceof Manager)
             missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
-        }
-        else if(user instanceof Interpreter) {
-            missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
-        }else{
+        else if(user instanceof Interpreter)
             missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
-        }
+        else
+            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
 
         return new ArrayList<>(missions);
     }

@@ -225,21 +225,6 @@ public class InterpreterService {
             }
         }
         return available;
-
-        /** Cannot be used; interpreters don't have availability
-         *
-         * LocalDateTime start = slot.getStartDate();
-         *         LocalDateTime end = slot.getEndDate();
-         *
-         *         return SQLWrap.callTransaction(() -> {
-         *             List<Interpreter> available = new ArrayList<>();
-         *             for (int i = 0; i <= start.until(end, ChronoUnit.DAYS); i++) {
-         *                 available.addAll(new ArrayList<>(daoInterpreter.findAvailable(start.toLocalTime(),
-         *                         end.toLocalTime(), start.toLocalDate())));
-         *             }
-         *             return available;
-         *         });
-         */
     }
 
 
@@ -250,14 +235,12 @@ public class InterpreterService {
      * @return true if there is an overlapping unavailability
      */
     private boolean hasUnavailabilityConflict(Interpreter interpreter, PunctualTimeSlot slot) {
-        if (interpreter.getUnavailability() == null){
+        if (interpreter.getUnavailability() == null)
             return false;
-        }
 
         for (ExceptionalUnavailability unavailability : interpreter.getUnavailability()) {
-            if (unavailability.getTimeSlot().overlaps(slot)){
+            if (unavailability.getTimeSlot().overlaps(slot))
                 return true;
-            }
         }
         return false;
     }
@@ -274,9 +257,8 @@ public class InterpreterService {
         for (Mission mission : missions) {
             if (mission.getTimeSlot() instanceof PunctualTimeSlot) {
                 PunctualTimeSlot missionSlot = (PunctualTimeSlot) mission.getTimeSlot();
-                if (missionSlot.overlaps(slot)){
+                if (missionSlot.overlaps(slot))
                     return true;
-                }
 
             } else if (mission.getTimeSlot() instanceof BaseTimeSlot) {
                 BaseTimeSlot missionSlot = (BaseTimeSlot) mission.getTimeSlot();
@@ -302,12 +284,12 @@ public class InterpreterService {
                 new PunctualTimeSlot(unavailability.getStartDate(), unavailability.getEndDate()));
         ExceptionalUnavailability oldUn = SQLWrap.callTransaction(daoUnavailability::find, interpreter.getId(), idOldTimeSlot);
 
-        if (Objects.equals(oldUn, newUn)) return;
+        if (Objects.equals(oldUn, newUn))
+            return;
 
         if (oldUn.getTimeSlot().equals(newUn.getTimeSlot())) {
             SQLWrap.callTransaction(daoUnavailability::update, newUn, interpreter);
-        }
-        else {
+        } else {
             SQLWrap.callTransaction(
                     (Interpreter i, ExceptionalUnavailability oldEU, ExceptionalUnavailability newEU) -> {
                         daoUnavailability.delete(i.getId(), oldEU.getTimeSlot().getId());
@@ -388,7 +370,7 @@ public class InterpreterService {
                     (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(new DAOInterpreter().findAllByMissionId(m.getId())),
                     mission
             );
-        }catch(SQLException e){
+        } catch(SQLException e) {
             e.printStackTrace();
             mission.setInterpreters((null));
         }
