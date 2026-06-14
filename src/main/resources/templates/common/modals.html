@@ -111,11 +111,19 @@
                     <form id="form-password" th:action="${actionUrl}" method="post" novalidate>
                         <div class="mb-3">
                             <label for="currentPassword" class="form-label">Mot de passe actuel</label>
-                            <input id="currentPassword" type="password" class="form-control" name="currentPassword" required>
+                            <div class="position-relative">
+                                <input id="currentPassword" type="password" class="form-control pe-5" name="currentPassword" required>
+                                <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                                   data-target="currentPassword" style="cursor: pointer;"></i>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="newPassword" class="form-label">Nouveau mot de passe</label>
-                            <input id="newPassword" type="password" class="form-control" name="newPassword" required minlength="8">
+                            <div class="position-relative">
+                                <input id="newPassword" type="password" class="form-control pe-5" name="newPassword" required minlength="8">
+                                <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                                   data-target="newPassword" style="cursor: pointer;"></i>
+                            </div>
                             <div class="form-text">
                                 <i class="bi bi-info-circle me-1"></i>
                                 Au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.
@@ -123,7 +131,11 @@
                         </div>
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirmer le mot de passe</label>
-                            <input id="confirmPassword" type="password" class="form-control" name="confirmPassword" required minlength="8">
+                            <div class="position-relative">
+                                <input id="confirmPassword" type="password" class="form-control pe-5" name="confirmPassword" required minlength="8">
+                                <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-muted toggle-password"
+                                   data-target="confirmPassword" style="cursor: pointer;"></i>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -146,6 +158,12 @@
             modalElement?.addEventListener('hidden.bs.modal', () => {
                 document.getElementById("form-password").reset();
                 showPasswordError(null);
+                document.querySelectorAll('#modalPassword .toggle-password').forEach(icon => {
+                    const input = document.getElementById(icon.dataset.target);
+                    input.type = 'password';
+                    icon.classList.add('bi-eye');
+                    icon.classList.remove('bi-eye-slash');
+                });
             });
 
             document.getElementById("btn-save-password")?.addEventListener("click", () => {
