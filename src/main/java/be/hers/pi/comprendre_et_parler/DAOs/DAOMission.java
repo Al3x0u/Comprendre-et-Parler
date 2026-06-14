@@ -49,7 +49,9 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
-        if (mission.getBeneficiary() != null)
+
+        // Complete Beneficiary objects
+        if (mission != null && mission.getBeneficiary() != null)
             mission.setBeneficiary(new DAOBeneficiary().find(mission.getBeneficiary().getId()));
 
         return mission;
