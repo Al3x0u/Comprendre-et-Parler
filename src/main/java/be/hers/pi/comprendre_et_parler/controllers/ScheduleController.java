@@ -23,15 +23,14 @@ import java.util.Comparator;
 @Controller
 @RequestMapping("/horaire")
 public class ScheduleController {
-
-    private final MissionService missionService = new MissionService();
-    private final InterpreterService interpreterService  = new InterpreterService();
-    private final BeneficiaryService beneficiaryService  = new BeneficiaryService();
-    private final JobSkillService jobSkillService = new JobSkillService();
-    private final AcademicSkillService academicSkillService = new AcademicSkillService();
-    private final CityService cityService = new CityService();
-    private final LocationService locationService = new LocationService();
-    private final PunctualTimeSlotService punctualTimeSlotService = new PunctualTimeSlotService();
+    private final static MissionService missionService = new MissionService();
+    private final static InterpreterService interpreterService  = new InterpreterService();
+    private final static BeneficiaryService beneficiaryService  = new BeneficiaryService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static CityService cityService = new CityService();
+    private final static LocationService locationService = new LocationService();
+    private final static PunctualTimeSlotService punctualTimeSlotService = new PunctualTimeSlotService();
 
 
     /**

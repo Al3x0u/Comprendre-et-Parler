@@ -17,9 +17,9 @@ import java.util.List;
 @RequestMapping("beneficiaires")
 public class BeneficiaryController {
 
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
-    private final InterpreterService interpreterService = new InterpreterService();
-    private final StatusService statusService = new StatusService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static InterpreterService interpreterService = new InterpreterService();
+    private final static StatusService statusService = new StatusService();
 
     /**
      * Display the paginated and filtered list of beneficiaries.

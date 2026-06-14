@@ -18,9 +18,8 @@ import java.util.List;
 @Controller
 @RequestMapping("interpretes")
 public class InterpreterController {
-
-    private final InterpreterService interpreterService = new InterpreterService();
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static InterpreterService interpreterService = new InterpreterService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     /**
      * Display the paginated and filtered list of interpreters

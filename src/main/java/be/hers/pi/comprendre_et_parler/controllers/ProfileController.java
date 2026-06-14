@@ -16,8 +16,7 @@ import java.time.Period;
 
 @Controller
 public class ProfileController {
-
-    private final BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
 
     /**
      * Display the profile of the connected user

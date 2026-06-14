@@ -11,7 +11,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PasswordController {
-
     private final PasswordService passwordService;
 
     public PasswordController (PasswordService service){

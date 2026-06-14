@@ -1,10 +1,7 @@
 package be.hers.pi.comprendre_et_parler.services;
 
 import be.hers.pi.comprendre_et_parler.DAOs.*;
-import be.hers.pi.comprendre_et_parler.DTO.CreateInterpreterForm;
-import be.hers.pi.comprendre_et_parler.DTO.CreateUnavailability;
-import be.hers.pi.comprendre_et_parler.DTO.UpdateInterpreterForm;
-import be.hers.pi.comprendre_et_parler.DTO.UserCredentials;
+import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
@@ -19,11 +16,11 @@ import java.util.*;
 
 @Service
 public class InterpreterService {
-    private final DAOInterpreter daoInterpreter = new DAOInterpreter();
-    private final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
-    private final DAOMission daoMission = new DAOMission();
-    private final DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
-    private final MissionService missionService = new MissionService();
+    private final static DAOInterpreter daoInterpreter = new DAOInterpreter();
+    private final static DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
+    private final static DAOMission daoMission = new DAOMission();
+    private final static DAOExceptionalUnavailability daoUnavailability = new DAOExceptionalUnavailability();
+    private final static MissionService missionService = new MissionService();
 
     /**
      * Creates a new interpreter in the system.
@@ -219,7 +216,6 @@ public class InterpreterService {
             throw new IllegalArgumentException("getAvailableInterpreters requiert un PunctualTimeSlot");
         }
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
-
         List<Interpreter> allInterpreters = getAllInterpreters();
 
         List<Interpreter> available = new ArrayList<>();
@@ -229,6 +225,21 @@ public class InterpreterService {
             }
         }
         return available;
+
+        /** Cannot be used; interpreters don't have availability
+         *
+         * LocalDateTime start = slot.getStartDate();
+         *         LocalDateTime end = slot.getEndDate();
+         *
+         *         return SQLWrap.callTransaction(() -> {
+         *             List<Interpreter> available = new ArrayList<>();
+         *             for (int i = 0; i <= start.until(end, ChronoUnit.DAYS); i++) {
+         *                 available.addAll(new ArrayList<>(daoInterpreter.findAvailable(start.toLocalTime(),
+         *                         end.toLocalTime(), start.toLocalDate())));
+         *             }
+         *             return available;
+         *         });
+         */
     }
 
 
@@ -338,7 +349,7 @@ public class InterpreterService {
     }
 
     /**
-     * Adds a job skill to an interpreter.
+     * Adds an academic skill to an interpreter.
      * If the skill does not exist in the database, it is created first.
      * @param interpreter the interpreter to whom to add the skill
      * @param skill the Academic skill to add
@@ -378,9 +389,8 @@ public class InterpreterService {
                     mission
             );
         }catch(SQLException e){
+            e.printStackTrace();
             mission.setInterpreters((null));
         }
-
     }
-
 }
