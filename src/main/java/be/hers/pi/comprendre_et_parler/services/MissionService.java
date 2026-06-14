@@ -47,15 +47,7 @@ public class MissionService {
      * @throws ConnectionException if the connection to the database could not be established
      */
     public List<Mission> getByFilter(MissionFilter filter) throws SQLException, ConnectionException {
-        Set<Mission> all = SQLWrap.call(daoMission::findAll);
-        return all.stream()
-                .filter(m -> filter.getBeneficiary() == null ||
-                        m.getBeneficiary() != null && m.getBeneficiary().equals(filter.getBeneficiary()))
-                .filter(m -> filter.getInterpreter() == null ||
-                        (m.getInterpreters() != null && m.getInterpreters().contains(filter.getInterpreter())))
-                .filter(m -> filter.getStateOfMission() == null ||
-                        m.getStateOfMission().equals(filter.getStateOfMission()))
-                .collect(Collectors.toList());
+        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter));
     }
 
     /**
