@@ -32,18 +32,11 @@ public class ProfileController {
         AppliUser user = (AppliUser) session.getAttribute("user");
 
         try {
-            if (user instanceof Manager m) {
-                m.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(m.getId()));
-                model.addAttribute("interprete", m);
-                model.addAttribute("isInterpreterAManager", true);
-                model.addAttribute("userRole", "MANAGER");
-                model.addAttribute("allAcademicSkills", academicSkillService.getAllAcademicSkills());
-                model.addAttribute("allJobSkills", jobSkillService.getAllJobSkills());
-                model.addAttribute("newUnavailability", new CreateUnavailability());
-            } else if (user instanceof Interpreter i) {
+            if (user instanceof Interpreter i) {
                 i.setAssignedBeneficiaries(beneficiaryService.getBeneficiariesOf(i.getId()));
                 model.addAttribute("interprete", i);
-                model.addAttribute("userRole", "INTERPRETER");
+                model.addAttribute("isInterpreterAManager", user instanceof Manager);
+                model.addAttribute("userRole", user instanceof Manager ? "MANAGER" : "INTERPRETER");
                 model.addAttribute("allAcademicSkills", academicSkillService.getAllAcademicSkills());
                 model.addAttribute("allJobSkills", jobSkillService.getAllJobSkills());
                 model.addAttribute("newUnavailability", new CreateUnavailability());
