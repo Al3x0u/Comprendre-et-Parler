@@ -497,6 +497,7 @@ public class DAOMission extends DAO<Mission> {
             result = statement.executeQuery();
             if (result.next()) throw new AlreadyExistsException("This interpreter is already linked to the mission");
 
+            closeStatement(statement);
             statement = DatabaseConnector.getInstance().prepareStatement(insertQuery);
             statement.setInt(1, missionId);
             statement.setInt(2, interpreterId);
