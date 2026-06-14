@@ -8,14 +8,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/demandes")
 public class RequestController {
+
     private final static MissionService missionService = new MissionService();
     private final static BeneficiaryService beneficiaryService = new BeneficiaryService();
+    private final static JobSkillService jobSkillService = new JobSkillService();
+    private final static AcademicSkillService academicSkillService = new AcademicSkillService();
+    private final static CityService cityService = new CityService();
 
     /**
      * Display the list of pending requests, optionally filtered by beneficiary.
@@ -63,9 +67,29 @@ public class RequestController {
             model.addAttribute("hasPrevious", page > 1);
             model.addAttribute("hasNext", page < totalPages);
 
+            model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
+            model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());
+            model.addAttribute("allCities", cityService.getAllCities());
+            model.addAttribute("timeSlots", generateTimeSlots());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return "requests";
+    }
+
+    /**
+     * Generates a list of time slots between 08:00 and 22:00, in 30-minute increments.
+     * @return the list of time slots formatted as "HH:mm"
+     */
+    private List<String> generateTimeSlots() {
+        List<String> slots = new ArrayList<>();
+        for (int hour = 8; hour <= 22; hour++) {
+            for (int minute = 0; minute < 60; minute += 30) {
+                if (hour == 22 && minute > 0) break;
+                slots.add(String.format("%02d:%02d", hour, minute));
+            }
+        }
+        return slots;
     }
 }

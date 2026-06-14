@@ -147,58 +147,60 @@
 
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content custom-modal">
+        <div class="modal-content border-0 shadow rounded-4 p-2 overflow-hidden">
 
-            <!-- Header -->
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="modalTitle"></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            <div class="modal-header border-0 pb-2">
+                <h4 class="modal-title fw-bold mb-0" id="modalTitle"></h4>
+                <span class="status-badge ms-2" id="modalStatus"></span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body">
-
-                <div class="mb-2">
+            <div class="px-4 pb-2 d-flex align-items-center gap-3 text-secondary small">
+                <div class="d-flex align-items-center gap-1">
                     <i class="bi bi-calendar"></i>
                     <span id="modalDate"></span>
-                    <i class="bi bi-clock ms-2"></i>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-clock"></i>
                     <span id="modalTime"></span>
                 </div>
+            </div>
 
-                <div class="mb-2">
-                    <i class="bi bi-geo-alt"></i>
-                    <span id="modalLocation"></span>
+            <hr class="m-0">
+
+            <div class="modal-body">
+
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-geo-alt info-icon"></i>
+                    <div id="modalLocation"></div>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Bénéficiaire - </strong>
-                    <span id="modalBeneficiary" class="fst-italic text-muted"></span>
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-heart info-icon"></i>
+                    <div>
+                        <div class="info-label">Bénéficiaire</div>
+                        <div id="modalBeneficiary" class="fst-italic text-muted"></div>
+                    </div>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Type d'intervention :</strong>
-                    <span id="modalType" class="fst-italic text-muted"></span>
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-translate info-icon"></i>
+                    <div>
+                        <div class="info-label">Interprète</div>
+                        <div id="modalInterpreter" class="fst-italic text-muted"></div>
+                    </div>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Compétence académique :</strong>
-                    <span id="modalAcademicSkill" class="fst-italic text-muted"></span>
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <span class="skill-badge d-none" id="modalType"></span>
+                    <span class="skill-badge d-none" id="modalAcademicSkill"></span>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Commentaire :</strong>
-                    <span id="modalComment" class="fst-italic text-muted"></span>
+                <div class="comment-section d-none" id="modalCommentSection">
+                    <div class="info-label">Commentaire</div>
+                    <div id="modalComment" class="fst-italic text-muted"></div>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Statut :</strong>
-                    <span id="modalStatus"></span>
-                </div>
-
-                <div class="mb-2">
-                    <strong>Interprète :</strong>
-                    <span id="modalInterpreter" class="fst-italic text-muted"></span>
-                </div>
                 <div class="mt-3 d-flex gap-2 flex-wrap" id="modalActions"></div>
             </div>
 
@@ -304,55 +306,69 @@
 
 <!-- POPUP MANAGER - DEMANDE EN ATTENTE -->
 <div class="modal fade" id="managerPendingModal" tabindex="-1" aria-labelledby="managerPendingTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
-        <div class="modal-content border-0 shadow">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow rounded-4 p-2 overflow-hidden">
 
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="managerPendingTitle"></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            <div class="modal-header border-0 pb-2">
+                <h4 class="modal-title fw-bold mb-0" id="managerPendingTitle"></h4>
+                <span class="status-badge ms-2" id="managerPendingStatus"></span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
 
-            <div class="modal-body">
-                <div class="mb-2">
+            <div class="px-4 pb-2 d-flex align-items-center gap-3 text-secondary small">
+                <div class="d-flex align-items-center gap-1">
                     <i class="bi bi-calendar"></i>
                     <span id="managerPendingDate"></span>
-                    <i class="bi bi-clock ms-2"></i>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-clock"></i>
                     <span id="managerPendingTime"></span>
-                    <span class="ms-3" id="managerPendingImportance"></span>
+                </div>
+                <div class="ms-auto" id="managerPendingImportance"></div>
+            </div>
+
+            <hr class="m-0">
+
+            <div class="modal-body">
+
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-geo-alt info-icon"></i>
+                    <div id="managerPendingLocation"></div>
                 </div>
 
-                <div class="mb-2">
-                    <i class="bi bi-geo-alt"></i>
-                    <span id="managerPendingLocation"></span>
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-heart info-icon"></i>
+                    <div>
+                        <div class="info-label">Bénéficiaire</div>
+                        <div id="managerPendingBeneficiary" class="fst-italic text-muted"></div>
+                    </div>
                 </div>
 
-                <div class="mb-2">
-                    <strong>Bénéficiaire - </strong>
-                    <span id="managerPendingBeneficiary" class="fst-italic text-muted"></span>
+                <div class="info-row d-flex gap-3 mb-3">
+                    <i class="bi bi-translate info-icon"></i>
+                    <div class="flex-grow-1">
+                        <div class="info-label">Interprète</div>
+                        <div id="managerPendingInterpreterName" class="fst-italic text-muted"></div>
+                        <select id="managerPendingInterpreter" class="form-select form-select-sm w-auto mt-1 d-none">
+                            <option value="">Sélectionner</option>
+                            <option th:each="interpreter : ${interpreters}"
+                                    th:value="${interpreter.id}"
+                                    th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="mb-2"><strong id="managerPendingType"></strong></div>
-
-                <div class="mb-2">
-                    <strong>Commentaire :</strong>
-                    <span id="managerPendingComment" class="fst-italic text-muted"></span>
+                <div class="d-flex gap-2 flex-wrap mb-3" id="managerPendingSkills">
+                    <span class="skill-badge d-none" id="managerPendingType"></span>
+                    <span class="skill-badge d-none" id="managerPendingAcademicSkill"></span>
                 </div>
 
-                <div class="mb-3">
-                    <strong>Statut :</strong>
-                    <span id="managerPendingStatus"></span>
+                <div class="comment-section d-none" id="managerPendingCommentSection">
+                    <div class="info-label">Commentaire</div>
+                    <div id="managerPendingComment" class="fst-italic text-muted"></div>
                 </div>
 
-                <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
-                    <label for="managerPendingInterpreter" class="fw-semibold mb-0">Interprète :</label>
-                    <select id="managerPendingInterpreter" class="form-select w-auto">
-                        <option value="">Sélectionner</option>
-                        <option th:each="interpreter : ${interpreters}"
-                                th:value="${interpreter.id}"
-                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
-                        </option>
-                    </select>
-                </div>
             </div>
 
             <div class="modal-footer border-0">
@@ -368,24 +384,24 @@
 <!-- AJOUT NOUVELLE DEMANDE-->
 <div class="modal fade" id="newRequestModal" tabindex="-1" aria-labelledby="newRequestModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
 
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
+            <div class="modal-header text-bg-primary border-0 p-0">
+                <h4 class="modal-title p-3 fw-bold" id="newRequestModalTitle">Nouvelle demande</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body px-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold d-block">Type*</label>
 
-                    <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check" th:each="skill, iter : ${professionalSkills}">
-                            <input class="form-check-input" type="radio" name="requestType"
+                    <div class="d-flex flex-wrap gap-2">
+                        <th:block th:each="skill, iter : ${professionalSkills}">
+                            <input class="type-pill-input" type="radio" name="requestType"
                                    th:id="'requestType_' + ${iter.index}"
                                    th:value="${skill.id}"
                                    th:checked="${iter.first}">
-                            <label class="form-check-label" th:for="'requestType_' + ${iter.index}"  th:text="${skill.designation}"></label>
-                        </div>
+                            <label class="type-pill-label" th:for="'requestType_' + ${iter.index}" th:text="${skill.designation}"></label>
+                        </th:block>
                     </div>
                 </div>
 
@@ -395,68 +411,68 @@
                     <div id="requestTitleError" class="invalid-feedback"></div>
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-12">
-                        <label for="requestDate" class="form-label fw-semibold">Date*</label>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label for="requestDate" class="form-label fw-semibold small">Date*</label>
                         <input type="date" class="form-control" id="requestDate">
                         <div id="requestDateError" class="invalid-feedback"></div>
                     </div>
 
-                    <div class="col-6">
-                        <label for="requestStartTime" class="form-label fw-semibold">Heure début*</label>
+                    <div class="col-4">
+                        <label for="requestStartTime" class="form-label fw-semibold small">Début*</label>
                         <select class="form-select" id="requestStartTime">
                             <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
 
-                    <div class="col-6">
-                        <label for="requestEndTime" class="form-label fw-semibold">Heure fin*</label>
+                    <div class="col-4">
+                        <label for="requestEndTime" class="form-label fw-semibold small">Fin*</label>
                         <select class="form-select" id="requestEndTime">
                             <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="requestLocationDesignation" class="form-label fw-semibold">Lieu*</label>
-                    <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Ex: Athénée Royal">
-                    <div id="requestLocationDesignationError" class="invalid-feedback"></div>
-
-                </div>
-
-                <div class="mb-3">
-                    <label for="requestCity" class="form-label fw-semibold">Ville*</label>
-                    <select class="form-select" id="requestCity">
-                        <option value="">Sélectionner une ville</option>
-                        <option th:each="city : ${allCities}"
-                                th:value="${city.postalCode}"
-                                th:data-name="${city.designation}"
-                                th:text="${city.postalCode + ' - ' + city.designation}">
-                        </option>
-                    </select>
-                    <input type="hidden" id="requestCityName">
-                    <div id="requestCityError" class="invalid-feedback"></div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="requestStreet" class="form-label fw-semibold">Rue*</label>
-                        <input type="text" class="form-control" id="requestStreet" placeholder="Ex: Rue des écoles">
-                        <div id="requestStreetError" class="invalid-feedback"></div>
+                <div class="location-box mb-3">
+                    <div class="d-flex align-items-center gap-2 fw-semibold mb-2">
+                        <i class="bi bi-geo-alt"></i>Lieu
                     </div>
-                    <div class="col-md-3">
-                        <label for="requestStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="text" class="form-control" id="requestStreetNumber" placeholder="12a">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="requestBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="number" min="1" class="form-control" id="requestBox" placeholder="Optionnel">
-                    </div>
-                </div>
 
-                <div class="mb-3">
-                    <label for="requestRoom" class="form-label fw-semibold">Local</label>
-                    <input type="text" class="form-control" id="requestRoom" placeholder="Ex: Salle B204">
+                    <div class="mb-2">
+                        <input type="text" class="form-control" id="requestLocationDesignation" placeholder="Désignation (ex: Athénée Royal)">
+                        <div id="requestLocationDesignationError" class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-7">
+                            <input type="text" class="form-control" id="requestStreet" placeholder="Rue">
+                            <div id="requestStreetError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-2">
+                            <input type="text" class="form-control" id="requestStreetNumber" placeholder="N°">
+                        </div>
+                        <div class="col-3">
+                            <input type="number" min="1" class="form-control" id="requestBox" placeholder="Boîte">
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-8">
+                            <select class="form-select" id="requestCity">
+                                <option value="">Sélectionner une ville</option>
+                                <option th:each="city : ${allCities}"
+                                        th:value="${city.postalCode}"
+                                        th:data-name="${city.designation}"
+                                        th:text="${city.postalCode + ' - ' + city.designation}">
+                                </option>
+                            </select>
+                            <input type="hidden" id="requestCityName">
+                            <div id="requestCityError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="requestRoom" placeholder="Local">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -505,7 +521,7 @@
             </div>
 
 
-            <div class="modal-footer border-0">
+            <div class="modal-footer p-3 border-0">
                 <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
                     Annuler
                 </button>
@@ -521,24 +537,24 @@
 <!-- AJOUT NOUVELLE MISSION -->
 <div class="modal fade" id="newMissionModal" tabindex="-1" aria-labelledby="newMissionModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
 
-            <div class="modal-header border-0">
-                <h4 class="modal-title fw-bold" id="newMissionModalTitle">Nouvelle mission</h4>
+            <div class="modal-header text-bg-primary border-0 p-0">
+                <h4 class="modal-title p-3 fw-bold" id="newMissionModalTitle">Nouvelle mission</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body px-4">
                 <div class="mb-3">
                     <label class="form-label fw-semibold d-block">Type*</label>
 
-                    <div class="d-flex flex-wrap gap-4">
-                        <div class="form-check" th:each="skill, iter : ${professionalSkills}">
-                            <input class="form-check-input" type="radio" name="missionType"
+                    <div class="d-flex flex-wrap gap-2">
+                        <th:block th:each="skill, iter : ${professionalSkills}">
+                            <input class="type-pill-input" type="radio" name="missionType"
                                    th:id="'missionType_' + ${iter.index}"
                                    th:value="${skill.id}"
                                    th:checked="${iter.first}">
-                            <label class="form-check-label" th:for="'missionType_' + ${iter.index}" th:text="${skill.designation}"></label>
-                        </div>
+                            <label class="type-pill-label" th:for="'missionType_' + ${iter.index}" th:text="${skill.designation}"></label>
+                        </th:block>
                     </div>
                 </div>
 
@@ -549,69 +565,68 @@
 
                 </div>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-12">
-                        <label for="missionDate" class="form-label fw-semibold">Date*</label>
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label for="missionDate" class="form-label fw-semibold small">Date*</label>
                         <input type="date" class="form-control" id="missionDate">
                         <div id="missionDateError" class="invalid-feedback"></div>
                     </div>
 
-                    <div class="col-6">
-                        <label for="missionStartTime" class="form-label fw-semibold">Heure début*</label>
+                    <div class="col-4">
+                        <label for="missionStartTime" class="form-label fw-semibold small">Début*</label>
                         <select class="form-select" id="missionStartTime">
                             <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
 
-                    <div class="col-6">
-                        <label for="missionEndTime" class="form-label fw-semibold">Heure fin*</label>
+                    <div class="col-4">
+                        <label for="missionEndTime" class="form-label fw-semibold small">Fin*</label>
                         <select class="form-select" id="missionEndTime">
                             <option th:each="slot : ${timeSlots}" th:value="${slot}" th:text="${slot}"></option>
                         </select>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="missionLocationDesignation" class="form-label fw-semibold">Lieu*</label>
-                    <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Ex: Athénée Royal">
-                    <div id="missionLocationDesignationError" class="invalid-feedback"></div>
-
-                </div>
-
-                <div class="mb-3">
-                    <label for="missionCity" class="form-label fw-semibold">Ville*</label>
-                    <select class="form-select" id="missionCity">
-                        <option value="">Sélectionner une ville</option>
-                        <option th:each="city : ${allCities}"
-                                th:value="${city.postalCode}"
-                                th:data-name="${city.designation}"
-                                th:text="${city.postalCode + ' - ' + city.designation}">
-                        </option>
-                    </select>
-                    <input type="hidden" id="missionCityName">
-                    <div id="missionCityError" class="invalid-feedback"></div>
-                </div>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-md-6">
-                        <label for="missionStreet" class="form-label fw-semibold">Rue*</label>
-                        <input type="text" class="form-control" id="missionStreet" placeholder="Ex: Rue des écoles">
-                        <div id="missionStreetError" class="invalid-feedback"></div>
+                <div class="location-box mb-3">
+                    <div class="d-flex align-items-center gap-2 fw-semibold mb-2">
+                        <i class="bi bi-geo-alt"></i>Lieu
                     </div>
-                    <div class="col-md-3">
-                        <label for="missionStreetNumber" class="form-label fw-semibold">Numéro</label>
-                        <input type="text" class="form-control" id="missionStreetNumber" placeholder="12a">
 
+                    <div class="mb-2">
+                        <input type="text" class="form-control" id="missionLocationDesignation" placeholder="Désignation (ex: Athénée Royal)">
+                        <div id="missionLocationDesignationError" class="invalid-feedback"></div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="missionBox" class="form-label fw-semibold">Boîte</label>
-                        <input type="number" min="1" class="form-control" id="missionBox" placeholder="Optionnel">
-                    </div>
-                </div>
 
-                <div class="mb-3">
-                    <label for="missionRoom" class="form-label fw-semibold">Local</label>
-                    <input type="text" class="form-control" id="missionRoom" placeholder="Ex: Salle B204">
+                    <div class="row g-2 mb-2">
+                        <div class="col-7">
+                            <input type="text" class="form-control" id="missionStreet" placeholder="Rue">
+                            <div id="missionStreetError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-2">
+                            <input type="text" class="form-control" id="missionStreetNumber" placeholder="N°">
+                        </div>
+                        <div class="col-3">
+                            <input type="number" min="1" class="form-control" id="missionBox" placeholder="Boîte">
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-8">
+                            <select class="form-select" id="missionCity">
+                                <option value="">Sélectionner une ville</option>
+                                <option th:each="city : ${allCities}"
+                                        th:value="${city.postalCode}"
+                                        th:data-name="${city.designation}"
+                                        th:text="${city.postalCode + ' - ' + city.designation}">
+                                </option>
+                            </select>
+                            <input type="hidden" id="missionCityName">
+                            <div id="missionCityError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" id="missionRoom" placeholder="Local">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -625,21 +640,17 @@
                     </select>
                 </div>
 
-
-
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Interprètes*</label>
-                    <div id="missionInterpreters" class="border rounded p-2 mission-interpreters-list">
-                        <div class="form-check" th:each="interpreter : ${interpreters}">
-                            <input class="form-check-input mission-interpreter-check" type="checkbox"
-                                   th:id="'missionInterp_' + ${interpreter.id}"
-                                   th:value="${interpreter.id}">
-                            <label class="form-check-label"
-                                   th:for="'missionInterp_' + ${interpreter.id}"
-                                   th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
-                            </label>
-                        </div>
-                    </div>
+                    <div id="missionInterpreterBadges" class="d-flex flex-wrap gap-2 mb-2"></div>
+                    <select id="missionInterpreterSelect" class="form-select">
+                        <option value="">+ Ajouter un interprète</option>
+                        <option th:each="interpreter : ${interpreters}"
+                                th:value="${interpreter.id}"
+                                th:attr="data-name=${interpreter.firstName + ' ' + interpreter.lastName}"
+                                th:text="${interpreter.firstName + ' ' + interpreter.lastName}">
+                        </option>
+                    </select>
                     <div id="missionInterpreterError" class="invalid-feedback"></div>
                 </div>
 
@@ -661,7 +672,7 @@
                 </div>
             </div>
 
-            <div class="modal-footer border-0">
+            <div class="modal-footer p-3 border-0">
                 <button type="button" class="btn btn-danger-subtle text-danger" data-bs-dismiss="modal">
                     Annuler
                 </button>

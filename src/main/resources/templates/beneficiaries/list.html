@@ -57,7 +57,7 @@
                         <button class="btn btn-outline-danger btn-sm me-1"
                                 data-bs-toggle="modal" data-bs-target="#modalDelete"
                                 th:attr="data-id=${beneficiaire.id}, data-name=${beneficiaire.firstName + ' ' + beneficiaire.lastName}">
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-power"></i>
                         </button>
                         <a th:href="@{/beneficiaires/profil/{id}(id=${beneficiaire.id})}" class="btn btn-primary btn-sm m-2">
                             <i class="bi bi-eye-fill me-1"></i>Voir le profil
@@ -97,7 +97,7 @@
 </main>
 
 <!-- Modal Delete -->
-<div th:replace="~{common/modals :: modal-delete('/beneficiaires', 'Supprimer un bénéficiaire', 'bénéficiaire')}"></div>
+<div th:replace="~{common/modals :: modal-delete('/beneficiaires', 'Désactiver le compte d\'un bénéficiaire', 'bénéficiaire')}"></div>
 
 <!-- Modal Error -->
 <th:block th:if="${errorMessage != null}">
