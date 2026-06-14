@@ -353,8 +353,8 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT m.* FROM " + TABLE + " m " +
                 "JOIN " + DAOPunctualTimeSlot.TABLE + " ts ON m." + FIELD_TIME_SLOT + " = ts." + DAOPunctualTimeSlot.FIELD_ID +
                 " WHERE ( " +
-                "(ts.day IS NOT NULL) " +
-                "OR (ts.day IS NULL AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME +" BETWEEN ? AND ?)" +
+                "(ts." + DAOBaseTimeSlot.FIELD_DAY +" IS NOT NULL) " +
+                "OR (ts." + DAOBaseTimeSlot.FIELD_DAY + " IS NULL AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME +" BETWEEN ? AND ?)" +
                 ")";
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -590,9 +590,9 @@ public class DAOMission extends DAO<Mission> {
      */
     public boolean hasActiveMissions(int beneficiaryId) throws SQLException {
         String query = "SELECT 1 FROM " + TABLE +
-                " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts.id = " + TABLE + "." + FIELD_TIME_SLOT +
+                " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = " + TABLE + "." + FIELD_TIME_SLOT +
                 " WHERE " + FIELD_BENEFICIARY + " = ?" +
-                " AND TRUNC(ts.startDateTime, 'IW') = TRUNC(SYSDATE, 'IW')";
+                " AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ", 'IW') = TRUNC(SYSDATE, 'IW')";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
