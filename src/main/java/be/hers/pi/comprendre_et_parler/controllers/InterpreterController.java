@@ -26,7 +26,7 @@ public class InterpreterController {
     private final static AcademicSkillService academicSkillService = new AcademicSkillService();
 
     /**
-     * Display the paginated and filtered list of interpreters
+     * Display the paginated and filtered list of interpreters without the connected one
      * @param page the page number to display; defaults to 1
      * @param keyword the search keyword to filter by login, firstName or lastName; defaults to empty
      * @param session contains the actual sesssion of the connected user
