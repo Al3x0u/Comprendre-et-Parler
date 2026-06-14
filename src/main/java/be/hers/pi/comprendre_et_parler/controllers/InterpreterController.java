@@ -29,15 +29,19 @@ public class InterpreterController {
      * Display the paginated and filtered list of interpreters
      * @param page the page number to display; defaults to 1
      * @param keyword the search keyword to filter by login, firstName or lastName; defaults to empty
+     * @param session contains the actual sesssion of the connected user
      * @param model the Spring model to populate
      * @return the interpreters list view, or a redirect to the list on error
      */
     @GetMapping("")
     public String showInterpreterList(@RequestParam(defaultValue = "1") int page,
                                       @RequestParam(defaultValue = "") String keyword,
+                                      HttpSession session,
                                       Model model) {
         try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
             List<Interpreter> allInterpreters = interpreterService.getAllInterpreters();
+            allInterpreters.removeIf(i -> i.getId() == user.getId());
             List<Interpreter> filtered = PaginationUtils.filter(allInterpreters, keyword);
             int total = filtered.size();
             int totalPages = PaginationUtils.calculateTotalPages(total, 10);
