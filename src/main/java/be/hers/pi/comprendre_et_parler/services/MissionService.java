@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class MissionService {
     private final static DAOMission daoMission = new DAOMission();
+    private final static DAOInterpreter daoInterpreter = new DAOInterpreter();
     private final static NotificationService notificationService = new NotificationService();
 
     /**
@@ -275,8 +276,8 @@ public class MissionService {
         LocalDate yearStart = LocalDate.of(date.getYear(), 1, 1);
         LocalDate yearEnd = LocalDate.of(date.getYear(), 12, 31);
 
-        double hoursThisWeek = SQLWrap.call(new DAOInterpreter()::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
-        double hoursThisYear = SQLWrap.call(new DAOInterpreter()::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
+        double hoursThisWeek = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
+        double hoursThisYear = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
 
         if (hoursThisWeek + newMissionHours > interpreter.getHourQuotaWeek())
             throw new QuotaExceededException("Le quota hebdomadaire de l'interprète " + interpreter.getId() + " est dépassé");
