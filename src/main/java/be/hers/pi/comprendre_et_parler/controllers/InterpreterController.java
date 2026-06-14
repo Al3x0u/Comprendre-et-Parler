@@ -270,7 +270,10 @@ public class InterpreterController {
     @PostMapping("/profil/indisponibilites/ajouter")
     public String addUnavailability(@ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
                                     HttpSession session) {
-        Interpreter user = (Interpreter) session.getAttribute("user");
+        AppliUser sessionUser = (AppliUser) session.getAttribute("user");
+        if (!(sessionUser instanceof Interpreter user)) {
+            return "redirect:/profil";
+        }
         try {
             interpreterService.createUnavailability(user, newUnavailability);
         } catch (AlreadyExistsException e) {
@@ -293,7 +296,10 @@ public class InterpreterController {
     @PostMapping("/profil/indisponibilites/{idTimeSlot}/supprimer")
     public String deleteUnavailability(@PathVariable int idTimeSlot,
                                        HttpSession session) {
-        Interpreter user = (Interpreter) session.getAttribute("user");
+        AppliUser sessionUser = (AppliUser) session.getAttribute("user");
+        if (!(sessionUser instanceof Interpreter user)) {
+            return "redirect:/profil";
+        }
         try {
             interpreterService.deleteUnavailability(user, idTimeSlot);
         } catch (Exception e) {
@@ -315,7 +321,10 @@ public class InterpreterController {
     public String updateUnavailability(@PathVariable int idOldTimeSlot,
                                        @ModelAttribute("newUnavailability") CreateUnavailability newUnavailability,
                                        HttpSession session) {
-        Interpreter user = (Interpreter) session.getAttribute("user");
+        AppliUser sessionUser = (AppliUser) session.getAttribute("user");
+        if (!(sessionUser instanceof Interpreter user)) {
+            return "redirect:/profil";
+        }
         try {
             interpreterService.updateUnavailability(user, idOldTimeSlot, newUnavailability);
         } catch (Exception e) {
@@ -325,7 +334,7 @@ public class InterpreterController {
 
         return "redirect:/profil";
     }
-    
+
      /**
      * Handle the demotion of a manager into an interpreter
      * @param id the id of the manager to demote
