@@ -83,19 +83,24 @@ public class MissionService {
             SQLWrap.callTransaction(daoMission::create, mission);
         }
         catch (AlreadyExistsException e) {
-            throw new ConflictException(e.getMessage());
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
         }
     }
 
     /**
      * Creates a mission with the status PENDING.
      * @param mission the mission to create, with beneficiary and time slot already set
-     * @throws AlreadyExistsException if the mission already exists in the database
+     * @throws ConflictException if the new request overlaps with an existing mission
      * @throws SQLException if the database could not be reached
      */
-    public void createRequest(Mission mission) throws AlreadyExistsException, SQLException {
+    public void createRequest(Mission mission) throws ConflictException, SQLException {
         mission.setStateOfMission(MissionState.PENDING);
-        SQLWrap.callTransaction(daoMission::create, mission);
+        try {
+            SQLWrap.callTransaction(daoMission::create, mission);
+        }
+        catch (AlreadyExistsException e) {
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
+        }
     }
 
     /**
@@ -240,7 +245,7 @@ public class MissionService {
             SQLWrap.callTransaction(daoMission::update, mission);
         }
         catch (AlreadyExistsException e) {
-            throw new ConflictException(e.getMessage());
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
         }
     }
 
@@ -313,7 +318,7 @@ public class MissionService {
             SQLWrap.callTransaction(daoMission::update, mission);
         }
         catch (AlreadyExistsException e) {
-            throw new ConflictException(e.getMessage());
+            throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
         }
     }
 
@@ -339,5 +344,49 @@ public class MissionService {
             }
         }
         return warnings.toString();
+    }
+
+    /**
+     * Builds a human-readable description of a mission for use in conflict messages.
+     * @param mission the mission to describe
+     * @return a String describing the mission's subject, date/time and beneficiary (if any)
+     */
+    private String describeMission(Mission mission) {
+        StringBuilder sb = new StringBuilder("\"").append(mission.getSubject()).append("\"");
+
+        TimeSlot ts = mission.getTimeSlot();
+        if (ts instanceof PunctualTimeSlot pts) {
+            sb.append(" le ").append(pts.getStartDate().toLocalDate())
+                    .append(" de ").append(pts.getStartDate().toLocalTime())
+                    .append(" à ").append(pts.getEndDate().toLocalTime());
+        } else if (ts instanceof BaseTimeSlot bts) {
+            sb.append(" le ").append(bts.getDay())
+                    .append(" de ").append(bts.getStartTime())
+                    .append(" à ").append(bts.getEndTime());
+        }
+
+        if (mission.getBeneficiary() != null) {
+            sb.append(" (bénéficiaire : ")
+                    .append(mission.getBeneficiary().getFirstName()).append(" ").append(mission.getBeneficiary().getLastName())
+                    .append(")");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Fetches and describes the mission that caused an AlreadyExistsException raised by the DAO,
+     * whose message contains the conflicting mission's id.
+     * @param e the AlreadyExistsException raised by the DAO
+     * @return a description of the conflicting mission, or a generic fallback if it could not be retrieved
+     */
+    private String describeConflict(AlreadyExistsException e) {
+        try {
+            int conflictId = Integer.parseInt(e.getMessage());
+            Mission conflict = daoMission.find(conflictId);
+            return conflict != null ? describeMission(conflict) : "une autre mission";
+        } catch (Exception ex) {
+            return "une autre mission";
+        }
     }
 }

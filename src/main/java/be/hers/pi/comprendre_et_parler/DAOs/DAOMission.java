@@ -76,8 +76,9 @@ public class DAOMission extends DAO<Mission> {
         } catch (AlreadyExistsException e) {}
 
         // Check for schedule overlaps with the new timeslot
-        if (checkAlreadyExists(objectToInsert) >= 0)
-            throw new AlreadyExistsException("Mission overlaps with an existing mission");
+        int conflictId = checkAlreadyExists(objectToInsert);
+        if (conflictId >= 0)
+            throw new AlreadyExistsException(String.valueOf(conflictId));
 
         // Create new Location if needed
         try {
@@ -148,7 +149,7 @@ public class DAOMission extends DAO<Mission> {
         // Check for schedule overlaps with the new timeslot
         int idInDB = checkAlreadyExists(objectToUpdate);
         if (idInDB >= 0)
-            throw new AlreadyExistsException("Mission overlaps with an existing mission");
+            throw new AlreadyExistsException(String.valueOf(idInDB));
 
         // Create new Location if needed
         try {

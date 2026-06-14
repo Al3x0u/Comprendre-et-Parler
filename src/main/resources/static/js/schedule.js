@@ -52,7 +52,7 @@ let calendar;
 
 /**
  * Displays a notification toast in the bottom-right corner of the screen,
- * which disappears after 3 seconds.
+ * which disappears after a delay proportional to the message length.
  *
  * @param {string} message -text to display in the toast
  * @param {'success'|'error'|'info'} [type='success'] - Visual type of the toast
@@ -63,8 +63,9 @@ function showToast(message, type = 'success') {
     toast.className = `toast-custom toast-${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('toast-hide'), 3000);
-    setTimeout(() => toast.remove(), 3300);
+    const duration = message.length > 60 ? 10000 : 5000;
+    setTimeout(() => toast.classList.add('toast-hide'), duration);
+    setTimeout(() => toast.remove(), duration + 300);
 }
 
 /**
@@ -1235,7 +1236,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(payload)
             });
             if (!res.ok) {
-                showToast("Erreur lors de l'enregistrement de la mission.", 'error');
+                const errorMsg = await res.text();
+                if (res.status === 409 && errorMsg) {
+                    showToast(errorMsg, 'error');
+                } else {
+                    showToast("Erreur lors de l'enregistrement de la mission.", 'error');
+                }
                 return;
             }
             btn.dataset.editMode = 'false';
@@ -1313,7 +1319,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!res.ok) {
-                showToast("Erreur lors de l'enregistrement de la demande.", 'error');
+                const errorMsg = await res.text();
+                if (res.status === 409 && errorMsg) {
+                    showToast(errorMsg, 'error');
+                } else {
+                    showToast("Erreur lors de l'enregistrement de la mission.", 'error');
+                }
                 return;
             }
 

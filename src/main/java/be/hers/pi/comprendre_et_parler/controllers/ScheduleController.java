@@ -128,7 +128,8 @@ public class ScheduleController {
      * Create a new interpretation request from a beneficiary
      * @param payload the request body containing mission details (title, date, times, location, etc.)
      * @param session the current HTTP session
-     * @return 200 if created, 400 if missing fields or invalid times, 403 if not a beneficiary, 500 on error
+     * @return 200 if created, 400 if missing fields or invalid times, 403 if not a beneficiary,
+     *         409 on schedule conflict, 500 on error
      */
     @PostMapping("/requetes")
     @ResponseBody
@@ -235,6 +236,8 @@ public class ScheduleController {
             missionService.createRequest(mission);
 
             return ResponseEntity.ok("Demande créée.");
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Erreur lors de la création de la demande. Veuillez réessayer.");
@@ -308,7 +311,9 @@ public class ScheduleController {
      * @param id the mission ID
      * @param body the request body containing the interpreter ID
      * @param session the current HTTP session
-     * @return 200 if accepted, 400 if no interpreter selected, 403 if not a manager, 500 on error
+     * @return 200 with "ok" if accepted, or with "warning:..." if accepted despite an exceeded quota;
+     *         400 if no interpreter selected; 403 if not a manager;
+     *         409 with "conflict:..." on schedule conflict; 500 on error
      */
     @PostMapping("/missions/{id}/accepter")
     @ResponseBody
@@ -416,7 +421,7 @@ public class ScheduleController {
      * Create a new mission directly (manager only)
      * @param body the request body containing mission details (title, date, times, location, interpreter, beneficiary, etc.)
      * @param session the current HTTP session
-     * @return 200 if created, 403 if not a manager, 500 on error
+     * @return 200 if created, 403 if not a manager, 409 on schedule conflict, 500 on error
      */
     @PostMapping("/missions")
     @ResponseBody
@@ -432,6 +437,8 @@ public class ScheduleController {
 
             return ResponseEntity.ok().build();
 
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la création de la mission. Veuillez réessayer.");
