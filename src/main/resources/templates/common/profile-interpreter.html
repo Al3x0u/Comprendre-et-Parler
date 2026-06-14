@@ -3,6 +3,7 @@
 <body>
 
 <div th:fragment="profile">
+    <div th:if="${unavailabilityError}" class="alert alert-danger" th:text="${unavailabilityError}"></div>
 
     <!-- Profile Header -->
     <div class="card border-0 shadow-sm mb-4 rounded-4" th:object="${interprete}">
