@@ -186,7 +186,8 @@ let selectedMissionInterpreters = [];
 
 /**
  * Renders the selected-interpreters badges in the mission form,
- * each with a remove button that updates the selection.
+ * each with a remove button that updates the selection, and hides
+ * the corresponding options in the interpreter select to prevent duplicates.
  * @returns {void}
  */
 function renderInterpreterBadges() {
@@ -201,6 +202,12 @@ function renderInterpreterBadges() {
             renderInterpreterBadges();
         });
         container.appendChild(badge);
+    });
+
+    const select = document.getElementById('missionInterpreterSelect');
+    Array.from(select.options).forEach(opt => {
+        if (!opt.value) return;
+        opt.hidden = selectedMissionInterpreters.some(i => i.id === opt.value);
     });
 }
 
