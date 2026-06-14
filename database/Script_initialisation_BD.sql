@@ -96,5 +96,23 @@ INSERT INTO JobSkillInterpreter VALUES(2, 1);
 INSERT INTO JobSkillInterpreter VALUES(2, 3);
 INSERT INTO JobSkillInterpreter VALUES(4, 2);
 
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/15 10:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/15 12:30', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/17 16:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/17 17:30', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/18 08:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/18 10:00', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/18 13:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/18 16:30', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/20 10:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/20 15:00', 'yyyy/mm/dd hh24:mi'), NULL);
+
+INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 1, NULL, 1, 1, 6, 9, 'B9');
+INSERT INTO Mission VALUES(NULL, 5, 1, 'Cours de biologie', 1, NULL, 2, 3, 5, 9, 'B9');
+INSERT INTO Mission VALUES(NULL, 5, 0, 'examen médical', 1, NULL, 1, 3, 2, 7, NULL);
+INSERT INTO Mission VALUES(NULL, 6, 2, 'Cours de néérlandais', 0, NULL, 3, 1, 3, 4, 'A3');
+INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 2, NULL, 4, 2, 6, 9, 'B8');
+INSERT INTO Mission VALUES(NULL, 5, 3, 'sortie scolaire', 5, 'Visite de Bruxelles', 5, 1, 1, 9, NULL);
+
+INSERT INTO InterpreterMission VALUES(1, 1);
+INSERT INTO InterpreterMission VALUES(2, 3);
+INSERT INTO InterpreterMission VALUES(5, 2);
+INSERT INTO InterpreterMission VALUES(5, 1);
+
 
 commit;
