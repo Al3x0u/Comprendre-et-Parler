@@ -345,8 +345,8 @@ public class DAOMission extends DAO<Mission> {
         Set<Mission> missions = new HashSet<>();
 
         String query = "SELECT m.* FROM " + TABLE + " m " +
-                "JOIN TimeSlot ts ON m." + FIELD_TIME_SLOT + " = ts.id " +
-                "WHERE ( " +
+                "JOIN " + DAOPunctualTimeSlot.TABLE + " ts ON m." + FIELD_TIME_SLOT + " = ts." + DAOPunctualTimeSlot.FIELD_ID +
+                " WHERE ( " +
                 "(ts.day IS NOT NULL) " +
                 "OR (ts.day IS NULL AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME +" BETWEEN ? AND ?)" +
                 ")";
@@ -478,8 +478,8 @@ public class DAOMission extends DAO<Mission> {
     public Set<Mission> findByInterpreter(int interpreterId) throws SQLException {
         Set<Mission> missions = new HashSet<>();
 
-        String query = "SELECT m.id FROM " + TABLE + " m " +
-                "WHERE m.id IN " +
+        String query = "SELECT m." +FIELD_ID+ " FROM " + TABLE + " m " +
+                "WHERE m." +FIELD_ID+ " IN " +
                 "(SELECT " + INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
                 " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " = ?)";
 
@@ -584,7 +584,7 @@ public class DAOMission extends DAO<Mission> {
      */
     public boolean hasActiveMissions(int beneficiaryId) throws SQLException {
         String query = "SELECT 1 FROM " + TABLE +
-                " JOIN TimeSlot ts ON ts.id = " + TABLE + "." + FIELD_TIME_SLOT +
+                " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts.id = " + TABLE + "." + FIELD_TIME_SLOT +
                 " WHERE " + FIELD_BENEFICIARY + " = ?" +
                 " AND TRUNC(ts.startDateTime, 'IW') = TRUNC(SYSDATE, 'IW')";
         PreparedStatement statement = null;
