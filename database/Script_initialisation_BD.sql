@@ -98,8 +98,8 @@ INSERT INTO JobSkillInterpreter VALUES(4, 2);
 
 INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/15 10:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/15 12:30', 'yyyy/mm/dd hh24:mi'), NULL);
 INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/17 16:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/17 17:30', 'yyyy/mm/dd hh24:mi'), NULL);
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/18 08:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/18 10:00', 'yyyy/mm/dd hh24:mi'), NULL);
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/18 13:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/18 16:30', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/19 08:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/19 10:00', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/19 13:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/19 16:30', 'yyyy/mm/dd hh24:mi'), NULL);
 INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/20 10:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/20 15:00', 'yyyy/mm/dd hh24:mi'), NULL);
 
 INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 1, NULL, 1, 1, 6, 9, 'B9');
