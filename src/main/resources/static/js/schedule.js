@@ -28,7 +28,7 @@ const activeFilters = {
     _statusOnly: false
 };
 
-if (userRole === 'MANAGER') {
+if (userRole === 'MANAGER' || userRole === "INTERPRETER") {
     activeFilters.userId = userId;
 }
 /** @type {number|null} ID of the currently selected mission */
