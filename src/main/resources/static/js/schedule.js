@@ -24,15 +24,13 @@ const isMobile = window.innerWidth < 768;
 /** @type {ActiveFilters} */
 const activeFilters = {
     status: null,
-    // MANAGER et INTERPRETER : pré-filtré sur son propre nom au chargement
-    interpreter: null,
-    _localOnly: false
+    userId: null,
+    _statusOnly: false
 };
 
-if ((userRole === 'MANAGER' || userRole === 'INTERPRETER') && userFullName) {
-    activeFilters.interpreter = userFullName;
+if (userRole === 'MANAGER') {
+    activeFilters.userId = userId;
 }
-
 /** @type {number|null} ID of the currently selected mission */
 let currentMissionId = null;
 
@@ -120,11 +118,11 @@ function setupUserFilter() {
     document.querySelectorAll('.filter-user-item').forEach(item => {
         item.addEventListener('click', e => {
             e.preventDefault();
-            const value = item.dataset.value;
-            if (activeFilters.interpreter === value) return;
-            activeFilters.interpreter = value;
+            const newUserId = parseInt(item.dataset.id);
+            if (activeFilters.userId === newUserId) return;
+            activeFilters.userId = newUserId;
+            activeFilters._statusOnly = false;
             highlightActiveUser();
-            activeFilters._localOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
             document.querySelector('.fc-filterBtn-button')?.classList.remove('active');
@@ -140,8 +138,9 @@ function highlightActiveUser() {
     document.querySelectorAll('.filter-user-item').forEach(i => {
         i.classList.remove('fw-bold', 'active');
     });
-    if (activeFilters.interpreter) {
-        const active = Array.from(document.querySelectorAll('.filter-user-item')).find(i => i.dataset.value === activeFilters.interpreter);
+    if (activeFilters.userId != null) {
+        const active = Array.from(document.querySelectorAll('.filter-user-item'))
+            .find(i => parseInt(i.dataset.id) === activeFilters.userId);
         if (active) active.classList.add('fw-bold', 'active');
     }
 }
@@ -160,7 +159,7 @@ function setupFilter(selector, filterKey) {
             activeFilters[filterKey] = activeFilters[filterKey] === item.dataset.value ? null : item.dataset.value;
             document.querySelectorAll(selector).forEach(i => i.classList.remove('fw-bold'));
             if (activeFilters[filterKey]) item.classList.add('fw-bold');
-            activeFilters._localOnly = true;
+            activeFilters._statusOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
         });
@@ -856,19 +855,24 @@ if (userRole === 'MANAGER') {
 function applyLocalFilters(events) {
     return events.filter(e => {
         if (activeFilters.status && e.status !== activeFilters.status) return false;
-        if (activeFilters.interpreter) {
-            const f = activeFilters.interpreter.toLowerCase();
-            const matchInterp = (e.interpreter || '').toLowerCase().includes(f);
-            const matchBene   = (e.beneficiary || '').toLowerCase().includes(f);
-            if (!matchInterp && !matchBene) return false;
-        }
         return true;
     });
 }
 
+/**
+ * Fetches missions for a given week from the server and updates the calendar
+ * @param {Object}   fetchInfo       - Date range info provided by FullCalendar
+ * @param {string}   fetchInfo.startStr - ISO date string of the week start
+ * @param {Function} successCallback - FullCalendar callback, called with the filtered event array
+ * @param {Function} failureCallback - FullCalendar callback, called with the error on fetch failure
+ * @returns {Promise<void>}
+ */
 async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     const params = new URLSearchParams();
     params.append('weekDate', fetchInfo.startStr.substring(0, 10));
+    if (activeFilters.userId != null) {
+        params.append('userId', activeFilters.userId);
+    }
 
     try {
         const r = await fetch('/horaire/evenements?' + params.toString());
@@ -916,9 +920,9 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {Function} failureCallback - Callback called on error
          */
         events: function(fetchInfo, successCallback, failureCallback) {
-            if (premierChargement || activeFilters._localOnly) {
+            if (premierChargement || activeFilters._statusOnly) {
                 premierChargement = false;
-                activeFilters._localOnly = false;
+                activeFilters._statusOnly = false;
                 successCallback(applyLocalFilters(cachedEvents));
                 return;
             }
