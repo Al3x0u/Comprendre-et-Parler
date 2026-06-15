@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class MissionService {
@@ -50,26 +49,7 @@ public class MissionService {
         return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter));
     }
 
-    /**
-     * Return the list of missions for a given week, filtered according to the user's role.
-     * @param user the user requesting the schedule (Manager, Interpreter or Beneficiary)
-     * @param weekStart the date of any day within the target week;
-     * @throws SQLException if the database could not be reached
-     */
-    public ArrayList<Mission> getMissionsForWeek(AppliUser user, LocalDate weekStart) throws SQLException {
-        int yearNumber = weekStart.getYear();
-        int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
-        Set<Mission> missions;
 
-        if (user instanceof Manager)
-            missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
-        else if(user instanceof Interpreter)
-            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
-        else
-            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
-
-        return new ArrayList<>(missions);
-    }
 
     /**
      * Creates a mission with the status ACCEPTED
@@ -388,5 +368,18 @@ public class MissionService {
         } catch (Exception ex) {
             return "une autre mission";
         }
+    }
+
+    /**
+     * Returns the missions for a given week scoped to a specific user id
+     * @param userId the id of the user
+     * @param weekStart a date which of the concerning week
+     * @return the list of missions for that user during that week
+     */
+    public ArrayList<Mission> getMissionsForWeek(int userId, LocalDate weekStart) throws SQLException {
+        int yearNumber = weekStart.getYear();
+        int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
+        Set<Mission> missions = SQLWrap.call(daoMission::getScheduleForWeek, userId, yearNumber, weekNumber);
+        return new ArrayList<>(missions);
     }
 }
