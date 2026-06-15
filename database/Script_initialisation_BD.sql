@@ -102,17 +102,19 @@ INSERT INTO TimeSlot VALUES(NULL, to_date('19/06/2026 08:00', 'dd/mm/yyyy hh24:m
 INSERT INTO TimeSlot VALUES(NULL, to_date('19/06/2026 13:30', 'dd/mm/yyyy hh24:mi'), to_date('19/06/2026 16:30', 'dd/mm/yyyy hh24:mi'), NULL);
 INSERT INTO TimeSlot VALUES(NULL, to_date('20/06/2026 10:00', 'dd/mm/yyyy hh24:mi'), to_date('20/06/2026 15:00', 'dd/mm/yyyy hh24:mi'), NULL);
 
-INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 1, NULL, 1, 1, 6, 9, 'B9');
+INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 5, NULL, 1, 1, 6, 9, 'B9');
 INSERT INTO Mission VALUES(NULL, 5, 1, 'Cours de biologie', 1, NULL, 2, 3, 5, 9, 'B9');
-INSERT INTO Mission VALUES(NULL, 5, 0, 'examen médical', 1, NULL, 1, 3, 2, 7, NULL);
+INSERT INTO Mission VALUES(NULL, 5, 2, 'examen médical', 1, NULL, 1, 3, 2, 7, NULL);
 INSERT INTO Mission VALUES(NULL, 6, 2, 'Cours de néérlandais', 1, NULL, 3, 1, 3, 4, 'A3');
 INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 2, NULL, 4, 2, 6, 9, 'B8');
-INSERT INTO Mission VALUES(NULL, 5, 3, 'sortie scolaire', 5, 'Visite de Bruxelles', 5, 1, 1, 9, NULL);
+INSERT INTO Mission VALUES(NULL, 5, 3, 'sortie scolaire', 1, 'Visite de Bruxelles', 5, 1, 1, 9, NULL);
 
 INSERT INTO InterpreterMission VALUES(1, 1);
 INSERT INTO InterpreterMission VALUES(2, 3);
-INSERT INTO InterpreterMission VALUES(5, 2);
-INSERT INTO InterpreterMission VALUES(5, 1);
+INSERT INTO InterpreterMission VALUES(3, 1);
+INSERT INTO InterpreterMission VALUES(4, 2);
+INSERT INTO InterpreterMission VALUES(6, 1);
+INSERT INTO InterpreterMission VALUES(6, 2);
 
 
 commit;
