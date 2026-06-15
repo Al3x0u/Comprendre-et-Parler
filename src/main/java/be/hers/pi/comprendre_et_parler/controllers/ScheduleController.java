@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -60,7 +59,7 @@ public class ScheduleController {
 
             LocalDate today = LocalDate.now();
 
-            List<Mission> missions = missionService.getMissionsForWeek(user, today);
+            List<Mission> missions = missionService.getMissionsForWeek(user.getId(), today);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -508,7 +507,7 @@ public class ScheduleController {
      */
     @GetMapping("/evenements")
     @ResponseBody
-    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String user, HttpSession session) {
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String userId, HttpSession session) {
         try {
             AppliUser currentUser = (AppliUser) session.getAttribute("user");
             LocalDate date = LocalDate.now();
@@ -516,34 +515,27 @@ public class ScheduleController {
                 try {
                     date = LocalDate.parse(weekDate);
                 } catch (Exception e) {
-                    e.printStackTrace();
                     date = LocalDate.now();
                 }
             }
 
-            List<Mission> missions = missionService.getMissionsForWeek(currentUser, date);
-            List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
-
-            List<Map<String, String>> filtered = new ArrayList<>();
-            for (Map<String, String> event : allEvents) {
-
-                if (status != null && !status.isBlank()) {
-                    if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
-                }
-
-                if (user != null && !user.isBlank()) {
-                    boolean matchInterp = event.getOrDefault("interpreter", "").contains(user);
-                    boolean matchBene   = event.getOrDefault("beneficiary", "").contains(user);
-                    if (!matchInterp && !matchBene) continue;
-                }
-
-                filtered.add(event);
+            List<Mission> missions;
+            if (userId != null && !userId.isBlank()) {
+                int uid = Integer.parseInt(userId);
+                missions = missionService.getMissionsForWeek(uid, date);
+            } else {
+                missions = missionService.getMissionsForWeek(currentUser.getId(), date);
             }
-            return ResponseEntity.ok(filtered);
+
+            List<Map<String, String>> events = convertMissionsToEvents(missions);
+            if (status != null && !status.isBlank()) {
+                events = events.stream().filter(e -> e.getOrDefault("status", "").equalsIgnoreCase(status)).collect(java.util.stream.Collectors.toList());
+            }
+
+            return ResponseEntity.ok(events);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
