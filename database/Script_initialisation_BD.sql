@@ -96,11 +96,11 @@ INSERT INTO JobSkillInterpreter VALUES(2, 1);
 INSERT INTO JobSkillInterpreter VALUES(2, 3);
 INSERT INTO JobSkillInterpreter VALUES(4, 2);
 
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/15 10:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/15 12:30', 'yyyy/mm/dd hh24:mi'), NULL);
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/17 16:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/17 17:30', 'yyyy/mm/dd hh24:mi'), NULL);
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/19 08:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/19 10:00', 'yyyy/mm/dd hh24:mi'), NULL);
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/19 13:30', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/19 16:30', 'yyyy/mm/dd hh24:mi'), NULL);
-INSERT INTO TimeSlot VALUES(NULL, to_date('2026/06/20 10:00', 'yyyy/mm/dd hh24:mi'), to_date('2026/06/20 15:00', 'yyyy/mm/dd hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('15/06/2026 10:30', 'dd/mm/yyyy hh24:mi'), to_date('15/06/2026 12:30', 'dd/mm/yyyy hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('17/06/2026 16:00', 'dd/mm/yyyy hh24:mi'), to_date('17/06/2026 17:30', 'dd/mm/yyyy hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('19/06/2026 08:00', 'dd/mm/yyyy hh24:mi'), to_date('19/06/2026 10:00', 'dd/mm/yyyy hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('19/06/2026 13:30', 'dd/mm/yyyy hh24:mi'), to_date('19/06/2026 16:30', 'dd/mm/yyyy hh24:mi'), NULL);
+INSERT INTO TimeSlot VALUES(NULL, to_date('20/06/2026 10:00', 'dd/mm/yyyy hh24:mi'), to_date('20/06/2026 15:00', 'dd/mm/yyyy hh24:mi'), NULL);
 
 INSERT INTO Mission VALUES(NULL, 5, 0, 'Cours de chimie', 1, NULL, 1, 1, 6, 9, 'B9');
 INSERT INTO Mission VALUES(NULL, 5, 1, 'Cours de biologie', 1, NULL, 2, 3, 5, 9, 'B9');
