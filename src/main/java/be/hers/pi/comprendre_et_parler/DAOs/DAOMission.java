@@ -39,29 +39,39 @@ public class DAOMission extends DAO<Mission> {
     private static final DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
     private static final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
 
-    /**Overlap based on type between an existing slot and a new one
-     * the type is define by the column day of the table TIMESLOT
-     * NULL == PunctualTimeSlot; 1-7 == BaseTimeSlot
-     **/
-    private static final String TIMESLOT_OVERLAP = "(" +
-            //punctual x punctual : overlap exact datetime
-            "(ts.\"DAY\" IS NULL AND tsNew.\"DAY\" IS NULL AND ts.startDateTime < tsNew.endDateTime AND " +
-            "ts.endDateTime > tsNew.startDateTime) OR " +
-        //recurrent x recurrent : same day + hour of the day overlap + validity hour overlap
-            "(ts.\"DAY\" IS NOT NULL AND tsNew.\"DAY\" IS NOT NULL AND ts.\"DAY\" = tsNew.\"DAY\" AND " +
-            "(ts.startDateTime - TRUNC(ts.startDateTime)) < tsNew.endDateTime - TRUNC(tsNew.endDateTime)) " +
-            "AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime)) " +
-            "AND TRUNC(ts.startDateTime <= TRUNC(tsNew.endDateTime) AND TRUNC(ts.endDateTime) >= TRUNC(tsNew.startDateTime)) OR " +
-            //punctual exist x new recurent : same day and same hour overlap
-            "(ts.\"DAY\" IS NULL AND tsNew.\"DAY\" IS NOT NULL AND TRUNC(ts.startDateTime) BETWEEN " +
-            "TRUNC(tsNew.startDateTime) AND TRUNC(tsNew.endDateTime) AND (TRUNC(ts,startDateTime) - TRUNC(ts.startDateTIME, 'IW') + 1) = tsNew.\"DAY\" " +
-            "AND (ts.startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime)) " +
-            "AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime))) OR " +
-            //recurent exist x new punctual
-            "/ts.\"DAY\" IS NOT NULL AND tsNew.\"DAY\" IS NULL AND TRUNC(tsNew.startDateTime) BETWEEN TRUNC(ts.startDateTime) " +
-            "AND TRUNC(endDateTime) AND (TRUNC(tsNew.startDateTime) - TRUNC(tsNew.startDateTime, 'IW') + 1) = ts.\"DAY\"" +
-            "AND (ts,startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime)) " +
-            "AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime))))" ;
+    /**
+     * overlap based on type between an existing slot and the new one,
+     * both rows of the TimeSlot table. The "DAY" column defines the type:
+     * NULL = PunctualTimeSlot (real date in startDateTime); 1-7 = BaseTimeSlot (weekday + validity window).
+     */
+    private static final String TIMESLOT_OVERLAP =
+            "(" +
+                    // punctual x punctual : exact datetime overlap
+                    " (ts.\"DAY\" IS NULL AND tsNew.\"DAY\" IS NULL" +
+                    "  AND ts.startDateTime < tsNew.endDateTime AND ts.endDateTime > tsNew.startDateTime)" +
+                    " OR" +
+                    // recurring x recurring : same weekday + time-of-day overlap + validity windows overlap
+                    " (ts.\"DAY\" IS NOT NULL AND tsNew.\"DAY\" IS NOT NULL" +
+                    "  AND ts.\"DAY\" = tsNew.\"DAY\"" +
+                    "  AND (ts.startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime))" +
+                    "  AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime))" +
+                    "  AND TRUNC(ts.startDateTime) <= TRUNC(tsNew.endDateTime)" +
+                    "  AND TRUNC(ts.endDateTime) >= TRUNC(tsNew.startDateTime))" +
+                    " OR" +
+                    // existing punctual x new recurring : punctual date inside window, same weekday, time-of-day overlap
+                    " (ts.\"DAY\" IS NULL AND tsNew.\"DAY\" IS NOT NULL" +
+                    "  AND TRUNC(ts.startDateTime) BETWEEN TRUNC(tsNew.startDateTime) AND TRUNC(tsNew.endDateTime)" +
+                    "  AND (TRUNC(ts.startDateTime) - TRUNC(ts.startDateTime, 'IW') + 1) = tsNew.\"DAY\"" +
+                    "  AND (ts.startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime))" +
+                    "  AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime)))" +
+                    " OR" +
+                    // existing recurring x new punctual : symmetric
+                    " (ts.\"DAY\" IS NOT NULL AND tsNew.\"DAY\" IS NULL" +
+                    "  AND TRUNC(tsNew.startDateTime) BETWEEN TRUNC(ts.startDateTime) AND TRUNC(ts.endDateTime)" +
+                    "  AND (TRUNC(tsNew.startDateTime) - TRUNC(tsNew.startDateTime, 'IW') + 1) = ts.\"DAY\"" +
+                    "  AND (ts.startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime))" +
+                    "  AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime)))" +
+                    ")";
 
     @Override
     public Mission find(int id) throws SQLException {
