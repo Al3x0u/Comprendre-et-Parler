@@ -738,7 +738,7 @@ public class DAOInterpreter extends DAO<Interpreter> {
                         " LEFT JOIN " + DAOPunctualTimeSlot.TABLE + " tm ON m." + DAOMission.FIELD_TIME_SLOT + " = tm." + DAOPunctualTimeSlot.FIELD_ID +
                         " LEFT JOIN " + DAOExceptionalUnavailability.TABLE + " u ON i." + FIELD_ID + " = u." + DAOExceptionalUnavailability.FIELD_ID_INTERPRETER +
                         " LEFT JOIN " + DAOPunctualTimeSlot.TABLE + " tu ON u." + DAOExceptionalUnavailability.FIELD_ID_TIMESLOT + " = tu." + DAOPunctualTimeSlot.FIELD_ID +
-                        " WHERE (tm." + DAOPunctualTimeSlot.FIELD_START_TIME + " <= ? AND tm." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= ?  AND m." + DAOMission.FIELD_STATE + " = ?))" +
+                        " WHERE (tm." + DAOPunctualTimeSlot.FIELD_START_TIME + " <= ? AND tm." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= ?  AND m." + DAOMission.FIELD_STATE + " = ?)" +
                         " OR (tu." + DAOPunctualTimeSlot.FIELD_START_TIME + " <= ? AND tu." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= ?))"
         );
         Set<Interpreter> interpreters = new HashSet<>();
