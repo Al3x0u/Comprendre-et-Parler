@@ -723,29 +723,34 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     * Return all Interpreter who are available in the given time and date
-     * @param start represent the start of the time that we want the availability
-     * @param end represent the end of the time that we want the availability
-     * @param date represent the date
+     * Return all Interpreter who are available in the given time slot
+     * @param start represents the start of the time slot for which we want the availability
+     * @param end represents the end of the time slot for which we want the availability
      * @throws SQLException if the database could not be reached
-     * @return a set of Interpreter who are available in the given time and date, or an empty set if no Interpreter is available
+     * @return a set of interpreters who are available at the given time and date, or an empty set if no interpreters are available
      */
-    public Set<Interpreter> findAvailable(LocalTime start, LocalTime end, LocalDate date) throws SQLException {
+    public Set<Interpreter> findAvailable(LocalDateTime start, LocalDateTime end) throws SQLException {
         String query = String.format(
-                "SELECT i.* FROM %s i JOIN %s av ON i.%s = av.%s JOIN %s t ON av.%s = t.%s " +
-                        "WHERE t.%s = ? AND t.%s = ? AND TRUNC(t.%s) = ?",
-                TABLE, TABLE_AVAILABILITY, FIELD_ID, FIELD_INTERPRETER, DAOBaseTimeSlot.TABLE,
-                DAOBaseTimeSlot.TABLE, DAOBaseTimeSlot.FIELD_ID, DAOPunctualTimeSlot.FIELD_START_TIME,
-                DAOPunctualTimeSlot.FIELD_END_TIME, DAOPunctualTimeSlot.FIELD_START_TIME
+                "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " <> ALL (" +
+                        "SELECT DISTINCT(i." + FIELD_ID + ") FROM " + TABLE + " i" +
+                        " LEFT JOIN " + DAOMission.TABLE_INTERPRETER_MISSION + " im ON i." + FIELD_ID + " = im." + DAOMission.INTERPRETER_MISSION_REF_INTERPRETER +
+                        " LEFT JOIN " + DAOMission.TABLE + " m ON im." + DAOMission.INTERPRETER_MISSION_REF_MISSION + " = m." + DAOMission.FIELD_ID +
+                        " LEFT JOIN " + DAOPunctualTimeSlot.TABLE + " tm ON m." + DAOMission.FIELD_TIME_SLOT + " = tm." + DAOPunctualTimeSlot.FIELD_ID +
+                        " LEFT JOIN " + DAOExceptionalUnavailability.TABLE + " u ON i." + FIELD_ID + " = u." + DAOExceptionalUnavailability.FIELD_ID_INTERPRETER +
+                        " LEFT JOIN " + DAOPunctualTimeSlot.TABLE + " tu ON u." + DAOExceptionalUnavailability.FIELD_ID_TIMESLOT + " = tu." + DAOPunctualTimeSlot.FIELD_ID +
+                        " WHERE (tm." + DAOPunctualTimeSlot.FIELD_START_TIME + " <= ? AND tm." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= ?  AND m." + DAOMission.FIELD_STATE + " = ?)" +
+                        " OR (tu." + DAOPunctualTimeSlot.FIELD_START_TIME + " <= ? AND tu." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= ?))"
         );
         Set<Interpreter> interpreters = new HashSet<>();
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
-            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.of(date, start)));
-            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.of(date, end)));
-            statement.setDate(3, Date.valueOf(date));
+            statement.setTimestamp(1, Timestamp.valueOf(end));
+            statement.setTimestamp(2, Timestamp.valueOf(start));
+            statement.setInt(3, MissionState.ACCEPTED.getValue());
+            statement.setTimestamp(4, Timestamp.valueOf(end));
+            statement.setTimestamp(5, Timestamp.valueOf(start));
 
             result = statement.executeQuery();
             while (result.next())
