@@ -15,15 +15,16 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class MissionService {
     private final static DAOMission daoMission = new DAOMission();
     private final static DAOInterpreter daoInterpreter = new DAOInterpreter();
     private final static NotificationService notificationService = new NotificationService();
+
+    /** Marker exception: thrown to roll back the batch when it has problems. */
+    private static class BaseScheduleRollback extends RuntimeException {}
 
     /**
      * Returns a mission according to the given id.
@@ -65,6 +66,73 @@ public class MissionService {
             throw new ConflictException("Conflit d'horaire avec " + describeConflict(e));
         }
     }
+
+    /**
+     * Creates a batch of recurring (REGULAR) missions as one all-or-nothing operation.
+     * Quota is validated per interpreter (existing hours fetched ONCE, batch totals in memory);
+     * conflicts are validated per entry (one query each, also catching conflicts inside the batch).
+     * If ANY problem is found, nothing is created and the list of problems is returned.
+     * @param missions the recurring missions to create (state REGULAR, BaseTimeSlot set, same window)
+     * @return the list of problems; empty if everything was created
+     */
+    public List<String> createBaseSchedule(List<Mission> missions) throws SQLException, ConnectionException {
+        List<String> problems = new ArrayList<>();
+        if (missions.isEmpty()) return problems;
+
+        BaseTimeSlot window = (BaseTimeSlot) missions.get(0).getTimeSlot();
+        LocalDate windowStart = window.getStartDate();
+        LocalDate windowEnd   = window.getEndDate();
+        int year = windowStart.getYear();
+        LocalDate yearStart = LocalDate.of(year, 1, 1);
+        LocalDate yearEnd   = LocalDate.of(year, 12, 31);
+
+        try {
+            SQLWrap.callTransaction(() -> {
+                // ---- quota: existing fetched once per interpreter, batch totals in memory ----
+                Map<Integer, Double> batchYear = new HashMap<>();
+                Map<Integer, Double> batchWeek = new HashMap<>();
+                Map<Integer, Interpreter> interpreters = new HashMap<>();
+                for (Mission mission : missions) {
+                    BaseTimeSlot slot = (BaseTimeSlot) mission.getTimeSlot();
+                    double duration = calculateHours(slot);
+                    long occ = getDates(slot).stream()
+                            .filter(d -> !d.isBefore(yearStart) && !d.isAfter(yearEnd)).count();
+                    for (Interpreter i : mission.getInterpreters()) {
+                        interpreters.putIfAbsent(i.getId(), i);
+                        batchYear.merge(i.getId(), occ * duration, Double::sum);
+                        batchWeek.merge(i.getId(), duration, Double::sum);
+                    }
+                }
+                for (Interpreter i : interpreters.values()) {
+                    double existingWeek = daoMission.getRecurringWeeklyHours(i.getId(), windowStart, windowEnd);
+                    double existingYear = daoInterpreter.getWorkedHours(i.getId(), yearStart, yearEnd);
+                    if (existingWeek + batchWeek.get(i.getId()) > i.getHourQuotaWeek())
+                        problems.add("Interprète " + i.getFullName() + " : quota hebdomadaire dépassé");
+                    if (existingYear + batchYear.get(i.getId()) > i.getHourQuotaYear())
+                        problems.add("Interprète " + i.getFullName() + " : quota annuel dépassé");
+                }
+
+                // ---- collision: per entry, create() inserts so the batch sees itself ----
+                for (Mission mission : missions) {
+                    try {
+                        daoMission.create(mission);
+                    } catch (AlreadyExistsException ex) {
+                        BaseTimeSlot slot = (BaseTimeSlot) mission.getTimeSlot();
+                        problems.add(slot.getDay() + " " + slot.getStartTime() + "-" + slot.getEndTime()
+                                + " (" + mission.getSubject() + ") : conflit avec " + describeConflict(ex));
+                    }
+                }
+
+                if (!problems.isEmpty())
+                    throw new BaseScheduleRollback();   // forces the whole transaction to roll back
+                return null;
+            });
+        } catch (BaseScheduleRollback ignored) {
+            // problems collected; transaction rolled back -> nothing created
+        }
+        return problems;
+    }
+
 
     /**
      * Creates a mission with the status PENDING.

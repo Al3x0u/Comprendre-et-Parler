@@ -4,6 +4,7 @@ import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConflictException;
 import be.hers.pi.comprendre_et_parler.exceptions.QuotaExceededException;
 import be.hers.pi.comprendre_et_parler.models.*;
+import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.services.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
+import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -65,8 +68,7 @@ public class ScheduleController {
 
             List<Mission> missions = missionService.getMissionsForWeek(user.getId(),role, today,null);
 
-            List<Map<String, String>> events = convertMissionsToEvents(missions);
-            Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
+            List<Map<String, String>> events = convertMissionsToEvents(missions, today.with(DayOfWeek.MONDAY));            Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
@@ -449,6 +451,83 @@ public class ScheduleController {
     }
 
     /**
+     * Create a base schedule (recurring REGULAR missions) for an interpreter or a beneficiary (manager only).
+     * All-or-nothing: if any entry conflicts or exceeds a quota, nothing is created and the problems are returned.
+     * @return 200 if created, 403 if not a manager, 409 with the list of problems, 500 on error
+     */
+    @PostMapping("/base")
+    @ResponseBody
+    public ResponseEntity<?> createBaseSchedule(@RequestBody CreateBaseScheduleForm form, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+
+            List<Mission> missions = buildBaseScheduleMissions(form);
+            List<String> problems = missionService.createBaseSchedule(missions);
+
+            if (!problems.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(problems);
+            }
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la création de l'horaire. Veuillez réessayer.");
+        }
+    }
+
+    /**
+     * Builds the in-memory list of recurring REGULAR missions from a base schedule form.
+     * Each entry becomes one Mission with a BaseTimeSlot; anchor + otherActor are mapped to
+     * interpreter/beneficiary according to anchorType. Ids are assumed valid (manager picks from lists).
+     */
+    private List<Mission> buildBaseScheduleMissions(CreateBaseScheduleForm form) throws SQLException {
+        LocalDate startDate = LocalDate.parse(form.getStartDate());
+        LocalDate endDate   = LocalDate.parse(form.getEndDate());
+        boolean anchorIsInterpreter = "interpreter".equalsIgnoreCase(form.getAnchorType());
+
+        List<Mission> missions = new ArrayList<>();
+        for (BaseScheduleEntry entry : form.getEntries()) {
+            Mission mission = new Mission();
+            mission.setStateOfMission(MissionState.REGULAR);
+            mission.setSubject(entry.getTitle());
+
+            LocalTime start = LocalTime.parse(entry.getStartTime());
+            LocalTime end   = LocalTime.parse(entry.getEndTime());
+            mission.setTimeSlot(new BaseTimeSlot(startDate, endDate, start, end, DayOfWeek.of(entry.getDayOfWeek())));
+
+            Interpreter interpreter = anchorIsInterpreter
+                    ? interpreterService.getOneInterpreter(form.getAnchorId())
+                    : interpreterService.getOneInterpreter(entry.getOtherActorId());
+            Beneficiary beneficiary = anchorIsInterpreter
+                    ? beneficiaryService.getOneBeneficiary(entry.getOtherActorId())
+                    : beneficiaryService.getOneBeneficiary(form.getAnchorId());
+
+            Set<Interpreter> interpreters = new HashSet<>();
+            interpreters.add(interpreter);
+            mission.setInterpreters(interpreters);
+            mission.setBeneficiary(beneficiary);
+
+            mission.setLocation(locationService.getOneLocation(entry.getLocationId()));
+
+            if (entry.getJobSkillId() != null)
+                mission.setJobSkill(jobSkillService.getAllJobSkills().stream()
+                        .filter(s -> s.getId() == entry.getJobSkillId()).findFirst().orElse(null));
+            if (entry.getAcademicSkillId() != null)
+                mission.setAcademicSkill(academicSkillService.getAllAcademicSkills().stream()
+                        .filter(s -> s.getId() == entry.getAcademicSkillId()).findFirst().orElse(null));
+
+            if (entry.getRoom() != null && !entry.getRoom().isBlank())
+                mission.setRoom(entry.getRoom());
+
+            missions.add(mission);
+        }
+        return missions;
+    }
+
+    /**
      * Report a delay or absence for a mission
      * @param id the mission ID
      * @param body the request body containing delay minutes and absence flag
@@ -537,8 +616,7 @@ public class ScheduleController {
 
             List<Mission> missions = missionService.getMissionsForWeek(uid, userRole, date, status);
 
-            List<Map<String, String>> events = convertMissionsToEvents(missions);
-
+            List<Map<String, String>> events = convertMissionsToEvents(missions, date.with(DayOfWeek.MONDAY));
             return ResponseEntity.ok(events);
         } catch (Exception e) {
             e.printStackTrace();
@@ -551,12 +629,27 @@ public class ScheduleController {
      * @param missions the list of missions to convert
      * @return the list of event maps with title, start, end, color, status, and other display fields
      */
-    private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions) {
+    private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions, LocalDate weekMonday) {
 
         List<Map<String, String>> events = new ArrayList<>();
 
         for (Mission mission : missions) {
-            if (!(mission.getTimeSlot() instanceof PunctualTimeSlot)) {
+            LocalDateTime startDt;
+            LocalDateTime endDt;
+
+            if (mission.getTimeSlot() instanceof PunctualTimeSlot pts) {
+                startDt = pts.getStartDate();
+                endDt   = pts.getEndDate();
+            } else if (mission.getTimeSlot() instanceof BaseTimeSlot bts) {
+                // place the recurring mission on its weekday within the displayed week
+                LocalDate occurrence = weekMonday.plusDays(bts.getDay().getValue() - 1);
+                // show it only inside its validity window (startDate -> endDate)
+                if (occurrence.isBefore(bts.getStartDate()) || occurrence.isAfter(bts.getEndDate())) {
+                    continue;
+                }
+                startDt = LocalDateTime.of(occurrence, bts.getStartTime());
+                endDt   = LocalDateTime.of(occurrence, bts.getEndTime());
+            } else {
                 continue;
             }
 
@@ -565,12 +658,11 @@ public class ScheduleController {
                 mission.setInterpreters(new java.util.HashSet<>());
             }
 
-            PunctualTimeSlot pts = (PunctualTimeSlot) mission.getTimeSlot();
             Map<String, String> event = new HashMap<>();
             event.put("id", String.valueOf(mission.getId()));
-            event.put("title",mission.getSubject());
-            event.put("start",pts.getStartDate().toString());
-            event.put("end", pts.getEndDate().toString());
+            event.put("title", mission.getSubject());
+            event.put("start", startDt.toString());
+            event.put("end", endDt.toString());
             event.put("color",getColor(mission.getStateOfMission()));
             event.put("importance", String.valueOf(mission.getImportance()));
             event.put("status", getDisplayStatus(mission.getStateOfMission()));
