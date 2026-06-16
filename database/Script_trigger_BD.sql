@@ -222,5 +222,48 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE FUNCTION get_heures_prestees(
+    interpreter_id IN INTEGER,
+    date_debut     IN DATE,
+    date_fin       IN DATE
+) RETURN NUMBER IS
+    total      NUMBER := 0;
+    eff_start  DATE;
+    eff_end    DATE;
+    first_occ  DATE;
+    occ_count  NUMBER;
+    hours_per  NUMBER;
+BEGIN
+    FOR rec IN (
+        SELECT ts."DAY"         AS day_of_week,
+               ts.startDateTime AS start_dt,
+               ts.endDateTime   AS end_dt
+        FROM Mission mi
+                 JOIN TimeSlot ts ON mi.timeSlot = ts.id
+                 JOIN InterpreterMission im ON mi.id = im.mission
+        WHERE im.interpreter = interpreter_id
+          AND mi.stateOfMission IN (1, 4)
+        ) LOOP
+            IF rec.day_of_week IS NULL THEN
+                IF TRUNC(rec.start_dt) BETWEEN date_debut AND date_fin THEN
+                    total := total + (rec.end_dt - rec.start_dt) * 24;
+                END IF;
+            ELSE
+                eff_start := GREATEST(TRUNC(rec.start_dt), date_debut);
+                eff_end   := LEAST(TRUNC(rec.end_dt), date_fin);
+                IF eff_start <= eff_end THEN
+                    first_occ := eff_start
+                        + MOD(rec.day_of_week - (TRUNC(eff_start) - TRUNC(eff_start, 'IW') + 1) + 7, 7);
+                    IF first_occ <= eff_end THEN
+                        occ_count := FLOOR((eff_end - first_occ) / 7) + 1;
+                        hours_per := ((rec.end_dt - TRUNC(rec.end_dt)) - (rec.start_dt - TRUNC(rec.start_dt))) * 24;
+                        total := total + occ_count * hours_per;
+                    END IF;
+                END IF;
+            END IF;
+        END LOOP;
+    RETURN total;
+END;
+/
 
 commit;
