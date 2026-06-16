@@ -25,9 +25,9 @@ public class Status {
     }
 
     /**
-     Constructor of a Status without id
-     @param designation represent the designation
-     @param hourQuota represent the hourQuota
+     * Constructor of a Status without id
+     * @param designation represent the designation
+     * @param hourQuota represent the hourQuota
      */
     public Status(String designation, int hourQuota) {
         this(-1, designation, hourQuota);
@@ -106,6 +106,7 @@ public class Status {
      */
     public int compareTo(Status s) {
         if (this == s) return 0;
+
         return designation.compareTo(s.designation);
     }
 
