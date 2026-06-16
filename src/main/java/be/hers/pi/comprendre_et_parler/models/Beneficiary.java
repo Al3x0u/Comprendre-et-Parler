@@ -24,6 +24,7 @@ public class Beneficiary extends AppliUser {
                        LocalDate birthDate, String hashedPassword, String email,
                        String phoneNumber, Status status, Interpreter interpreterRef) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+
         this.status = status;
         this.interpreterRef = interpreterRef;
     }
@@ -48,7 +49,7 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Minimal constructor
-     * @param id the beneficiary's id
+     * @param id represent the id
      */
     public Beneficiary(int id) {
         super(id);
@@ -56,9 +57,9 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Lightweight constructor
-     * @param id the beneficiary's id
-     * @param firstName the beneficiary's first name
-     * @param lastName the beneficiary's last name
+     * @param id represent the id
+     * @param firstName represent the firstName
+     * @param lastName represent the lastName
      */
     public Beneficiary(int id, String firstName, String lastName) {
         super(id, firstName, lastName);
