@@ -39,6 +39,30 @@ public class DAOMission extends DAO<Mission> {
     private static final DAOPunctualTimeSlot daoPunctualTimeSlot = new DAOPunctualTimeSlot();
     private static final DAOBeneficiary daoBeneficiary = new DAOBeneficiary();
 
+    /**Overlap based on type between an existing slot and a new one
+     * the type is define by the column day of the table TIMESLOT
+     * NULL == PunctualTimeSlot; 1-7 == BaseTimeSlot
+     **/
+    private static final String TIMESLOT_OVERLAP = "(" +
+            //punctual x punctual : overlap exact datetime
+            "(ts.\"DAY\" IS NULL AND tsNew.\"DAY\" IS NULL AND ts.startDateTime < tsNew.endDateTime AND " +
+            "ts.endDateTime > tsNew.startDateTime) OR " +
+        //recurrent x recurrent : same day + hour of the day overlap + validity hour overlap
+            "(ts.\"DAY\" IS NOT NULL AND tsNew.\"DAY\" IS NOT NULL AND ts.\"DAY\" = tsNew.\"DAY\" AND " +
+            "(ts.startDateTime - TRUNC(ts.startDateTime)) < tsNew.endDateTime - TRUNC(tsNew.endDateTime)) " +
+            "AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime)) " +
+            "AND TRUNC(ts.startDateTime <= TRUNC(tsNew.endDateTime) AND TRUNC(ts.endDateTime) >= TRUNC(tsNew.startDateTime)) OR " +
+            //punctual exist x new recurent : same day and same hour overlap
+            "(ts.\"DAY\" IS NULL AND tsNew.\"DAY\" IS NOT NULL AND TRUNC(ts.startDateTime) BETWEEN " +
+            "TRUNC(tsNew.startDateTime) AND TRUNC(tsNew.endDateTime) AND (TRUNC(ts,startDateTime) - TRUNC(ts.startDateTIME, 'IW') + 1) = tsNew.\"DAY\" " +
+            "AND (ts.startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime)) " +
+            "AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime))) OR " +
+            //recurent exist x new punctual
+            "/ts.\"DAY\" IS NOT NULL AND tsNew.\"DAY\" IS NULL AND TRUNC(tsNew.startDateTime) BETWEEN TRUNC(ts.startDateTime) " +
+            "AND TRUNC(endDateTime) AND (TRUNC(tsNew.startDateTime) - TRUNC(tsNew.startDateTime, 'IW') + 1) = ts.\"DAY\"" +
+            "AND (ts,startDateTime - TRUNC(ts.startDateTime)) < (tsNew.endDateTime - TRUNC(tsNew.endDateTime)) " +
+            "AND (ts.endDateTime - TRUNC(ts.endDateTime)) > (tsNew.startDateTime - TRUNC(tsNew.startDateTime))))" ;
+
     @Override
     public Mission find(int id) throws SQLException {
         String query = "SELECT * FROM " + TABLE + " WHERE " + FIELD_ID + " = ?";
@@ -252,65 +276,80 @@ public class DAOMission extends DAO<Mission> {
      */
     @Override
     protected int checkAlreadyExists(Mission mission) throws SQLException {
-        if (mission.getStateOfMission() == MissionState.CANCELED || mission.getStateOfMission() == MissionState.DENIED)
+        if (mission.getStateOfMission() == MissionState.CANCELED || mission.getStateOfMission() == MissionState.DENIED) {
             return -1;
+        }
 
-        // Find Missions in states that are not allowed to overlap, sharing an interpreter or beneficiary with mission, and for which timeslots overlap
+        boolean hasBeneficiary = mission.getBeneficiary() != null;
+        boolean hasInterpreters = mission.getInterpreters() != null && !mission.getInterpreters().isEmpty();
+        // Without any actor, nobody can be double-booked
+        if (!hasBeneficiary && !hasInterpreters) {
+            return -1;
+        }
+
         StringBuilder query = new StringBuilder(
-            "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
-            "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
-            " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ?" +
-            " JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
-            " WHERE "+
+                "SELECT m."+ FIELD_ID +" FROM "+ TABLE +" m "+
+                        "JOIN "+ DAOBaseTimeSlot.TABLE +" ts ON m."+ FIELD_TIME_SLOT +" = ts." + DAOBaseTimeSlot.FIELD_ID +
+                        " JOIN "+ DAOBaseTimeSlot.TABLE +" tsNew ON tsNew." + DAOBaseTimeSlot.FIELD_ID + " = ?" +
+                        // LEFT JOIN so a mission without an interpreter (e.g. a beneficiary-only request) stays a candidate
+                        " LEFT JOIN "+ DAOMission.TABLE_INTERPRETER_MISSION +" im ON im."+ DAOMission.INTERPRETER_MISSION_REF_MISSION +" = m."+ FIELD_ID +
+                        " WHERE m."+ FIELD_ID +" <> ? ");
 
-            // mission is not the one we're checking against
-            "m."+ FIELD_ID +" <> ? ");
+        // states allowed to overlap are excluded
+        query.append("AND m."+ FIELD_STATE +" <> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +" <> "+ MissionState.CANCELED.getValue());
+        if (mission.getStateOfMission() == MissionState.PENDING) {
+            query.append(" AND m." + FIELD_STATE + " <> " + MissionState.PENDING.getValue());
+        }
 
-            // state is not allowed to overlap
-            query.append("AND m."+ FIELD_STATE +" <> "+ MissionState.DENIED.getValue() +" AND m."+ FIELD_STATE +" <> "+ MissionState.CANCELED.getValue());
-            if (mission.getStateOfMission() == MissionState.PENDING)
-                // exclude PENDING missions since they can overlap with each other
-                query.append(" AND m."+ FIELD_STATE +" <> "+ MissionState.PENDING.getValue());
+        // timeslot overlap, type-aware (punctual / recurring / mixed)
+        query.append(" AND ").append(TIMESLOT_OVERLAP);
 
-
-            // timeslots overlap
-            // TODO : handle BaseTimeSlots (check for day and truncate date from time fields)
-            query.append(
-            " AND ts."+ DAOBaseTimeSlot.FIELD_START_TIME +" < tsNew." + DAOBaseTimeSlot.FIELD_END_TIME +
-            " AND ts."+ DAOBaseTimeSlot.FIELD_END_TIME +" > tsNew." + DAOBaseTimeSlot.FIELD_START_TIME +
-            " AND (" +
-                // beneficiary is shared (if there is one assigned)
-                "m." + FIELD_BENEFICIARY);
-                query.append((mission.getBeneficiary() == null ? " IS NULL " : " = ? "));
-
-                // any interpreter is shared
-                if (mission.getInterpreters() != null && !mission.getInterpreters().isEmpty()) {
-                    query.append("OR im."+ DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?");
-                    for(int i = 1; i < mission.getInterpreters().size(); i++){
-                        query.append(", ?");
-                    }
-                    query.append(" )");
-                }
-            query.append(")");
+        // shared actor:
+        // a shared beneficiary is ALWAYS a conflict (a beneficiary can't be interpreted by two interpreters at once)
+        // a shared interpreter is a conflict ONLY if a different place OR different required skills
+        // (one interpreter can cover several beneficiaries in the same room for the same course)
+        query.append(" AND (");
+        if (hasBeneficiary) {
+            query.append("m." + FIELD_BENEFICIARY + " = ?");
+        }
+        if (hasBeneficiary && hasInterpreters) {
+            query.append(" OR ");
+        }
+        if (hasInterpreters) {
+            query.append("(im." + DAOMission.INTERPRETER_MISSION_REF_INTERPRETER + " IN ( ?");
+            for (int i = 1; i < mission.getInterpreters().size(); i++) {
+                query.append(", ?");
+            }
+            query.append(" )");
+            query.append(" AND (m." + FIELD_LOCATION + " <> ?"
+                    + " OR NVL(m." + FIELD_JOB_SKILL + ", -1) <> ?"
+                    + " OR NVL(m." + FIELD_ACADEMIC_SKILL + ", -1) <> ?))");
+        }
+        query.append(")");
 
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
-            int field = 1; // variable number of fields depending on assigned interpreters and beneficiary
+            int field = 1;
             statement = DatabaseConnector.getInstance().prepareStatement(query.toString());
-            statement.setInt(field++, mission.getTimeSlot().getId());
-            statement.setInt(field++, mission.getId());
-            if (mission.getBeneficiary() != null)
+            statement.setInt(field++, mission.getTimeSlot().getId());// tsNew.id = ?
+            statement.setInt(field++, mission.getId());// m.id <> ?
+            if (hasBeneficiary) {
                 statement.setInt(field++, mission.getBeneficiary().getId());
-            if (mission.getInterpreters() != null) {
+            }
+            if (hasInterpreters) {
                 for (Interpreter i : mission.getInterpreters()) {
                     statement.setInt(field++, i.getId());
                 }
+                statement.setInt(field++, mission.getLocation().getId());                                              // m.location <> ?
+                statement.setInt(field++, mission.getJobSkill() != null ? mission.getJobSkill().getId() : -1);         // jobSkill
+                statement.setInt(field++, mission.getAcademicSkill() != null ? mission.getAcademicSkill().getId() : -1); // academicSkill
             }
 
             result = statement.executeQuery();
-            if(result.next())
+            if (result.next()) {
                 return result.getInt(FIELD_ID);
+            }
         } finally {
             closeResultSet(result);
             closeStatement(statement);

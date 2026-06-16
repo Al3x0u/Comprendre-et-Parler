@@ -38,6 +38,7 @@ public class ScheduleController {
     private static final String COLOR_PENDING = "#fab005";
     private static final String COLOR_REFUSED = "#fa5252";
     private static final String COLOR_DEFAULT = "#adb5bd";
+    private static final String COLOR_REGULAR = "#4dabf7";
 
     /**
      * Display the schedule page
@@ -717,6 +718,7 @@ public class ScheduleController {
             case PENDING  -> "En attente";
             case DENIED   -> "Refusée";
             case CANCELED -> "Annulée";
+            case REGULAR -> "Récurrente";
             default       -> "";
         };
     }
@@ -734,6 +736,7 @@ public class ScheduleController {
             case ACCEPTED -> COLOR_ACCEPTED;
             case PENDING -> COLOR_PENDING;
             case DENIED, CANCELED -> COLOR_REFUSED;
+            case REGULAR -> COLOR_REGULAR;
             default -> COLOR_DEFAULT;
         };
     }
