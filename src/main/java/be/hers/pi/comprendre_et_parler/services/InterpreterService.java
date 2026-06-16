@@ -375,4 +375,17 @@ public class InterpreterService {
             mission.setInterpreters((null));
         }
     }
+
+    /**
+     * Lightweight version of loadInterpreters for display: loads only id + name in one query.
+     * @param mission the mission whose interpreters to load
+     */
+    public void loadInterpretersLight(Mission mission) {
+        try {
+            mission.setInterpreters(SQLWrap.call(new DAOInterpreter()::findNamesByMissionId, mission.getId()));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            mission.setInterpreters(null);
+        }
+    }
 }

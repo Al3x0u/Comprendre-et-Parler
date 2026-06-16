@@ -82,6 +82,13 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * Lightweight constructor for display: id + name only.
+     */
+    public Interpreter(int id, String firstName, String lastName) {
+        super(id, firstName, lastName);
+    }
+
+    /**
      * Minimal constructor
      * @param id the Interpreter's id
      */

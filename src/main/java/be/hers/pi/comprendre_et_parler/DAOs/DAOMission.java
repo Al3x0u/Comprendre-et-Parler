@@ -751,7 +751,7 @@ public class DAOMission extends DAO<Mission> {
         }
 
         for (Mission mis : missions)
-            completeBeneficiary(mis);
+            completeBeneficiaryLight(mis);
 
         return missions;
     }

@@ -723,6 +723,39 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
+     * Loads only id + first/last name of the interpreters assigned to a mission, in a single query
+     * (no skills, location, availabilities…). For display where only the name is needed.
+     * @param idMission the mission id
+     * @return the set of lightweight interpreters, or an empty set
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Interpreter> findNamesByMissionId(int idMission) throws SQLException {
+        String query = String.format(
+                "SELECT i.%s, i.%s, i.%s FROM %s i JOIN %s im ON i.%s = im.%s WHERE im.%s = ?",
+                FIELD_ID, FIELD_FIRST_NAME, FIELD_LAST_NAME,
+                TABLE, DAOMission.TABLE_INTERPRETER_MISSION,
+                FIELD_ID, FIELD_INTERPRETER, FIELD_MISSION
+        );
+        Set<Interpreter> interpreters = new HashSet<>();
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, idMission);
+            result = statement.executeQuery();
+            while (result.next())
+                interpreters.add(new Interpreter(
+                        result.getInt(FIELD_ID),
+                        result.getString(FIELD_FIRST_NAME),
+                        result.getString(FIELD_LAST_NAME)));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return interpreters;
+    }
+
+    /**
      * Return all Interpreter who are available in the given time and date
      * @param start represent the start of the time that we want the availability
      * @param end represent the end of the time that we want the availability

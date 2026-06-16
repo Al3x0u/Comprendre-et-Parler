@@ -547,7 +547,7 @@ public class ScheduleController {
                 concerned = mission.getBeneficiary() != null
                         && mission.getBeneficiary().getId() == user.getId();
             } else {
-                interpreterService.loadInterpreters(mission);
+                interpreterService.loadInterpretersLight(mission);
                 concerned = mission.getInterpreters() != null
                         && mission.getInterpreters().stream().anyMatch(i -> i.getId() == user.getId());
             }
@@ -653,7 +653,7 @@ public class ScheduleController {
                 continue;
             }
 
-            interpreterService.loadInterpreters(mission);
+            interpreterService.loadInterpretersLight(mission);
             if (mission.getInterpreters() == null) {
                 mission.setInterpreters(new java.util.HashSet<>());
             }
