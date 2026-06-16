@@ -132,8 +132,11 @@ public class Mission {
         this.commentary = mission.commentary;
         this.timeSlot = mission.timeSlot.clone();
 
-        if (mission.beneficiary != null) this.beneficiary = new Beneficiary(mission.beneficiary);
-        if (mission.interpreters != null) this.interpreters = new HashSet<>(mission.interpreters);
+        if (mission.beneficiary != null)
+            this.beneficiary = new Beneficiary(mission.beneficiary);
+
+        if (mission.interpreters != null)
+            this.interpreters = new HashSet<>(mission.interpreters);
 
         this.location = new Location(mission.location);
         this.jobSkill = new JobSkill(mission.jobSkill);
@@ -279,6 +282,7 @@ public class Mission {
             for (int j = i + 1; j < list.size(); j++)
                 if (list.get(i).getId() == list.get(j).getId())
                     throw new AlreadyExistsException("Two interpreters have the same id");
+
         this.interpreters = new HashSet<>(interpreters);
     }
 
@@ -416,7 +420,9 @@ public class Mission {
                 found = true;
             }
         }
-        if (!found) throw new NoSuchElementException("No interpreter with id: " + id);
+        if (!found)
+            throw new NoSuchElementException("No interpreter with id: " + id);
+
         interpreters.remove(toRemove);
     }
 }
