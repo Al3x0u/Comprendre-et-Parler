@@ -82,6 +82,14 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * Minimal constructor
+     * @param id the Interpreter's id
+     */
+    public Interpreter(int id) {
+        super(id);
+    }
+
+    /**
      * Copy constructor of an Interpreter
      * @param other the Interpreter to copy, must not be null
      */

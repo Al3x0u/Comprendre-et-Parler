@@ -24,20 +24,17 @@ const isMobile = window.innerWidth < 768;
 /** @type {ActiveFilters} */
 const activeFilters = {
     status: null,
-    // MANAGER et INTERPRETER : pré-filtré sur son propre nom au chargement
-    interpreter: null,
-    _localOnly: false
+    userId: null
 };
 
-if ((userRole === 'MANAGER' || userRole === 'INTERPRETER') && userFullName) {
-    activeFilters.interpreter = userFullName;
+if (userRole === 'MANAGER' || userRole === "INTERPRETER") {
+    activeFilters.userId = userId;
 }
-
 /** @type {number|null} ID of the currently selected mission */
 let currentMissionId = null;
 
 /** @type {boolean} Whether this is the first calendar load */
-let premierChargement = true;
+let firstLoading = true;
 
 /**
  * Hidden all events of the week-end
@@ -120,11 +117,10 @@ function setupUserFilter() {
     document.querySelectorAll('.filter-user-item').forEach(item => {
         item.addEventListener('click', e => {
             e.preventDefault();
-            const value = item.dataset.value;
-            if (activeFilters.interpreter === value) return;
-            activeFilters.interpreter = value;
+            const newUserId = parseInt(item.dataset.id);
+            if (activeFilters.userId === newUserId) return;
+            activeFilters.userId = newUserId;
             highlightActiveUser();
-            activeFilters._localOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
             document.querySelector('.fc-filterBtn-button')?.classList.remove('active');
@@ -140,8 +136,9 @@ function highlightActiveUser() {
     document.querySelectorAll('.filter-user-item').forEach(i => {
         i.classList.remove('fw-bold', 'active');
     });
-    if (activeFilters.interpreter) {
-        const active = Array.from(document.querySelectorAll('.filter-user-item')).find(i => i.dataset.value === activeFilters.interpreter);
+    if (activeFilters.userId != null) {
+        const active = Array.from(document.querySelectorAll('.filter-user-item'))
+            .find(i => parseInt(i.dataset.id) === activeFilters.userId);
         if (active) active.classList.add('fw-bold', 'active');
     }
 }
@@ -160,7 +157,6 @@ function setupFilter(selector, filterKey) {
             activeFilters[filterKey] = activeFilters[filterKey] === item.dataset.value ? null : item.dataset.value;
             document.querySelectorAll(selector).forEach(i => i.classList.remove('fw-bold'));
             if (activeFilters[filterKey]) item.classList.add('fw-bold');
-            activeFilters._localOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
         });
@@ -849,37 +845,42 @@ if (userRole === 'MANAGER') {
 //CALENDAR INIT
 
 /**
- * Apply local filter to the all mission charged
- * @param {Array<Object>} events
- * @returns {Array<Object>}
+ * Fetches missions for a given week from the server and updates the calendar.
+ * If a user filter is active, scopes the query to that user's missions only.
+ * Sends status and role filters to the server so all filtering happens in the DB.
+ *
+ * @param {Object}   fetchInfo          - Date range info provided by FullCalendar
+ * @param {string}   fetchInfo.startStr - ISO date string of the week start
+ * @param {Function} successCallback    - FullCalendar callback, called with the event array
+ * @param {Function} failureCallback    - FullCalendar callback, called with the error on fetch failure
+ * @returns {Promise<void>}
  */
-function applyLocalFilters(events) {
-    return events.filter(e => {
-        if (activeFilters.status && e.status !== activeFilters.status) return false;
-        if (activeFilters.interpreter) {
-            const f = activeFilters.interpreter.toLowerCase();
-            const matchInterp = (e.interpreter || '').toLowerCase().includes(f);
-            const matchBene   = (e.beneficiary || '').toLowerCase().includes(f);
-            if (!matchInterp && !matchBene) return false;
-        }
-        return true;
-    });
-}
-
 async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     const params = new URLSearchParams();
     params.append('weekDate', fetchInfo.startStr.substring(0, 10));
+
+    if (activeFilters.userId != null && !isNaN(activeFilters.userId)) {
+        params.append('userId', activeFilters.userId);
+        const activeItem = document.querySelector('.filter-user-item.active');
+        if (activeItem) params.append('role', activeItem.dataset.role);
+    }else {
+        params.append('userId', userId);
+        params.append('role', userRole);
+    }
+
+    if (activeFilters.status != null) {
+        params.append('status', activeFilters.status);
+    }
 
     try {
         const r = await fetch('/horaire/evenements?' + params.toString());
         const data = await r.json();
         cachedEvents = data;
-        successCallback(applyLocalFilters(data));
+        successCallback(data);
     } catch (err) {
         failureCallback(err);
     }
 }
-
 document.addEventListener('input', function (e) {
     if (e.target.classList.contains('is-invalid')) {
         e.target.classList.remove('is-invalid');
@@ -916,10 +917,9 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {Function} failureCallback - Callback called on error
          */
         events: function(fetchInfo, successCallback, failureCallback) {
-            if (premierChargement || activeFilters._localOnly) {
-                premierChargement = false;
-                activeFilters._localOnly = false;
-                successCallback(applyLocalFilters(cachedEvents));
+            if (firstLoading) {
+                firstLoading = false;
+                successCallback(cachedEvents);
                 return;
             }
             fetchEvents(fetchInfo, successCallback, failureCallback);
@@ -930,7 +930,8 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'prev,title,next',
             end: ''
         } : {
-            start: 'timeGridWeek,timeGridDay filterBtn viewRequests',
+            start: userRole === 'MANAGER' ? 'timeGridWeek,timeGridDay filterBtn viewRequests'
+                : 'timeGridWeek,timeGridDay filterBtn',
             center: 'prev title next',
             end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
                 : userRole === 'INTERPRETER' ? 'newUnavailability today'
@@ -1359,6 +1360,5 @@ document.addEventListener('DOMContentLoaded', function() {
         setupUserFilter();
         highlightActiveUser();
     }
-    setupFilter('.filter-interpreter', 'interpreter');
     calendar.render();
 });

@@ -176,4 +176,5 @@ ALTER TABLE Mission ADD CONSTRAINT ImportanceValue CHECK (importance <= 3);
 
 ALTER TABLE RegularMissionCancelled ADD CONSTRAINT NumWeekValue CHECK (numWeek BETWEEN 1 AND 53);
 
+
 commit;
