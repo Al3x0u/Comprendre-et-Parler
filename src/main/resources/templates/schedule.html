@@ -28,7 +28,7 @@
                     <i class="bi bi-calendar-heart-fill me-1"></i>Mon Horaire
                 </div>
                 <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'MANAGER' && u.fullName == userFullName}">
-                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="MANAGER">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-id="${u.id}" data-role="MANAGER">
                         <i class="bi bi-person-fill-gear filter-dot-manager"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
@@ -40,7 +40,7 @@
                     <i class="bi bi-translate me-1"></i>Interprètes
                 </div>
                 <th:block th:each="u : ${filterUsers}" th:if="${(u.role == 'MANAGER' || u.role == 'INTERPRETER') && u.fullName != userFullName}">
-                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-role="${u.role}">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-id="${u.id}" th:data-role="${u.role}">
                         <i class="bi bi-person-fill filter-dot-interpreter"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
@@ -52,7 +52,7 @@
                     <i class="bi bi-heart-fill me-1"></i>Bénéficiaires
                 </div>
                 <th:block th:each="u : ${filterUsers}" th:if="${u.role == 'BENEFICIARY'}">
-                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" data-role="BENEFICIARY">
+                    <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1" href="#" th:data-value="${u.fullName}" th:data-id="${u.id}" data-role="BENEFICIARY">
                         <i class="bi bi-person-heart filter-dot-beneficiary"></i>
                         <span th:text="${u.fullName}"></span>
                     </a>
@@ -78,6 +78,7 @@
                 <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
                    href="#"
                    th:data-value="${session.user.firstName + ' ' + session.user.lastName}"
+                   th:data-id="${session.user.id}"
                    data-role="INTERPRETER">
                     <i class="bi bi-person-fill filter-dot-manager"></i>
                     <span th:text="${session.user.firstName + ' ' + session.user.lastName}"></span>
@@ -92,6 +93,7 @@
                     <a class="dropdown-item filter-user-item d-flex align-items-center gap-2 py-1"
                        href="#"
                        th:data-value="${b.firstName + ' ' + b.lastName}"
+                       th:data-id="${b.id}"
                        data-role="BENEFICIARY">
                         <i class="bi bi-person-heart filter-dot-beneficiary"></i>
                         <span th:text="${b.firstName + ' ' + b.lastName}"></span>
@@ -112,7 +114,10 @@
         <div class="filter-status-dot filter-status-dot--pending"></div>En attente
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Refusée">
-        <div class="filter-status-dot filter-status-dot--refused"></div>Refusée/Annulée
+        <div class="filter-status-dot filter-status-dot--refused"></div>Refusée
+    </a>
+    <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Annulée">
+        <div class="filter-status-dot filter-status-dot--refused"></div>Annulée
     </a>
     <a class="dropdown-item d-flex align-items-center gap-2 filter-status" href="#" data-value="Horaire de base">
         <div class="filter-status-dot filter-status-dot--base"></div>Horaire de base

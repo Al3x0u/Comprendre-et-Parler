@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.ObjectMapper;
 
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -49,18 +48,21 @@ public class ScheduleController {
     public String showSchedule(HttpSession session, Model model)  {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-
+            String role = "";
             if (user instanceof Manager) {
+                role = "INTERPRETER";
                 model.addAttribute("userRole", "MANAGER");
             } else if (user instanceof Interpreter) {
+                role = "INTERPRETER";
                 model.addAttribute("userRole", "INTERPRETER");
             } else if (user instanceof Beneficiary) {
+                role = "BENEFICIARY";
                 model.addAttribute("userRole", "BENEFICIARY");
             }
 
             LocalDate today = LocalDate.now();
 
-            List<Mission> missions = missionService.getMissionsForWeek(user, today);
+            List<Mission> missions = missionService.getMissionsForWeek(user.getId(),role, today,null);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -508,7 +510,7 @@ public class ScheduleController {
      */
     @GetMapping("/evenements")
     @ResponseBody
-    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String user, HttpSession session) {
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String userId,@RequestParam(required = false) String role, HttpSession session) {
         try {
             AppliUser currentUser = (AppliUser) session.getAttribute("user");
             LocalDate date = LocalDate.now();
@@ -516,34 +518,30 @@ public class ScheduleController {
                 try {
                     date = LocalDate.parse(weekDate);
                 } catch (Exception e) {
-                    e.printStackTrace();
                     date = LocalDate.now();
                 }
             }
 
-            List<Mission> missions = missionService.getMissionsForWeek(currentUser, date);
-            List<Map<String, String>> allEvents = convertMissionsToEvents(missions);
-
-            List<Map<String, String>> filtered = new ArrayList<>();
-            for (Map<String, String> event : allEvents) {
-
-                if (status != null && !status.isBlank()) {
-                    if (!event.getOrDefault("status", "").equalsIgnoreCase(status)) continue;
-                }
-
-                if (user != null && !user.isBlank()) {
-                    boolean matchInterp = event.getOrDefault("interpreter", "").contains(user);
-                    boolean matchBene   = event.getOrDefault("beneficiary", "").contains(user);
-                    if (!matchInterp && !matchBene) continue;
-                }
-
-                filtered.add(event);
+            int uid=-1;
+            if (userId != null && !userId.isBlank()) {
+                uid = Integer.parseInt(userId);
+            } else {
+                uid = currentUser.getId();
             }
-            return ResponseEntity.ok(filtered);
+            String userRole = "";
+
+            if( role != null && !role.isBlank()){
+                userRole = role;
+            }
+
+            List<Mission> missions = missionService.getMissionsForWeek(uid, userRole, date, status);
+
+            List<Map<String, String>> events = convertMissionsToEvents(missions);
+
+            return ResponseEntity.ok(events);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
