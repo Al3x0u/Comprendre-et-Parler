@@ -90,6 +90,7 @@ public class JobSkill {
      */
     public int compareTo(JobSkill j) {
         if (this == j) return 0;
+
         return designation.compareTo(j.designation);
     }
 
@@ -103,12 +104,10 @@ public class JobSkill {
         return Objects.hash(designation);
     }
 
-
     /**
      * Return a String representation of the JobSkill containing all fields
      * @return formatted string with id and designation
      */
-
     @Override
     public String toString() {
         return "JobSkill{id = " + id + ", designation = " + designation + "}";
