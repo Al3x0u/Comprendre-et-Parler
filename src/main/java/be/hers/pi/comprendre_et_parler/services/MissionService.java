@@ -14,12 +14,10 @@ import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.temporal.WeekFields;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class MissionService {
@@ -46,30 +44,11 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      * @throws ConnectionException if the connection to the database could not be established
      */
-    public List<Mission> getByFilter(MissionFilter filter) throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter));
+    public List<Mission> getByFilter(MissionFilter filter, LocalDateTime start, LocalDateTime end) throws SQLException, ConnectionException {
+        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter, start, end));
     }
 
-    /**
-     * Return the list of missions for a given week, filtered according to the user's role.
-     * @param user the user requesting the schedule (Manager, Interpreter or Beneficiary)
-     * @param weekStart the date of any day within the target week;
-     * @throws SQLException if the database could not be reached
-     */
-    public ArrayList<Mission> getMissionsForWeek(AppliUser user, LocalDate weekStart) throws SQLException {
-        int yearNumber = weekStart.getYear();
-        int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
-        Set<Mission> missions;
 
-        if (user instanceof Manager)
-            missions = SQLWrap.call(daoMission::getAllMissionsForWeek, yearNumber, weekNumber);
-        else if(user instanceof Interpreter)
-            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
-        else
-            missions = SQLWrap.call(daoMission::getScheduleForWeek, user.getId(), yearNumber, weekNumber);
-
-        return new ArrayList<>(missions);
-    }
 
     /**
      * Creates a mission with the status ACCEPTED
@@ -388,5 +367,31 @@ public class MissionService {
         } catch (Exception ex) {
             return "une autre mission";
         }
+    }
+
+    /**
+     * Returns the missions for a given week scoped to a specific user, with an optional status filter
+     * @param userId   the id of the user whose missions to retrieve
+     * @param role  the role of the user
+     * @param weekStart any date within the target week
+     * @param status the French display status to filter on, or null for all status
+     * @return the list of missions for that user during that week, filtered by status if provided
+     */
+    public List<Mission> getMissionsForWeek(int userId, String role, LocalDate weekStart, String status) throws SQLException {
+        LocalDateTime start = weekStart.with(DayOfWeek.MONDAY).atStartOfDay();
+        LocalDateTime end = weekStart.with(DayOfWeek.SUNDAY).atTime(23, 59, 59);
+
+        MissionFilter filter = new MissionFilter();
+        if (role.equals("BENEFICIARY")) {
+            filter.setBeneficiary(new Beneficiary(userId));
+        } else {
+            filter.setInterpreter(new Interpreter(userId));
+        }
+
+        if (status != null && !status.isBlank()) {
+            filter.setStateOfMission(MissionState.fromDisplayStatus(status));
+        }
+
+        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter, start, end));
     }
 }
