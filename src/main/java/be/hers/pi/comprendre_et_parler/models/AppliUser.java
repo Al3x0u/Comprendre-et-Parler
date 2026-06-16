@@ -16,7 +16,7 @@ public abstract class AppliUser {
 
     /**
      * Minimal constructor
-     * @param id the user's id
+     * @param id represent the id
      */
     public AppliUser(int id) {
         this.id = id;
@@ -24,15 +24,16 @@ public abstract class AppliUser {
 
     /**
      * Lightweight constructor
-     * @param id the user's id
-     * @param firstName the user's first name
-     * @param lastName the user's last name
+     * @param id represent the id
+     * @param firstName represent the firstName
+     * @param lastName the user's last lastName
      */
     public AppliUser(int id, String firstName, String lastName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
     }
+
     /**
      Constructor of a AppliUser
      @param id represent the id
@@ -134,7 +135,9 @@ public abstract class AppliUser {
     /**
      * @return The AppliUser's first then last name
      */
-    public String getFullName() { return firstName + " " + lastName;}
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 
     /**
      * @param lastName represent the new last name
@@ -220,7 +223,7 @@ public abstract class AppliUser {
      * Compare this AppliUser with another Object for equality
      * @param o the Object to compare with
      * @return true if both objects have identical login, firstName, lastName,
-     * birthDate, hashedPassword, email and phoneNumber
+     * birthDate, email and phoneNumber
      */
     @Override
     public boolean equals(Object o) {
@@ -229,8 +232,8 @@ public abstract class AppliUser {
 
         AppliUser other = (AppliUser) o;
         return Objects.equals(firstName, other.firstName)  && Objects.equals(lastName, other.lastName)
-                && Objects.equals(birthDate, other.birthDate) && Objects.equals(hashedPassword, other.hashedPassword)
-                && Objects.equals(email, other.email) && Objects.equals(phoneNumber, other.phoneNumber);
+                && Objects.equals(birthDate, other.birthDate) && Objects.equals(email, other.email)
+                && Objects.equals(phoneNumber, other.phoneNumber);
     }
 
     /**
@@ -244,6 +247,7 @@ public abstract class AppliUser {
      */
     public int compareTo(AppliUser a) {
         if (this == a) return 0;
+
         int res = firstName.compareTo(a.firstName);
         if (res == 0) {
             res = lastName.compareTo(a.lastName);
@@ -264,7 +268,6 @@ public abstract class AppliUser {
                 firstName,
                 lastName,
                 birthDate,
-                hashedPassword,
                 email,
                 phoneNumber
         );
