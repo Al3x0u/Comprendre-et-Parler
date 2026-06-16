@@ -60,7 +60,7 @@ public class CreateInterpreterForm {
     }
 
     /**
-     * @param birthDate the new birthDate
+     * @param birthDate the new birthdate
      */
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
