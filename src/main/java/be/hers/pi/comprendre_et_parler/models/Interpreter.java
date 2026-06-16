@@ -42,6 +42,7 @@ public class Interpreter extends AppliUser{
                        Set<AcademicSkill> academicSkills, Set<JobSkill> jobSkills, Location location,
                        Set<BaseTimeSlot> availability) {
         super(id, login, firstName, lastName, birthDate, hashedPassword, email, phoneNumber);
+
         if (hourQuotaWeek >= 0) this.hourQuotaWeek = hourQuotaWeek;
         if (hourQuotaYear >= 0) this.hourQuotaYear = hourQuotaYear;
         this.transportMode = transportMode;
@@ -82,6 +83,24 @@ public class Interpreter extends AppliUser{
     }
 
     /**
+     * Minimal constructor
+     * @param id represent the id
+     */
+    public Interpreter(int id) {
+        super(id);
+    }
+
+    /**
+     * Lightweight constructor
+     * @param id represent the id
+     * @param firstName represent the firstName
+     * @param lastName represent the lastName
+     */
+    public Interpreter(int id, String firstName, String lastName) {
+        super(id, firstName, lastName);
+    }
+
+    /**
      * Copy constructor of an Interpreter
      * @param other the Interpreter to copy, must not be null
      */
@@ -112,13 +131,14 @@ public class Interpreter extends AppliUser{
         if (other.unavailability != null)
             this.unavailability = new HashSet<>(other.unavailability);
     }
+
     @Override
     public Interpreter clone() {
         return new Interpreter(this);
     }
 
     /**
-     @return this.hourQuotaWeek
+     * @return this.hourQuotaWeek
      */
     public int getHourQuotaWeek() {
         return hourQuotaWeek;
@@ -133,7 +153,7 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     @return this.hourQuotaYear
+     * @return this.hourQuotaYear
      */
     public int getHourQuotaYear() {
         return this.hourQuotaYear;

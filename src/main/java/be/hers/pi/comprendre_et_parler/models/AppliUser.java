@@ -35,15 +35,15 @@ public abstract class AppliUser {
     }
 
     /**
-     Constructor of a AppliUser
-     @param id represent the id
-     @param login represent the login
-     @param firstName represent the firstname
-     @param lastName represent he lastname
-     @param birthDate represent the birthdate
-     @param hashedPassword represent the hashed password
-     @param email represent the email
-     @param phoneNumber represent the phone number
+     * Constructor of a AppliUser
+     * @param id represent the id
+     * @param login represent the login
+     * @param firstName represent the firstname
+     * @param lastName represent he lastname
+     * @param birthDate represent the birthdate
+     * @param hashedPassword represent the hashed password
+     * @param email represent the email
+     * @param phoneNumber represent the phone number
      */
     public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate,
                      String hashedPassword, String email, String phoneNumber) {
@@ -60,14 +60,14 @@ public abstract class AppliUser {
     }
 
     /**
-     Constructor of a AppliUser without id
-     @param login represent the login
-     @param firstName represent the firstname
-     @param lastName represent he lastname
-     @param birthDate represent the birthdate
-     @param hashedPassword represent the hashed password
-     @param email represent the email
-     @param phoneNumber represent the phone number
+     * Constructor of a AppliUser without id
+     * @param login represent the login
+     * @param firstName represent the firstname
+     * @param lastName represent he lastname
+     * @param birthDate represent the birthdate
+     * @param hashedPassword represent the hashed password
+     * @param email represent the email
+     * @param phoneNumber represent the phone number
      */
     public AppliUser(String login, String firstName, String lastName, LocalDate birthDate,
                      String hashedPassword, String email, String phoneNumber) {
