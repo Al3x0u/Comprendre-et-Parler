@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,8 @@ public class MissionService {
      * @throws SQLException if the database could not be reached
      * @throws ConnectionException if the connection to the database could not be established
      */
-    public List<Mission> getByFilter(MissionFilter filter) throws SQLException, ConnectionException {
-        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter));
+    public List<Mission> getByFilter(MissionFilter filter, LocalDateTime start, LocalDateTime end) throws SQLException, ConnectionException {
+        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter, start, end));
     }
 
     /**

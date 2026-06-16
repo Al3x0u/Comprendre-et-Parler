@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class RequestController {
                 filter.setBeneficiary(beneficiary);
             }
 
-            List<Mission> allDemandes = missionService.getByFilter(filter);
+            List<Mission> allDemandes = missionService.getByFilter(filter, LocalDateTime.now(), LocalDateTime.now().plusWeeks(2));
             List<Beneficiary> beneficiaires = beneficiaryService.getAllBeneficiaries();
 
             int total = allDemandes.size();
