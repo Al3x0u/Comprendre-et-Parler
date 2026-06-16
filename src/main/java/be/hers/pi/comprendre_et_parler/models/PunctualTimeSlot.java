@@ -20,6 +20,7 @@ public class PunctualTimeSlot extends TimeSlot {
      */
     public PunctualTimeSlot(int id, LocalDateTime startDate, LocalDateTime endDate) {
         super(id);
+
         this.startDate = startDate.withNano(0).withSecond(0);
 
         if (endDate.isAfter(startDate))
@@ -91,6 +92,7 @@ public class PunctualTimeSlot extends TimeSlot {
     public boolean overlaps(PunctualTimeSlot timeSlot) {
         if (timeSlot == null) return false;
         if (timeSlot == this) return true;
+
         return startDate.isBefore(timeSlot.endDate) && endDate.isAfter(timeSlot.startDate);
     }
 
@@ -102,6 +104,7 @@ public class PunctualTimeSlot extends TimeSlot {
     public boolean overlapsCompletely(PunctualTimeSlot timeSlot) {
         if (timeSlot == null) return false;
         if (timeSlot == this) return true;
+
         return (startDate.isBefore(timeSlot.startDate) && endDate.isAfter(timeSlot.endDate))
                 || (startDate.isAfter(timeSlot.startDate) && endDate.isBefore(timeSlot.endDate));
     }
