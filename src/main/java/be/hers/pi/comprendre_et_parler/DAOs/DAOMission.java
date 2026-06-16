@@ -486,8 +486,8 @@ public class DAOMission extends DAO<Mission> {
     public Set<Mission> findByInterpreter(int interpreterId) throws SQLException {
         Set<Mission> missions = new HashSet<>();
 
-        String query = "SELECT m." +FIELD_ID+ " FROM " + TABLE + " m " +
-                "WHERE m." +FIELD_ID+ " IN " +
+        String query = "SELECT m.* FROM " + TABLE + " m " +
+                "WHERE m." + FIELD_ID + " IN " +
                 "(SELECT " + INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
                 " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " = ?)";
 
@@ -498,13 +498,17 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(1, interpreterId);
             result = statement.executeQuery();
             while (result.next()) {
-                Mission mission = find(result.getInt("id"));
-                if (mission != null)
-                    missions.add(mission);
+                missions.add(getResult(result));
             }
         } finally {
             closeResultSet(result);
             closeStatement(statement);
+        }
+
+        // Complete Beneficiary objects
+        for (Mission mis : missions) {
+            if (mis.getBeneficiary() != null)
+                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
         }
 
         return missions;
