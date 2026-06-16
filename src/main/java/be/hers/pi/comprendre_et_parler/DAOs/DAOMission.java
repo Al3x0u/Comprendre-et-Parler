@@ -713,8 +713,10 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT * FROM " + TABLE + " m JOIN " +
                 DAOPunctualTimeSlot.TABLE + " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = m." + FIELD_TIME_SLOT +
                 " %s %s %s " +
-                "ts." + DAOPunctualTimeSlot.FIELD_START_TIME + " >= ? " +
-                "AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " <= ?";
+                "( (ts." + DAOBaseTimeSlot.FIELD_DAY + " IS NULL " +
+                "AND ts." + DAOPunctualTimeSlot.FIELD_START_TIME + " >= ? " +
+                "AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " <= ?) " +
+                "OR ts." + DAOBaseTimeSlot.FIELD_DAY + " IS NOT NULL )";
         query = String.format(query,
                 filter.getInterpreter() != null && filter.getInterpreter().getId() != -1 ?
                         "JOIN " + TABLE_INTERPRETER_MISSION + " i ON m." + FIELD_ID + " = i." + INTERPRETER_MISSION_REF_MISSION
