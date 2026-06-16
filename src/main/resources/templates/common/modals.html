@@ -13,13 +13,13 @@
                     <h5 class="modal-title"><i class="bi bi-power me-2"></i>[[${title}]]</h5>
                 </div>
                 <div class="modal-body py-5">
-                    Êtes-vous sûr de vouloir désactiver le compte de  <strong id="delete-name"></strong> ?
+                    Êtes-vous sûr de vouloir supprimer <strong id="delete-name"></strong> ?
                 </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                     <form id="delete-form" method="post">
                         <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash me-2"></i>Désactiver
+                            <i class="bi bi-trash me-2"></i>Supprimer
                         </button>
                     </form>
                 </div>
@@ -39,8 +39,8 @@
 
 <!-- ── DISABLE ─────────────────────────────────────────────────────────── -->
 
-<th:block th:fragment="modal-disable(accountToDisable, disableUrl)">
-    <div class="modal fade" id="modalDisable" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<th:block th:fragment="modal-disable(route)">
+    <div class="modal fade" id="modalDisable" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" th:attr="data-route=${route}">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 rounded-4">
                 <div class="modal-header text-bg-primary rounded-top-4">
@@ -48,12 +48,12 @@
                 </div>
                 <div class="modal-body py-5">
                     Êtes-vous sûr de vouloir désactiver le compte de
-                    <strong th:text="${accountToDisable.firstName + ' ' + accountToDisable.lastName}"></strong> ?
+                    <strong id="disable-name"></strong> ?
                     L'utilisateur ne pourra plus utiliser son compte après la désactivation.
                 </div>
                 <div class="modal-footer rounded-bottom-4">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <form th:action="${disableUrl}" method="post">
+                    <form id="disable-form" method="post">
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-power me-2"></i>Désactiver
                         </button>
@@ -62,6 +62,15 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('modalDisable').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const route = button.getAttribute('data-route') || this.getAttribute('data-route');
+            document.getElementById('disable-name').textContent = button.getAttribute('data-name');
+            document.getElementById('disable-form').action = route + '/' + button.getAttribute('data-id') + '/desactiver';
+        });
+    </script>
 </th:block>
 
 
