@@ -723,11 +723,11 @@ public class DAOInterpreter extends DAO<Interpreter> {
     }
 
     /**
-     * Return all Interpreter who are available in the given time and date
-     * @param start represent the start of the time that we want the availability
-     * @param end represent the end of the time that we want the availability
+     * Return all Interpreter who are available in the given time slot
+     * @param start represents the start of the time slot for which we want the availability
+     * @param end represents the end of the time slot for which we want the availability
      * @throws SQLException if the database could not be reached
-     * @return a set of Interpreter who are available in the given time and date, or an empty set if no Interpreter is available
+     * @return a set of interpreters who are available at the given time and date, or an empty set if no interpreters are available
      */
     public Set<Interpreter> findAvailable(LocalDateTime start, LocalDateTime end) throws SQLException {
         String query = String.format(
