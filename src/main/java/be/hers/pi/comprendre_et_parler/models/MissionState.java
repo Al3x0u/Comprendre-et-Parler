@@ -37,4 +37,22 @@ public enum MissionState {
         }
         throw new IllegalArgumentException("Unknown value: " + value);
     }
+
+    /**
+     * Return the MissionState assosciated with the given status
+     * @param status the status to convert
+     * @return the MissionState associated with the given value
+     * @throws IllegalArgumentException if no MissionState is associated with the given string
+     */
+    public static MissionState fromDisplayStatus(String status) {
+        return switch (status) {
+            case "Acceptée"        -> ACCEPTED;
+            case "En attente"      -> PENDING;
+            case "Refusée"         -> DENIED;
+            case "Annulée"         -> CANCELED;
+            case "Horaire de base" -> REGULAR;
+            default -> throw new IllegalArgumentException("Unknown value: " + status);
+        };
+    }
+
 }
