@@ -1,6 +1,5 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import java.sql.PreparedStatement;
@@ -56,12 +55,19 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
-
-        // Complete Beneficiary objects
-        if (mission != null && mission.getBeneficiary() != null)
-            mission.setBeneficiary(daoBeneficiary.find(mission.getBeneficiary().getId()));
+        completeBeneficiary(mission);
 
         return mission;
+    }
+
+    /**
+     * Complete a mission with the beneficiary from the database
+     * @param mission the mission to complete
+     * @throws SQLException if a database error occurs
+     */
+    private void completeBeneficiary(Mission mission) throws SQLException {
+        if (mission != null && mission.getBeneficiary() != null)
+            mission.setBeneficiary(daoBeneficiary.find(mission.getBeneficiary().getId()));
     }
 
     // Does not update objectToInsert's id when throwing an AlreadyExistException
@@ -225,17 +231,13 @@ public class DAOMission extends DAO<Mission> {
             while (result.next()) {
                 missions.add(getResult(result));
             }
-        }
-        finally {
+        }  finally {
             closeResultSet(result);
             closeStatement(statement);
         }
 
-        // Complete Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiary(mis);
 
         return missions;
     }
@@ -373,12 +375,20 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
 
-        // Add id and name to Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiaryLight(mis);
+
         return missions;
+    }
+
+    /**
+     * Complete a mission with a lightweight version of the beneficiary from the database
+     * @param mission the mission to complete
+     * @throws SQLException if a database error occurs
+     */
+    private void completeBeneficiaryLight(Mission mission) throws SQLException {
+        if (mission != null && mission.getBeneficiary() != null)
+            mission.setBeneficiary(daoBeneficiary.findLight(mission.getBeneficiary().getId()));
     }
 
     /**
@@ -433,17 +443,13 @@ public class DAOMission extends DAO<Mission> {
             while (result.next()) {
                 missions.add(getResult(result));
             }
-        }
-        finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
 
-        // Add id and name to Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiaryLight(mis);
 
         return missions;
     }
@@ -505,11 +511,8 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
 
-        // Complete Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiary(mis);
 
         return missions;
     }
@@ -654,11 +657,8 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
 
-        // Complete Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiary(mis);
 
         return missions;
     }
