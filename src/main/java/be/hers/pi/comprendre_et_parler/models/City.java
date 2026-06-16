@@ -19,7 +19,7 @@ public class City {
      * @param postalCode represent the postal code
      */
     public City(int id, String designation, int postalCode) {
-        if (id > 0) this.id = id;
+        if (id >= 0) this.id = id;
         this.designation = designation;
         if (postalCode >= 1000 && postalCode < 10000) this.postalCode = postalCode;
     }

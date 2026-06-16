@@ -39,7 +39,7 @@ public class Mission {
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                    Location location, HashSet<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                    String room, int importance) {
-        if (id > 0) this.id = id;
+        if (id >= 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
@@ -70,7 +70,8 @@ public class Mission {
     public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                    Location location, HashSet<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                    String room, int importance) {
-        this(-1, subject, stateOfMission, commentary, timeSlot, location, interpreters, jobSkill, academicSkill, room, importance);
+        this(-1, subject, stateOfMission, commentary, timeSlot, location, interpreters,
+                jobSkill, academicSkill, room, importance);
     }
 
     /**
@@ -87,9 +88,9 @@ public class Mission {
      * @param room represent the room of the mission (can be null)
      */
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   Beneficiary beneficiary, Location location,
-                   JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
-        if (id > 0) this.id = id;
+                   Beneficiary beneficiary, Location location, JobSkill jobSkill, AcademicSkill academicSkill,
+                   String room, int importance) {
+        if (id >= 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
@@ -116,9 +117,10 @@ public class Mission {
      * @param room represent the room of the mission (can be null)
      */
     public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   Beneficiary beneficiary, Location location,
-                   JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
-        this(-1, subject, stateOfMission, commentary, timeSlot, beneficiary, location, jobSkill, academicSkill, room, importance);
+                   Beneficiary beneficiary, Location location, JobSkill jobSkill, AcademicSkill academicSkill,
+                   String room, int importance) {
+        this(-1, subject, stateOfMission, commentary, timeSlot, beneficiary, location,
+                jobSkill, academicSkill, room, importance);
     }
 
     /**

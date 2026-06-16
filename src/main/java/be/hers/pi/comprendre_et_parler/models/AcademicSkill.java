@@ -48,7 +48,7 @@ public class AcademicSkill {
      * @param id represent the new id
      */
     public void setId(int id) {
-        if (id > 0)
+        if (id >= 0)
             this.id = id;
     }
 

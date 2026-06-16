@@ -8,8 +8,7 @@ public abstract class TimeSlot {
      * @param id represent the id
      */
     public TimeSlot(int id) {
-        if (id >= 0)
-            this.id = id;
+        if (id >= 0) this.id = id;
     }
 
     /**

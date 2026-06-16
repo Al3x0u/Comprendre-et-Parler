@@ -25,7 +25,7 @@ public class Location {
      * @param box represent the box
      */
     public Location(int id, String designation, City city, String street, String streetNumber, int box) {
-        if (id > 0) this.id = id;
+        if (id >= 0) this.id = id;
         this.designation = designation;
         this.city = city;
         this.street = street;

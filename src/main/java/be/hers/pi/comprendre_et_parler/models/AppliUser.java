@@ -29,7 +29,7 @@ public abstract class AppliUser {
      * @param lastName the user's last lastName
      */
     public AppliUser(int id, String firstName, String lastName) {
-        this.id = id;
+        if (id >= 0) this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
     }
