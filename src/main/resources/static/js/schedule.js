@@ -833,6 +833,15 @@ if (userRole === 'MANAGER') {
             newMissionModal.show();
         }
     };
+    customButtons.newBaseSchedule = {
+        text: isMobile ? '+ Horaire' : '+ Créer horaire',
+        click: function () {
+            document.getElementById('baseEntries').innerHTML = '';
+            document.getElementById('baseProblems').classList.add('d-none');
+            addBaseEntry();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('baseScheduleModal')).show();
+        }
+    };
     customButtons.viewRequests = {
         text: '↗ Voir demandes',
         click: function() {
@@ -933,7 +942,7 @@ document.addEventListener('DOMContentLoaded', function() {
             start: userRole === 'MANAGER' ? 'timeGridWeek,timeGridDay filterBtn viewRequests'
                 : 'timeGridWeek,timeGridDay filterBtn',
             center: 'prev title next',
-            end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
+            end: userRole === 'MANAGER' ? 'newUnavailability newMission newBaseSchedule today'
                 : userRole === 'INTERPRETER' ? 'newUnavailability today'
                     : 'newRequest today'
         },
@@ -1362,3 +1371,91 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     calendar.render();
 });
+
+// ===== Horaire de base =====
+function baseAnchorRole() {
+    const sel = document.getElementById('baseAnchor');
+    const opt = sel ? sel.options[sel.selectedIndex] : null;
+    return opt ? (opt.dataset.role || '') : '';
+}
+
+// si l'anchor est un bénéficiaire -> on choisit un interprète ; sinon (interprète/manager) -> un bénéficiaire
+function baseOtherOptionsHtml() {
+    const srcId = (baseAnchorRole() === 'BENEFICIARY') ? 'baseOptInterpreters' : 'baseOptBeneficiaries';
+    return document.getElementById(srcId).innerHTML;
+}
+function baseOtherLabel() {
+    return (baseAnchorRole() === 'BENEFICIARY') ? 'Interprète' : 'Bénéficiaire';
+}
+
+function addBaseEntry() {
+    const node = document.getElementById('baseEntryTemplate').content.cloneNode(true);
+    node.querySelector('.base-other').innerHTML = baseOtherOptionsHtml();
+    node.querySelector('.base-other-label').textContent = baseOtherLabel();
+    node.querySelector('.base-remove').addEventListener('click', e => e.target.closest('.base-entry').remove());
+    document.getElementById('baseEntries').appendChild(node);
+}
+
+function refreshBaseOtherActors() {
+    const html = baseOtherOptionsHtml(), label = baseOtherLabel();
+    document.querySelectorAll('#baseEntries .base-entry').forEach(row => {
+        row.querySelector('.base-other').innerHTML = html;
+        row.querySelector('.base-other-label').textContent = label;
+    });
+}
+
+async function submitBaseSchedule() {
+    const anchorId = document.getElementById('baseAnchor').value;
+    const startDate = document.getElementById('baseStartDate').value;
+    const endDate = document.getElementById('baseEndDate').value;
+    const box = document.getElementById('baseProblems');
+    box.classList.add('d-none'); box.innerHTML = '';
+
+    const rows = document.querySelectorAll('#baseEntries .base-entry');
+    if (!anchorId || !startDate || !endDate || rows.length === 0) {
+        box.textContent = 'Personne, dates et au moins une tranche sont requis.';
+        box.classList.remove('d-none'); return;
+    }
+
+    const entries = [];
+    rows.forEach(row => {
+        const job = row.querySelector('.base-jobskill').value;
+        const aca = row.querySelector('.base-academicskill').value;
+        entries.push({
+            dayOfWeek: parseInt(row.querySelector('.base-day').value),
+            startTime: row.querySelector('.base-start').value,
+            endTime: row.querySelector('.base-end').value,
+            otherActorId: parseInt(row.querySelector('.base-other').value),
+            title: row.querySelector('.base-title').value,
+            locationId: parseInt(row.querySelector('.base-location').value),
+            jobSkillId: job ? parseInt(job) : null,
+            academicSkillId: aca ? parseInt(aca) : null,
+            room: row.querySelector('.base-room').value
+        });
+    });
+
+    const payload = {
+        anchorType: (baseAnchorRole() === 'BENEFICIARY') ? 'beneficiary' : 'interpreter',
+        anchorId: parseInt(anchorId), startDate, endDate, entries
+    };
+
+    const res = await fetch('/horaire/base', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('baseScheduleModal')).hide();
+        calendar.refetchEvents();
+    } else if (res.status === 409) {
+        const problems = await res.json();
+        box.innerHTML = '<strong>Horaire non créé :</strong><ul class="mb-0">' +
+            problems.map(p => '<li>' + p + '</li>').join('') + '</ul>';
+        box.classList.remove('d-none');
+    } else {
+        box.textContent = 'Une erreur est survenue.'; box.classList.remove('d-none');
+    }
+}
+
+document.getElementById('baseAnchor')?.addEventListener('change', refreshBaseOtherActors);
+document.getElementById('baseAddEntry')?.addEventListener('click', addBaseEntry);
+document.getElementById('baseSubmit')?.addEventListener('click', submitBaseSchedule);

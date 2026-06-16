@@ -107,6 +107,7 @@ public class ScheduleController {
 
             if (user instanceof Manager) {
                 model.addAttribute("allBeneficiaries", new ArrayList<>(beneficiaries));
+                model.addAttribute("allLocations", new ArrayList<>(locationService.getAllLocations()));
             }
             model.addAttribute("professionalSkills", jobSkillService.getAllJobSkills());
             model.addAttribute("academicSkills", academicSkillService.getAllAcademicSkills());

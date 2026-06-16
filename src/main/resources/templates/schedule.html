@@ -690,6 +690,113 @@
     </div>
 </div>
 
+<div th:if="${userRole == 'MANAGER'}">
+    <!-- Modal horaire de base -->
+    <div class="modal fade" id="baseScheduleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Créer un horaire de base</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Personne concernée</label>
+                            <select id="baseAnchor" class="form-select">
+                                <option value="" data-role="">— choisir —</option>
+                                <option th:each="u : ${filterUsers}" th:value="${u.id}"
+                                        th:attr="data-role=${u.role}" th:text="${u.fullName}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date de début</label>
+                            <input type="date" id="baseStartDate" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date de fin</label>
+                            <input type="date" id="baseEndDate" class="form-control">
+                        </div>
+                    </div>
+
+                    <div id="baseEntries"></div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="baseAddEntry">
+                        <i class="bi bi-plus-lg"></i> Ajouter une tranche
+                    </button>
+
+                    <div id="baseProblems" class="alert alert-danger mt-3 d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="baseSubmit">Créer l'horaire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template d'une tranche -->
+    <template id="baseEntryTemplate">
+        <div class="base-entry border rounded p-2 mb-2">
+            <div class="row g-2">
+                <div class="col-md-2"><label class="form-label small">Jour</label>
+                    <select class="form-select form-select-sm base-day">
+                        <option value="1">Lundi</option><option value="2">Mardi</option><option value="3">Mercredi</option>
+                        <option value="4">Jeudi</option><option value="5">Vendredi</option><option value="6">Samedi</option><option value="7">Dimanche</option>
+                    </select>
+                </div>
+                <div class="col-md-2"><label class="form-label small">Début</label>
+                    <select class="form-select form-select-sm base-start">
+                        <option th:each="t : ${timeSlots}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2"><label class="form-label small">Fin</label>
+                    <select class="form-select form-select-sm base-end">
+                        <option th:each="t : ${timeSlots}" th:value="${t}" th:text="${t}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3"><label class="form-label small base-other-label">Bénéficiaire</label>
+                    <select class="form-select form-select-sm base-other"></select>
+                </div>
+                <div class="col-md-3"><label class="form-label small">Titre</label>
+                    <input type="text" class="form-control form-control-sm base-title">
+                </div>
+                <div class="col-md-4"><label class="form-label small">Lieu</label>
+                    <select class="form-select form-select-sm base-location">
+                        <option th:each="l : ${allLocations}" th:value="${l.id}"
+                                th:text="${(l.designation != null ? l.designation + ' - ' : '') + l.street}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3"><label class="form-label small">Comp. métier</label>
+                    <select class="form-select form-select-sm base-jobskill">
+                        <option value="">—</option>
+                        <option th:each="s : ${professionalSkills}" th:value="${s.id}" th:text="${s.designation}"></option>
+                    </select>
+                </div>
+                <div class="col-md-3"><label class="form-label small">Comp. acad.</label>
+                    <select class="form-select form-select-sm base-academicskill">
+                        <option value="">—</option>
+                        <option th:each="s : ${academicSkills}" th:value="${s.id}" th:text="${s.designation}"></option>
+                    </select>
+                </div>
+                <div class="col-md-1"><label class="form-label small">Salle</label>
+                    <input type="text" class="form-control form-control-sm base-room">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-danger btn-sm base-remove"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Sources d'options pour « autre acteur » (cachées) -->
+    <select id="baseOptInterpreters" class="d-none">
+        <option th:each="i : ${interpreters}" th:value="${i.id}" th:text="${i.firstName + ' ' + i.lastName}"></option>
+    </select>
+    <select id="baseOptBeneficiaries" class="d-none">
+        <option th:each="b : ${allBeneficiaries}" th:value="${b.id}" th:text="${b.firstName + ' ' + b.lastName}"></option>
+    </select>
+</div>
+
 <div id="schedule-config"
      th:attr="data-events=${events}, data-role=${userRole}, data-user-id=${session.user.id}, data-user-name=${userFullName}"
      style="display:none">

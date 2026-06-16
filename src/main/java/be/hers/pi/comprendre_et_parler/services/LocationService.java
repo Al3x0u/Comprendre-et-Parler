@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Service
 public class LocationService {
@@ -61,5 +62,14 @@ public class LocationService {
      */
     public void deleteLocation(Location location) throws NoSuchElementException, SQLException {
         SQLWrap.callTransaction(daoLocation::delete, location.getId());
+    }
+
+    /**
+     * Returns all locations.
+     * @return the set of all locations
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Location> getAllLocations() throws SQLException {
+        return SQLWrap.call(daoLocation::findAll);
     }
 }

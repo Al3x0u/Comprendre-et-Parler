@@ -241,7 +241,8 @@ body {
 .fc-newMission-button,
 .fc-newRequest-button,
 .fc-newUnavailability-button,
-.fc-viewRequests-button {
+.fc-viewRequests-button
+.fc-newBaseSchedule-button {
     background-color: var(--oc-blue-1) !important;
     border-color: var(--oc-blue-9) !important;
     color: var(--oc-blue-9) !important;
@@ -251,7 +252,8 @@ body {
 .fc-newMission-button:hover,
 .fc-newRequest-button:hover,
 .fc-newUnavailability-button:hover,
-.fc-viewRequests-button:hover {
+.fc-viewRequests-button:hover
+.fc-newBaseSchedule-button:hover{
     color: white !important;
     background-color: var(--oc-blue-9) !important;
 }
@@ -259,7 +261,8 @@ body {
 .fc-newMission-button:focus,
 .fc-newRequest-button:focus,
 .fc-newUnavailability-button:focus,
-.fc-viewRequests-button:focus {
+.fc-viewRequests-button:focus
+.fc-newBaseSchedule-button:focus {
     box-shadow: none !important;
 }
 
