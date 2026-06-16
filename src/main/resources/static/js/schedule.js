@@ -34,7 +34,7 @@ if (userRole === 'MANAGER' || userRole === "INTERPRETER") {
 let currentMissionId = null;
 
 /** @type {boolean} Whether this is the first calendar load */
-let premierChargement = true;
+let firstLoading = true;
 
 /**
  * Hidden all events of the week-end
@@ -917,8 +917,8 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {Function} failureCallback - Callback called on error
          */
         events: function(fetchInfo, successCallback, failureCallback) {
-            if (premierChargement) {
-                premierChargement = false;
+            if (firstLoading) {
+                firstLoading = false;
                 successCallback(cachedEvents);
                 return;
             }
