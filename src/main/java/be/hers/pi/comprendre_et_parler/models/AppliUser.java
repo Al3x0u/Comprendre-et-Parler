@@ -47,8 +47,7 @@ public abstract class AppliUser {
      */
     public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate,
                      String hashedPassword, String email, String phoneNumber) {
-        if (id >= 0)
-            this.id = id;
+        if (id >= 0) this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;

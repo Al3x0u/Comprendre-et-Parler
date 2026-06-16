@@ -17,8 +17,7 @@ public class JobSkill {
      * @param designation represent the designation
      */
     public JobSkill(int id, String designation) {
-        if(id >= 0)
-            this.id = id;
+        if(id >= 0) this.id = id;
         this.designation = designation;
     }
 

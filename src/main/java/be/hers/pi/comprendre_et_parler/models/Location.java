@@ -16,15 +16,15 @@ public class Location {
     public Location() {}
 
     /**
-     Constructor of a Location
-     @param id represent the id
-     @param designation represent the designation
-     @param city represent the City
-     @param street represent the street name
-     @param streetNumber represent the street number
-     @param box represent the box
+     * Constructor of a Location
+     * @param id represent the id
+     * @param designation represent the designation
+     * @param city represent the City
+     * @param street represent the street name
+     * @param streetNumber represent the street number
+     * @param box represent the box
      */
-    public Location(int id, String designation, City city, String street, String streetNumber, int box){
+    public Location(int id, String designation, City city, String street, String streetNumber, int box) {
         if (id > 0) this.id = id;
         this.designation = designation;
         this.city = city;
@@ -34,14 +34,14 @@ public class Location {
     }
 
     /**
-     Constructor of a Location without id
-     @param designation represent the designation
-     @param city represent the City object
-     @param street represent the street name
-     @param streetNumber represent the street number
-     @param box represent the box
+     * Constructor of a Location without id
+     * @param designation represent the designation
+     * @param city represent the City object
+     * @param street represent the street name
+     * @param streetNumber represent the street number
+     * @param box represent the box
      */
-    public Location(String designation, City city, String street, String streetNumber, int box){
+    public Location(String designation, City city, String street, String streetNumber, int box) {
         this(-1, designation, city, street, streetNumber, box);
     }
 
@@ -49,7 +49,7 @@ public class Location {
      * Copy constructor of a Location
      * @param other the Location to copy, must not be null
      */
-    public Location(Location other){
+    public Location(Location other) {
         this(other.id, other.designation, new City(other.city), other.street, other.streetNumber, other.box);
     }
 
@@ -174,6 +174,7 @@ public class Location {
      */
     public int compareTo(Location l) {
         if (this == l) return 0;
+
         return this.city.compareTo(l.city);
     }
 
@@ -181,7 +182,7 @@ public class Location {
      * Return a String representation of the Location containing all fields
      * @return formatted string with id, designation, city, street, streetNumber and box
      */
-    public String toString(){
+    public String toString() {
         return "Location{id = " + id + ", designation = " + designation + ", city = " + city +
                 ", street = " + street + ", streetNumber = " + streetNumber + ", box = " + box + "}";
     }

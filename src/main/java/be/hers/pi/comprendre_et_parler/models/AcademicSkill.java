@@ -17,8 +17,7 @@ public class AcademicSkill {
      * @param designation represent the designation
      */
     public AcademicSkill(int id, String designation) {
-        if (id >= 0)
-            this.id = id;
+        if (id >= 0) this.id = id;
         this.designation = designation;
     }
 
@@ -90,6 +89,7 @@ public class AcademicSkill {
      */
     public int compareTo(AcademicSkill a) {
         if (this == a) return 0;
+
         return designation.compareTo(a.designation);
     }
 
