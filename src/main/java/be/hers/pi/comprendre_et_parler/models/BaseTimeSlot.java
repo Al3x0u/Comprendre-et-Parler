@@ -29,6 +29,7 @@ public class BaseTimeSlot extends TimeSlot {
     public BaseTimeSlot(int id, LocalDate startDate, LocalDate endDate,
                         LocalTime startTime, LocalTime endTime, DayOfWeek day) {
         super(id);
+
         this.startDate = startDate;
         if (!endDate.isBefore(startDate))
             this.endDate = endDate;
@@ -155,6 +156,7 @@ public class BaseTimeSlot extends TimeSlot {
     public boolean overlaps(BaseTimeSlot timeSlot) {
         if (timeSlot == null) return false;
         if (timeSlot == this) return true;
+
         return day.equals(timeSlot.day) && startTime.isBefore(timeSlot.endTime)
                 && endTime.isAfter(timeSlot.startTime);
     }
@@ -167,6 +169,7 @@ public class BaseTimeSlot extends TimeSlot {
     public boolean overlapsCompletely(BaseTimeSlot timeSlot) {
         if (timeSlot == null) return false;
         if (timeSlot == this) return true;
+
         return day.equals(timeSlot.day)
                 && ((startTime.isBefore(timeSlot.startTime) && endTime.isAfter(timeSlot.endTime))
                 || (startTime.isAfter(timeSlot.startTime) && endTime.isBefore(timeSlot.endTime)));
