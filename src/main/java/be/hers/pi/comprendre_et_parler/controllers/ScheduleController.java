@@ -48,18 +48,21 @@ public class ScheduleController {
     public String showSchedule(HttpSession session, Model model)  {
         try {
             AppliUser user = (AppliUser) session.getAttribute("user");
-
+            String role = "";
             if (user instanceof Manager) {
+                role = "INTERPRETER";
                 model.addAttribute("userRole", "MANAGER");
             } else if (user instanceof Interpreter) {
+                role = "INTERPRETER";
                 model.addAttribute("userRole", "INTERPRETER");
             } else if (user instanceof Beneficiary) {
+                role = "BENEFICIARY";
                 model.addAttribute("userRole", "BENEFICIARY");
             }
 
             LocalDate today = LocalDate.now();
 
-            List<Mission> missions = missionService.getMissionsForWeek(user.getId(), today);
+            List<Mission> missions = missionService.getMissionsForWeek(user.getId(),role, today,null);
 
             List<Map<String, String>> events = convertMissionsToEvents(missions);
             Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
@@ -507,7 +510,7 @@ public class ScheduleController {
      */
     @GetMapping("/evenements")
     @ResponseBody
-    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String userId, HttpSession session) {
+    public ResponseEntity<List<Map<String, String>>> getEvents(@RequestParam(required = false) String weekDate, @RequestParam(required = false) String status, @RequestParam(required = false) String userId,@RequestParam(required = false) String role, HttpSession session) {
         try {
             AppliUser currentUser = (AppliUser) session.getAttribute("user");
             LocalDate date = LocalDate.now();
@@ -519,18 +522,21 @@ public class ScheduleController {
                 }
             }
 
-            List<Mission> missions;
+            int uid=-1;
             if (userId != null && !userId.isBlank()) {
-                int uid = Integer.parseInt(userId);
-                missions = missionService.getMissionsForWeek(uid, date);
+                uid = Integer.parseInt(userId);
             } else {
-                missions = missionService.getMissionsForWeek(currentUser.getId(), date);
+                uid = currentUser.getId();
+            }
+            String userRole = "";
+
+            if( role != null && !role.isBlank()){
+                userRole = role;
             }
 
+            List<Mission> missions = missionService.getMissionsForWeek(uid, userRole, date, status);
+
             List<Map<String, String>> events = convertMissionsToEvents(missions);
-            if (status != null && !status.isBlank()) {
-                events = events.stream().filter(e -> e.getOrDefault("status", "").equalsIgnoreCase(status)).collect(java.util.stream.Collectors.toList());
-            }
 
             return ResponseEntity.ok(events);
         } catch (Exception e) {
