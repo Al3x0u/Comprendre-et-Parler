@@ -15,11 +15,9 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 @Service
 public class MissionService {
@@ -372,15 +370,28 @@ public class MissionService {
     }
 
     /**
-     * Returns the missions for a given week scoped to a specific user id
-     * @param userId the id of the user
-     * @param weekStart a date which of the concerning week
-     * @return the list of missions for that user during that week
+     * Returns the missions for a given week scoped to a specific user, with an optional status filter
+     * @param userId   the id of the user whose missions to retrieve
+     * @param role  the role of the user
+     * @param weekStart any date within the target week
+     * @param status the French display status to filter on, or null for all status
+     * @return the list of missions for that user during that week, filtered by status if provided
      */
-    public ArrayList<Mission> getMissionsForWeek(int userId, LocalDate weekStart) throws SQLException {
-        int yearNumber = weekStart.getYear();
-        int weekNumber = weekStart.get(WeekFields.ISO.weekOfWeekBasedYear());
-        Set<Mission> missions = SQLWrap.call(daoMission::getScheduleForWeek, userId, yearNumber, weekNumber);
-        return new ArrayList<>(missions);
+    public List<Mission> getMissionsForWeek(int userId, String role, LocalDate weekStart, String status) throws SQLException {
+        LocalDateTime start = weekStart.with(DayOfWeek.MONDAY).atStartOfDay();
+        LocalDateTime end = weekStart.with(DayOfWeek.SUNDAY).atTime(23, 59, 59);
+
+        MissionFilter filter = new MissionFilter();
+        if (role.equals("BENEFICIARY")) {
+            filter.setBeneficiary(new Beneficiary(userId));
+        } else {
+            filter.setInterpreter(new Interpreter(userId));
+        }
+
+        if (status != null && !status.isBlank()) {
+            filter.setStateOfMission(MissionState.fromDisplayStatus(status));
+        }
+
+        return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter, start, end));
     }
 }
