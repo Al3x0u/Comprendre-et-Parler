@@ -863,6 +863,9 @@ async function fetchEvents(fetchInfo, successCallback, failureCallback) {
         params.append('userId', activeFilters.userId);
         const activeItem = document.querySelector('.filter-user-item.active');
         if (activeItem) params.append('role', activeItem.dataset.role);
+    }else {
+        params.append('userId', userId);
+        params.append('role', userRole);
     }
 
     if (activeFilters.status != null) {
