@@ -594,12 +594,15 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT 1 FROM " + TABLE +
                 " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = " + TABLE + "." + FIELD_TIME_SLOT +
                 " WHERE " + FIELD_BENEFICIARY + " = ?" +
-                " AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE";
+                " AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE" +
+                " AND " + FIELD_STATE + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, beneficiaryId);
+            statement.setInt(2, MissionState.ACCEPTED.getValue());
+
             result = statement.executeQuery();
             return result.next();
         } finally {
