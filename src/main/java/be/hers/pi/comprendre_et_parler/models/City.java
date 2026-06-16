@@ -13,10 +13,10 @@ public class City {
     public City() {}
 
     /**
-        Constructor of a City
-        @param id represent the id
-        @param designation represent the designation
-        @param postalCode represent the postal code
+     * Constructor of a City
+     * @param id represent the id
+     * @param designation represent the designation
+     * @param postalCode represent the postal code
      */
     public City(int id, String designation, int postalCode) {
         if (id > 0) this.id = id;
@@ -25,9 +25,9 @@ public class City {
     }
 
     /**
-     Constructor of a City without id
-     @param designation represent the designation
-     @param postalCode represent the postal code
+     * Constructor of a City without id
+     * @param designation represent the designation
+     * @param postalCode represent the postal code
      */
     public City(String designation, int postalCode ){
         this(-1, designation, postalCode);
