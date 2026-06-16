@@ -368,6 +368,43 @@ public class DAOMission extends DAO<Mission> {
         return -1;
     }
 
+    /**
+     * Sum of the weekly hours of the interpreter's recurring (ACCEPTED or REGULAR) missions whose
+     * validity window overlaps [windowStart, windowEnd]. One occurrence per week is counted, so this
+     * is the interpreter's stable weekly load from the base schedule over that window.
+     * @param interpreterId the interpreter id
+     * @param windowStart start of the new mission's validity window
+     * @param windowEnd end of the new mission's validity window
+     * @return the total recurring weekly hours, or 0 if none
+     * @throws SQLException if the database could not be reached
+     */
+    public double getRecurringWeeklyHours(int interpreterId, LocalDate windowStart, LocalDate windowEnd) throws SQLException {
+        String query =
+                "SELECT NVL(SUM(((ts.endDateTime - TRUNC(ts.endDateTime)) - (ts.startDateTime - TRUNC(ts.startDateTime))) * 24), 0) " +
+                        "FROM " + TABLE + " m " +
+                        "JOIN " + DAOBaseTimeSlot.TABLE + " ts ON m." + FIELD_TIME_SLOT + " = ts." + DAOBaseTimeSlot.FIELD_ID + " " +
+                        "JOIN " + TABLE_INTERPRETER_MISSION + " im ON im." + INTERPRETER_MISSION_REF_MISSION + " = m." + FIELD_ID + " " +
+                        "WHERE im." + INTERPRETER_MISSION_REF_INTERPRETER + " = ? " +
+                        "AND m." + FIELD_STATE + " IN (" + MissionState.ACCEPTED.getValue() + ", " + MissionState.REGULAR.getValue() + ") " +
+                        "AND ts.\"DAY\" IS NOT NULL " +
+                        "AND TRUNC(ts.startDateTime) <= ? AND TRUNC(ts.endDateTime) >= ?";
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, interpreterId);
+            statement.setDate(2, java.sql.Date.valueOf(windowEnd));
+            statement.setDate(3, java.sql.Date.valueOf(windowStart));
+            result = statement.executeQuery();
+            if (result.next())
+                return result.getDouble(1);
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return 0;
+    }
+
     @Override
     protected Mission getResult(ResultSet result) throws SQLException {
         BaseTimeSlot baseTimeSlot = daoBaseTimeSlot.find(result.getInt(FIELD_TIME_SLOT));

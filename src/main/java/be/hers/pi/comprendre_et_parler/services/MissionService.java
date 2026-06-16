@@ -237,24 +237,34 @@ public class MissionService {
      * @throws IllegalArgumentException if ts is an unknown TimeSlot subtype
      */
     private void checkQuota(Interpreter interpreter, TimeSlot slot) throws QuotaExceededException, IllegalArgumentException, SQLException {
-        double newMissionHours = calculateHours(slot);
-        LocalDate date;
-        if (slot instanceof PunctualTimeSlot)
-            date = ((PunctualTimeSlot) slot).getStartDate().toLocalDate();
-        else
-            date = ((BaseTimeSlot) slot).getStartDate();
+        LocalDate refDate = (slot instanceof PunctualTimeSlot)
+                ? ((PunctualTimeSlot) slot).getStartDate().toLocalDate()
+                : ((BaseTimeSlot) slot).getStartDate();
 
-        LocalDate weekStart = date.with(DayOfWeek.MONDAY);
-        LocalDate weekEnd = date.with(DayOfWeek.SUNDAY);
-        LocalDate yearStart = LocalDate.of(date.getYear(), 1, 1);
-        LocalDate yearEnd = LocalDate.of(date.getYear(), 12, 31);
+        double durationPerOccurrence = calculateHours(slot); // one session's duration
 
-        double hoursThisWeek = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
-        double hoursThisYear = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
-
-        if (hoursThisWeek + newMissionHours > interpreter.getHourQuotaWeek())
+        // ----- weekly quota -----
+        double weeklyExisting;
+        if (slot instanceof BaseTimeSlot bts) {
+            // recurring: aggregate weekly load of the interpreter's recurring missions overlapping the window
+            weeklyExisting = SQLWrap.call(daoMission::getRecurringWeeklyHours,
+                    interpreter.getId(), bts.getStartDate(), bts.getEndDate());
+        } else {
+            // punctual: hours already booked that exact week (now includes recurring occurrences)
+            LocalDate weekStart = refDate.with(DayOfWeek.MONDAY);
+            LocalDate weekEnd = refDate.with(DayOfWeek.SUNDAY);
+            weeklyExisting = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), weekStart, weekEnd);
+        }
+        if (weeklyExisting + durationPerOccurrence > interpreter.getHourQuotaWeek())
             throw new QuotaExceededException("Le quota hebdomadaire de l'interprète " + interpreter.getId() + " est dépassé");
-        if (hoursThisYear + newMissionHours > interpreter.getHourQuotaYear())
+
+        LocalDate yearStart = LocalDate.of(refDate.getYear(), 1, 1);
+        LocalDate yearEnd = LocalDate.of(refDate.getYear(), 12, 31);
+        double yearlyExisting = SQLWrap.call(daoInterpreter::getWorkedHours, interpreter.getId(), yearStart, yearEnd);
+        long occurrencesThisYear = getDates(slot).stream()
+                .filter(d -> !d.isBefore(yearStart) && !d.isAfter(yearEnd))
+                .count();
+        if (yearlyExisting + occurrencesThisYear * durationPerOccurrence > interpreter.getHourQuotaYear())
             throw new QuotaExceededException("Le quota annuel de l'interprète " + interpreter.getId() + " est dépassé");
     }
 
