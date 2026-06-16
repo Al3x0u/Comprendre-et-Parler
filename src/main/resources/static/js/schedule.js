@@ -24,8 +24,7 @@ const isMobile = window.innerWidth < 768;
 /** @type {ActiveFilters} */
 const activeFilters = {
     status: null,
-    userId: null,
-    _statusOnly: false
+    userId: null
 };
 
 if (userRole === 'MANAGER' || userRole === "INTERPRETER") {
@@ -121,7 +120,6 @@ function setupUserFilter() {
             const newUserId = parseInt(item.dataset.id);
             if (activeFilters.userId === newUserId) return;
             activeFilters.userId = newUserId;
-            activeFilters._statusOnly = false;
             highlightActiveUser();
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
@@ -159,7 +157,6 @@ function setupFilter(selector, filterKey) {
             activeFilters[filterKey] = activeFilters[filterKey] === item.dataset.value ? null : item.dataset.value;
             document.querySelectorAll(selector).forEach(i => i.classList.remove('fw-bold'));
             if (activeFilters[filterKey]) item.classList.add('fw-bold');
-            activeFilters._statusOnly = true;
             calendar.refetchEvents();
             document.getElementById('dropdown-filtre').classList.remove('show');
         });
@@ -848,42 +845,39 @@ if (userRole === 'MANAGER') {
 //CALENDAR INIT
 
 /**
- * Apply local filter to the all mission charged
- * @param {Array<Object>} events
- * @returns {Array<Object>}
- */
-function applyLocalFilters(events) {
-    return events.filter(e => {
-        if (activeFilters.status && e.status !== activeFilters.status) return false;
-        return true;
-    });
-}
-
-/**
- * Fetches missions for a given week from the server and updates the calendar
- * @param {Object}   fetchInfo       - Date range info provided by FullCalendar
+ * Fetches missions for a given week from the server and updates the calendar.
+ * If a user filter is active, scopes the query to that user's missions only.
+ * Sends status and role filters to the server so all filtering happens in the DB.
+ *
+ * @param {Object}   fetchInfo          - Date range info provided by FullCalendar
  * @param {string}   fetchInfo.startStr - ISO date string of the week start
- * @param {Function} successCallback - FullCalendar callback, called with the filtered event array
- * @param {Function} failureCallback - FullCalendar callback, called with the error on fetch failure
+ * @param {Function} successCallback    - FullCalendar callback, called with the event array
+ * @param {Function} failureCallback    - FullCalendar callback, called with the error on fetch failure
  * @returns {Promise<void>}
  */
 async function fetchEvents(fetchInfo, successCallback, failureCallback) {
     const params = new URLSearchParams();
     params.append('weekDate', fetchInfo.startStr.substring(0, 10));
-    if (activeFilters.userId != null) {
+
+    if (activeFilters.userId != null && !isNaN(activeFilters.userId)) {
         params.append('userId', activeFilters.userId);
+        const activeItem = document.querySelector('.filter-user-item.active');
+        if (activeItem) params.append('role', activeItem.dataset.role);
+    }
+
+    if (activeFilters.status != null) {
+        params.append('status', activeFilters.status);
     }
 
     try {
         const r = await fetch('/horaire/evenements?' + params.toString());
         const data = await r.json();
         cachedEvents = data;
-        successCallback(applyLocalFilters(data));
+        successCallback(data);
     } catch (err) {
         failureCallback(err);
     }
 }
-
 document.addEventListener('input', function (e) {
     if (e.target.classList.contains('is-invalid')) {
         e.target.classList.remove('is-invalid');
@@ -920,10 +914,9 @@ document.addEventListener('DOMContentLoaded', function() {
          * @param {Function} failureCallback - Callback called on error
          */
         events: function(fetchInfo, successCallback, failureCallback) {
-            if (premierChargement || activeFilters._statusOnly) {
+            if (premierChargement) {
                 premierChargement = false;
-                activeFilters._statusOnly = false;
-                successCallback(applyLocalFilters(cachedEvents));
+                successCallback(cachedEvents);
                 return;
             }
             fetchEvents(fetchInfo, successCallback, failureCallback);
@@ -1363,6 +1356,5 @@ document.addEventListener('DOMContentLoaded', function() {
         setupUserFilter();
         highlightActiveUser();
     }
-    setupFilter('.filter-interpreter', 'interpreter');
     calendar.render();
 });
