@@ -594,7 +594,7 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT 1 FROM " + TABLE +
                 " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = " + TABLE + "." + FIELD_TIME_SLOT +
                 " WHERE " + FIELD_BENEFICIARY + " = ?" +
-                " AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ", 'IW') = TRUNC(SYSDATE, 'IW')";
+                " AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
