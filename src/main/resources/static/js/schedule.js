@@ -930,7 +930,8 @@ document.addEventListener('DOMContentLoaded', function() {
             center: 'prev,title,next',
             end: ''
         } : {
-            start: 'timeGridWeek,timeGridDay filterBtn viewRequests',
+            start: userRole === 'MANAGER' ? 'timeGridWeek,timeGridDay filterBtn viewRequests'
+                : 'timeGridWeek,timeGridDay filterBtn',
             center: 'prev title next',
             end: userRole === 'MANAGER' ? 'newUnavailability newMission today'
                 : userRole === 'INTERPRETER' ? 'newUnavailability today'
