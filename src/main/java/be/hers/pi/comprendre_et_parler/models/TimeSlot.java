@@ -5,11 +5,10 @@ public abstract class TimeSlot {
 
     /**
      * Constructor of a TimeSlot
-     * @param id represent the id
+     * @param id represents the id
      */
     public TimeSlot(int id) {
-        if (id >= 0)
-            this.id = id;
+        if (id >= 0) this.id = id;
     }
 
     /**
@@ -25,7 +24,7 @@ public abstract class TimeSlot {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if (id >= 0)
