@@ -13,8 +13,8 @@ public class JobSkill {
 
     /**
      * Constructor of a JobSkill
-     * @param id represent the id
-     * @param designation represent the designation
+     * @param id represents the id
+     * @param designation represents the designation
      */
     public JobSkill(int id, String designation) {
         if(id >= 0) this.id = id;
@@ -23,7 +23,7 @@ public class JobSkill {
 
     /**
      Constructor of a JobSkill without id
-     @param designation : represent designation
+     @param designation : represents designation
      */
     public JobSkill(String designation) {
         this(-1, designation);
@@ -31,7 +31,7 @@ public class JobSkill {
 
     /**
      * Copy constructor of a JobSkill
-     * @param other represent the JobSkill to copy, must not be null
+     * @param other represents the JobSkill to copy, must not be null
      */
     public JobSkill(JobSkill other) {
         this(other.id, other.designation);
@@ -45,7 +45,7 @@ public class JobSkill {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if(id >= 0)
@@ -60,7 +60,7 @@ public class JobSkill {
     }
 
     /**
-     * @param designation represent the new designation
+     * @param designation represents the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;

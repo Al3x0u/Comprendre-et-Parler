@@ -14,9 +14,9 @@ public class PunctualTimeSlot extends TimeSlot {
 
     /**
      * Constructor of a PunctualTimeSlot
-     * @param id represent the id
-     * @param startDate represent the startDate
-     * @param endDate represent the endDate
+     * @param id represents the id
+     * @param startDate represents the startDate
+     * @param endDate represents the endDate
      */
     public PunctualTimeSlot(int id, LocalDateTime startDate, LocalDateTime endDate) {
         super(id);
@@ -31,8 +31,8 @@ public class PunctualTimeSlot extends TimeSlot {
 
     /**
      * Constructor of a PunctualTimeSlot without id
-     * @param startDate represent the startDate
-     * @param endDate represent the endDate
+     * @param startDate represents the startDate
+     * @param endDate represents the endDate
      */
     public PunctualTimeSlot(LocalDateTime startDate, LocalDateTime endDate) {
         this(-1, startDate, endDate);
@@ -54,7 +54,7 @@ public class PunctualTimeSlot extends TimeSlot {
     }
 
     /**
-     * @param startDate represent the new startDate
+     * @param startDate represents the new startDate
      */
     public void setStartDate(LocalDateTime startDate) {
         if (startDate.isBefore(this.endDate))
@@ -69,7 +69,7 @@ public class PunctualTimeSlot extends TimeSlot {
     }
 
     /**
-     * @param endDate represent the new endDate
+     * @param endDate represents the new endDate
      */
     public void setEndDate(LocalDateTime endDate) {
         if (endDate.isAfter(this.startDate))

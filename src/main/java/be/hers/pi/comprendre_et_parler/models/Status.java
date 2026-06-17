@@ -14,9 +14,9 @@ public class Status {
 
     /**
      * Constructor of a Status
-     * @param id represent the id
-     * @param designation represent the designation
-     * @param hourQuota represent the hourQuota
+     * @param id represents the id
+     * @param designation represents the designation
+     * @param hourQuota represents the hourQuota
      */
     public Status(int id, String designation, int hourQuota) {
         if (id >= 0) this.id = id;
@@ -26,8 +26,8 @@ public class Status {
 
     /**
      * Constructor of a Status without id
-     * @param designation represent the designation
-     * @param hourQuota represent the hourQuota
+     * @param designation represents the designation
+     * @param hourQuota represents the hourQuota
      */
     public Status(String designation, int hourQuota) {
         this(-1, designation, hourQuota);
@@ -49,7 +49,7 @@ public class Status {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if (id >= 0) this.id = id;
@@ -63,7 +63,7 @@ public class Status {
     }
 
     /**
-     * @param designation represent the new designation
+     * @param designation represents the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;
@@ -77,7 +77,7 @@ public class Status {
     }
 
     /**
-     * @param hourQuota represent the new hourQuota
+     * @param hourQuota represents the new hourQuota
      */
     public void setHourQuota(int hourQuota) {
         if (hourQuota >= 0) this.hourQuota = hourQuota;

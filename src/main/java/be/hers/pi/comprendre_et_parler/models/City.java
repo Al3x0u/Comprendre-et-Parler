@@ -14,9 +14,9 @@ public class City {
 
     /**
      * Constructor of a City
-     * @param id represent the id
-     * @param designation represent the designation
-     * @param postalCode represent the postal code
+     * @param id represents the id
+     * @param designation represents the designation
+     * @param postalCode represents the postal code
      */
     public City(int id, String designation, int postalCode) {
         if (id >= 0) this.id = id;
@@ -26,8 +26,8 @@ public class City {
 
     /**
      * Constructor of a City without id
-     * @param designation represent the designation
-     * @param postalCode represent the postal code
+     * @param designation represents the designation
+     * @param postalCode represents the postal code
      */
     public City(String designation, int postalCode ){
         this(-1, designation, postalCode);
@@ -49,7 +49,7 @@ public class City {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if (id >= 0) this.id = id;
@@ -63,7 +63,7 @@ public class City {
     }
 
     /**
-     * @param designation represent the new designation
+     * @param designation represents the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;
@@ -77,7 +77,7 @@ public class City {
     }
 
     /**
-     * @param postalCode represent the new postal code
+     * @param postalCode represents the new postal code
      */
     public void setPostalCode(int postalCode) {
         if (postalCode >= 1000 && postalCode < 10000) this.postalCode = postalCode;

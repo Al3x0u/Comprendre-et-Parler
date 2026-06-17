@@ -15,7 +15,7 @@ public enum MissionState {
 
     /**
      * Constructor of a MissionState object
-     * @param value represent the id value the mission state
+     * @param value represents the id value the mission state
      */
     MissionState(int value) {
         this.value = value;

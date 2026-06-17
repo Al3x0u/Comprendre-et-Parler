@@ -17,12 +17,12 @@ public class Location {
 
     /**
      * Constructor of a Location
-     * @param id represent the id
-     * @param designation represent the designation
-     * @param city represent the City
-     * @param street represent the street name
-     * @param streetNumber represent the street number
-     * @param box represent the box
+     * @param id represents the id
+     * @param designation represents the designation
+     * @param city represents the City
+     * @param street represents the street name
+     * @param streetNumber represents the street number
+     * @param box represents the box
      */
     public Location(int id, String designation, City city, String street, String streetNumber, int box) {
         if (id >= 0) this.id = id;
@@ -35,11 +35,11 @@ public class Location {
 
     /**
      * Constructor of a Location without id
-     * @param designation represent the designation
-     * @param city represent the City object
-     * @param street represent the street name
-     * @param streetNumber represent the street number
-     * @param box represent the box
+     * @param designation represents the designation
+     * @param city represents the City object
+     * @param street represents the street name
+     * @param streetNumber represents the street number
+     * @param box represents the box
      */
     public Location(String designation, City city, String street, String streetNumber, int box) {
         this(-1, designation, city, street, streetNumber, box);
@@ -61,7 +61,7 @@ public class Location {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if (id >= 0) this.id = id;
@@ -75,7 +75,7 @@ public class Location {
     }
 
     /**
-     * @param designation represent the new designation
+     * @param designation represents the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;
@@ -89,7 +89,7 @@ public class Location {
     }
 
     /**
-     * @param city represent the new city
+     * @param city represents the new city
      */
     public void setCity(City city) {
         this.city = city;
@@ -103,7 +103,7 @@ public class Location {
     }
 
     /**
-     * @param street represent the new street
+     * @param street represents the new street
      */
     public void setStreet(String street) {
         this.street = street;
@@ -117,7 +117,7 @@ public class Location {
     }
 
     /**
-     * @param streetNumber represent the new streetNumber
+     * @param streetNumber represents the new streetNumber
      */
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
@@ -131,7 +131,7 @@ public class Location {
     }
 
     /**
-     * @param box represent the new box
+     * @param box represents the new box
      */
     public void setBox(int box) {
         if (box >= 0) this.box = box;

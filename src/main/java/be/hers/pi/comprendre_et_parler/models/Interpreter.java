@@ -20,21 +20,21 @@ public class Interpreter extends AppliUser{
     /**
      * Constructor of an Interpreter,
      * beneficiaries and missions are initialized with null
-     * @param id represent the id
-     * @param login represent the login
-     * @param firstName represent the firstname
-     * @param lastName represent the lastname
-     * @param birthDate represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email represent the email
-     * @param phoneNumber represent the phone number
-     * @param hourQuotaWeek represent the hour quota per week
-     * @param hourQuotaYear represent the hour quota per year
-     * @param transportMode represent the transport mode
-     * @param academicSkills represent the set of academic skills
-     * @param jobSkills represent the set of job skills
-     * @param location represent the location
-     * @param availability represent the set of availabilities
+     * @param id represents the id
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents the lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber represents the phone number
+     * @param hourQuotaWeek represents the hour quota per week
+     * @param hourQuotaYear represents the hour quota per year
+     * @param transportMode represents the transport mode
+     * @param academicSkills represents the set of academic skills
+     * @param jobSkills represents the set of job skills
+     * @param location represents the location
+     * @param availability represents the set of availabilities
      */
     public Interpreter(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -58,20 +58,20 @@ public class Interpreter extends AppliUser{
     /**
      * Constructor of an Interpreter without id,
      * beneficiaries and missions are initialized with null
-     * @param login represent the login
-     * @param firstName represent the firstname
-     * @param lastName represent the lastname
-     * @param birthDate represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email represent the email
-     * @param phoneNumber  represent the phone number
-     * @param hourQuotaWeek represent the hour quota per week
-     * @param hourQuotaYear represent the hour quota per year
-     * @param transportMode represent the transport mode
-     * @param academicSkills represent the set of academic skills
-     * @param jobSkills represent the set of job skills
-     * @param location represent the location
-     * @param availability represent the set of availabilities
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents the lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber  represents the phone number
+     * @param hourQuotaWeek represents the hour quota per week
+     * @param hourQuotaYear represents the hour quota per year
+     * @param transportMode represents the transport mode
+     * @param academicSkills represents the set of academic skills
+     * @param jobSkills represents the set of job skills
+     * @param location represents the location
+     * @param availability represents the set of availabilities
      */
     public Interpreter(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -84,7 +84,7 @@ public class Interpreter extends AppliUser{
 
     /**
      * Minimal constructor
-     * @param id represent the id
+     * @param id represents the id
      */
     public Interpreter(int id) {
         super(id);
@@ -92,9 +92,9 @@ public class Interpreter extends AppliUser{
 
     /**
      * Lightweight constructor
-     * @param id represent the id
-     * @param firstName represent the firstName
-     * @param lastName represent the lastName
+     * @param id represents the id
+     * @param firstName represents the firstName
+     * @param lastName represents the lastName
      */
     public Interpreter(int id, String firstName, String lastName) {
         super(id, firstName, lastName);
@@ -148,7 +148,7 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     * @param newHourQuotaWeek represent the new quota hour
+     * @param newHourQuotaWeek represents the new quota hour
      */
     public void setHourQuotaWeek(int newHourQuotaWeek) {
         if (newHourQuotaWeek >= 0)
@@ -163,7 +163,7 @@ public class Interpreter extends AppliUser{
     }
 
     /**
-     * @param newHourQuotaYear represent the new quota year
+     * @param newHourQuotaYear represents the new quota year
      */
     public void setHourQuotaYear(int newHourQuotaYear) {
         if (newHourQuotaYear >= 0)

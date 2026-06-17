@@ -13,8 +13,8 @@ public class AcademicSkill {
 
     /**
      * Constructor of a AcademicSkill
-     * @param id represent the id
-     * @param designation represent the designation
+     * @param id represents the id
+     * @param designation represents the designation
      */
     public AcademicSkill(int id, String designation) {
         if (id >= 0) this.id = id;
@@ -23,7 +23,7 @@ public class AcademicSkill {
 
     /**
      * Constructor of a AcademicSkill without id
-     * @param designation represent the designation
+     * @param designation represents the designation
      */
     public AcademicSkill(String designation) {
         this(-1, designation);
@@ -45,7 +45,7 @@ public class AcademicSkill {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if (id >= 0)
@@ -60,7 +60,7 @@ public class AcademicSkill {
     }
 
     /**
-     * @param designation represent the new designation
+     * @param designation represents the new designation
      */
     public void setDesignation(String designation) {
         this.designation = designation;

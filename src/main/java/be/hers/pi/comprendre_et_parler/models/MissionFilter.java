@@ -32,21 +32,21 @@ public class MissionFilter {
     }
 
     /**
-     * @param beneficiary represent the beneficiary of the mission filter
+     * @param beneficiary represents the beneficiary of the mission filter
      */
     public void setBeneficiary(Beneficiary beneficiary){
         this.beneficiary = beneficiary;
     }
 
     /**
-     * @param interpreter represent the interpreter of the mission filter
+     * @param interpreter represents the interpreter of the mission filter
      */
     public void setInterpreter(Interpreter interpreter){
         this.interpreter = interpreter;
     }
 
     /**
-     * @param stateOfMission represent the stateOfMission of the mission filter
+     * @param stateOfMission represents the stateOfMission of the mission filter
      */
     public void setStateOfMission(MissionState stateOfMission) {
         this.stateOfMission = stateOfMission;

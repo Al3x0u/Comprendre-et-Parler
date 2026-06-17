@@ -9,16 +9,16 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary
-     * @param id represent the id
-     * @param login represent the login
-     * @param firstName represent the firstname
-     * @param lastName represent he lastname
-     * @param birthDate represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email represent the email
-     * @param phoneNumber represent the phone number
-     * @param status represent the status
-     * @param interpreterRef represent the reference interpreter
+     * @param id represents the id
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents he lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber represents the phone number
+     * @param status represents the status
+     * @param interpreterRef represents the reference interpreter
      */
     public Beneficiary(int id, String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -31,15 +31,15 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Constructor of a Beneficiary without id
-     * @param login represent the login
-     * @param firstName represent the firstname
-     * @param lastName represent he lastname
-     * @param birthDate represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email represent the email
-     * @param phoneNumber represent the phone number
-     * @param status represent the status
-     * @param interpreterRef represent the reference interpreter
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents the lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber represents the phone number
+     * @param status represents the status
+     * @param interpreterRef represents the reference interpreter
      */
     public Beneficiary(String login, String firstName, String lastName,
                        LocalDate birthDate, String hashedPassword, String email,
@@ -49,7 +49,7 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Minimal constructor
-     * @param id represent the id
+     * @param id represents the id
      */
     public Beneficiary(int id) {
         super(id);
@@ -57,9 +57,9 @@ public class Beneficiary extends AppliUser {
 
     /**
      * Lightweight constructor
-     * @param id represent the id
-     * @param firstName represent the firstName
-     * @param lastName represent the lastName
+     * @param id  represents  the id
+     * @param firstName represents the firstName
+     * @param lastName represents the lastName
      */
     public Beneficiary(int id, String firstName, String lastName) {
         super(id, firstName, lastName);
@@ -88,7 +88,7 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
-     * @param status represent the new status
+     * @param status represents the new status
      */
     public void setStatus(Status status) {
         this.status = status;
@@ -102,7 +102,7 @@ public class Beneficiary extends AppliUser {
     }
 
     /**
-     * @param interpreterRef represent the new referent Interpreter
+     * @param interpreterRef represents the new referent Interpreter
      */
     public void setInterpreterRef(Interpreter interpreterRef) {
         this.interpreterRef = interpreterRef;
