@@ -155,88 +155,18 @@ public class Mission {
     }
 
     /**
-     * @return this.subject
-     */
-    public String getSubject() {
-        return subject;
-    }
-
-    /**
-     * @return this.stateOfMission
-     */
-    public MissionState getStateOfMission() {
-        return stateOfMission;
-    }
-
-    /**
-     * @return this.commentary
-     */
-    public String getCommentary() {
-        return commentary;
-    }
-
-    /**
-     * @return this.timeSlot
-     */
-    public TimeSlot getTimeSlot() {
-        return timeSlot;
-    }
-
-    /**
-     * @return this.beneficiary
-     */
-    public Beneficiary getBeneficiary() {
-        return beneficiary;
-    }
-
-    /**
-     * @return this.interpreters
-     */
-    public HashSet<Interpreter> getInterpreters() {
-        return interpreters;
-    }
-
-    /**
-     * @return this.location
-     */
-    public Location getLocation() {
-        return location;
-    }
-
-    /**
-     * @return this.jobSkill
-     */
-    public JobSkill getJobSkill() {
-        return jobSkill;
-    }
-
-    /**
-     * @return this.academicSkill
-     */
-    public AcademicSkill getAcademicSkill() {
-        return academicSkill;
-    }
-
-    /**
-     * @return this.room (can be null)
-     */
-    public String getRoom() {
-        return room;
-    }
-
-    /**
-     * @return this.importance
-     */
-    public int getImportance() {
-        return importance;
-    }
-
-    /**
      * @param id : mission id
      * @post if id >= 0, id is affected to this.id
      */
     public void setId(int id) {
         if(id >= 0) this.id = id;
+    }
+
+    /**
+     * @return this.subject
+     */
+    public String getSubject() {
+        return subject;
     }
 
     /**
@@ -247,10 +177,24 @@ public class Mission {
     }
 
     /**
+     * @return this.stateOfMission
+     */
+    public MissionState getStateOfMission() {
+        return stateOfMission;
+    }
+
+    /**
      * @param state represents the mission state
      */
     public void setStateOfMission(MissionState state){
         this.stateOfMission = state;
+    }
+
+    /**
+     * @return this.commentary
+     */
+    public String getCommentary() {
+        return commentary;
     }
 
     /**
@@ -261,6 +205,13 @@ public class Mission {
     }
 
     /**
+     * @return this.timeSlot
+     */
+    public TimeSlot getTimeSlot() {
+        return timeSlot;
+    }
+
+    /**
      * @param timeSlot represents the time slot of the mission
      */
     public void setTimeSlot(TimeSlot timeSlot){
@@ -268,10 +219,24 @@ public class Mission {
     }
 
     /**
+     * @return this.beneficiary
+     */
+    public Beneficiary getBeneficiary() {
+        return beneficiary;
+    }
+
+    /**
      * @param beneficiary represents the beneficiary of the mission
      */
     public void setBeneficiary(Beneficiary beneficiary) {
         this.beneficiary = beneficiary;
+    }
+
+    /**
+     * @return this.interpreters
+     */
+    public HashSet<Interpreter> getInterpreters() {
+        return interpreters;
     }
 
     /**
@@ -289,10 +254,24 @@ public class Mission {
     }
 
     /**
+     * @return this.location
+     */
+    public Location getLocation() {
+        return location;
+    }
+
+    /**
      * @param location represents the location of the mission
      */
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    /**
+     * @return this.jobSkill
+     */
+    public JobSkill getJobSkill() {
+        return jobSkill;
     }
 
     /**
@@ -303,6 +282,13 @@ public class Mission {
     }
 
     /**
+     * @return this.academicSkill
+     */
+    public AcademicSkill getAcademicSkill() {
+        return academicSkill;
+    }
+
+    /**
      * @param academicSkill represents the academic skill required for the mission
      */
     public void setAcademicSkill(AcademicSkill academicSkill) {
@@ -310,10 +296,24 @@ public class Mission {
     }
 
     /**
+     * @return this.room (can be null)
+     */
+    public String getRoom() {
+        return room;
+    }
+
+    /**
      * @param room represents the room of the mission (can be null)
      */
     public void setRoom(String room) {
         this.room = room;
+    }
+
+    /**
+     * @return this.importance
+     */
+    public int getImportance() {
+        return importance;
     }
 
     /**

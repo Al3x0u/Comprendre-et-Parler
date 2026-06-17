@@ -18,20 +18,6 @@ public class MissionFilter {
     }
 
     /**
-     * @return this.interpreter
-     */
-    public Interpreter getInterpreter(){
-        return interpreter;
-    }
-
-    /**
-     * @return this.stateOfMission
-     */
-    public MissionState getStateOfMission() {
-        return stateOfMission;
-    }
-
-    /**
      * @param beneficiary represents the beneficiary of the mission filter
      */
     public void setBeneficiary(Beneficiary beneficiary){
@@ -39,10 +25,24 @@ public class MissionFilter {
     }
 
     /**
+     * @return this.interpreter
+     */
+    public Interpreter getInterpreter(){
+        return interpreter;
+    }
+
+    /**
      * @param interpreter represents the interpreter of the mission filter
      */
     public void setInterpreter(Interpreter interpreter){
         this.interpreter = interpreter;
+    }
+
+    /**
+     * @return this.stateOfMission
+     */
+    public MissionState getStateOfMission() {
+        return stateOfMission;
     }
 
     /**
