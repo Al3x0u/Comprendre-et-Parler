@@ -15,6 +15,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.TextStyle;
 import java.util.*;
 
 @Service
@@ -118,7 +119,9 @@ public class MissionService {
                         daoMission.create(mission);
                     } catch (AlreadyExistsException ex) {
                         BaseTimeSlot slot = (BaseTimeSlot) mission.getTimeSlot();
-                        problems.add(slot.getDay() + " " + slot.getStartTime() + "-" + slot.getEndTime()
+                        String dayLabel = frenchDay(slot.getDay());
+                        dayLabel = dayLabel.substring(0, 1).toUpperCase() + dayLabel.substring(1);
+                        problems.add(dayLabel + " " + slot.getStartTime() + "-" + slot.getEndTime()
                                 + " (" + mission.getSubject() + ") : conflit avec " + describeConflict(ex));
                     }
                 }
@@ -404,6 +407,15 @@ public class MissionService {
     }
 
     /**
+     * Returns the full French name of a day of week
+     * @param day the day of week to trnaslate
+     * @return the localized day name in French
+     */
+    private static String frenchDay(DayOfWeek day){
+        return day.getDisplayName(TextStyle.FULL, Locale.FRENCH);
+    }
+
+    /**
      * Builds a human-readable description of a mission for use in conflict messages.
      * @param mission the mission to describe
      * @return a String describing the mission's subject, date/time and beneficiary (if any)
@@ -417,7 +429,7 @@ public class MissionService {
                     .append(" de ").append(pts.getStartDate().toLocalTime())
                     .append(" à ").append(pts.getEndDate().toLocalTime());
         } else if (ts instanceof BaseTimeSlot bts) {
-            sb.append(" le ").append(bts.getDay())
+            sb.append(" le ").append(frenchDay(bts.getDay()))
                     .append(" de ").append(bts.getStartTime())
                     .append(" à ").append(bts.getEndTime());
         }
