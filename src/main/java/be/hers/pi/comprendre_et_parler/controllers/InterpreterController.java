@@ -29,7 +29,7 @@ public class InterpreterController {
      * Display the paginated and filtered list of interpreters without the connected one
      * @param page the page number to display; defaults to 1
      * @param keyword the search keyword to filter by login, firstName or lastName; defaults to empty
-     * @param session contains the actual sesssion of the connected user
+     * @param session contains the actual session of the connected user
      * @param model the Spring model to populate
      * @return the interpreters list view, or a redirect to the list on error
      */
