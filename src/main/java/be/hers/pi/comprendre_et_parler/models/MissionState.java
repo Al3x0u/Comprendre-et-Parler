@@ -1,7 +1,7 @@
 package be.hers.pi.comprendre_et_parler.models;
 
 /**
- *  Enumeration for the MissionState
+ * Enumeration for the MissionState
  */
 public enum MissionState {
     PENDING(0),
@@ -13,6 +13,10 @@ public enum MissionState {
 
     private final int value;
 
+    /**
+     * Constructor of a MissionState object
+     * @param value represents the id value the mission state
+     */
     MissionState(int value) {
         this.value = value;
     }
@@ -54,5 +58,4 @@ public enum MissionState {
             default -> throw new IllegalArgumentException("Unknown value: " + status);
         };
     }
-
 }

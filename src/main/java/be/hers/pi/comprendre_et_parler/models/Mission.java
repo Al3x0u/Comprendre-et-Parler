@@ -24,22 +24,22 @@ public class Mission {
 
     /**
      * Constructor of a Mission object without beneficiary
-     * @param id represent the id of the mission
-     * @param subject represent the subject of the mission
-     * @param stateOfMission represent the state of the mission
-     * @param commentary represent the commentary of the mission
-     * @param timeSlot represent the time slot of the mission
-     * @param location represent the location of the mission
-     * @param interpreters represent the interpreters of the mission
-     * @param jobSkill represent the required business skill
-     * @param academicSkill represent the required academic skill
-     * @param room represent the room of the mission (can be null)
-     * @param importance represent the importance of the mission
+     * @param id represents the id of the mission
+     * @param subject represents the subject of the mission
+     * @param stateOfMission represents the state of the mission
+     * @param commentary represents the commentary of the mission
+     * @param timeSlot represents the time slot of the mission
+     * @param location represents the location of the mission
+     * @param interpreters represents the interpreters of the mission
+     * @param jobSkill represents the required business skill
+     * @param academicSkill represents the required academic skill
+     * @param room represents the room of the mission (can be null)
+     * @param importance represents the importance of the mission
      */
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                    Location location, HashSet<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                    String room, int importance) {
-        if (id > 0) this.id = id;
+        if (id >= 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
@@ -56,40 +56,41 @@ public class Mission {
 
     /**
      * Constructor of a Mission object without id and without beneficiary
-     * @param subject represent the subject of the mission
-     * @param stateOfMission represent the state of the mission
-     * @param commentary represent the commentary of the mission
-     * @param timeSlot represent the time slot of the mission
-     * @param location represent the location of the mission
-     * @param interpreters represent the interpreters of the mission
-     * @param jobSkill represent the required business skill
-     * @param academicSkill represent the required academic skill
-     * @param room represent the room of the mission (can be null)
-     * @param importance represent the importance of the mission
+     * @param subject represents the subject of the mission
+     * @param stateOfMission represents the state of the mission
+     * @param commentary represents the commentary of the mission
+     * @param timeSlot represents the time slot of the mission
+     * @param location represents the location of the mission
+     * @param interpreters represents the interpreters of the mission
+     * @param jobSkill represents the required business skill
+     * @param academicSkill represents the required academic skill
+     * @param room represents the room of the mission (can be null)
+     * @param importance represents the importance of the mission
      */
     public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
                    Location location, HashSet<Interpreter> interpreters, JobSkill jobSkill, AcademicSkill academicSkill,
                    String room, int importance) {
-        this(-1, subject, stateOfMission, commentary, timeSlot, location, interpreters, jobSkill, academicSkill, room, importance);
+        this(-1, subject, stateOfMission, commentary, timeSlot, location, interpreters,
+                jobSkill, academicSkill, room, importance);
     }
 
     /**
      * Constructor of a Mission object with beneficiary and no interpreters
-     * @param id represent the id of the mission
-     * @param subject represent the subject of the mission
-     * @param stateOfMission represent the state of the mission
-     * @param commentary represent the commentary of the mission
-     * @param timeSlot represent the time slot of the mission
-     * @param beneficiary represent the beneficiary who concern this mission
-     * @param location represent the location of the mission
-     * @param jobSkill represent the required business skill
-     * @param academicSkill represent the required academic skill
-     * @param room represent the room of the mission (can be null)
+     * @param id represents the id of the mission
+     * @param subject represents the subject of the mission
+     * @param stateOfMission represents the state of the mission
+     * @param commentary represents the commentary of the mission
+     * @param timeSlot represents the time slot of the mission
+     * @param beneficiary represents the beneficiary who concern this mission
+     * @param location represents the location of the mission
+     * @param jobSkill represents the required business skill
+     * @param academicSkill represents the required academic skill
+     * @param room represents the room of the mission (can be null)
      */
     public Mission(int id, String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   Beneficiary beneficiary, Location location,
-                   JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
-        if (id > 0) this.id = id;
+                   Beneficiary beneficiary, Location location, JobSkill jobSkill, AcademicSkill academicSkill,
+                   String room, int importance) {
+        if (id >= 0) this.id = id;
         this.subject = subject;
         this.stateOfMission = stateOfMission;
         this.commentary = commentary;
@@ -105,20 +106,21 @@ public class Mission {
 
     /**
      * Constructor of a Mission object without id and without interpreters
-     * @param subject represent the subject of the mission
-     * @param stateOfMission represent the state of the mission
-     * @param commentary represent the commentary of the mission
-     * @param timeSlot represent the time slot of the mission
-     * @param beneficiary represent the beneficiary who concern this mission
-     * @param location represent the location of the mission
-     * @param jobSkill represent the required business skill
-     * @param academicSkill represent the required academic skill
-     * @param room represent the room of the mission (can be null)
+     * @param subject represents the subject of the mission
+     * @param stateOfMission represents the state of the mission
+     * @param commentary represents the commentary of the mission
+     * @param timeSlot represents the time slot of the mission
+     * @param beneficiary represents the beneficiary who concern this mission
+     * @param location represents the location of the mission
+     * @param jobSkill represents the required business skill
+     * @param academicSkill represents the required academic skill
+     * @param room represents the room of the mission (can be null)
      */
     public Mission(String subject, MissionState stateOfMission, String commentary, TimeSlot timeSlot,
-                   Beneficiary beneficiary, Location location,
-                   JobSkill jobSkill, AcademicSkill academicSkill, String room, int importance) {
-        this(-1, subject, stateOfMission, commentary, timeSlot, beneficiary, location, jobSkill, academicSkill, room, importance);
+                   Beneficiary beneficiary, Location location, JobSkill jobSkill, AcademicSkill academicSkill,
+                   String room, int importance) {
+        this(-1, subject, stateOfMission, commentary, timeSlot, beneficiary, location,
+                jobSkill, academicSkill, room, importance);
     }
 
     /**
@@ -132,8 +134,11 @@ public class Mission {
         this.commentary = mission.commentary;
         this.timeSlot = mission.timeSlot.clone();
 
-        if (mission.beneficiary != null) this.beneficiary = new Beneficiary(mission.beneficiary);
-        if (mission.interpreters != null) this.interpreters = new HashSet<>(mission.interpreters);
+        if (mission.beneficiary != null)
+            this.beneficiary = new Beneficiary(mission.beneficiary);
+
+        if (mission.interpreters != null)
+            this.interpreters = new HashSet<>(mission.interpreters);
 
         this.location = new Location(mission.location);
         this.jobSkill = new JobSkill(mission.jobSkill);
@@ -150,10 +155,25 @@ public class Mission {
     }
 
     /**
+     * @param id : mission id
+     * @post if id >= 0, id is affected to this.id
+     */
+    public void setId(int id) {
+        if(id >= 0) this.id = id;
+    }
+
+    /**
      * @return this.subject
      */
     public String getSubject() {
         return subject;
+    }
+
+    /**
+     * @param subject represents the subject of Mission
+     */
+    public void setSubject(String subject){
+        this.subject = subject;
     }
 
     /**
@@ -164,10 +184,24 @@ public class Mission {
     }
 
     /**
+     * @param state represents the mission state
+     */
+    public void setStateOfMission(MissionState state){
+        this.stateOfMission = state;
+    }
+
+    /**
      * @return this.commentary
      */
     public String getCommentary() {
         return commentary;
+    }
+
+    /**
+     * @param commentary : represents the mission commentary
+     */
+    public void setCommentary(String commentary){
+        this.commentary = commentary;
     }
 
     /**
@@ -178,10 +212,24 @@ public class Mission {
     }
 
     /**
+     * @param timeSlot represents the time slot of the mission
+     */
+    public void setTimeSlot(TimeSlot timeSlot){
+        this.timeSlot = timeSlot;
+    }
+
+    /**
      * @return this.beneficiary
      */
     public Beneficiary getBeneficiary() {
         return beneficiary;
+    }
+
+    /**
+     * @param beneficiary represents the beneficiary of the mission
+     */
+    public void setBeneficiary(Beneficiary beneficiary) {
+        this.beneficiary = beneficiary;
     }
 
     /**
@@ -192,10 +240,31 @@ public class Mission {
     }
 
     /**
+     * @param interpreters represents the interpreters of the mission
+     * @throws AlreadyExistsException if two interpreters have the same id or are equal
+     */
+    public void setInterpreters(Set<Interpreter> interpreters) throws AlreadyExistsException {
+        List<Interpreter> list = new ArrayList<>(interpreters);
+        for (int i = 0; i < list.size(); i++)
+            for (int j = i + 1; j < list.size(); j++)
+                if (list.get(i).getId() == list.get(j).getId())
+                    throw new AlreadyExistsException("Two interpreters have the same id");
+
+        this.interpreters = new HashSet<>(interpreters);
+    }
+
+    /**
      * @return this.location
      */
     public Location getLocation() {
         return location;
+    }
+
+    /**
+     * @param location represents the location of the mission
+     */
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     /**
@@ -206,10 +275,24 @@ public class Mission {
     }
 
     /**
+     * @param jobSkill represents the business skill required for the mission
+     */
+    public void setJobSkill(JobSkill jobSkill) {
+        this.jobSkill = jobSkill;
+    }
+
+    /**
      * @return this.academicSkill
      */
     public AcademicSkill getAcademicSkill() {
         return academicSkill;
+    }
+
+    /**
+     * @param academicSkill represents the academic skill required for the mission
+     */
+    public void setAcademicSkill(AcademicSkill academicSkill) {
+        this.academicSkill = academicSkill;
     }
 
     /**
@@ -220,6 +303,13 @@ public class Mission {
     }
 
     /**
+     * @param room represents the room of the mission (can be null)
+     */
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    /**
      * @return this.importance
      */
     public int getImportance() {
@@ -227,91 +317,7 @@ public class Mission {
     }
 
     /**
-     * @param id : mission id
-     * @post if id >= 0, id is affected to this.id
-     */
-    public void setId(int id) {
-        if(id >= 0) this.id = id;
-    }
-
-    /**
-     * @param subject represent the subject of Mission
-     */
-    public void setSubject(String subject){
-        this.subject = subject;
-    }
-
-    /**
-     * @param state represent the mission state
-     */
-    public void setStateOfMission(MissionState state){
-        this.stateOfMission = state;
-    }
-
-    /**
-     * @param commentary : represent the mission commentary
-     */
-    public void setCommentary(String commentary){
-        this.commentary = commentary;
-    }
-
-    /**
-     * @param timeSlot represent the time slot of the mission
-     */
-    public void setTimeSlot(TimeSlot timeSlot){
-        this.timeSlot = timeSlot;
-    }
-
-    /**
-     * @param beneficiary represent the beneficiary of the mission
-     */
-    public void setBeneficiary(Beneficiary beneficiary) {
-        this.beneficiary = beneficiary;
-    }
-
-    /**
-     * @param interpreters represent the interpreters of the mission
-     * @throws AlreadyExistsException if two interpreters have the same id or are equal
-     */
-    public void setInterpreters(Set<Interpreter> interpreters) throws AlreadyExistsException {
-        List<Interpreter> list = new ArrayList<>(interpreters);
-        for (int i = 0; i < list.size(); i++)
-            for (int j = i + 1; j < list.size(); j++)
-                if (list.get(i).getId() == list.get(j).getId())
-                    throw new AlreadyExistsException("Two interpreters have the same id");
-        this.interpreters = new HashSet<>(interpreters);
-    }
-
-    /**
-     * @param location represent the location of the mission
-     */
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    /**
-     * @param jobSkill represent the business skill required for the mission
-     */
-    public void setJobSkill(JobSkill jobSkill) {
-        this.jobSkill = jobSkill;
-    }
-
-    /**
-     * @param academicSkill represent the academic skill required for the mission
-     */
-    public void setAcademicSkill(AcademicSkill academicSkill) {
-        this.academicSkill = academicSkill;
-    }
-
-    /**
-     * @param room represent the room of the mission (can be null)
-     */
-    public void setRoom(String room) {
-        this.room = room;
-    }
-
-    /**
-     * @param importance represent the importance of the mission
+     * @param importance represents the importance of the mission
      * @post if 0 <= importance <= 3, importance is affected to this.importance
      */
     public void setImportance(int importance) {
@@ -379,7 +385,7 @@ public class Mission {
 
     /**
      * Add an Interpreter to the interpreters Set
-     * @param interpreter represent the Interpreter to add, not null
+     * @param interpreter represents the Interpreter to add, not null
      * @throws AlreadyExistsException if an interpreter with the same id already exists in the set
      * @throws NullPointerException if interpreter is null
      */
@@ -399,7 +405,7 @@ public class Mission {
 
     /**
      * Remove an Interpreter from the interpreters Set by id
-     * @param id represent the id of the Interpreter to remove
+     * @param id represents the id of the Interpreter to remove
      * @throws NoSuchElementException if no interpreter with the given id exists in the set
      */
     public void deleteInterpreter(int id) throws NoSuchElementException {
@@ -416,7 +422,9 @@ public class Mission {
                 found = true;
             }
         }
-        if (!found) throw new NoSuchElementException("No interpreter with id: " + id);
+        if (!found)
+            throw new NoSuchElementException("No interpreter with id: " + id);
+
         interpreters.remove(toRemove);
     }
 }

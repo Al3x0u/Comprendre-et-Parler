@@ -16,7 +16,7 @@ public abstract class AppliUser {
 
     /**
      * Minimal constructor
-     * @param id the user's id
+     * @param id represents the id
      */
     public AppliUser(int id) {
         this.id = id;
@@ -24,30 +24,30 @@ public abstract class AppliUser {
 
     /**
      * Lightweight constructor
-     * @param id the user's id
-     * @param firstName the user's first name
-     * @param lastName the user's last name
+     * @param id represents the id
+     * @param firstName represents the firstName
+     * @param lastName the user's last lastName
      */
     public AppliUser(int id, String firstName, String lastName) {
-        this.id = id;
+        if (id >= 0) this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
     }
+
     /**
-     Constructor of a AppliUser
-     @param id represent the id
-     @param login represent the login
-     @param firstName represent the firstname
-     @param lastName represent he lastname
-     @param birthDate represent the birthdate
-     @param hashedPassword represent the hashed password
-     @param email represent the email
-     @param phoneNumber represent the phone number
+     * Constructor of a AppliUser
+     * @param id represents the id
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents he lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber represents the phone number
      */
     public AppliUser(int id, String login, String firstName, String lastName, LocalDate birthDate,
                      String hashedPassword, String email, String phoneNumber) {
-        if (id >= 0)
-            this.id = id;
+        if (id >= 0) this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -59,14 +59,14 @@ public abstract class AppliUser {
     }
 
     /**
-     Constructor of a AppliUser without id
-     @param login represent the login
-     @param firstName represent the firstname
-     @param lastName represent he lastname
-     @param birthDate represent the birthdate
-     @param hashedPassword represent the hashed password
-     @param email represent the email
-     @param phoneNumber represent the phone number
+     * Constructor of a AppliUser without id
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents he lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber represents the phone number
      */
     public AppliUser(String login, String firstName, String lastName, LocalDate birthDate,
                      String hashedPassword, String email, String phoneNumber) {
@@ -90,7 +90,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param id represent the new id
+     * @param id represents the new id
      */
     public void setId(int id) {
         if (id >= 0) this.id = id;
@@ -104,7 +104,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param login represent the new login
+     * @param login represents the new login
      */
     public void setLogin(String login) {
         this.login = login;
@@ -118,7 +118,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param firstName represent the new first name
+     * @param firstName represents the new first name
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -134,10 +134,12 @@ public abstract class AppliUser {
     /**
      * @return The AppliUser's first then last name
      */
-    public String getFullName() { return firstName + " " + lastName;}
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 
     /**
-     * @param lastName represent the new last name
+     * @param lastName represents the new last name
      */
     public void setLastName(String lastName) {
         this.lastName = lastName;
@@ -151,7 +153,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param birthDate represent the new birthdate
+     * @param birthDate represents the new birthdate
      */
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
@@ -165,7 +167,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param hashedPassword represent the new hashed password
+     * @param hashedPassword represents the new hashed password
      */
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
@@ -179,7 +181,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param email represent the new email
+     * @param email represents the new email
      */
     public void setEmail(String email) {
         this.email = email;
@@ -193,7 +195,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param phoneNumber represent the new phone number
+     * @param phoneNumber represents the new phone number
      */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
@@ -207,7 +209,7 @@ public abstract class AppliUser {
     }
 
     /**
-     * @param passwordUpdated represent the new phone number
+     * @param passwordUpdated represents the new phone number
      */
     public void setPasswordUpdated(boolean passwordUpdated) {
         this.passwordUpdated = passwordUpdated;
@@ -220,7 +222,7 @@ public abstract class AppliUser {
      * Compare this AppliUser with another Object for equality
      * @param o the Object to compare with
      * @return true if both objects have identical login, firstName, lastName,
-     * birthDate, hashedPassword, email and phoneNumber
+     * birthDate, email and phoneNumber
      */
     @Override
     public boolean equals(Object o) {
@@ -229,8 +231,8 @@ public abstract class AppliUser {
 
         AppliUser other = (AppliUser) o;
         return Objects.equals(firstName, other.firstName)  && Objects.equals(lastName, other.lastName)
-                && Objects.equals(birthDate, other.birthDate) && Objects.equals(hashedPassword, other.hashedPassword)
-                && Objects.equals(email, other.email) && Objects.equals(phoneNumber, other.phoneNumber);
+                && Objects.equals(birthDate, other.birthDate) && Objects.equals(email, other.email)
+                && Objects.equals(phoneNumber, other.phoneNumber);
     }
 
     /**
@@ -244,6 +246,7 @@ public abstract class AppliUser {
      */
     public int compareTo(AppliUser a) {
         if (this == a) return 0;
+
         int res = firstName.compareTo(a.firstName);
         if (res == 0) {
             res = lastName.compareTo(a.lastName);
@@ -264,7 +267,6 @@ public abstract class AppliUser {
                 firstName,
                 lastName,
                 birthDate,
-                hashedPassword,
                 email,
                 phoneNumber
         );
