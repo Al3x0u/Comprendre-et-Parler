@@ -212,19 +212,11 @@ public class InterpreterService {
      * @throws IllegalArgumentException if the given TimeSlot is not a PunctualTimeSlot
      */
     public List<Interpreter> getAvailableInterpreters(TimeSlot timeSlot) throws SQLException {
-        if (!(timeSlot instanceof PunctualTimeSlot)){
+        if (!(timeSlot instanceof PunctualTimeSlot))
             throw new IllegalArgumentException("getAvailableInterpreters requiert un PunctualTimeSlot");
-        }
-        PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
-        List<Interpreter> allInterpreters = getAllInterpreters();
 
-        List<Interpreter> available = new ArrayList<>();
-        for (Interpreter interpreter : allInterpreters) {
-            if (!hasUnavailabilityConflict(interpreter, slot) && !hasMissionConflict(interpreter, slot)){
-                available.add(interpreter);
-            }
-        }
-        return available;
+        PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
+        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate(), slot.getEndDate()));
     }
 
 
@@ -367,7 +359,7 @@ public class InterpreterService {
     public void loadInterpreters(Mission mission) {
         try {
             SQLWrap.callTransaction(
-                    (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(new DAOInterpreter().findAllByMissionId(m.getId())),
+                    (ConsumerWithSQLException<Mission>) m -> m.setInterpreters(daoInterpreter.findAllByMissionId(m.getId())),
                     mission
             );
         } catch(SQLException e) {
