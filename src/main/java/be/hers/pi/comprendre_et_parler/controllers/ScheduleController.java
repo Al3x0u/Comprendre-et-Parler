@@ -20,6 +20,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.Comparator;
 import java.util.List;
@@ -68,7 +69,8 @@ public class ScheduleController {
 
             List<Mission> missions = missionService.getMissionsForWeek(user.getId(),role, today,null);
 
-            List<Map<String, String>> events = convertMissionsToEvents(missions, today.with(DayOfWeek.MONDAY));            Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
+            List<Map<String, String>> events = convertMissionsToEvents(missions, today.with(DayOfWeek.MONDAY));
+            Set<Beneficiary> beneficiaries = new HashSet<>(beneficiaryService.getAllBeneficiaries());
             List<Interpreter> interpreters = interpreterService.getAllInterpreters();
 
 
@@ -424,6 +426,30 @@ public class ScheduleController {
     }
 
     /**
+     * Cancel one or several occurrences of a recurring mission (manager only).
+     * @param id the recurring mission id
+     * @param body the cancellation scope and dates
+     * @param session the current HTTP session
+     * @return 200 if cancelled, 403 if not a manager, 500 on error
+     */
+    @PostMapping("/missions/{id}/annuler-occurrence")
+    @ResponseBody
+    public ResponseEntity<?> cancelOccurrence(@PathVariable int id, @RequestBody CancelOccurrenceForm body, HttpSession session) {
+        try {
+            AppliUser user = (AppliUser) session.getAttribute("user");
+            if (!(user instanceof Manager)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Accès refusé");
+            }
+            missionService.cancelRegularOccurrence(id, body.getDate(), body.getScope(), body.getUntilDate());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur lors de l'annulation. Veuillez réessayer.");
+        }
+    }
+
+    /**
      * Create a new mission directly (manager only)
      * @param body the request body containing mission details (title, date, times, location, interpreter, beneficiary, etc.)
      * @param session the current HTTP session
@@ -489,6 +515,9 @@ public class ScheduleController {
         LocalDate endDate   = LocalDate.parse(form.getEndDate());
         boolean anchorIsInterpreter = "interpreter".equalsIgnoreCase(form.getAnchorType());
 
+        List<JobSkill> jobSkills = jobSkillService.getAllJobSkills();
+        List<AcademicSkill> academicSkills = academicSkillService.getAllAcademicSkills();
+
         List<Mission> missions = new ArrayList<>();
         for (BaseScheduleEntry entry : form.getEntries()) {
             Mission mission = new Mission();
@@ -514,10 +543,10 @@ public class ScheduleController {
             mission.setLocation(locationService.getOneLocation(entry.getLocationId()));
 
             if (entry.getJobSkillId() != null)
-                mission.setJobSkill(jobSkillService.getAllJobSkills().stream()
+                mission.setJobSkill(jobSkills.stream()
                         .filter(s -> s.getId() == entry.getJobSkillId()).findFirst().orElse(null));
             if (entry.getAcademicSkillId() != null)
-                mission.setAcademicSkill(academicSkillService.getAllAcademicSkills().stream()
+                mission.setAcademicSkill(academicSkills.stream()
                         .filter(s -> s.getId() == entry.getAcademicSkillId()).findFirst().orElse(null));
 
             if (entry.getRoom() != null && !entry.getRoom().isBlank())
@@ -630,13 +659,14 @@ public class ScheduleController {
      * @param missions the list of missions to convert
      * @return the list of event maps with title, start, end, color, status, and other display fields
      */
-    private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions, LocalDate weekMonday) {
+    private List<Map<String, String>> convertMissionsToEvents(List<Mission> missions, LocalDate weekMonday)throws SQLException {
 
         List<Map<String, String>> events = new ArrayList<>();
 
         for (Mission mission : missions) {
             LocalDateTime startDt;
             LocalDateTime endDt;
+            MissionState displayState = mission.getStateOfMission();
 
             if (mission.getTimeSlot() instanceof PunctualTimeSlot pts) {
                 startDt = pts.getStartDate();
@@ -650,6 +680,9 @@ public class ScheduleController {
                 }
                 startDt = LocalDateTime.of(occurrence, bts.getStartTime());
                 endDt   = LocalDateTime.of(occurrence, bts.getEndTime());
+                int isoWeek = occurrence.get(WeekFields.ISO.weekOfWeekBasedYear());
+                if (missionService.getCancelledWeeks(mission.getId()).contains(isoWeek))
+                    displayState = MissionState.CANCELED;
             } else {
                 continue;
             }
@@ -664,10 +697,9 @@ public class ScheduleController {
             event.put("title", mission.getSubject());
             event.put("start", startDt.toString());
             event.put("end", endDt.toString());
-            event.put("color",getColor(mission.getStateOfMission()));
+            event.put("color", getColor(displayState));
             event.put("importance", String.valueOf(mission.getImportance()));
-            event.put("status", getDisplayStatus(mission.getStateOfMission()));
-
+            event.put("status", getDisplayStatus(displayState));
             if (mission.getJobSkill() != null) {
                 event.put("type", mission.getJobSkill().getDesignation());
                 event.put("jobSkillId", String.valueOf(mission.getJobSkill().getId()));

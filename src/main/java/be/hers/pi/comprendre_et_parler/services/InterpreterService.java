@@ -5,9 +5,7 @@ import be.hers.pi.comprendre_et_parler.DTO.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
 import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
-import be.hers.pi.comprendre_et_parler.services.wrappers.ConsumerWithSQLException;
-import be.hers.pi.comprendre_et_parler.services.wrappers.FunctionWithSQLException;
-import be.hers.pi.comprendre_et_parler.services.wrappers.SQLWrap;
+import be.hers.pi.comprendre_et_parler.services.wrappers.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -216,50 +214,10 @@ public class InterpreterService {
             throw new IllegalArgumentException("getAvailableInterpreters requiert un PunctualTimeSlot");
 
         PunctualTimeSlot slot = (PunctualTimeSlot) timeSlot;
-        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAvailable, slot.getStartDate(), slot.getEndDate()));
-    }
-
-
-    /**
-     * Checks if an interpreter has an exceptional unavailability overlapping the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot to check
-     * @return true if there is an overlapping unavailability
-     */
-    private boolean hasUnavailabilityConflict(Interpreter interpreter, PunctualTimeSlot slot) {
-        if (interpreter.getUnavailability() == null)
-            return false;
-
-        for (ExceptionalUnavailability unavailability : interpreter.getUnavailability()) {
-            if (unavailability.getTimeSlot().overlaps(slot))
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks if an interpreter has a mission conflicting with the given time slot.
-     * @param interpreter the interpreter to check
-     * @param slot the time slot to check
-     * @return true if there is a conflicting mission
-     * @throws SQLException if the database could not be reached
-     */
-    private boolean hasMissionConflict(Interpreter interpreter, PunctualTimeSlot slot) throws SQLException {
-        Set<Mission> missions = SQLWrap.call(daoMission::getScheduleForDay, interpreter.getId(), slot.getStartDate().toLocalDate());
-        for (Mission mission : missions) {
-            if (mission.getTimeSlot() instanceof PunctualTimeSlot) {
-                PunctualTimeSlot missionSlot = (PunctualTimeSlot) mission.getTimeSlot();
-                if (missionSlot.overlaps(slot))
-                    return true;
-
-            } else if (mission.getTimeSlot() instanceof BaseTimeSlot) {
-                BaseTimeSlot missionSlot = (BaseTimeSlot) mission.getTimeSlot();
-                if (missionSlot.getStartTime().isBefore(slot.getEndDate().toLocalTime()) && missionSlot.getEndTime().isAfter(slot.getStartDate().toLocalTime())){
-                    return true;
-                }
-            }
-        }
-        return false;
+        return new ArrayList<>(SQLWrap.call(daoInterpreter::findAvailable,
+                slot.getStartDate().toLocalTime(),
+                slot.getEndDate().toLocalTime(),
+                slot.getStartDate().toLocalDate()));
     }
 
     /**

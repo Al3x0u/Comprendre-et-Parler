@@ -25,6 +25,9 @@ public class DAOMission extends DAO<Mission> {
     protected static final String FIELD_JOB_SKILL = "jobSkill";
     protected static final String FIELD_ACADEMIC_SKILL = "academicSkill";
     protected static final String FIELD_IMPORTANCE = "importance";
+    protected static final String TABLE_REGULAR_CANCELLED = "regularMissionCancelled";
+    protected static final String REGULAR_CANCELLED_MISSION = "mission";
+    protected static final String REGULAR_CANCELLED_NUM_WEEK = "numWeek";
 
     protected static final String TABLE_INTERPRETER_MISSION = "interpreterMission";
     protected static final String INTERPRETER_MISSION_REF_MISSION = "mission";
@@ -754,5 +757,70 @@ public class DAOMission extends DAO<Mission> {
             completeBeneficiaryLight(mis);
 
         return missions;
+    }
+
+    /**
+     * Marks one ISO week of a recurring mission as cancelled.
+     * @param missionId the recurring mission id
+     * @param numWeek the ISO week number (1-53) to cancel
+     * @throws SQLException if the database could not be reached
+     */
+    public void cancelRegularWeek(int missionId, int numWeek) throws SQLException {
+        String query = String.format("INSERT INTO %s (%s, %s) VALUES (?, ?)",
+                TABLE_REGULAR_CANCELLED, REGULAR_CANCELLED_MISSION, REGULAR_CANCELLED_NUM_WEEK);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            statement.setInt(2, numWeek);
+            statement.executeUpdate();
+        } finally {
+            closeStatement(statement);
+        }
+    }
+
+    /**
+     * Returns the cancelled ISO week numbers of a recurring mission.
+     * @param missionId the recurring mission id
+     * @return the set of cancelled week numbers, empty if none
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Integer> getCancelledWeeks(int missionId) throws SQLException {
+        String query = String.format("SELECT %s FROM %s WHERE %s = ?",
+                REGULAR_CANCELLED_NUM_WEEK, TABLE_REGULAR_CANCELLED, REGULAR_CANCELLED_MISSION);
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Set<Integer> weeks = new HashSet<>();
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            result = statement.executeQuery();
+            while (result.next())
+                weeks.add(result.getInt(REGULAR_CANCELLED_NUM_WEEK));
+        } finally {
+            closeResultSet(result);
+            closeStatement(statement);
+        }
+        return weeks;
+    }
+
+    /**
+     * Restores a previously cancelled week of a recurring mission.
+     * @param missionId the recurring mission id
+     * @param numWeek the ISO week number (1-53) to restore
+     * @throws SQLException if the database could not be reached
+     */
+    public void uncancelRegularWeek(int missionId, int numWeek) throws SQLException {
+        String query = String.format("DELETE FROM %s WHERE %s = ? AND %s = ?",
+                TABLE_REGULAR_CANCELLED, REGULAR_CANCELLED_MISSION, REGULAR_CANCELLED_NUM_WEEK);
+        PreparedStatement statement = null;
+        try {
+            statement = DatabaseConnector.getInstance().prepareStatement(query);
+            statement.setInt(1, missionId);
+            statement.setInt(2, numWeek);
+            statement.executeUpdate();
+        } finally {
+            closeStatement(statement);
+        }
     }
 }

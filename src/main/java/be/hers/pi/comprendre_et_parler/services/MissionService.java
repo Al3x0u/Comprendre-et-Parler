@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
+import java.time.temporal.WeekFields;
 import java.util.*;
 
 @Service
@@ -134,6 +135,55 @@ public class MissionService {
             // problems collected; transaction rolled back -> nothing created
         }
         return problems;
+    }
+
+    /**
+     * Cancels occurrences of a recurring mission by inserting RegularMissionCancelled rows.
+     * AUJOURDHUI: only the clicked occurrence's week. JUSQUA: from the clicked occurrence to untilDate.
+     * TOUTES: every occurrence of the mission's validity window. Already-cancelled weeks are skipped;
+     * the whole batch is one transaction.
+     * @param missionId the recurring mission id
+     * @param fromDate the clicked occurrence date (yyyy-MM-dd)
+     * @param scope one of "AUJOURDHUI", "JUSQUA", "TOUTES"
+     * @param untilDate the end date (yyyy-MM-dd) for JUSQUA, ignored otherwise
+     * @throws SQLException if the database could not be reached
+     */
+    public void cancelRegularOccurrence(int missionId, String fromDate, String scope, String untilDate)
+            throws SQLException, ConnectionException {
+        Mission mission = getOneMission(missionId);
+        if (!(mission.getTimeSlot() instanceof BaseTimeSlot))
+            throw new IllegalArgumentException("La mission " + missionId + " n'est pas récurrente");
+        BaseTimeSlot slot = (BaseTimeSlot) mission.getTimeSlot();
+
+        // bound the occurrences to cancel as a [from, to] date range, depending on the scope
+        // all scopes start at the clicked occurrence; only the end bound differs
+        LocalDate from = LocalDate.parse(fromDate);
+        LocalDate to;
+        if ("AUJOURDHUI".equals(scope)) {
+            to = from;
+        } else if ("JUSQUA".equals(scope)) {
+            to = LocalDate.parse(untilDate);
+        } else if ("TOUTES".equals(scope)) {
+            to = slot.getEndDate();
+        } else {
+            throw new IllegalArgumentException("Scope inconnu : " + scope);
+        }
+
+        // reuse getDates() (all occurrences of the window) and keep those inside [from, to]
+        Set<Integer> weeks = new HashSet<>();
+        for (LocalDate d : getDates(slot))
+            if (!d.isBefore(from) && !d.isAfter(to))
+                weeks.add(d.get(WeekFields.ISO.weekOfWeekBasedYear()));
+
+        weeks.removeAll(SQLWrap.call(daoMission::getCancelledWeeks, missionId));
+        if (weeks.isEmpty())
+            return;
+
+        SQLWrap.callTransaction(() -> {
+            for (int week : weeks)
+                daoMission.cancelRegularWeek(missionId, week);
+            return null;
+        });
     }
 
 
@@ -483,5 +533,15 @@ public class MissionService {
         }
 
         return new ArrayList<>(SQLWrap.call(daoMission::getByFilter, filter, start, end));
+    }
+
+    /**
+     * Returns the cancelled ISO week numbers of a recurring mission.
+     * @param missionId the recurring mission id
+     * @return the set of cancelled week numbers (1-53), empty if none
+     * @throws SQLException if the database could not be reached
+     */
+    public Set<Integer> getCancelledWeeks(int missionId) throws SQLException {
+        return SQLWrap.call(daoMission::getCancelledWeeks, missionId);
     }
 }

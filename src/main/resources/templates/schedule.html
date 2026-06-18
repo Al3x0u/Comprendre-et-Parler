@@ -261,6 +261,40 @@
     </div>
 </div>
 
+<div class="modal fade" id="cancelOccurrenceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger">Annuler une occurrence récurrente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">À partir de cette occurrence, annuler :</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="occScope" id="occScopeAujourdhui" value="AUJOURDHUI" checked>
+                    <label class="form-check-label" for="occScopeAujourdhui">Cette occurrence seulement</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="occScope" id="occScopeJusqua" value="JUSQUA">
+                    <label class="form-check-label" for="occScopeJusqua">Jusqu'à une date</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="occScope" id="occScopeToutes" value="TOUTES">
+                    <label class="form-check-label" for="occScopeToutes">Toutes les suivantes</label>
+                </div>
+                <div id="occUntilWrapper" class="mt-2 d-none">
+                    <label class="form-label small">Date de fin</label>
+                    <input type="date" id="occUntilDate" class="form-control form-control-sm">
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelOccurrenceBtn">Confirmer l'annulation</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- SIGNALER UN RETARD -->
 <div class="modal fade" id="delayModal" tabindex="-1" aria-labelledby="delayModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

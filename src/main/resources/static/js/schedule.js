@@ -32,6 +32,8 @@ if (userRole === 'MANAGER' || userRole === "INTERPRETER") {
 }
 /** @type {number|null} ID of the currently selected mission */
 let currentMissionId = null;
+let cancelOccMissionId = null;
+let cancelOccDate = null;
 
 /** @type {boolean} Whether this is the first calendar load */
 let firstLoading = true;
@@ -668,12 +670,17 @@ function openEventModal(event, props, currentMissionId) {
         actions.innerHTML = `
             <button type="button" class="btn btn-warning text-white" id="btnDelayReport">Signaler un retard</button>
         `;
+    } else if (userRole === 'MANAGER' && status.includes('récurrente')) {
+        actions.innerHTML = `
+            <button type="button" class="btn btn-danger" id="btnCancelOccurrence">Annuler cette occurrence</button>
+        `;
     }
 
     const cancelBtn = document.getElementById('btnCancelRequest');
     const delayBtn = document.getElementById('btnDelayReport');
     const editRequestBtn = document.getElementById('btnEditRequest');
-
+    const cancelOccBtn = document.getElementById('btnCancelOccurrence');
+     
     if (delayBtn) {
         delayBtn.addEventListener('click', function() {
             bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
@@ -685,6 +692,18 @@ function openEventModal(event, props, currentMissionId) {
         cancelBtn.addEventListener('click', function() {
             bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
             bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmCancelModal')).show();
+        });
+    }
+    
+    if (cancelOccBtn) {
+        cancelOccBtn.addEventListener('click', function() {
+            cancelOccMissionId = currentMissionId;
+            cancelOccDate = event.start.toLocaleDateString('en-CA');   // yyyy-MM-dd, local
+            document.getElementById('occScopeAujourdhui').checked = true;
+            document.getElementById('occUntilDate').value = '';
+            document.getElementById('occUntilWrapper').classList.add('d-none');
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('eventModal')).hide();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('cancelOccurrenceModal')).show();
         });
     }
 
@@ -1134,6 +1153,41 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast("Mission annulée.", 'info');
         } catch (err) {
             showToast("Erreur : " + err.message, 'error');
+        }
+    });
+
+    // show the "until date" field only for the JUSQUA scope
+    document.querySelectorAll('input[name="occScope"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const jusqua = document.getElementById('occScopeJusqua').checked;
+            document.getElementById('occUntilWrapper').classList.toggle('d-none', !jusqua);
+        });
+    });
+
+    document.getElementById('confirmCancelOccurrenceBtn').addEventListener('click', async function() {
+        if (!cancelOccMissionId || !cancelOccDate) return;
+        const scope = document.querySelector('input[name="occScope"]:checked').value;
+        const untilDate = document.getElementById('occUntilDate').value;
+        if (scope === 'JUSQUA' && !untilDate) {
+            showToast('Choisis une date de fin.', 'error');
+            return;
+        }
+        console.log('CANCEL >', { id: cancelOccMissionId, date: cancelOccDate, scope: scope, untilDate: untilDate });
+        try{
+            const res = await fetch('/horaire/missions/' + cancelOccMissionId + '/annuler-occurrence', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ date: cancelOccDate, scope: scope, untilDate: untilDate || null })
+            });
+            if (!res.ok) {
+                showToast("Erreur lors de l'annulation.", 'error');
+                return;
+            }
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('cancelOccurrenceModal')).hide();
+            calendar.refetchEvents();
+            showToast('Occurrence(s) annulée(s).', 'info');
+        } catch (err) {
+            showToast('Erreur : ' + err.message, 'error');
         }
     });
 
