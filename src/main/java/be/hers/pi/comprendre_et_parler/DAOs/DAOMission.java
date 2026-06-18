@@ -1,14 +1,12 @@
 package be.hers.pi.comprendre_et_parler.DAOs;
 
-import be.hers.pi.comprendre_et_parler.exceptions.ConnectionException;
 import be.hers.pi.comprendre_et_parler.models.*;
 import be.hers.pi.comprendre_et_parler.exceptions.AlreadyExistsException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+
+import java.sql.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
 import java.util.HashSet;
 import java.util.Set;
@@ -56,12 +54,19 @@ public class DAOMission extends DAO<Mission> {
             closeResultSet(result);
             closeStatement(statement);
         }
-
-        // Complete Beneficiary objects
-        if (mission != null && mission.getBeneficiary() != null)
-            mission.setBeneficiary(daoBeneficiary.find(mission.getBeneficiary().getId()));
+        completeBeneficiary(mission);
 
         return mission;
+    }
+
+    /**
+     * Complete a mission with the beneficiary from the database
+     * @param mission the mission to complete
+     * @throws SQLException if a database error occurs
+     */
+    private void completeBeneficiary(Mission mission) throws SQLException {
+        if (mission != null && mission.getBeneficiary() != null)
+            mission.setBeneficiary(daoBeneficiary.find(mission.getBeneficiary().getId()));
     }
 
     // Does not update objectToInsert's id when throwing an AlreadyExistException
@@ -225,17 +230,13 @@ public class DAOMission extends DAO<Mission> {
             while (result.next()) {
                 missions.add(getResult(result));
             }
-        }
-        finally {
+        }  finally {
             closeResultSet(result);
             closeStatement(statement);
         }
 
-        // Complete Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiary(mis);
 
         return missions;
     }
@@ -373,12 +374,20 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
 
-        // Add id and name to Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiaryLight(mis);
+
         return missions;
+    }
+
+    /**
+     * Complete a mission with a lightweight version of the beneficiary from the database
+     * @param mission the mission to complete
+     * @throws SQLException if a database error occurs
+     */
+    private void completeBeneficiaryLight(Mission mission) throws SQLException {
+        if (mission != null && mission.getBeneficiary() != null)
+            mission.setBeneficiary(daoBeneficiary.findLight(mission.getBeneficiary().getId()));
     }
 
     /**
@@ -433,17 +442,13 @@ public class DAOMission extends DAO<Mission> {
             while (result.next()) {
                 missions.add(getResult(result));
             }
-        }
-        finally {
+        } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
 
-        // Add id and name to Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.findLight(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiaryLight(mis);
 
         return missions;
     }
@@ -486,8 +491,8 @@ public class DAOMission extends DAO<Mission> {
     public Set<Mission> findByInterpreter(int interpreterId) throws SQLException {
         Set<Mission> missions = new HashSet<>();
 
-        String query = "SELECT m." +FIELD_ID+ " FROM " + TABLE + " m " +
-                "WHERE m." +FIELD_ID+ " IN " +
+        String query = "SELECT m.* FROM " + TABLE + " m " +
+                "WHERE m." + FIELD_ID + " IN " +
                 "(SELECT " + INTERPRETER_MISSION_REF_MISSION + " FROM " + TABLE_INTERPRETER_MISSION +
                 " WHERE " + INTERPRETER_MISSION_REF_INTERPRETER + " = ?)";
 
@@ -498,14 +503,15 @@ public class DAOMission extends DAO<Mission> {
             statement.setInt(1, interpreterId);
             result = statement.executeQuery();
             while (result.next()) {
-                Mission mission = find(result.getInt("id"));
-                if (mission != null)
-                    missions.add(mission);
+                missions.add(getResult(result));
             }
         } finally {
             closeResultSet(result);
             closeStatement(statement);
         }
+
+        for (Mission mis : missions)
+            completeBeneficiary(mis);
 
         return missions;
     }
@@ -594,12 +600,15 @@ public class DAOMission extends DAO<Mission> {
         String query = "SELECT 1 FROM " + TABLE +
                 " JOIN " + DAOPunctualTimeSlot.TABLE+ " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = " + TABLE + "." + FIELD_TIME_SLOT +
                 " WHERE " + FIELD_BENEFICIARY + " = ?" +
-                " AND TRUNC(ts." + DAOPunctualTimeSlot.FIELD_START_TIME + ", 'IW') = TRUNC(SYSDATE, 'IW')";
+                " AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " >= SYSDATE" +
+                " AND " + FIELD_STATE + " = ?";
         PreparedStatement statement = null;
         ResultSet result = null;
         try {
             statement = DatabaseConnector.getInstance().prepareStatement(query);
             statement.setInt(1, beneficiaryId);
+            statement.setInt(2, MissionState.ACCEPTED.getValue());
+
             result = statement.executeQuery();
             return result.next();
         } finally {
@@ -611,18 +620,22 @@ public class DAOMission extends DAO<Mission> {
     /**
      * Returns a list of missions filtered according to the given filter.
      * @param filter the filter to apply, each criterion is optional (null means no filter)
-     * @return a Set of Mission matching the filter
+     * @return a Set of Mission matching the filter, or an empty Set if none was found
      * @throws SQLException if the database could not be reached
      */
-    public Set<Mission> getByFilter(MissionFilter filter) throws SQLException {
-        String query = "SELECT * FROM %s %s %s %s";
-        query = String.format(query, TABLE,
+    public Set<Mission> getByFilter(MissionFilter filter, LocalDateTime start, LocalDateTime end) throws SQLException {
+        String query = "SELECT * FROM " + TABLE + " m JOIN " +
+                DAOPunctualTimeSlot.TABLE + " ts ON ts." + DAOPunctualTimeSlot.FIELD_ID + " = m." + FIELD_TIME_SLOT +
+                " %s %s %s " +
+                "ts." + DAOPunctualTimeSlot.FIELD_START_TIME + " >= ? " +
+                "AND ts." + DAOPunctualTimeSlot.FIELD_END_TIME + " <= ?";
+        query = String.format(query,
                 filter.getInterpreter() != null && filter.getInterpreter().getId() != -1 ?
                         "JOIN " + TABLE_INTERPRETER_MISSION + " i ON m." + FIELD_ID + " = i." + INTERPRETER_MISSION_REF_MISSION
                                 + " WHERE i." + INTERPRETER_MISSION_REF_INTERPRETER + " = ? AND"
                         : "WHERE",
                 filter.getBeneficiary() != null && filter.getBeneficiary().getId() != -1 ? FIELD_BENEFICIARY + " = ? AND" : "",
-                filter.getStateOfMission() != null ? FIELD_STATE + " = ?" : ""
+                filter.getStateOfMission() != null ? FIELD_STATE + " = ? AND" : ""
         );
         PreparedStatement statement = null;
         ResultSet result = null;
@@ -637,7 +650,9 @@ public class DAOMission extends DAO<Mission> {
             if (filter.getStateOfMission() != null)
                 statement.setInt(field++, filter.getStateOfMission().getValue());
             if (filter.getInterpreter() != null)
-                statement.setInt(field, filter.getInterpreter().getId());
+                statement.setInt(field++, filter.getInterpreter().getId());
+            statement.setTimestamp(field++, Timestamp.valueOf(start));
+            statement.setTimestamp(field, Timestamp.valueOf(end));
 
             result = statement.executeQuery();
             while (result.next())
@@ -647,11 +662,8 @@ public class DAOMission extends DAO<Mission> {
             closeStatement(statement);
         }
 
-        // Complete Beneficiary objects
-        for (Mission mis : missions) {
-            if (mis.getBeneficiary() != null)
-                mis.setBeneficiary(daoBeneficiary.find(mis.getBeneficiary().getId()));
-        }
+        for (Mission mis : missions)
+            completeBeneficiary(mis);
 
         return missions;
     }

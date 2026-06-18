@@ -13,8 +13,8 @@ public class ExceptionalUnavailability {
 
     /**
      * Constructor of a ExceptionalUnavailability
-     * @param reason represent the reason
-     * @param timeSlot represent the timeSlot
+     * @param reason represents the reason
+     * @param timeSlot represents the timeSlot
      */
     public ExceptionalUnavailability(String reason, PunctualTimeSlot timeSlot) {
         this.reason = reason;
@@ -37,7 +37,7 @@ public class ExceptionalUnavailability {
     }
 
     /**
-     * @param reason represent the new reason
+     * @param reason represents the new reason
      */
     public void setReason(String reason) {
         this.reason = reason;
@@ -51,7 +51,7 @@ public class ExceptionalUnavailability {
     }
 
     /**
-     * @param timeSlot represent the new timeSlot
+     * @param timeSlot represents the new timeSlot
      */
     public void setTimeSlot(PunctualTimeSlot timeSlot) {
         this.timeSlot = timeSlot;

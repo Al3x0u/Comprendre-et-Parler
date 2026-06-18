@@ -33,8 +33,11 @@
                            data-bs-toggle="modal" data-bs-target="#modalDemote">
                             <i class="bi bi-arrow-down-circle me-2"></i>Rétrograder
                         </a>
-                        <a th:if="${isManager and interprete.id != session.user.id}" class="btn btn-light btn-lg text-danger fw-semibold mb-1"
-                           data-bs-toggle="modal" data-bs-target="#modalDisable">
+                        <a th:if="${isManager and interprete.id != session.user.id}"
+                           class="btn btn-light btn-lg text-danger fw-semibold mb-1"
+                           data-bs-toggle="modal"
+                           data-bs-target="#modalDisable"
+                           th:attr="data-id=${interprete.id}, data-name=${interprete.firstName + ' ' + interprete.lastName}">
                             <i class="bi bi-power me-2"></i>Désactiver
                         </a>
                     </div>
@@ -493,7 +496,7 @@
     <div th:replace="~{common/modals :: modal-delete('/interpretes/profil/indisponibilites', 'Supprimer une indisponibilité', 'indisponibilité')}"></div>
 
     <!-- Modal Disable -->
-    <div th:replace="~{common/modals :: modal-disable(${interprete}, @{/interpretes/profil/{id}/desactiver(id=${interprete.id})})}"></div>
+    <div th:replace="~{common/modals :: modal-disable('/interpretes')}"></div>
 
     <!-- Modal Error Disable -->
     <div th:if="${error == 'disable'}">

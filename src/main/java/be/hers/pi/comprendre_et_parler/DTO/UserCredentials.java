@@ -7,6 +7,13 @@ public class UserCredentials {
     private final String loginUrl = "/login";
     private final String email;
 
+    /**
+     * Constructor of a UserCredentials
+     * @param firstName represent the firstname
+     * @param login represent the login
+     * @param password represent the password
+     * @param email represent the email
+     */
     public UserCredentials(String firstName, String login, String password, String email) {
         this.firstName = firstName;
         this.login = login;
@@ -14,9 +21,38 @@ public class UserCredentials {
         this.email = email;
     }
 
-    public String getFirstName() { return firstName; }
-    public String getLogin() { return login; }
-    public String getPassword() { return password; }
-    public String getLoginUrl() { return loginUrl; }
-    public String getEmail() { return email;}
+    /**
+     * @return this.firstName
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
+     * @return this.login
+     */
+    public String getLogin() {
+        return login;
+    }
+
+    /**
+     * @return this.password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @return this.loginUrl
+     */
+    public String getLoginUrl() {
+        return loginUrl;
+    }
+
+    /**
+     * @return this.email
+     */
+    public String getEmail() {
+        return email;
+    }
 }

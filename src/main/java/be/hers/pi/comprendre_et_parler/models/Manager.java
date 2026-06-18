@@ -8,21 +8,21 @@ public class Manager extends Interpreter {
     /**
      * Constructor of a Manager,
      * beneficiaries and missions are initialized with null
-     * @param id represent the id
-     * @param login represent the login
-     * @param firstName represent the firstname
-     * @param lastName represent the lastname
-     * @param birthDate represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email represent the email
-     * @param phoneNumber represent the phone number
-     * @param hourQuotaWeek represent the hour quota per week
-     * @param hourQuotaYear represent the hour quota per year
-     * @param transportMode represent the transport mode
-     * @param academicSkills represent the set of academic skills
-     * @param jobSkills represent the set of job skills
-     * @param location represent the location
-     * @param availability represent the set of availabilities
+     * @param id represents the id
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents the lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber represents the phone number
+     * @param hourQuotaWeek represents the hour quota per week
+     * @param hourQuotaYear represents the hour quota per year
+     * @param transportMode represents the transport mode
+     * @param academicSkills represents the set of academic skills
+     * @param jobSkills represents the set of job skills
+     * @param location represents the location
+     * @param availability represents the set of availabilities
      */
     public Manager(int id, String login, String firstName, String lastName,
                    LocalDate birthDate, String hashedPassword, String email,
@@ -37,20 +37,20 @@ public class Manager extends Interpreter {
     /**
      * Constructor of a Manager without id,
      * beneficiaries and missions are initialized with null
-     * @param login represent the login
-     * @param firstName represent the firstname
-     * @param lastName represent the lastname
-     * @param birthDate represent the birthdate
-     * @param hashedPassword represent the hashed password
-     * @param email represent the email
-     * @param phoneNumber  represent the phone number
-     * @param hourQuotaWeek represent the hour quota per week
-     * @param hourQuotaYear represent the hour quota per year
-     * @param transportMode represent the transport mode
-     * @param academicSkills represent the set of academic skills
-     * @param jobSkills represent the set of job skills
-     * @param location represent the location
-     * @param availability represent the set of availabilities
+     * @param login represents the login
+     * @param firstName represents the firstname
+     * @param lastName represents the lastname
+     * @param birthDate represents the birthdate
+     * @param hashedPassword represents the hashed password
+     * @param email represents the email
+     * @param phoneNumber  represents the phone number
+     * @param hourQuotaWeek represents the hour quota per week
+     * @param hourQuotaYear represents the hour quota per year
+     * @param transportMode represents the transport mode
+     * @param academicSkills represents the set of academic skills
+     * @param jobSkills represents the set of job skills
+     * @param location represents the location
+     * @param availability represents the set of availabilities
      */
     public Manager(String login, String firstName, String lastName,
                    LocalDate birthDate, String hashedPassword, String email,

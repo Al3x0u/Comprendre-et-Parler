@@ -26,8 +26,11 @@
                        class="btn btn-light btn-lg text-primary fw-semibold mb-1 me-2">
                         <i class="bi bi-pencil-fill me-2"></i>Modifier le profil
                     </a>
-                    <a th:if="${isManager and beneficiaire.id != session.user.id}" class="btn btn-light btn-lg text-danger fw-semibold mb-1"
-                       data-bs-toggle="modal" data-bs-target="#modalDisable">
+                    <a th:if="${isManager and beneficiaire.id != session.user.id}"
+                       class="btn btn-light btn-lg text-danger fw-semibold mb-1"
+                       data-bs-toggle="modal"
+                       data-bs-target="#modalDisable"
+                       th:attr="data-id=${beneficiaire.id}, data-name=${beneficiaire.firstName + ' ' + beneficiaire.lastName}">
                         <i class="bi bi-power me-2"></i>Désactiver
                     </a>
                 </div>
@@ -170,7 +173,7 @@
     </div>
 
     <!-- Modal Disable -->
-    <div th:replace="~{common/modals :: modal-disable(${beneficiaire}, @{/beneficiaires/profil/{id}/desactiver(id=${beneficiaire.id})})}"></div>
+    <div th:replace="~{common/modals :: modal-disable('/beneficiaires')}"></div>
 
     <!-- Modal Error Disable -->
     <div th:if="${error == 'disable'}">
